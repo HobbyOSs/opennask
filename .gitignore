@@ -8,6 +8,7 @@ Makefile
 Makefile.in
 
 # http://www.gnu.org/software/autoconf
+*.dirstamp
 
 */autom4te.cache/*
 */autoscan.log
@@ -43,7 +44,7 @@ Makefile.in
 /ltmain.sh
 /m4
 
-*/.deps/*
+*.deps/
 
 ### C++ ###
 # Compiled Object files

@@ -3,7 +3,8 @@
 # Last updated by Enomoto Sanshiro on 8 September 1999.
 # Modified by Hiroyuki Nagata on 11 May 2016
 
-#SUBDIRS = samples
+AUTOMAKE_OPTIONS 	= foreign subdir-objects
+
 noinst_LIBRARIES	= libparasol.a
 libparasol_a_SOURCES	= ParaDefs.cc             \
                           ParaTokenTable.cc	  \
@@ -22,3 +23,17 @@ libparasol_a_SOURCES	= ParaDefs.cc             \
                           ParaStandardLibrary.cc  \
                           ParaContainerLibrary.cc \
                           ParaMathLibrary.cc
+# samples
+bin_PROGRAMS = samples/statementsample samples/expressionsample samples/tokenizersample
+
+#yaci_LIBS		= $(top_builddir)/parasol/libparasol.a
+#solve_LIBS		= $(top_builddir)/parasol/libparasol.a
+
+samples_statementsample_SOURCES  = samples/statementsample.cc
+samples_statementsample_LDFLAGS  = -L. -lparasol
+
+samples_expressionsample_SOURCES = samples/expressionsample.cc
+samples_expressionsample_LDFLAGS = -L. -lparasol
+
+samples_tokenizersample_SOURCES  = samples/tokenizersample.cc
+samples_tokenizersample_LDFLAGS  = -L. -lparasol

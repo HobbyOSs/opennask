@@ -6,3 +6,8 @@ changeLog: configure.ac
 	git log --stat --name-only --date=short --abbrev-commit >> ChangeLog
 
 SUBDIRS = parasol
+
+bin_PROGRAMS	  = opennask
+opennask_SOURCES  = main.cpp
+opennask_LIBS	  = $(top_builddir)/parasol/libparasol.a
+opennask_CXXFLAGS = -I$(top_builddir)/parasol
