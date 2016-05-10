@@ -1,0 +1,66 @@
+// array.yaci
+// Created by Enomoto Sanshiro on 13 March 2002.
+
+
+/********************/
+/* array generation */
+/********************/
+
+int a[3];
+float b[3](3.14);
+string colors[] = { "red", "green", "blue" };
+
+pointer array = new string[3]("hello");
+//string* array = new string[3]("hello"); // an alternative to declare pointers
+
+println("type of 'array' is " + typeof(array));
+println("type of '*array' is " + typeof(*array));
+println("type of 'array[0]' is " + typeof(array[0]));
+
+
+/************************/
+/* array element access */
+/************************/
+
+for (int i = 0; i < sizeof(colors); i++) {
+    print(colors[i] + " ");
+}
+println();
+
+for (int i = 0; i < sizeof(array); i++) {
+    print(array[i] + " ");
+}
+println();
+
+array[0] = "hello";
+array[1] = "parasol";
+array[2] = "world";
+
+//array[3] = "oops!";  // this line should make an error
+
+for (int i = 0; i < sizeof(array); i++) {
+    print(array[i] + " ");
+}
+println();
+
+
+/*********************/
+/* array and pointer */
+/*********************/
+
+*array = "welcome to";
+*(array + 1) = "the " + array[1];
+
+//*(array + 3) = "oops!";  // this line causes segmentation fault. don't do it.
+
+for (int i = 0; i < sizeof(array); i++) {
+    print(array[i] + " ");
+}
+println();
+
+
+/*******************/
+/* releasing array */
+/*******************/
+
+delete[] array;

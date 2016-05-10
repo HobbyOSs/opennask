@@ -1,0 +1,27 @@
+#! ./yaci
+// line-number.yaci
+// Created by Enomoto Sanshiro on 27 March 2002.
+
+
+int main()
+{
+    if (numberOfArguments() < 2){
+        println("usage: ./line-number.yaci file_name");
+        return -1;
+    }
+
+    string file_name = getArgumentOf(1);
+    InputFile file(file_name);
+
+    int line_number = 0;
+    string line;
+    while (line = file.getLine()) {
+        line_number++;
+        print(line_number + ": ");
+        for (int i = 0; i < sizeof(line); i++) {
+            print(line[i]);
+        }
+    }
+
+    return 0;
+}

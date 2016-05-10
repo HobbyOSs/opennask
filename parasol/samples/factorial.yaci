@@ -1,0 +1,27 @@
+// factorial.yaci
+// Created by Enomoto Sanshiro on 4 September 1999.
+
+
+int start_index = 2;
+int stop_index = 3 * start_index + 1;
+
+
+int factorial(int n)
+{
+    if (n == 0) {
+        return 1;
+    }
+    else {
+        return n * factorial(n - 1);
+    }
+}
+
+void main()
+{
+    int number_of_terms(stop_index - start_index + 1);    
+
+    for (int i = 0; i < number_of_terms; i++) { 
+	int index = start_index + i;
+	println(index + "! = " + factorial(index));
+    }
+}

@@ -1,0 +1,10 @@
+// listmath.yaci
+// Created by Enomoto Sanshiro on 11 March 2002.
+
+
+float pi = 4*atan(1.0);
+
+list x = [0, 2*pi, pi/8];
+list y = sin(2 * x) + 1;
+
+println(y);

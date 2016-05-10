@@ -1,0 +1,19 @@
+
+                    Parasol 0.5.2 README
+                    --------------------
+
+                                              November 1 2005
+                                              Enomoto Sanshiro
+
+
+    Parasol Version 0.5.1
+    Extensible Script Parsing Engine
+    Copyright (C) 2000-2005 by Enomoto Sanshiro
+
+
+ライセンス条項
+-------------
+このソフトウェアはフリーソフトウェアです．COPYING-LGPL2.1 ファイルに記載
+されている LGPL-2.1 ライセンスまたは COPYING-ModifiedBSD ファイルに
+記載されている Modified-BSD ライセンスに基づいた利用・改変・再配布は自由
+です．どちらか一方のライセンスを選び，適用してください．

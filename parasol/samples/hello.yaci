@@ -1,0 +1,5 @@
+// hello.yaci
+// Created by Enomoto Sanshiro on 27 March 2002.
+
+/* say hello to the world */
+print("Hello, world.\n");

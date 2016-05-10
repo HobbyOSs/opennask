@@ -1,0 +1,79 @@
+// list.yaci
+// Created by Enomoto Sanshiro on 11 March 2002.
+
+
+/*****************/
+/* list creation */
+/*****************/
+
+Formatter f;
+list li = {"hello world", 123, 4*atan(1.0), &f, f};
+println(li);
+
+list x = [0, 10];
+println(x);
+
+list y = [10, -10, -2];
+println(y);
+
+
+
+/*************************************************/
+/* element access operator and sizeof() operator */
+/*************************************************/
+
+list point;
+point[0] = { "x", 3 };
+point[1] = { "y", 4 };
+point[2] = { "z", 5 };
+for (int i = 0; i < sizeof(point); i++) {
+    println(point[i][0] + ": " + point[i][1]);
+}
+
+
+
+/***********************/
+/* partial list access */
+/***********************/
+
+println(x[2, 5]);
+println(x[5, 2]);
+
+
+
+/****************/
+/* foreach loop */
+/****************/
+
+foreach ($color; {"red", "green", "blue"}) {
+    println($color);
+}
+
+
+
+/**********************/
+/* list concatenation */
+/**********************/
+
+println([0, 5] <+> [5, 10]);
+println({[0, 5]} <+> {[5, 10]});
+println([0, 5] <+> 10);
+
+list a = { exp(0), exp(1) };
+a <+>= { exp(2), exp(3) };
+a <+>= exp(4);
+println(a);
+
+
+
+/***********************************************/
+/* set operations (intersection and inclusion) */
+/***********************************************/
+
+list prime_numbers = {1, 2, 3, 5, 7, 11, 13, 17, 19};
+println("prime numbers less than 10 are ", prime_numbers <&> [0, 10]);
+for (int i = 0; i < 10; i++) {
+    if (i <&> prime_numbers) {
+        println(i + " is a prime number");
+    }
+}

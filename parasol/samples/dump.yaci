@@ -1,0 +1,34 @@
+// dump.yaci
+// Created by Enomoto Sanshiro on 29 August 2000.
+
+
+
+int main()
+{
+    Formatter f;
+    int Byte;
+    int Address = 0;
+
+    while ((Byte = getByte()) >= 0) {
+	if (Address % 16 == 0) {
+	    f.setBase(16).setWidth(4).setFill(0).put(Address >> 16);
+	    f.put(" ");
+	    f.setBase(16).setWidth(4).setFill(0).put(Address & 0xffff);
+	    f.put(": ");
+	    print(f.flush());
+	}
+	else if (Address % 8 == 0) {
+	    print(" ");
+	}
+
+	print(f.setBase(16).setWidth(2).setFill(0).put(Byte).put(" ").flush());
+
+	++Address;
+	if (Address % 16 == 0) {
+	    print("\n");
+	}
+    }
+    print("\n");
+
+    return 0;
+}

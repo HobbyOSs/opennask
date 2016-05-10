@@ -1,0 +1,21 @@
+// matherror.yaci
+// Created by Enomoto Sanshiro on 28 August 2000.
+
+
+float pi = 4 * atan(1.0);
+
+int main()
+{
+    for (float x = 0; x <= 4 * pi; x += pi / 4) {
+	print("sqrt(1 / sin(" + x + ")) = ");
+	try {
+	    float y = sqrt(1 / sin(x));
+	    println(y);
+	}
+	catch {
+	    println("UNDEFINED");
+	}
+    }
+
+    return 0;
+}

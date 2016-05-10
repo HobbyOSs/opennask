@@ -1,0 +1,46 @@
+// variant.yaci
+// Created by Enomoto Sanshiro on 13 March 2002.
+
+
+/**************************/
+/* basic variant examples */
+/**************************/
+
+variant a;
+
+a = 123;
+a += 456;
+println(typeof(a) + ": " + a);  // the result should be "int: 579"
+
+a = "123";
+a += 456;
+println(typeof(a) + ": " + a);  // the result should be "string: 123456"
+
+
+
+/*************************/
+/* '$' operator examples */
+/*************************/
+
+$expression = "";
+for ($x = 0; $x < 10; $x++) {
+    $sum += $x;
+    $expression += "+" + $x + " ";
+}
+println($expression + "= " +  $sum);
+
+
+
+/***************************/
+/* '${}' operator examples */
+/***************************/
+
+for ($i = 0; $i < 3; $i++) {
+    string name = "exp" + $i;
+    ${name} = exp($i);
+}
+
+for ($j = 0; $j < 3; $j++) {
+    $name = "exp" + $j;
+    println($name + " = " + ${$name});
+}
