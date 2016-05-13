@@ -5,10 +5,31 @@
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
+#include "nask_utility.hpp"
 
 int main(int argc, char** argv)
 {
-/* 各文法要素テーブルの生成 */
+
+     if (argc < 2 || argc > 4) {
+	  std::cerr << "usage : >opennask source [object/binary] [list]" << std::endl;
+	  return 16;
+     }
+
+     const size_t len = nask_utility::filesize(argv[1]);
+     if (len == -1) {
+	  std::cerr << "NASK : can't open " << argv[1] << std::endl;
+	  return 17;
+     }
+
+     // open .nas file
+     std::ifstream nas_file;
+     nas_file.open(argv[1]);
+     if ( nas_file.bad() || nas_file.fail() ) {
+	  std::cerr << "NASK : can't read " << argv[1] << std::endl;
+	  return 17;
+     }
+
+     // 各文法要素テーブルの生成
      TParaCxxTokenTable TokenTable;
      TParaCxxOperatorTable OperatorTable;
      TParaObjectPrototypeTable ObjectPrototypeTable;
@@ -26,15 +47,15 @@ int main(int argc, char** argv)
      TokenTable.AddOperator("**");
 
      /* シンボルテーブルに定義済み変数 pi (円周率), e (自然対数の底), x を追加 */
-     SymbolTable.RegisterVariable("pi", TParaValue(3.141592));
-     SymbolTable.RegisterVariable("e", TParaValue(2.718281828));
-     SymbolTable.RegisterVariable("x", TParaValue((double) 0));
+     // SymbolTable.RegisterVariable("pi", TParaValue(3.141592));
+     // SymbolTable.RegisterVariable("e", TParaValue(2.718281828));
+     // SymbolTable.RegisterVariable("x", TParaValue((double) 0));
 
      /* 以下，入力の読み込みと解析，評価のループ */
-     std::string Input;
-     while (std::cout << "> ", getline(std::cin, Input, '\n')) {
+     std::string input;
+     while (nas_file && std::getline(nas_file, input)) {
 	  /* 入力行を istream にしてトークナイザを生成 */
-	  std::istrstream InputStream(Input.c_str());
+	  std::istrstream InputStream(input.c_str());
 	  TParaTokenizer Tokenizer(InputStream, &TokenTable);
 
 	  TParaExpression* Expression = 0;
