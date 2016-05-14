@@ -1,4 +1,7 @@
 #include <cstdint>
+#include <array>
+#include <sstream>
+#include <iomanip>
 
 constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */
 constexpr uint8_t SUP_80186	= 0x000000fe; /* bit 1 */
@@ -65,23 +68,39 @@ static constexpr uint32_t MAX_SECTIONS = 8;
 static constexpr uint32_t E_LABEL0     = 16;
 static constexpr int nask_L_LABEL0     = 16384; /* externラベルは16300個程度使える */
 static constexpr uint32_t MAX_LISTLEN  = 32;
+static constexpr uint32_t MAX_SUPPORTED_OPECODE = 321;
+
+template <class T, size_t dim>
+static void append_buf(std::array<T, dim>& arr, std::stringstream& buf) {
+     for (int i = 0; i < dim; i++) {
+	  buf << "0x";
+	  buf << std::setfill('0') << std::setw(2) << std::hex;
+	  buf << static_cast<uint32_t>(arr[i]);
+	  if (i+1 != dim) { buf << ',' << ' '; }
+     }
+}
+
+template <class T, size_t dim>
+static void append_buf_pretty(const char* name, std::array<T, dim>& arr, std::stringstream& buf) {
+     buf << name << ": [ ";
+     append_buf(arr, buf);
+     buf << " ]" << std::endl;
+}
 
 struct INST_TABLE {
-     std::array<uint8_t, OPCLENMAX> opecode;
+     std::string opecode;
      uint32_t support;
      std::array<uint8_t, 8> param;
-#ifdef DEBUG // debug-code
      std::string to_string() {
 	  std::stringstream buf;
-	  append_buf_pretty("opecode", opecode, buf);
+	  //append_buf_pretty("opecode", opecode, buf);
 	  buf << "support: " << support << std::endl;
 	  append_buf_pretty("param", param, buf);
 	  return buf.str();
      }
-#endif
 };
 
-static struct INST_TABLE instruction[] = {
+static std::array<INST_TABLE, MAX_SUPPORTED_OPECODE> instruction = {{
      { "AAA",		SUP_8086,	NO_PARAM, 1, 0x37 },
      { "AAD",		SUP_8086,	OPE_AAMD, 0xd5, 10 },
      { "AAS",		SUP_8086,	NO_PARAM, 1, 0x3f },
@@ -405,4 +424,4 @@ static struct INST_TABLE instruction[] = {
      { "XLATB",		SUP_8086,	NO_PARAM, 1 | DEF_DS, 0xd7 },
      { "XOR",		SUP_8086,	OPE_ADD, 0x87, 0x11, 0x06 << 3 },
      { "", 0, 0 }
-};
+}};

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <strstream>
+#include <algorithm>
+#include <fstream>
 #include "ParaTokenizer.hh"
 #include "ParaOperator.hh"
 #include "ParaExpression.hh"
@@ -22,11 +24,19 @@ int main(int argc, char** argv)
 	  return 17;
      }
 
-     // open .nas file
+     /* 入力するアセンブラ情報 */
      std::ifstream nas_file;
      nas_file.open(argv[1]);
      if ( nas_file.bad() || nas_file.fail() ) {
 	  std::cerr << "NASK : can't read " << argv[1] << std::endl;
+	  return 17;
+     }
+
+     /* 出力するバイナリ情報 */
+     std::vector<uint8_t> binout_container;
+     std::ofstream binout(argv[2], std::ios::out | std::ios::trunc | std::ios::binary);
+     if ( binout.bad() || binout.fail() ) {
+	  std::cerr << "NASK : can't open " << argv[2] << std::endl;
 	  return 17;
      }
 
@@ -66,15 +76,49 @@ int main(int argc, char** argv)
 	       std::cout << "eval: " << token.AsString() << std::endl;
 
 	       if (token.Is(";") || token.Is("#")) {
-		    std::cout << "it's comments" << std::endl;
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
 	       } else {
-		    std::cout << "opecode or imm" << std::endl;
+		    auto itr = std::find_if(std::begin(instruction),
+					    std::end(instruction),
+					    [&token] (const INST_TABLE& inst) -> bool {
+						 return inst.opecode == token.AsString();
+					    });
+
+		    if( itr != instruction.end() ) {
+			 std::cout << "opecode !" << std::endl;
+
+			 // 簡単なDB命令の実装
+			 if (token.AsString() == "DB") {
+			      std::cout << "eval DB" << std::endl;
+			      try {
+				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
+					if (token.Is(";") || token.Is("#")) {
+					     break;
+					} else if (token.Is(",")) {
+					     continue;
+					} else {
+					     binout_container.push_back(token.AsLong());
+					}
+				   }
+			      } catch (TScriptException te) {
+				   std::cerr << te << std::endl;
+			      }
+			      std::cout << "eval DB end" << std::endl;
+			 }
+		    } else {
+			 std::cout << "params !" << std::endl;
+		    }
 	       }
 	  }
      }
+
+     // output binaries
+     for(std::vector<uint8_t>::const_iterator i = binout_container.begin(); i != binout_container.end(); ++i) {
+	  binout << *i;
+     }
+     binout.close();
 
      std::cout << std::endl;
 
