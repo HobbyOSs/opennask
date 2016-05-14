@@ -27,5 +27,4 @@ fi
 
 ###### Output ######
 
-AC_OUTPUT([Makefile
-	   samples/Makefile])
+AC_OUTPUT([Makefile])

@@ -18,6 +18,31 @@ PKG_PROG_PKG_CONFIG
 AC_LIBTOOL_WIN32_DLL
 LT_INIT
 
+# Compiler vendor check
+AX_COMPILER_VENDOR
+# Use C++11
+AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
+# Some compile flags
+AX_CHECK_COMPILE_FLAG([-Wno-parentheses],[CXXFLAGS="$CXXFLAGS -Wno-parentheses"])
+
+# Checks for HostOS
+case "$host" in
+        *-*-mingw*|*-*-cygwin*|*-*-msys*)
+                ;;
+        *-*-linux*)
+                ;;
+        *-*-darwin*)
+		if test "${ax_cv_c_compiler_vendor}x" = "clangx"; then
+		   CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+		fi
+                ;;
+        *-*-*bsd*)
+                ;;
+        *)
+                AC_MSG_WARN([*** Please add $host to configure.ac checks!])
+                ;;
+esac
+
 # Checks for libraries.
 
 # Checks for header files.

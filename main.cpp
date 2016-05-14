@@ -6,6 +6,7 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
+#include "nask_defs.hpp"
 
 int main(int argc, char** argv)
 {
