@@ -101,6 +101,18 @@ int main(int argc, char** argv)
 					     break;
 					} else if (token.Is(",")) {
 					     continue;
+					} else if (token.IsQuote()) {
+					     std::string str = token.AsString();
+					     if (str.front() == '"' && str.back() == '"') {
+						  str.erase( 0, 1 );
+						  str.erase( str.size() - 1 );
+						  for ( uint8_t b : str ) {
+						       binout_container.push_back(b);
+						  }
+					     } else {
+						  std::cerr << "NASK : DB not quoted correctly' " << std::endl;
+						  return 17;
+					     }
 					} else {
 					     binout_container.push_back(token.AsLong());
 					}
