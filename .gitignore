@@ -4,8 +4,17 @@
 ### Autotools ###
 # http://www.gnu.org/software/automake
 
+opennask
+expressionsample
+statementsample
+tokenizersample
+
 Makefile
 Makefile.in
+*.img
+*.log
+*.trs
+test-driver
 
 # http://www.gnu.org/software/autoconf
 *.dirstamp

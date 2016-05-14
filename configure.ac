@@ -51,6 +51,7 @@ esac
 
 # Checks for library functions.
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+		 data/Makefile])
 AC_CONFIG_SUBDIRS([parasol])
 AC_OUTPUT
