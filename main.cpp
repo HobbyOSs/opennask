@@ -89,8 +89,11 @@ int main(int argc, char** argv)
 		    if( itr != instruction.end() ) {
 			 std::cout << "opecode !" << std::endl;
 
-			 // 簡単なDB命令の実装
+			 //
+			 // オペコードの実装
+			 //
 			 if (token.AsString() == "DB") {
+			      // 簡単なDB命令の実装
 			      std::cout << "eval DB" << std::endl;
 			      try {
 				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
@@ -106,7 +109,27 @@ int main(int argc, char** argv)
 				   std::cerr << te << std::endl;
 			      }
 			      std::cout << "eval DB end" << std::endl;
+			 } else if (token.AsString() == "RESB") {
+			      // 簡単なRESB命令の実装
+			      std::cout << "eval RESB" << std::endl;
+			      try {
+				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
+					if (token.Is(";") || token.Is("#")) {
+					     break;
+					} else if (token.Is(",")) {
+					     continue;
+					} else {
+					     for (ulong l = 0; l < token.AsLong(); l++) {
+						  binout_container.push_back(0x00);
+					     }
+					}
+				   }
+			      } catch (TScriptException te) {
+				   std::cerr << te << std::endl;
+			      }
+			      std::cout << "eval RESB end" << std::endl;
 			 }
+
 		    } else {
 			 std::cout << "params !" << std::endl;
 		    }
