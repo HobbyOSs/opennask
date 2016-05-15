@@ -8,7 +8,6 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
-#include "nask_defs.hpp"
 
 int process_each_assembly_line(char** argv,
 			       std::ifstream& nas_file,
@@ -80,6 +79,15 @@ int process_each_assembly_line(char** argv,
 				   std::cerr << te << std::endl;
 			      }
 			      std::cout << "eval JMP end" << std::endl;
+
+			 } else if (token.AsString() == "MOV") {
+			      std::cout << "eval MOV" << std::endl;
+			      try {
+				   nask_utility::process_token_MOV(tokenizer, binout_container);
+			      } catch (TScriptException te) {
+				   std::cerr << te << std::endl;
+			      }
+			      std::cout << "eval MOV end" << std::endl;
 
 			 } else if (token.AsString() == "DB") {
 			      std::cout << "eval DB" << std::endl;

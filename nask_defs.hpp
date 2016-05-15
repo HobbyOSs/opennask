@@ -3,6 +3,10 @@
 #include <sstream>
 #include <iomanip>
 
+const std::array<std::string, 12> REGISTERS {
+     "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX"
+};
+
 constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */
 constexpr uint8_t SUP_80186	= 0x000000fe; /* bit 1 */
 constexpr uint8_t SUP_80286	= 0x000000fc; /* bit 2 */

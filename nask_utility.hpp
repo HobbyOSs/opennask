@@ -1,10 +1,12 @@
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "ParaTokenizer.hh"
 #include "ParaOperator.hh"
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
+#include "nask_defs.hpp"
 
 namespace nask_utility {
 
@@ -49,6 +51,46 @@ namespace nask_utility {
 	  return token.AsString() == "\n";
      }
 
+     bool is_register(TParaCxxTokenTable& token_table, TParaToken& token) {
+	  // レジスタ一覧から検索してあれば true
+	  auto it = std::find_if(std::begin(REGISTERS), std::end(REGISTERS),
+				 [&](const std::string& s)
+				 { return token.AsString().find(s) != std::string::npos; });
+
+	  return it != std::end(REGISTERS);
+     }
+
+     uint16_t get_nimonic_with_register(const std::string& reg) {
+	  if (reg == "AL") {
+	       return 0xb0;
+	  } else if (reg == "BL") {
+	       return 0xb3;
+	  } else if (reg == "CL") {
+	       return 0xb1;
+	  } else if (reg == "DL") {
+	       return 0xb2;
+	  } else if (reg == "EAX") {
+	       return 0xb8;
+	  } else if (reg == "EBX") {
+	       return 0xbb;
+	  } else if (reg == "ECX") {
+	       return 0xb9;
+	  } else if (reg == "EDX") {
+	       return 0xba;
+	  } else if (reg == "AX") {
+	       return 0x66b8;
+	  } else if (reg == "BX") {
+	       return 0x66bb;
+	  } else if (reg == "CX") {
+	       return 0x66b9;
+	  } else if (reg == "DX") {
+	       return 0x66ba;
+	  } else {
+	       // エラー
+	       return 0x00;
+	  }
+     }
+
      // uint16_tで数値を読み取った後、uint8_t型にデータを分けて
      // リトルエンディアンで格納する
      void set_word_into_binout(const uint16_t& word, std::vector<uint8_t>& binout_container) {
@@ -63,7 +105,6 @@ namespace nask_utility {
 	       // push_back as little_endian
 	       binout_container.push_back(second_byte);
 	       binout_container.push_back(first_byte);
-
 	  }
      }
 
@@ -85,6 +126,53 @@ namespace nask_utility {
 	       // push_back as little_endian
 	       for (uint8_t byte : bytes) {
 		    binout_container.push_back(byte);
+	       }
+	  }
+     }
+
+     // MOV命令
+     // http://www5c.biglobe.ne.jp/~ecb/assembler/2_1.html
+     // MOV DEST, SRC
+     //     動作：DEST←SRC
+     //     DEST：レジスタ、メモリー
+     //     SRC ：レジスタ、メモリー、即値（ただしメモリー、メモリーの組み合わせは除く）
+     int process_token_MOV(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+
+	  // See: http://d.hatena.ne.jp/yz2cm/20130601/1370078834
+	  // インテル記法じゃないので逆なのに注意
+	  //
+          // b0 [imm8]		mov [imm8],%al
+          // b3 [imm8]		mov [imm8],%bl
+          // b1 [imm8]		mov [imm8],%cl
+          // b2 [imm8]		mov [imm8],%dl
+          // b8 [imm32]		mov [imm32],%eax
+          // bb [imm32]		mov [imm32],%ebx
+          // b9 [imm32]		mov [imm32],%ecx
+          // ba [imm32]		mov [imm32],%edx
+          // 66 b8 [imm16]	mov [imm16],%ax
+          // 66 bb [imm16]	mov [imm16],%bx
+          // 66 b9 [imm16]	mov [imm16],%cx
+          // 66 ba [imm16]	mov [imm16],%dx
+	  //
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is(",")) {
+		    continue;
+	       } else if (is_register(token_table, token)) {
+		    const uint16_t nim = get_nimonic_with_register(token.AsString());
+		    if (nim > 0x6600) {
+			 const uint8_t first_byte  = nim & 0xff;
+			 const uint8_t second_byte = (nim >> 8);
+			 binout_container.push_back(first_byte);
+			 binout_container.push_back(second_byte);
+		    } else {
+			 const uint8_t first_byte  = nim & 0xff;
+			 const uint8_t second_byte = (nim >> 8);
+			 binout_container.push_back(first_byte);
+		    }
+	       } else {
+		    binout_container.push_back(token.AsLong());
 	       }
 	  }
      }
