@@ -109,6 +109,15 @@ int main(int argc, char** argv) {
 			      }
 			      std::cout << "eval DW end" << std::endl;
 
+			 } else if (token.AsString() == "DD") {
+			      std::cout << "eval DD" << std::endl;
+			      try {
+				   nask_utility::process_token_DD(tokenizer, binout_container);
+			      } catch (TScriptException te) {
+				   std::cerr << te << std::endl;
+			      }
+			      std::cout << "eval DD end" << std::endl;
+
 			 } else if (token.AsString() == "RESB") {
 			      std::cout << "eval RESB" << std::endl;
 			      try {
