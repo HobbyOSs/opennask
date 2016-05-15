@@ -137,14 +137,14 @@ static std::array<INST_TABLE, MAX_SUPPORTED_OPECODE> instruction = {{
      { "CWDE",		SUP_i386,	NO_PARAM, 1 | OPE32, 0x98 },
      { "DAA",		SUP_8086,	NO_PARAM, 1, 0x27 },
      { "DAS",		SUP_8086,	NO_PARAM, 1, 0x2f },
-     { "DB",		SUP_8086,	OPE_DB, 1, 0x9e },
-     { "DD",		SUP_8086,	OPE_DB,	4, 0x9d },
+     { "DB",		SUP_8086,	OPE_DB, 1, 0x9e }, /* DB - Define Byte. 8 bits */
+     { "DD",		SUP_8086,	OPE_DB,	4, 0x9d }, /* Define double word. Generally 4 bytes on a typical x86 32-bit system */
      { "DEC",		SUP_8086,	OPE_PUSH, 0x01, 0x48, 0xfe },
      { "DIV",		SUP_8086,	OPE_M, 0x67, 0x11, 0xf6 }, /* bwd w0 */
      { "DQ",		SUP_8086,	OPE_DB, 8 },
      { "DS",		SUP_8086,	PREFIX, 0x08 },
      { "DT",		SUP_8086,	OPE_DB, 10 },
-     { "DW",		SUP_8086,	OPE_DB, 2, 0x9b },
+     { "DW",		SUP_8086,	OPE_DB, 2, 0x9b }, /* Define Word. Generally 2 bytes on a typical x86 32-bit system */
      { "END",		SUP_8086,	OPE_END },
      { "ENTER",		SUP_80186,	OPE_ENTER },
      { "EQU",		SUP_8086,	OPE_EQU },

@@ -10,10 +10,6 @@
 #include "nask_utility.hpp"
 #include "nask_defs.hpp"
 
-bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token) {
-     return token_table.IsCommentLimiter(token.AsString());
-}
-
 int main(int argc, char** argv) {
 
      if (argc < 2 || argc > 4) {
@@ -44,9 +40,8 @@ int main(int argc, char** argv) {
      }
 
      // 各文法要素テーブルの生成
-     TParaCxxTokenTable token_table;
-     token_table.AddCommentLimiter(";", "\n");
-     token_table.AddCommentLimiter("#", "\n");
+     nask_utility::token_table.AddCommentLimiter(";", "\n");
+     nask_utility::token_table.AddCommentLimiter("#", "\n");
 
      TParaCxxOperatorTable operator_table;
      TParaObjectPrototypeTable object_prototype_table;
@@ -61,7 +56,7 @@ int main(int argc, char** argv) {
      // 	  "**", TParaOperatorPriority("*", -1), new TParaOperatorPower()
      // 	  );
      TParaExpressionParser ExpressionParser(&operator_table);
-     token_table.AddOperator("**");
+     nask_utility::token_table.AddOperator("**");
 
      /* シンボルテーブルに定義済み変数 pi (円周率), e (自然対数の底), x を追加 */
      // SymbolTable.RegisterVariable("pi", TParaValue(3.141592));
@@ -73,13 +68,13 @@ int main(int argc, char** argv) {
      while (nas_file && std::getline(nas_file, input)) {
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istrstream input_stream(input.c_str());
-	  TParaTokenizer tokenizer(input_stream, &token_table);
+	  TParaTokenizer tokenizer(input_stream, &nask_utility::token_table);
 	  TParaToken token;
 
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
 	       std::cout << "eval: " << token.AsString() << std::endl;
 
-	       if (is_comment_line(token_table, token)) {
+	       if (nask_utility::is_comment_line(nask_utility::token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -97,50 +92,18 @@ int main(int argc, char** argv) {
 			 // オペコードの実装
 			 //
 			 if (token.AsString() == "DB") {
-			      // 簡単なDB命令の実装
 			      std::cout << "eval DB" << std::endl;
 			      try {
-				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
-					if (is_comment_line(token_table, token)) {
-					     break;
-					} else if (token.Is(",")) {
-					     continue;
-					} else if (token.IsQuote()) {
-					     std::string str = token.AsString();
-					     if (str.front() == '"' && str.back() == '"') {
-						  str.erase( 0, 1 );
-						  str.erase( str.size() - 1 );
-						  for ( uint8_t b : str ) {
-						       binout_container.push_back(b);
-						  }
-					     } else {
-						  std::cerr << "NASK : DB not quoted correctly' " << std::endl;
-						  return 17;
-					     }
-					} else {
-					     binout_container.push_back(token.AsLong());
-					}
-				   }
+				   nask_utility::process_token_DB(tokenizer, binout_container);
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
 			      std::cout << "eval DB end" << std::endl;
 
 			 } else if (token.AsString() == "RESB") {
-			      // 簡単なRESB命令の実装
 			      std::cout << "eval RESB" << std::endl;
 			      try {
-				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
-					if (is_comment_line(token_table, token)) {
-					     break;
-					} else if (token.Is(",")) {
-					     continue;
-					} else {
-					     for (ulong l = 0; l < token.AsLong(); l++) {
-						  binout_container.push_back(0x00);
-					     }
-					}
-				   }
+				   nask_utility::process_token_RESB(tokenizer, binout_container);
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
