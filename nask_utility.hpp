@@ -23,8 +23,22 @@ namespace nask_utility {
 	  return res;
      }
 
+     size_t get_labelpos(std::ifstream& stream, std::string token) {
+	  std::string line;
+	  for (long line_number = 1; std::getline(stream, line); ++line_number) {
+	       if (line.find(token) != std::string::npos) {
+		    return line_number;
+	       }
+	  }
+	  return -1;
+     }
+
      bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token) {
 	  return token_table.IsCommentLimiter(token.AsString());
+     }
+
+     bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token) {
+	  return token.AsString() == "\n";
      }
 
      // uint16_tで数値を読み取った後、uint8_t型にデータを分けて
@@ -70,7 +84,7 @@ namespace nask_utility {
      // 簡単なDB命令の実装
      int process_token_DB(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (is_comment_line(token_table, token)) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -110,7 +124,7 @@ namespace nask_utility {
      //
      int process_token_DW(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (is_comment_line(token_table, token)) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -142,7 +156,7 @@ namespace nask_utility {
      // 簡単なDD命令の実装
      int process_token_DD(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (is_comment_line(token_table, token)) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -174,7 +188,7 @@ namespace nask_utility {
      // 簡単なRESB命令の実装
      int process_token_RESB(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (is_comment_line(token_table, token)) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;

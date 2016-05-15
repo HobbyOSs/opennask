@@ -65,16 +65,18 @@ int main(int argc, char** argv) {
 
      /* 以下，入力の読み込みと解析，評価のループ */
      std::string input;
-     while (nas_file && std::getline(nas_file, input)) {
+     for (long line_number = 1; std::getline(nas_file, input); ++line_number) {
+	  /* 行数チェック */
+	  std::cout << line_number << ": " << std::endl;
+
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istrstream input_stream(input.c_str());
 	  TParaTokenizer tokenizer(input_stream, &nask_utility::token_table);
 	  TParaToken token;
 
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
-	       std::cout << "eval: " << token.AsString() << std::endl;
-
-	       if (nask_utility::is_comment_line(nask_utility::token_table, token)) {
+	       if (nask_utility::is_comment_line(nask_utility::token_table, token) ||
+		   nask_utility::is_line_terminated(nask_utility::token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -91,7 +93,30 @@ int main(int argc, char** argv) {
 			 //
 			 // オペコードの実装
 			 //
-			 if (token.AsString() == "DB") {
+			 if (token.AsString() == "JMP") {
+			      std::cout << "eval JMP" << std::endl;
+			      try {
+				   const std::string label = tokenizer.Next().AsString();
+				   const size_t current_line = line_number;
+				   std::cout << "current line: " << current_line << std::endl;
+
+				   // 検索用(READONLY)
+				   std::ifstream nas_file_dup(argv[1], std::ios::in);
+
+				   const size_t jump_target_line = nask_utility::get_labelpos(nas_file_dup, label + ":");
+				   if (jump_target_line == -1) {
+					std::cerr << "NASK : JMP target label "<< label <<  " not found " << std::endl;
+					return 17;
+				   } else {
+					std::cout << "JMP: " << jump_target_line << std::endl;
+				   }
+
+			      } catch (TScriptException te) {
+				   std::cerr << te << std::endl;
+			      }
+			      std::cout << "eval JMP end" << std::endl;
+
+			 } else if (token.AsString() == "DB") {
 			      std::cout << "eval DB" << std::endl;
 			      try {
 				   nask_utility::process_token_DB(tokenizer, binout_container);
