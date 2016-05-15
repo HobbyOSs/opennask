@@ -23,6 +23,14 @@ namespace nask_utility {
 	  return res;
      }
 
+     bool ends_with(std::string const &full_string, std::string const &ending) {
+	  if (full_string.length() >= ending.length()) {
+	       return (0 == full_string.compare(full_string.length() - ending.length(), ending.length(), ending));
+	  } else {
+	       return false;
+	  }
+     }
+
      size_t get_labelpos(std::ifstream& stream, std::string token) {
 	  std::string line;
 	  for (long line_number = 1; std::getline(stream, line); ++line_number) {
