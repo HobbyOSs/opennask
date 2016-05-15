@@ -10,8 +10,11 @@
 #include "nask_utility.hpp"
 #include "nask_defs.hpp"
 
-int main(int argc, char** argv)
-{
+bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token) {
+     return token_table.IsCommentLimiter(token.AsString());
+}
+
+int main(int argc, char** argv) {
 
      if (argc < 2 || argc > 4) {
 	  std::cerr << "usage : >opennask source [object/binary] [list]" << std::endl;
@@ -42,7 +45,8 @@ int main(int argc, char** argv)
 
      // 各文法要素テーブルの生成
      TParaCxxTokenTable token_table;
-     token_table.AddOperator(";");
+     token_table.AddCommentLimiter(";", "\n");
+     token_table.AddCommentLimiter("#", "\n");
 
      TParaCxxOperatorTable operator_table;
      TParaObjectPrototypeTable object_prototype_table;
@@ -75,7 +79,7 @@ int main(int argc, char** argv)
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
 	       std::cout << "eval: " << token.AsString() << std::endl;
 
-	       if (token.Is(";") || token.Is("#")) {
+	       if (is_comment_line(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -97,7 +101,7 @@ int main(int argc, char** argv)
 			      std::cout << "eval DB" << std::endl;
 			      try {
 				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
-					if (token.Is(";") || token.Is("#")) {
+					if (is_comment_line(token_table, token)) {
 					     break;
 					} else if (token.Is(",")) {
 					     continue;
@@ -121,12 +125,13 @@ int main(int argc, char** argv)
 				   std::cerr << te << std::endl;
 			      }
 			      std::cout << "eval DB end" << std::endl;
+
 			 } else if (token.AsString() == "RESB") {
 			      // 簡単なRESB命令の実装
 			      std::cout << "eval RESB" << std::endl;
 			      try {
 				   for (token = tokenizer.Next(); ; token = tokenizer.Next()) {
-					if (token.Is(";") || token.Is("#")) {
+					if (is_comment_line(token_table, token)) {
 					     break;
 					} else if (token.Is(",")) {
 					     continue;
