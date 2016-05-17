@@ -29,7 +29,7 @@ int process_each_assembly_line(char** argv,
      for (line_number; std::getline(nas_file, input); line_number++) {
 
 	  /* 行数チェック */
-	  std::cout << line_number << ": " << std::endl;
+	  std::cout << line_number << ": " << input << std::endl;
 
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istrstream input_stream(input.c_str());
@@ -60,19 +60,21 @@ int process_each_assembly_line(char** argv,
 				   const size_t current_line = line_number;
 				   std::cout << "current line: " << current_line << std::endl;
 
-				   // 検索用(READONLY)
+				   // 検索用(READONLY), 行数検索してファイル先頭に戻す
 				   std::ifstream nas_file_dup(argv[1], std::ios::in);
-
 				   const size_t jump_target_line = nask_utility::get_labelpos(nas_file_dup, label + ":");
+				   nas_file_dup.seekg(0, std::ios_base::beg);
+
 				   if (jump_target_line == -1) {
 					std::cerr << "NASK : JMP target label "<< label <<  " not found " << std::endl;
 					return 17;
 				   } else {
+					// JMPの対象の次の行に飛ぶ
 					std::cout << "JMP: jump to line => " << jump_target_line << std::endl;
 					int ret = process_each_assembly_line(argv,
-									     nas_file,
+									     nas_file_dup,
 									     binout_container,
-									     jump_target_line);
+									     jump_target_line + 1);
 				   }
 
 			      } catch (TScriptException te) {
