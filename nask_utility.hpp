@@ -175,23 +175,27 @@ namespace nask_utility {
      // より網羅的な表: http://softwaretechnique.jp/OS_Development/Tips/IA32_Instructions/MOV.html
      //
      int process_token_MOV(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
-
-	  // See: http://d.hatena.ne.jp/yz2cm/20130601/1370078834
-	  // インテル記法じゃないので逆なのに注意
-	  //
-          // b0 [imm8]		mov [imm8],%al
-          // b3 [imm8]		mov [imm8],%bl
-          // b1 [imm8]		mov [imm8],%cl
-          // b2 [imm8]		mov [imm8],%dl
-          // b8 [imm32]		mov [imm32],%eax
-          // bb [imm32]		mov [imm32],%ebx
-          // b9 [imm32]		mov [imm32],%ecx
-          // ba [imm32]		mov [imm32],%edx
-          // 66 b8 [imm16]	mov [imm16],%ax
-          // 66 bb [imm16]	mov [imm16],%bx
-          // 66 b9 [imm16]	mov [imm16],%cx
-          // 66 ba [imm16]	mov [imm16],%dx
-	  //
+          //
+          // 0x88 /r	MOV r/m8, r8	        r8をr/m8に転送します
+          // 0x89 /r	MOV r/m16, r16	        r16をr/m16に転送します
+          // 0x89 /r	MOV r/m32, r32	        r32をr/m32に転送します
+          // 0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
+          // 0x8B /r	MOV r16, r/m16	        r/m16をr16に転送します
+          // 0x8B /r	MOV r32, r/m32	        r/m32をr32に転送します
+          // 0x8C /r	MOV r/m16, Sreg※	セグメントレジスタをr/m16に転送します
+          // 0x8E /r	MOV Sreg, r/m16※※	r/m16をセグメントレジスタに転送します
+          // 0xA0	MOV AL, moffs8※	（セグメント：オフセット）のバイトをALに転送します
+          // 0xA1	MOV AX, moffs16※	（セグメント：オフセット）のワードをAXに転送します
+          // 0xA1	MOV EAX, moffs32※	（セグメント：オフセット）のダブルワードをEAXに転送します
+          // 0xA2	MOV moffs8※, AL	ALを（セグメント：オフセット）に転送します
+          // 0xA3	MOV moffs16※, AX	AXを（セグメント：オフセット）に転送します
+          // 0xA3	MOV moffs32※, EAX	EAXを（セグメント：オフセット）に転送します
+          // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
+          // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
+          // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
+          // 0xC6 /0	MOV r/m8, imm8	        imm8をr/m8に転送します
+          // 0xC7 /0	MOV r/m16, imm16	imm16をr/m16に転送します
+          // 0xC7 /0	MOV r/m32, imm32	imm32をr/m32に転送します
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -216,22 +220,32 @@ namespace nask_utility {
 			 token = tokenizer.Next();
 			 std::cout << " <= " << token.AsString() << std::endl;
 
-			 ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
-
-			 //if (nim_info.imm == imm8) {
-			 //     binout_container.push_back(token.AsLong());
-			 //} else if (nim_info.imm == imm16) {
-			 //     set_word_into_binout(token.AsLong(), binout_container, false);
-			 //} else if (nim_info.imm == imm32) {
-			 //     set_dword_into_binout(token.AsLong(), binout_container, false);
-			 //} else {
-			 //     std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
-			 //     return 17;
-			 //}
+			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			 binout_container.push_back(modrm);
+			 binout_container.push_back(0x8e);
+			 // これで終了のはず
+			 std::cout << "MOV end" << std::endl;
+			 break;
 		    }
 
-
 	       } else if (is_register(token_table, token)) {
+		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
+		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
+		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
+		    // -------------------------------------------------------
+		    // b0 [imm8]		mov [imm8],%al
+		    // b3 [imm8]		mov [imm8],%bl
+		    // b1 [imm8]		mov [imm8],%cl
+		    // b2 [imm8]		mov [imm8],%dl
+		    // b8 [imm32]		mov [imm32],%eax
+		    // bb [imm32]		mov [imm32],%ebx
+		    // b9 [imm32]		mov [imm32],%ecx
+		    // ba [imm32]		mov [imm32],%edx
+		    // 66 b8 [imm16]	mov [imm16],%ax
+		    // 66 bb [imm16]	mov [imm16],%bx
+		    // 66 b9 [imm16]	mov [imm16],%cx
+		    // 66 ba [imm16]	mov [imm16],%dx
+		    //
 		    NIMONIC_INFO nim_info;
 		    if (OPENNASK_MODES == ID_32BIT_MODE) {
 			 // naskは通常 AX, BX, CX, DX を EAX, EBX, ECX, EDX と解釈する

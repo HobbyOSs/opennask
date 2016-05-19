@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <bitset>
+#include <regex>
 
 // 80x86 Opcodes
 // https://courses.engr.illinois.edu/ece390/resources/opcodes.html
@@ -19,6 +20,12 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
 };
 
 namespace ModRM {
+
+     std::smatch match;
+     const std::regex rm000("(AL|AX|EAX)");
+     const std::regex rm001("(CL|CX|ECX)");
+     const std::regex rm010("(DL|DX|EDX)");
+     const std::regex rm011("(BL|BX|EBX)");
 
      enum mods {
 	  REG_REG = 0, // mod=00: [レジスター+レジスター]
@@ -50,6 +57,16 @@ namespace ModRM {
      };
 
      const std::string get_rm_from_reg(const std::string& src_reg) {
+	  if (regex_match(src_reg, match, rm000)) {
+	       return "000";
+	  } else if (regex_match(src_reg, match, rm001)) {
+	       return "001";
+	  } else if (regex_match(src_reg, match, rm010)) {
+	       return "010";
+	  } else if (regex_match(src_reg, match, rm011)) {
+	       return "011";
+	  }
+
 	  return "test";
      }
 
