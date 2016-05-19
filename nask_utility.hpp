@@ -61,6 +61,15 @@ namespace nask_utility {
 	  return it != std::end(REGISTERS);
      }
 
+     bool is_segment_register(TParaCxxTokenTable& token_table, TParaToken& token) {
+	  // レジスタ一覧から検索してあれば true
+	  auto it = std::find_if(std::begin(SEGMENT_REGISTERS), std::end(SEGMENT_REGISTERS),
+				 [&](const std::string& s)
+				 { return token.AsString().find(s) != std::string::npos; });
+
+	  return it != std::end(SEGMENT_REGISTERS);
+     }
+
      template <class T> void plus_number_from_code(T& num, char c) {
 	  switch(c) {
 	  case 'A':
@@ -156,12 +165,15 @@ namespace nask_utility {
 	  }
      }
 
-     // MOV命令
+     // MOVの命令
      // http://www5c.biglobe.ne.jp/~ecb/assembler/2_1.html
      // MOV DEST, SRC
      //     動作：DEST←SRC
      //     DEST：レジスタ、メモリー
      //     SRC ：レジスタ、メモリー、即値（ただしメモリー、メモリーの組み合わせは除く）
+     //
+     // より網羅的な表: http://softwaretechnique.jp/OS_Development/Tips/IA32_Instructions/MOV.html
+     //
      int process_token_MOV(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
 
 	  // See: http://d.hatena.ne.jp/yz2cm/20130601/1370078834
@@ -185,6 +197,8 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
+	       } else if (is_segment_register(token_table, token)) {
+
 	       } else if (is_register(token_table, token)) {
 		    NIMONIC_INFO nim_info;
 		    if (OPENNASK_MODES == ID_32BIT_MODE) {

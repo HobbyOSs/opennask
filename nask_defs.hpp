@@ -7,6 +7,13 @@ const std::array<std::string, 12> REGISTERS {
      "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX"
 };
 
+const std::array<std::string, 4> SEGMENT_REGISTERS {
+     "CS", // コード
+     "DS", // データ
+     "ES", // エクストラ
+     "SS"  // スタック
+};
+
 // MOV DEST, SRC
 //     動作：DEST←SRC
 //     DEST：レジスタ、メモリー
