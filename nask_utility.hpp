@@ -198,6 +198,38 @@ namespace nask_utility {
 	       } else if (token.Is(",")) {
 		    continue;
 	       } else if (is_segment_register(token_table, token)) {
+		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
+		    // 8Eからバイナリに収めるべきだとおもうのだが、なぜか逆順
+		    // [ ModR/M, 8e ] <= こんな感じで収める
+		    std::cout << "MOV REGISTER: " << token.AsString();
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_reg  = src_token.AsString();
+
+		    // MOV Sreg, register の時
+		    if (tokenizer.LookAhead(1).Is(",") &&
+			!tokenizer.LookAhead(2).IsEmpty() &&
+			is_register(token_table, src_token)) {
+			 // コンマを飛ばして次へ
+			 token = tokenizer.Next();
+			 token = tokenizer.Next();
+			 std::cout << " <= " << token.AsString() << std::endl;
+
+			 ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+
+			 //if (nim_info.imm == imm8) {
+			 //     binout_container.push_back(token.AsLong());
+			 //} else if (nim_info.imm == imm16) {
+			 //     set_word_into_binout(token.AsLong(), binout_container, false);
+			 //} else if (nim_info.imm == imm32) {
+			 //     set_dword_into_binout(token.AsLong(), binout_container, false);
+			 //} else {
+			 //     std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
+			 //     return 17;
+			 //}
+		    }
+
 
 	       } else if (is_register(token_table, token)) {
 		    NIMONIC_INFO nim_info;

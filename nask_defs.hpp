@@ -2,6 +2,10 @@
 #include <array>
 #include <sstream>
 #include <iomanip>
+#include <bitset>
+
+// 80x86 Opcodes
+// https://courses.engr.illinois.edu/ece390/resources/opcodes.html
 
 const std::array<std::string, 12> REGISTERS {
      "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX"
@@ -12,6 +16,55 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
      "DS", // データ
      "ES", // エクストラ
      "SS"  // スタック
+};
+
+namespace ModRM {
+
+     enum mods {
+	  REG_REG = 0, // mod=00: [レジスター+レジスター]
+	  REG_DISP8,   // mod=01: [レジスター+disp8]
+	  REG_DISP16,  // mod=10: [レジスター+disp16/32]
+	  REG          // mod=11: レジスター
+     };
+
+     const std::map<enum mods, std::string> MOD_TO_STR {
+	  { mods::REG_REG    , "00"},
+	  { mods::REG_DISP8  , "01"},
+	  { mods::REG_DISP16 , "10"},
+	  { mods::REG	     , "11"}
+     };
+
+     // 000 : ES
+     // 001 : CS
+     // 010 : SS
+     // 011 : DS
+     // 100 : FS (Only 386+)
+     // 101 : GS (Only 386+)
+     const std::map<std::string, std::string> SEGMENT_REGISTERS_SSS_MAP {
+	  { "ES", "000"},
+	  { "CS", "001"},
+	  { "SS", "010"},
+	  { "DS", "011"},
+	  { "FS", "100"},
+	  { "GS", "101"}
+     };
+
+     const std::string get_rm_from_reg(const std::string& src_reg) {
+	  return "test";
+     }
+
+     uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg) {
+	  std::string modrm = ModRM::MOD_TO_STR.at(m);
+	  modrm += SEGMENT_REGISTERS_SSS_MAP.at(dst_reg);
+	  modrm += get_rm_from_reg(src_reg);
+
+	  std::bitset<8> bs(modrm);
+	  return bs.to_ulong();
+     };
+
+     // uint8_t generate_modrm(enum mods, std::string& reg, ) {
+     //
+     // };
 };
 
 // MOV DEST, SRC
