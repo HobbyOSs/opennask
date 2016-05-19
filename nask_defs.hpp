@@ -23,6 +23,13 @@ constexpr size_t imm16 = 2;
 constexpr size_t imm32 = 4;
 constexpr size_t imm64 = 8;
 
+// 現在のnaskのモード
+enum OPENNASK_MODES {
+     ID_16BIT_MODE = 0,
+     ID_32BIT_MODE,
+     ID_63BIT_MODE
+};
+
 constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */
 constexpr uint8_t SUP_80186	= 0x000000fe; /* bit 1 */
 constexpr uint8_t SUP_80286	= 0x000000fc; /* bit 2 */

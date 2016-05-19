@@ -13,6 +13,7 @@ namespace nask_utility {
      // デフォルトのトークンテーブル
      TParaCxxTokenTable token_table;
      size_t dollar_position; // $
+     int OPENNASK_MODES = ID_32BIT_MODE;
 
      std::ifstream::pos_type filesize(const char* filename) {
 	  std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
@@ -94,7 +95,6 @@ namespace nask_utility {
      }
 
      void set_nimonic_with_register(const std::string& reg, NIMONIC_INFO* nim_info) {
-
 	  if (reg == "AL" || reg == "BL" || reg == "CL" || reg == "DL") {
 	       // prefix = "B0+rb" (AL:+0, CL:+1, DL:+2, BL:+3)
 	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb0, reg.at(0));
@@ -187,7 +187,17 @@ namespace nask_utility {
 		    continue;
 	       } else if (is_register(token_table, token)) {
 		    NIMONIC_INFO nim_info;
-		    set_nimonic_with_register(token.AsString(), &nim_info);
+		    if (OPENNASK_MODES == ID_32BIT_MODE) {
+			 // naskは通常 AX, BX, CX, DX を EAX, EBX, ECX, EDX と解釈する
+			 // http://memo.wnishida.com/?date=20040501
+			 std::string opecode = token.AsString();
+			 if (opecode == "AX" || opecode == "BX" || opecode == "CX" || opecode == "DX") {
+			      set_nimonic_with_register("E" + opecode, &nim_info);
+			 }
+		    } else {
+			 set_nimonic_with_register(token.AsString(), &nim_info);
+		    }
+
 		    const uint16_t nim = nim_info.prefix;
 		    if (nim > 0x6600) {
 			 const uint8_t first_byte  = nim & 0xff;
