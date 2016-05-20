@@ -12,6 +12,7 @@ namespace nask_utility {
 
      // デフォルトのトークンテーブル
      TParaCxxTokenTable token_table;
+     JMP::JMP_STACK jmp_stack;
      size_t dollar_position; // $
      int OPENNASK_MODES = ID_32BIT_MODE;
 
@@ -291,6 +292,21 @@ namespace nask_utility {
 
 	       } else {
 		    binout_container.push_back(token.AsLong());
+	       }
+	  }
+     }
+
+     // 簡単なJMP命令の実装
+     int process_token_JMP(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is(",")) {
+		    continue;
+	       } else {
+		    const std::string store_label = tokenizer.Next().AsString();
+		    JMP::set_jmp_stack(store_label, binout_container, jmp_stack);
+		    break;
 	       }
 	  }
      }

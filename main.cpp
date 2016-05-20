@@ -56,27 +56,7 @@ int process_each_assembly_line(char** argv,
 			 if (token.AsString() == "JMP") {
 			      std::cout << "eval JMP" << std::endl;
 			      try {
-				   const std::string label = tokenizer.Next().AsString();
-				   const size_t current_line = line_number;
-				   std::cout << "current line: " << current_line << std::endl;
-
-				   // 検索用(READONLY), 行数検索してファイル先頭に戻す
-				   std::ifstream nas_file_dup(argv[1], std::ios::in);
-				   const size_t jump_target_line = nask_utility::get_labelpos(nas_file_dup, label + ":");
-				   nas_file_dup.seekg(0, std::ios_base::beg);
-
-				   if (jump_target_line == -1) {
-					std::cerr << "NASK : JMP target label "<< label <<  " not found " << std::endl;
-					return 17;
-				   } else {
-					// JMPの対象の次の行に飛ぶ
-					std::cout << "JMP: jump to line => " << jump_target_line << std::endl;
-					int ret = process_each_assembly_line(argv,
-									     nas_file_dup,
-									     binout_container,
-									     jump_target_line + 1);
-				   }
-
+				   nask_utility::process_token_JMP(tokenizer, binout_container);
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
@@ -133,7 +113,9 @@ int process_each_assembly_line(char** argv,
 			 // オペコードではなくラベルの可能性を探る
 			 if (nask_utility::ends_with(token.AsString(), ":")) {
 			      std::cout << "coming another label" << std::endl;
-			      return 0;
+			      std::string label = token.AsString();
+			      JMP::update_jmp_stack(label.substr(0, label.size() - 1),
+						    binout_container, nask_utility::jmp_stack);
 			 }
 		    }
 	       }

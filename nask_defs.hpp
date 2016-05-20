@@ -19,6 +19,72 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
      "SS"  // スタック
 };
 
+namespace JMP {
+
+     // 0xEB cb	JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
+     // 0xE9 cw	JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
+     // 0xE9 cd	JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
+     // 0xFF /4	JMP r/m16	r/m16で指定されるアドレスに絶対間接ニアジャンプする
+     // 0xFF /4	JMP r/m32	r/m32で指定されるアドレスに絶対間接ニアジャンプする
+     // 0xEA cd	JMP ptr16:16	オペランドで指定されるアドレスに絶対ファージャンプする
+     // 0xEA cp	JMP ptr16:32	オペランドで指定されるアドレスに絶対ファージャンプする
+     // 0xFF /5	JMP m16:16	m16:16で指定されるアドレスに絶対間接ファージャンプする
+     // 0xFF /5	JMP m16:32	m16:32で指定されるアドレスに絶対間接ファージャンプする
+     struct JMP_STACK_ELEMENT {
+	  std::string label; // ex) entry:
+	  size_t src_index;  // JMPのオペコードが始まる場所
+	  size_t dst_index;  // JMPの飛び先のラベルが始まる場所
+	  size_t rel_index;  // rel_offsetを格納する場所
+	  size_t rel_offset() {
+	       // offset = destination - source + sizeof(opcode)
+	       // sizeof(opcode)はとりあえず2byteにしとく
+	       return dst_index - src_index + 0x02;
+	  };
+     };
+
+     // 処理の中でJMP情報の収集をする
+     typedef std::vector<JMP_STACK_ELEMENT> JMP_STACK;
+
+     // JMPオペコードが見つかった時に呼び出す
+     void set_jmp_stack(std::string store_label,
+			std::vector<uint8_t>& binout_container, JMP_STACK& stack) {
+
+	  // 見つかったJMP情報を記録
+	  JMP_STACK_ELEMENT elem;
+	  elem.label = store_label;
+	  elem.src_index = binout_container.size();
+	  elem.rel_index = binout_container.size() + 1;
+	  stack.push_back(elem);
+
+	  // とりあえず0xEBのみ実装
+	  binout_container.push_back(0xeb);
+	  binout_container.push_back(0x00);
+     }
+     // ラベルが見つかった時に呼び出す
+     void update_jmp_stack(std::string found_label,
+			   std::vector<uint8_t>& binout_container, JMP_STACK& stack) {
+
+	  std::cout << "updating a label...: " << found_label << std::endl;
+	  auto it = std::find_if(std::begin(stack), std::end(stack),
+				 [&](const JMP_STACK_ELEMENT& elem)
+				 { return elem.label.find(found_label) != std::string::npos; });
+
+	  if (it != std::end(stack)) {
+	       // 見つかったJMP情報を記録
+	       std::cout << "found a label from stacked";
+	       JMP_STACK_ELEMENT elem(*it);
+	       elem.dst_index = binout_container.size() + 1;
+	       stack.erase(it);
+	       // JMP先のアドレスをアップデートする
+	       std::cout << ", so bin[" << elem.rel_index << "] = " << elem.rel_offset() << std::endl;
+	       binout_container[elem.rel_index] = elem.rel_offset();
+	  } else {
+	       // 例外を起こしたほうがよさそう
+	       std::cout << "not found a label from stacked" << std::endl;
+	  }
+     }
+};
+
 namespace ModRM {
 
      std::smatch match;
