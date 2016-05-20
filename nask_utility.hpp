@@ -139,14 +139,14 @@ namespace nask_utility {
 	       const uint8_t first_byte  = word & 0xff;
 	       const uint8_t second_byte = (word >> 8);
 	       // push_back as little_endian
-	       binout_container.push_back(second_byte);
 	       binout_container.push_back(first_byte);
+	       binout_container.push_back(second_byte);
 	  }
      }
 
      // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-     // nask的には0x00をバイトサイズで格納する傾向があるので、そうじゃない場合はフラグを設定する
-     void set_dword_into_binout(const uint32_t& dword, std::vector<uint8_t>& binout_container, bool zero_as_byte = true) {
+     // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
+     void set_dword_into_binout(const uint32_t& dword, std::vector<uint8_t>& binout_container, bool zero_as_byte = false) {
 
 	  if (dword == 0x00000000 && zero_as_byte) {
 	       // push_back only 1byte
@@ -154,15 +154,18 @@ namespace nask_utility {
 	  } else {
 	       uint32_t cp_dword = dword;
 	       uint8_t bytes[4];
-	       bytes[3] = (uint8_t) cp_dword;
-	       bytes[2] = (uint8_t) (cp_dword >>= 8);
-	       bytes[1] = (uint8_t) (cp_dword >>= 8);
-	       bytes[0] = (uint8_t) (cp_dword >>= 8);
 
+	       bytes[0] = (cp_dword >> 24) & 0xff;
+	       bytes[1] = (cp_dword >> 16) & 0xff;
+	       bytes[2] = (cp_dword >> 8)  & 0xff;
+	       bytes[3] = cp_dword & 0xff;
+
+	       //printf("[0-3] => 0x%02x 0x%02x 0x%02x 0x%02x", bytes[0], bytes[1], bytes[2], bytes[3]);
 	       // push_back as little_endian
-	       for (uint8_t byte : bytes) {
-		    binout_container.push_back(byte);
-	       }
+	       binout_container.push_back(bytes[3]);
+	       binout_container.push_back(bytes[2]);
+	       binout_container.push_back(bytes[1]);
+	       binout_container.push_back(bytes[0]);
 	  }
      }
 
