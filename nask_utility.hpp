@@ -136,8 +136,7 @@ namespace nask_utility {
      //
      void set_word_into_binout(const uint16_t& word,
 			       std::vector<uint8_t>& binout_container,
-			       bool zero_as_byte = true,
-			       bool use_before_byte = false) {
+			       bool zero_as_byte = true) {
 
 	  if (word == 0x0000 && zero_as_byte) {
 	       // push_back only 1byte
@@ -387,8 +386,7 @@ namespace nask_utility {
 		    }
 	       } else {
 		    // DWを解釈, 0x00の際でもWORDで格納
-		    // 直前が0x00ならそれを利用してWORDを構成するぜ ← いらない
-		    set_word_into_binout(token.AsLong(), binout_container, false, true);
+		    set_word_into_binout(token.AsLong(), binout_container, false);
 	       }
 	  }
      }
