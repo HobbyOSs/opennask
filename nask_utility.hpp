@@ -7,6 +7,7 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_defs.hpp"
+#include <functional>
 
 namespace nask_utility {
 
@@ -489,3 +490,29 @@ namespace nask_utility {
 	  }
      }
 }
+
+namespace meta {
+     // from: http://faithandbrave.hateblo.jp/entry/20071026/1193404885
+     typedef std::function<int(TParaTokenizer &, std::vector<uint8_t> &)> nim_callback;
+     typedef std::map<std::string, nim_callback> funcs_type;
+
+     using namespace std::placeholders;
+
+     const auto fp_MOV  = std::bind(&nask_utility::process_token_MOV  , _1, _2);
+     const auto fp_JMP  = std::bind(&nask_utility::process_token_JMP  , _1, _2);
+     const auto fp_DB   = std::bind(&nask_utility::process_token_DB   , _1, _2);
+     const auto fp_DW   = std::bind(&nask_utility::process_token_DW   , _1, _2);
+     const auto fp_DD   = std::bind(&nask_utility::process_token_DD   , _1, _2);
+     const auto fp_RESB = std::bind(&nask_utility::process_token_RESB , _1, _2);
+
+     static funcs_type get_instance() {
+	  static meta::funcs_type funcs;
+	  funcs.insert(std::make_pair("MOV" , meta::fp_MOV));
+	  funcs.insert(std::make_pair("JMP" , meta::fp_JMP));
+	  funcs.insert(std::make_pair("DB"  , meta::fp_DB));
+	  funcs.insert(std::make_pair("DW"  , meta::fp_DW));
+	  funcs.insert(std::make_pair("DD"  , meta::fp_DD));
+	  funcs.insert(std::make_pair("RESB", meta::fp_RESB));
+	  return funcs;
+     };
+};

@@ -17,6 +17,7 @@ int process_each_assembly_line(char** argv,
      /* 以下，入力の読み込みと解析，評価のループ */
      long line_number = 1;
      std::string input;
+     static meta::funcs_type funcs = meta::get_instance();
 
      if (start_line != 0) {
 	  // 開始位置まで飛ばす
@@ -51,61 +52,18 @@ int process_each_assembly_line(char** argv,
 
 		    if( itr != instruction.end() ) {
 			 //
-			 // オペコードの実装
+			 // オペコードを処理する関数を探してきてそのまま実行
 			 //
-			 if (token.AsString() == "JMP") {
-			      std::cout << "eval JMP" << std::endl;
+			 meta::funcs_type::iterator it = funcs.find(token.AsString());
+			 if (it != funcs.end()) {
+			      std::cout << "eval " << token.AsString() << std::endl;
 			      try {
-				   nask_utility::process_token_JMP(tokenizer, binout_container);
+				   int r = it->second(tokenizer, binout_container);
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
-			      std::cout << "eval JMP end" << std::endl;
-
-			 } else if (token.AsString() == "MOV") {
-			      std::cout << "eval MOV" << std::endl;
-			      try {
-				   nask_utility::process_token_MOV(tokenizer, binout_container);
-			      } catch (TScriptException te) {
-				   std::cerr << te << std::endl;
-			      }
-			      std::cout << "eval MOV end" << std::endl;
-
-			 } else if (token.AsString() == "DB") {
-			      std::cout << "eval DB" << std::endl;
-			      try {
-				   nask_utility::process_token_DB(tokenizer, binout_container);
-			      } catch (TScriptException te) {
-				   std::cerr << te << std::endl;
-			      }
-			      std::cout << "eval DB end" << std::endl;
-
-			 } else if (token.AsString() == "DW") {
-			      std::cout << "eval DW" << std::endl;
-			      try {
-				   nask_utility::process_token_DW(tokenizer, binout_container);
-			      } catch (TScriptException te) {
-				   std::cerr << te << std::endl;
-			      }
-			      std::cout << "eval DW end" << std::endl;
-
-			 } else if (token.AsString() == "DD") {
-			      std::cout << "eval DD" << std::endl;
-			      try {
-				   nask_utility::process_token_DD(tokenizer, binout_container);
-			      } catch (TScriptException te) {
-				   std::cerr << te << std::endl;
-			      }
-			      std::cout << "eval DD end" << std::endl;
-
-			 } else if (token.AsString() == "RESB") {
-			      std::cout << "eval RESB" << std::endl;
-			      try {
-				   nask_utility::process_token_RESB(tokenizer, binout_container);
-			      } catch (TScriptException te) {
-				   std::cerr << te << std::endl;
-			      }
-			      std::cout << "eval RESB end" << std::endl;
+			      std::cout << "eval " << token.AsString() <<" end" << std::endl;
+			 } else {
 			 }
 
 		    } else {

@@ -8,7 +8,6 @@
 
 // 80x86 Opcodes
 // https://courses.engr.illinois.edu/ece390/resources/opcodes.html
-
 const std::array<std::string, 24> REGISTERS {
      "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX",
      "AH", "BH", "CH", "DH", "ESP", "EDI", "EBP", "ESI", "SP", "DI", "BP", "SI"
