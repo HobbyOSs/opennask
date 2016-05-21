@@ -117,7 +117,9 @@ namespace nask_utility {
 	       nim_info->imm = imm32;
 	  } else if (reg == "AX" || reg == "BX" || reg == "CX" || reg == "DX") {
 	       // prefix = "66B8+rw" (AX:+0, BX:+1, CX:+2, DX:+3)
-	       nim_info->prefix = get_plus_register_code((uint16_t) 0x66b8, reg.at(1));
+	       // FIXME: ここ結構謎、なんでこんな動き？
+	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb8, reg.at(1));
+	       //nim_info->prefix = get_plus_register_code((uint16_t) 0x66b8, reg.at(1));
 	       nim_info->reg = reg;
 	       nim_info->imm = imm16;
 	  } else {
@@ -186,27 +188,47 @@ namespace nask_utility {
      // より網羅的な表: http://softwaretechnique.jp/OS_Development/Tips/IA32_Instructions/MOV.html
      //
      int process_token_MOV(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
-          //
-          // 0x88 /r	MOV r/m8, r8	        r8をr/m8に転送します
-          // 0x89 /r	MOV r/m16, r16	        r16をr/m16に転送します
-          // 0x89 /r	MOV r/m32, r32	        r32をr/m32に転送します
-          // 0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
-          // 0x8B /r	MOV r16, r/m16	        r/m16をr16に転送します
-          // 0x8B /r	MOV r32, r/m32	        r/m32をr32に転送します
-          // 0x8C /r	MOV r/m16, Sreg※	セグメントレジスタをr/m16に転送します
-          // 0x8E /r	MOV Sreg, r/m16※※	r/m16をセグメントレジスタに転送します
-          // 0xA0	MOV AL, moffs8※	（セグメント：オフセット）のバイトをALに転送します
-          // 0xA1	MOV AX, moffs16※	（セグメント：オフセット）のワードをAXに転送します
-          // 0xA1	MOV EAX, moffs32※	（セグメント：オフセット）のダブルワードをEAXに転送します
-          // 0xA2	MOV moffs8※, AL	ALを（セグメント：オフセット）に転送します
-          // 0xA3	MOV moffs16※, AX	AXを（セグメント：オフセット）に転送します
-          // 0xA3	MOV moffs32※, EAX	EAXを（セグメント：オフセット）に転送します
-          // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
-          // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
-          // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
-          // 0xC6 /0	MOV r/m8, imm8	        imm8をr/m8に転送します
-          // 0xC7 /0	MOV r/m16, imm16	imm16をr/m16に転送します
-          // 0xC7 /0	MOV r/m32, imm32	imm32をr/m32に転送します
+          // From: chapter MOV - Move 3-530
+          // ------------------------------
+          // Intel® 64 and IA-32 Architectures
+          // Software Developer’s Manual
+          // Volume 2 (2A, 2B & 2C):
+          // Instruction Set Reference, A-Z
+	  //
+          //         0x88 /r	MOV r/m8, r8	        r8をr/m8に転送します
+	  // REX   + 0x88 /r	MOV r/m8, r8	        r8をr/m8に転送します
+          //         0x89 /r	MOV r/m16, r16		r16をr/m16に転送します
+	  //         0x89 /r	MOV r/m32, r32		r32をr/m32に転送します
+          // REX.W + 0x89 /r	MOV r/m64, r64	        r64をr/m64に転送します
+          //         0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
+          // REX   + 0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
+          //         0x8B /r	MOV r16, r/m16		r/m16をr16に転送します
+	  //         0x8B /r	MOV r32, r/m32		r/m32をr32に転送します
+          // REX.W + 0x8B /r	MOV r64, r/m64	        r/m64をr64に転送します
+          //         0x8C /r	MOV r/m16, Sreg	        セグメントレジスタをr/m16に転送します
+          // REX.W + 0x8C /r	MOV r/m16, Sreg	        セグメントレジスタをr/m16に転送します
+          //         0x8E /r	MOV Sreg, r/m16         r/m16をセグメントレジスタに転送します
+          // REX.W + 0x8E /r	MOV Sreg, r/m64         r/m64をセグメントレジスタに転送します
+          //         0xA0	MOV AL, moffs8   	（セグメント：オフセット）のバイトをALに転送します
+          // REX.W + 0xA0	MOV AL, moffs8  	（セグメント：オフセット）のバイトをALに転送します
+          //         0xA1	MOV AX, moffs16 	（セグメント：オフセット）のワードをAXに転送します
+          //         0xA1	MOV EAX, moffs32	（セグメント：オフセット）のダブルワードをEAXに転送します
+          // REX.W + 0xA1	MOV RAX, moffs64	（セグメント：オフセット）のダブルワードをRAXに転送します
+          //         0xA2	MOV moffs8, AL          ALを（セグメント：オフセット）に転送します
+          // REX.W + 0xA2	MOV moffs8, AL	        ALを（セグメント：オフセット）に転送します
+          //         0xA3	MOV moffs16※, AX	AXを（セグメント：オフセット）に転送します
+          //         0xA3	MOV moffs32※, EAX	EAXを（セグメント：オフセット）に転送します
+          // REX.W + 0xA3	MOV moffs64※, RAX	RAXを（セグメント：オフセット）に転送します
+          //         0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
+          // REX   + 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
+          //         0xB8+rw	MOV r16, imm16		imm16をr16に転送します
+	  //         0xB8+rd	MOV r32, imm32		imm32をr32に転送します
+          // REX.W + 0xB8+rd	MOV r64, imm64	        imm64をr64に転送します
+          //         0xC6 /0	MOV r/m8, imm8		imm8をr/m8に転送します
+          // REX.W + 0xC6 /0	MOV r/m8, imm8		imm8をr/m8に転送します
+	  //         0xC7 /0	MOV r/m16, imm16	imm16をr/m16に転送します
+	  //         0xC7 /0	MOV r/m32, imm32	imm32をr/m32に転送します
+	  // REX.W + 0xC7 /0	MOV r/m64, imm64	imm64をr/m64に転送します
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -214,8 +236,6 @@ namespace nask_utility {
 		    continue;
 	       } else if (is_segment_register(token_table, token)) {
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
-		    // 8Eからバイナリに収めるべきだとおもうのだが、なぜか逆順
-		    // [ ModR/M, 8e ] <= こんな感じで収める
 		    std::cout << "MOV REGISTER: " << token.AsString();
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
@@ -229,45 +249,51 @@ namespace nask_utility {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
-			 std::cout << " <= " << token.AsString() << std::endl;
+			 std::cout << " <= " << token.AsString();
 
 			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
-			 binout_container.push_back(modrm);
 			 binout_container.push_back(0x8e);
+			 binout_container.push_back(modrm);
 			 // これで終了のはず
-			 std::cout << "MOV end" << std::endl;
+			 std::cout << " : NIM: ";
+			 std::cout << std::showbase << std::hex << 0x8e;
+			 std::cout << std::showbase << std::hex << static_cast<int>(modrm) << std::endl;
 			 break;
 		    }
 
-	       } else if (is_register(token_table, token)) {
+	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",") &&
+			  !tokenizer.LookAhead(2).IsEmpty()) {
+
 		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
 		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
 		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
 		    // -------------------------------------------------------
-		    // b0 [imm8]		mov [imm8],%al
-		    // b3 [imm8]		mov [imm8],%bl
-		    // b1 [imm8]		mov [imm8],%cl
-		    // b2 [imm8]		mov [imm8],%dl
-		    // b8 [imm32]		mov [imm32],%eax
-		    // bb [imm32]		mov [imm32],%ebx
-		    // b9 [imm32]		mov [imm32],%ecx
-		    // ba [imm32]		mov [imm32],%edx
-		    // 66 b8 [imm16]	mov [imm16],%ax
-		    // 66 bb [imm16]	mov [imm16],%bx
-		    // 66 b9 [imm16]	mov [imm16],%cx
-		    // 66 ba [imm16]	mov [imm16],%dx
+		    // b0      [imm8]		mov [imm8],%al
+		    // b3      [imm8]		mov [imm8],%bl
+		    // b1      [imm8]		mov [imm8],%cl
+		    // b2      [imm8]		mov [imm8],%dl
+		    // b8      [imm32]		mov [imm32],%eax
+		    // bb      [imm32]		mov [imm32],%ebx
+		    // b9      [imm32]		mov [imm32],%ecx
+		    // ba      [imm32]		mov [imm32],%edx
+		    // (66) b8 [imm16]	        mov [imm16],%ax
+		    // (66) bb [imm16]	        mov [imm16],%bx
+		    // (66) b9 [imm16]	        mov [imm16],%cx
+		    // (66) ba [imm16]	        mov [imm16],%dx
 		    //
 		    NIMONIC_INFO nim_info;
-		    if (OPENNASK_MODES == ID_32BIT_MODE) {
-			 // naskは通常 AX, BX, CX, DX を EAX, EBX, ECX, EDX と解釈する
-			 // http://memo.wnishida.com/?date=20040501
-			 std::string opecode = token.AsString();
-			 if (opecode == "AX" || opecode == "BX" || opecode == "CX" || opecode == "DX") {
-			      set_nimonic_with_register("E" + opecode, &nim_info);
-			 }
-		    } else {
-			 set_nimonic_with_register(token.AsString(), &nim_info);
-		    }
+		    set_nimonic_with_register(token.AsString(), &nim_info);
+
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_imm  = src_token.AsString();
+
+		    // コンマを飛ばして次へ
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    std::cout << dst_reg << " <= " << src_imm;
 
 		    const uint16_t nim = nim_info.prefix;
 		    if (nim > 0x6600) {
@@ -275,29 +301,41 @@ namespace nask_utility {
 			 const uint8_t second_byte = (nim >> 8);
 			 binout_container.push_back(second_byte);
 			 binout_container.push_back(first_byte);
+			 // debug logs
+			 std::cout << " NIM: ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(second_byte);
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(first_byte);
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(token.AsLong()) << std::endl;
+
 		    } else {
 			 const uint8_t first_byte  = nim & 0xff;
 			 const uint8_t second_byte = (nim >> 8);
 			 binout_container.push_back(first_byte);
+			 // debug logs
+			 std::cout << " NIM: ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(first_byte);
+
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(token.AsLong()) << std::endl;
 		    }
-		    std::cout << "MOV REGISTER: " << token.AsString();
 
-		    if (tokenizer.LookAhead(1).Is(",") && !tokenizer.LookAhead(2).IsEmpty()) {
-			 // コンマを飛ばして次へ
-			 token = tokenizer.Next();
-			 token = tokenizer.Next();
-			 std::cout << " <= " << token.AsString() << std::endl;
-
-			 if (nim_info.imm == imm8) {
-			      binout_container.push_back(token.AsLong());
-			 } else if (nim_info.imm == imm16) {
-			      set_word_into_binout(token.AsLong(), binout_container, false);
-			 } else if (nim_info.imm == imm32) {
-			      set_dword_into_binout(token.AsLong(), binout_container, false);
-			 } else {
-			      std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
-			      return 17;
-			 }
+		    // 即値(imm)を設定
+		    if (nim_info.imm == imm8) {
+			 binout_container.push_back(token.AsLong());
+		    } else if (nim_info.imm == imm16) {
+			 set_word_into_binout(token.AsLong(), binout_container, false);
+		    } else if (nim_info.imm == imm32) {
+			 set_dword_into_binout(token.AsLong(), binout_container, false);
+		    } else {
+			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
+			 return 17;
 		    }
 
 	       } else {
