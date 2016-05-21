@@ -127,9 +127,17 @@ namespace nask_utility {
 	  return;
      }
 
-     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+     // @detail uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的には0x00をバイトサイズで格納する傾向があるので、そうじゃない場合はフラグを設定する
-     void set_word_into_binout(const uint16_t& word, std::vector<uint8_t>& binout_container, bool zero_as_byte = true) {
+     //
+     // @param word             格納するWORDサイズのバイナリ
+     // @param binout_container 出力先コンテナ
+     // @param zero_as_byte     0x00をバイトサイズで格納する
+     //
+     void set_word_into_binout(const uint16_t& word,
+			       std::vector<uint8_t>& binout_container,
+			       bool zero_as_byte = true,
+			       bool use_before_byte = false) {
 
 	  if (word == 0x0000 && zero_as_byte) {
 	       // push_back only 1byte
@@ -326,8 +334,6 @@ namespace nask_utility {
 		    if (str.front() == '"' && str.back() == '"') {
 			 str.erase( 0, 1 );
 			 str.erase( str.size() - 1 );
-			 str.push_back(0x00); // 終端文字
-
 			 for ( uint8_t b : str ) {
 			      binout_container.push_back(b);
 			 }
@@ -381,7 +387,8 @@ namespace nask_utility {
 		    }
 	       } else {
 		    // DWを解釈, 0x00の際でもWORDで格納
-		    set_word_into_binout(token.AsLong(), binout_container, false);
+		    // 直前が0x00ならそれを利用してWORDを構成するぜ ← いらない
+		    set_word_into_binout(token.AsLong(), binout_container, false, true);
 	       }
 	  }
      }

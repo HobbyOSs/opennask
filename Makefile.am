@@ -17,6 +17,8 @@ opennask_CXXFLAGS = -I$(top_builddir)/parasol
 ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
 TESTS = nask_functional_test.sh
 
+all-local: compile-all-asms
+
 compile-all-asms:
 	@ASMS="$(ASMS)";                                        \
 	for x in $$ASMS; do                                     \
