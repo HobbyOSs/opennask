@@ -104,7 +104,10 @@ namespace nask_utility {
 	  return dword;
      }
 
-     void set_nimonic_with_register(const std::string& reg, NIMONIC_INFO* nim_info) {
+     void set_nimonic_with_register(const std::string& reg,
+				    NIMONIC_INFO* nim_info,
+				    TParaTokenizer& tokenizer) {
+
 	  if (reg == "AL" || reg == "BL" || reg == "CL" || reg == "DL") {
 	       // prefix = "B0+rb" (AL:+0, CL:+1, DL:+2, BL:+3)
 	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb0, reg.at(0));
@@ -123,7 +126,16 @@ namespace nask_utility {
 	       nim_info->reg = reg;
 	       nim_info->imm = imm16;
 	  } else {
+	       // tokenizerを先読みしてみる
+	       TParaToken src_token = tokenizer.LookAhead(2);
+	       std::string src_imm  = src_token.AsString();
 
+	       // Reg, Immの場合 => 1011wrrr
+	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
+	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
+	       nim_info->prefix = bs.to_ulong();
+	       nim_info->reg = reg;
+	       nim_info->imm = imm16; // FIXME: すごい適当
 	  }
 
 	  return;
@@ -283,7 +295,7 @@ namespace nask_utility {
 		    // (66) ba [imm16]	        mov [imm16],%dx
 		    //
 		    NIMONIC_INFO nim_info;
-		    set_nimonic_with_register(token.AsString(), &nim_info);
+		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
 
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);

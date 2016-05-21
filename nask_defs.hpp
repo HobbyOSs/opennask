@@ -4,12 +4,14 @@
 #include <iomanip>
 #include <bitset>
 #include <regex>
+#include <tuple>
 
 // 80x86 Opcodes
 // https://courses.engr.illinois.edu/ece390/resources/opcodes.html
 
-const std::array<std::string, 12> REGISTERS {
-     "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX"
+const std::array<std::string, 24> REGISTERS {
+     "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX",
+     "AH", "BH", "CH", "DH", "ESP", "EDI", "EBP", "ESI", "SP", "DI", "BP", "SI"
 };
 
 const std::array<std::string, 4> SEGMENT_REGISTERS {
@@ -107,6 +109,8 @@ namespace ModRM {
 	  { mods::REG	     , "11"}
      };
 
+     // sss : Segment Register
+     //-----------------------
      // 000 : ES
      // 001 : CS
      // 010 : SS
@@ -120,6 +124,37 @@ namespace ModRM {
 	  { "DS", "011"},
 	  { "FS", "100"},
 	  { "GS", "101"}
+     };
+
+     // @see: https://courses.engr.illinois.edu/ece390/resources/opcodes.html
+     // rrr : W=0 : W=1 : reg32
+     //------------------------
+     // 000 : AL  : AX  : EAX
+     // 001 : CL  : CX  : ECX
+     // 010 : DL  : DX  : EDX
+     // 011 : BL  : BX  : EBX
+     // 100 : AH  : SP  : ESP
+     // 101 : CH  : BP  : EBP
+     // 110 : DH  : SI  : ESI
+     // 111 : BH  : DI  : EDI
+     const std::map<std::string, std::tuple<std::string, std::string>> REGISTERS_RRR_MAP {
+	  // reg:                [rrr,   W]
+	  { "AL", std::make_tuple("000", "0") },
+	  { "CL", std::make_tuple("001", "0") },
+	  { "DL", std::make_tuple("010", "0") },
+	  { "BL", std::make_tuple("011", "0") },
+	  { "AH", std::make_tuple("100", "0") },
+	  { "CH", std::make_tuple("101", "0") },
+	  { "DH", std::make_tuple("110", "0") },
+	  { "BH", std::make_tuple("111", "0") },
+	  { "AX", std::make_tuple("000", "1") },
+	  { "CX", std::make_tuple("001", "1") },
+	  { "DX", std::make_tuple("010", "1") },
+	  { "BX", std::make_tuple("011", "1") },
+	  { "SP", std::make_tuple("100", "1") },
+	  { "BP", std::make_tuple("101", "1") },
+	  { "SI", std::make_tuple("110", "1") },
+	  { "DI", std::make_tuple("111", "1") },
      };
 
      const std::string get_rm_from_reg(const std::string& src_reg) {
