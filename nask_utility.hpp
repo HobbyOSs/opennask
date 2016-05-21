@@ -136,11 +136,11 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  } else {
 	       // http://stackoverflow.com/a/1289360/2565527
-	       const uint8_t first_byte  = word & 0xff;
-	       const uint8_t second_byte = (word >> 8);
+	       const uint8_t first_byte  = (word >> 8) & 0xff;
+	       const uint8_t second_byte = word & 0xff;
 	       // push_back as little_endian
-	       binout_container.push_back(first_byte);
 	       binout_container.push_back(second_byte);
+	       binout_container.push_back(first_byte);
 	  }
      }
 
@@ -380,8 +380,8 @@ namespace nask_utility {
 			 return 17;
 		    }
 	       } else {
-		    // DWを解釈
-		    set_word_into_binout(token.AsLong(), binout_container);
+		    // DWを解釈, 0x00の際でもWORDで格納
+		    set_word_into_binout(token.AsLong(), binout_container, false);
 	       }
 	  }
      }
