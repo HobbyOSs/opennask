@@ -247,7 +247,9 @@ namespace nask_utility {
 	       } else if (token.Is(",")) {
 		    continue;
 	       } else if (is_segment_register(token_table, token)) {
+		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
+		    //
 		    std::cout << "MOV REGISTER: " << token.AsString();
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
@@ -275,24 +277,13 @@ namespace nask_utility {
 
 	       } else if (is_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",") &&
-			  !tokenizer.LookAhead(2).IsEmpty()) {
-
+			  tokenizer.LookAhead(2).IsInteger()) {
+		    //
+		    // MOV Reg, Imm
+		    //-------------
 		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
 		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
 		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
-		    // -------------------------------------------------------
-		    // b0      [imm8]		mov [imm8],%al
-		    // b3      [imm8]		mov [imm8],%bl
-		    // b1      [imm8]		mov [imm8],%cl
-		    // b2      [imm8]		mov [imm8],%dl
-		    // b8      [imm32]		mov [imm32],%eax
-		    // bb      [imm32]		mov [imm32],%ebx
-		    // b9      [imm32]		mov [imm32],%ecx
-		    // ba      [imm32]		mov [imm32],%edx
-		    // (66) b8 [imm16]	        mov [imm16],%ax
-		    // (66) bb [imm16]	        mov [imm16],%bx
-		    // (66) b9 [imm16]	        mov [imm16],%cx
-		    // (66) ba [imm16]	        mov [imm16],%dx
 		    //
 		    NIMONIC_INFO nim_info;
 		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
