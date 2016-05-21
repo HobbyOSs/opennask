@@ -152,7 +152,7 @@ namespace nask_utility {
      }
 
      // JMPオペコードが見つかった時に呼び出す
-     void Instructions::set_jmp_stack(std::string store_label, std::vector<uint8_t>& binout_container) {
+     void Instructions::set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container) {
 
 	  // 見つかったJMP情報を記録
 	  JMP_STACK_ELEMENT elem;
@@ -167,7 +167,7 @@ namespace nask_utility {
      }
 
      // ラベルが見つかった時に呼び出す
-     void Instructions::update_jmp_stack(std::string found_label, std::vector<uint8_t>& binout_container) {
+     void Instructions::update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
 
 	  std::cout << "updating a label...: " << found_label << std::endl;
 	  auto it = std::find_if(std::begin(stack), std::end(stack),
@@ -197,7 +197,7 @@ namespace nask_utility {
      // @param zero_as_byte     0x00をバイトサイズで格納する
      //
      void set_word_into_binout(const uint16_t& word,
-			       std::vector<uint8_t>& binout_container,
+			       VECTOR_BINOUT& binout_container,
 			       bool zero_as_byte) {
 
 	  if (word == 0x0000 && zero_as_byte) {
@@ -215,7 +215,7 @@ namespace nask_utility {
 
      // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
-     void set_dword_into_binout(const uint32_t& dword, std::vector<uint8_t>& binout_container, bool zero_as_byte) {
+     void set_dword_into_binout(const uint32_t& dword, VECTOR_BINOUT& binout_container, bool zero_as_byte) {
 
 	  if (dword == 0x00000000 && zero_as_byte) {
 	       // push_back only 1byte
@@ -249,7 +249,7 @@ namespace nask_utility {
      //
      TParaCxxTokenTable Instructions::token_table;
      JMP_STACK Instructions::stack;
-     int Instructions::process_token_MOV(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
           // ------------------------------
           // Intel® 64 and IA-32 Architectures
@@ -398,7 +398,7 @@ namespace nask_utility {
      }
 
      // 簡単なJMP命令の実装
-     int Instructions::process_token_JMP(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_JMP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -413,7 +413,7 @@ namespace nask_utility {
      }
 
      // 簡単なDB命令の実装
-     int Instructions::process_token_DB(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_DB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -451,7 +451,7 @@ namespace nask_utility {
      //   68 65 6C 6C 6F 20 77 6F 72 6C 64 00 0A 00 0D 00.
      // In your example, msg won't be printed until its end.
      //
-     int Instructions::process_token_DW(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_DW(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -483,7 +483,7 @@ namespace nask_utility {
      }
 
      // 簡単なDD命令の実装
-     int Instructions::process_token_DD(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_DD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
@@ -515,7 +515,7 @@ namespace nask_utility {
      }
 
      // 簡単なRESB命令の実装
-     int Instructions::process_token_RESB(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container) {
+     int Instructions::process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;

@@ -61,6 +61,8 @@ namespace nask_utility {
 
      // 処理の中でJMP情報の収集をする
      typedef std::vector<JMP_STACK_ELEMENT> JMP_STACK;
+     // 出力先
+     typedef std::vector<uint8_t> VECTOR_BINOUT;
 
      std::ifstream::pos_type filesize(const char* filename);
      std::vector<std::string> split(const std::string &str, char delim);
@@ -88,13 +90,13 @@ namespace nask_utility {
      // @param zero_as_byte     0x00をバイトサイズで格納する
      //
      void set_word_into_binout(const uint16_t& word,
-			       std::vector<uint8_t>& binout_container,
+			       VECTOR_BINOUT& binout_container,
 			       bool zero_as_byte = true);
 
      // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
      void set_dword_into_binout(const uint32_t& dword,
-				std::vector<uint8_t>& binout_container,
+				VECTOR_BINOUT& binout_container,
 				bool zero_as_byte = false);
 
      // アセンブラ命令処理
@@ -105,15 +107,15 @@ namespace nask_utility {
 	  static size_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
-	  int process_token_MOV (TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
-	  int process_token_JMP (TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
-	  int process_token_DB  (TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
-	  int process_token_DW  (TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
-	  int process_token_DD  (TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
-	  int process_token_RESB(TParaTokenizer& tokenizer, std::vector<uint8_t>& binout_container);
+	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_JMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_DB  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_DD  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
-	  void set_jmp_stack(std::string store_label, std::vector<uint8_t>& binout_container);
-	  void update_jmp_stack(std::string found_label, std::vector<uint8_t>& binout_container);
+	  void set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container);
+	  void update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container);
      };
 
      namespace ModRM {
@@ -191,7 +193,7 @@ namespace nask_utility {
 
 namespace meta {
      // from: http://faithandbrave.hateblo.jp/entry/20071026/1193404885
-     typedef std::function<int(TParaTokenizer &, std::vector<uint8_t> &)> nim_callback;
+     typedef std::function<int(TParaTokenizer &, nask_utility::VECTOR_BINOUT &)> nim_callback;
      typedef std::map<std::string, nim_callback> funcs_type;
 
      //struct INST_SINGLETON {
