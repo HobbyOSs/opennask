@@ -9,7 +9,7 @@ SUBDIRS = parasol data
 
 # main program
 bin_PROGRAMS	  = opennask
-opennask_SOURCES  = main.cpp
+opennask_SOURCES  = main.cpp nask_utility.cpp
 opennask_LDFLAGS  = -L./parasol -lparasol
 opennask_CXXFLAGS = -I$(top_builddir)/parasol
 

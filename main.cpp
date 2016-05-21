@@ -9,6 +9,8 @@
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
 
+using namespace std::placeholders;
+
 int process_each_assembly_line(char** argv,
 			       std::ifstream& nas_file,
 			       std::vector<uint8_t>& binout_container,
@@ -17,7 +19,28 @@ int process_each_assembly_line(char** argv,
      /* 以下，入力の読み込みと解析，評価のループ */
      long line_number = 1;
      std::string input;
-     static meta::funcs_type funcs = meta::get_instance();
+
+     // デフォルトのトークンテーブル
+     TParaCxxTokenTable token_table;
+     token_table.AddCommentLimiter(";", "\n");
+     token_table.AddCommentLimiter("#", "\n");
+
+     static meta::funcs_type funcs;
+     static nask_utility::Instructions inst;
+     inst.token_table = token_table;
+
+     const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
+     const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
+     const auto fp_DB   = std::bind(&nask_utility::Instructions::process_token_DB   , inst, _1, _2);
+     const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
+     const auto fp_DD   = std::bind(&nask_utility::Instructions::process_token_DD   , inst, _1, _2);
+     const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
+     funcs.insert(std::make_pair("MOV" , fp_MOV));
+     funcs.insert(std::make_pair("JMP" , fp_JMP));
+     funcs.insert(std::make_pair("DB"  , fp_DB));
+     funcs.insert(std::make_pair("DW"  , fp_DW));
+     funcs.insert(std::make_pair("DD"  , fp_DD));
+     funcs.insert(std::make_pair("RESB", fp_RESB));
 
      if (start_line != 0) {
 	  // 開始位置まで飛ばす
@@ -34,12 +57,12 @@ int process_each_assembly_line(char** argv,
 
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istrstream input_stream(input.c_str());
-	  TParaTokenizer tokenizer(input_stream, &nask_utility::token_table);
+	  TParaTokenizer tokenizer(input_stream, &token_table);
 	  TParaToken token;
 
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
-	       if (nask_utility::is_comment_line(nask_utility::token_table, token) ||
-		   nask_utility::is_line_terminated(nask_utility::token_table, token)) {
+	       if (nask_utility::is_comment_line(token_table, token) ||
+		   nask_utility::is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
@@ -72,8 +95,7 @@ int process_each_assembly_line(char** argv,
 			 if (nask_utility::ends_with(token.AsString(), ":")) {
 			      std::cout << "coming another label" << std::endl;
 			      std::string label = token.AsString();
-			      JMP::update_jmp_stack(label.substr(0, label.size() - 1),
-						    binout_container, nask_utility::jmp_stack);
+			      inst.update_jmp_stack(label.substr(0, label.size() - 1), binout_container);
 			 }
 		    }
 	       }
@@ -109,30 +131,6 @@ int main(int argc, char** argv) {
 	  std::cerr << "NASK : can't open " << argv[2] << std::endl;
 	  return 17;
      }
-
-     // 各文法要素テーブルの生成
-     nask_utility::token_table.AddCommentLimiter(";", "\n");
-     nask_utility::token_table.AddCommentLimiter("#", "\n");
-
-     TParaCxxOperatorTable operator_table;
-     TParaObjectPrototypeTable object_prototype_table;
-     TParaBuiltinFunctionTable builtin_function_table;
-     TParaSymbolTable SymbolTable(&object_prototype_table, &builtin_function_table);
-
-     /* 組み込み関数テーブルに数学関数を追加 */
-     builtin_function_table.RegisterAnonymousClass(new TParaMathObject);
-
-     /* 演算子テーブルに冪乗演算子 (**) を追加 */
-     //operator_table.AddOperator(
-     // 	  "**", TParaOperatorPriority("*", -1), new TParaOperatorPower()
-     // 	  );
-     TParaExpressionParser ExpressionParser(&operator_table);
-     nask_utility::token_table.AddOperator("**");
-
-     /* シンボルテーブルに定義済み変数 pi (円周率), e (自然対数の底), x を追加 */
-     // SymbolTable.RegisterVariable("pi", TParaValue(3.141592));
-     // SymbolTable.RegisterVariable("e", TParaValue(2.718281828));
-     // SymbolTable.RegisterVariable("x", TParaValue((double) 0));
 
      // 入力の読み込みと解析，評価のループ
      process_each_assembly_line(argv, nas_file, binout_container);
