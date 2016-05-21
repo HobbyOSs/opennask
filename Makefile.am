@@ -14,4 +14,18 @@ opennask_LDFLAGS  = -L./parasol -lparasol
 opennask_CXXFLAGS = -I$(top_builddir)/parasol
 
 # functional test
+ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
 TESTS = nask_functional_test.sh
+
+compile-all-asms:
+	@ASMS="$(ASMS)";                                        \
+	for x in $$ASMS; do                                     \
+		echo "== compile $$x ...";                      \
+		./opennask data/$x data/`basename $x .nas`.img; \
+	done
+
+show-all-asms:
+	@ASMS="$(ASMS)";       \
+	for x in $$ASMS; do    \
+		echo "== $$x"; \
+	done
