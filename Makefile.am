@@ -17,15 +17,13 @@ opennask_CXXFLAGS = -I$(top_builddir)/parasol
 ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
 TESTS = nask_functional_test.sh
 
-all-local: compile-all-asms
-	make -C data md5
-
 compile-all-asms:
 	@ASMS="$(ASMS)";                                        \
 	for x in $$ASMS; do                                     \
 		echo "== compile $$x ...";                      \
 		./opennask data/$x data/`basename $x .nas`.img; \
 	done
+	make -C data md5
 
 show-all-asms:
 	@ASMS="$(ASMS)";       \

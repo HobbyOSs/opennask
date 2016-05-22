@@ -101,16 +101,16 @@ namespace nask_utility {
      template <class T> void plus_number_from_code(T& num, char c) {
 	  switch(c) {
 	  case 'A':
-	       num + 0;
+	       num += 0;
 	       break;
 	  case 'C':
-	       num + 1;
+	       num += 1;
 	       break;
 	  case 'D':
-	       num + 2;
+	       num += 2;
 	       break;
 	  case 'B':
-	       num + 3;
+	       num += 3;
 	       break;
 	  }
      }
@@ -464,6 +464,8 @@ namespace nask_utility {
 		    binout_container.push_back(token.AsLong());
 	       }
 	  }
+
+	  return 0;
      }
 
      // 簡単なJMP命令の実装
@@ -479,6 +481,7 @@ namespace nask_utility {
 		    break;
 	       }
 	  }
+	  return 0;
      }
 
      // 簡単なDB命令の実装
@@ -504,6 +507,7 @@ namespace nask_utility {
 		    binout_container.push_back(token.AsLong());
 	       }
 	  }
+	  return 0;
      }
 
      // 簡単なDW命令の実装
@@ -549,12 +553,14 @@ namespace nask_utility {
 		    set_word_into_binout(token.AsLong(), binout_container, false);
 	       }
 	  }
+	  return 0;
      }
 
      // 簡単なHLT命令の実装
      int Instructions::process_token_HLT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xF4 を格納
 	  binout_container.push_back(0xf4);
+	  return 0;
      }
 
      // 簡単なINT命令の実装
@@ -576,6 +582,7 @@ namespace nask_utility {
 		    break;
 	       }
 	  }
+	  return 0;
      }
 
      // 簡単なDD命令の実装
@@ -608,6 +615,7 @@ namespace nask_utility {
 		    set_dword_into_binout(token.AsLong(), binout_container);
 	       }
 	  }
+	  return 0;
      }
 
      // 簡単なRESB命令の実装
@@ -633,5 +641,6 @@ namespace nask_utility {
 		    }
 	       }
 	  }
+	  return 0;
      }
 }
