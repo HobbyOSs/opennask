@@ -77,19 +77,22 @@ dnl -----------------------------------------------
 dnl Checks for libraries.
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.0.0)
-AC_SUBST(LIBXML2_CFLAGS)
-AC_SUBST(LIBXML2_LIBS)
+PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.0.0], [HAVE_LIBXML2=1], [HAVE_LIBXML2=0])
+AM_CONDITIONAL([USE_LIBXML2], [test "$HAVE_LIBXML2" -eq 1])
 
 dnl -----------------------------------------------
 dnl Generates Makefile's, configuration files and scripts
 dnl -----------------------------------------------
 
 dnl test/Makefile <-- I can't compile it :<
+AM_COND_IF([USE_LIBXML2],
+	[AC_SUBST(LIBXML2_CFLAGS)
+	 AC_SUBST(LIBXML2_LIBS)
+	 AC_CONFIG_FILES([tools/codegenerator/Makefile])])
+
 AC_OUTPUT([
 	Makefile
 	reflcpp.pc
 	reflcpp/Makefile
 	tools/Makefile
-	tools/codegenerator/Makefile
 ])
