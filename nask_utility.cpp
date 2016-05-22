@@ -145,13 +145,6 @@ namespace nask_utility {
 	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb8, reg.at(1));
 	       nim_info->reg = reg;
 	       nim_info->imm = imm32;
-	  } else if (reg == "AX" || reg == "BX" || reg == "CX" || reg == "DX") {
-	       // prefix = "66B8+rw" (AX:+0, BX:+1, CX:+2, DX:+3)
-	       // FIXME: ここ結構謎、なんでこんな動き？
-	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb8, reg.at(1));
-	       //nim_info->prefix = get_plus_register_code((uint16_t) 0x66b8, reg.at(1));
-	       nim_info->reg = reg;
-	       nim_info->imm = imm16;
 	  } else {
 	       // tokenizerを先読みしてみる
 	       TParaToken src_token = tokenizer.LookAhead(2);
@@ -444,7 +437,7 @@ namespace nask_utility {
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
 		    token = tokenizer.Next();
-		    std::cout << dst_reg << " <= " << src_imm;
+		    std::cout << dst_reg << " <= " << src_imm << ", imm => " << nim_info.imm;
 
 		    const uint16_t nim = nim_info.prefix;
 		    if (nim > 0x6600) {
