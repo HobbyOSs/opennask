@@ -61,6 +61,31 @@ AC_SUBST(LIBRARY_DIR)
 dnl AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
+# Compiler vendor check
+AX_COMPILER_VENDOR
+# Use C++11
+AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
+# Some compile flags
+AX_CHECK_COMPILE_FLAG([-Wno-parentheses],[CXXFLAGS="$CXXFLAGS -Wno-parentheses"])
+
+# Checks for HostOS
+case "$host" in
+        *-*-mingw*|*-*-cygwin*|*-*-msys*)
+                ;;
+        *-*-linux*)
+                ;;
+        *-*-darwin*)
+		if test "${ax_cv_c_compiler_vendor}x" = "clangx"; then
+		   CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+		fi
+                ;;
+        *-*-*bsd*)
+                ;;
+        *)
+                AC_MSG_WARN([*** Please add $host to configure.ac checks!])
+                ;;
+esac
+
 dnl -----------------------------------------------
 dnl Checks for programs.
 dnl -----------------------------------------------
@@ -69,8 +94,6 @@ AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_AR
 AM_PROG_LIBTOOL
-AM_SANITY_CHECK
-
 AC_LANG_CPLUSPLUS
 
 dnl -----------------------------------------------

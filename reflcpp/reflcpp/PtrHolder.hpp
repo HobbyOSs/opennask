@@ -28,7 +28,7 @@
 
 #include <assert.h>
 #include <typeinfo>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 
 
@@ -48,7 +48,7 @@ class PtrHolder {
         //virtual void castFrom(const PtrHolder &) = 0;
 };
 
-typedef boost::shared_ptr<PtrHolder> PtrHolder_smptr_t;
+typedef std::shared_ptr<PtrHolder> PtrHolder_smptr_t;
 
 // This is the templated class that contains a typed pointer.  Each
 // instantiation of this class will specialize the castTo() and castFrom().
@@ -76,13 +76,13 @@ class PtrHolder_tmpl : public PtrHolder {
 
 template <typename T>
 class SmartPtrHolder_tmpl : public PtrHolder_tmpl<T> {
-        typedef boost::shared_ptr<T> shared_ptr_t;
+        typedef std::shared_ptr<T> shared_ptr_t;
     public:
-        SmartPtrHolder_tmpl(T *p) 
+        SmartPtrHolder_tmpl(T *p)
             : PtrHolder_tmpl<T>(p), sharedPtr(p) {}
         // With a custom deletor
         template <typename D>
-        SmartPtrHolder_tmpl(T *p, D d) 
+        SmartPtrHolder_tmpl(T *p, D d)
             : PtrHolder_tmpl<T>(p), sharedPtr(p, d) {}
         virtual ~SmartPtrHolder_tmpl() {}
         shared_ptr_t sharedPtr;
@@ -123,8 +123,8 @@ PtrHolder_tmpl<T>::castFrom(const PtrHolder &ph) {
     }
 }
 */
-        
-    
+
+
 /*
     assert(ph != NULL);
     assert(ptr != NULL);
