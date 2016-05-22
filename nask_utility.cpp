@@ -616,6 +616,90 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なCMP命令の実装
+     int Instructions::process_token_CMP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+
+		    if (is_register(token_table, token) &&
+			tokenizer.LookAhead(1).Is(",")  &&
+			is_register(token_table, tokenizer.LookAhead(2))) {
+			 // MOV Reg,Reg
+		    } else if (token.Is("[") &&
+			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       tokenizer.LookAhead(2).Is("]") &&
+			       tokenizer.LookAhead(3).Is(",") &&
+			       is_register(token_table, tokenizer.LookAhead(4))) {
+			 // MOV Mem,Reg
+		    } else if (is_register(token_table, token) &&
+			       tokenizer.LookAhead(1).Is(",")  &&
+			       tokenizer.LookAhead(2).Is("[")  &&
+			       is_register(token_table, tokenizer.LookAhead(3)) &&
+			       tokenizer.LookAhead(4).Is("]")) {
+			 // MOV Reg,Mem
+		    } else if (is_register(token_table, token) &&
+			       tokenizer.LookAhead(1).Is(",")  &&
+			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
+			 // MOV Acc,Imm
+			 // MOV Reg,Imm8
+			 // MOV Reg,Imm
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_imm  = src_token.AsString();
+
+			 // 次へ
+			 tokenizer.Next();
+			 tokenizer.Next();
+			 std::cout << dst_reg << " == " << src_imm << std::endl;
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::rm000)) {
+			      // AL|AX|EAX なので "MOV Acc,Imm" に決定
+			      // MOV Acc,Imm
+			      // 0011110 + w
+			      const std::bitset<8> bs_dst("0011110" + std::get<1>(tp_dst));
+
+			      // debug logs
+			      std::cout << "NIM(B): ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(bs_dst.to_ulong());
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(src_token.AsLong()) << std::endl;
+
+			      binout_container.push_back(bs_dst.to_ulong());
+			      binout_container.push_back(src_token.AsLong());
+			      break;
+
+			 } else {
+			      // MOV Reg,Imm8
+			      // MOV Reg,Imm
+
+			 }
+			 break;
+
+		    } else if (token.Is("[") &&
+			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       tokenizer.LookAhead(2).Is("]") &&
+			       tokenizer.LookAhead(3).Is(",") &&
+			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
+			 // MOV Mem,Imm8
+			 // MOV Mem,Imm
+		    } else {
+			 std::cerr << "NASK : CMP syntax error" << std::endl;
+			 return 17;
+		    }
+
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なDB命令の実装
      int Instructions::process_token_DB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
