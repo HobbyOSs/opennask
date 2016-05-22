@@ -26,12 +26,29 @@ namespace nask_utility {
 	  };
      };
 
+     bool is_legitimate_numeric(const std::string& s) {
+	  return is_hex_notation(s) || is_integer(s);
+     }
+
+     bool is_hex_notation(const std::string& s) {
+	  return s.compare(0, 2, "0x") == 0
+	       && s.size() > 2
+	       && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
+     }
+
+     bool is_integer(const std::string& s) {
+	  if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+	  char * p ;
+	  strtol(s.c_str(), &p, 10) ;
+	  return (*p == 0) ;
+     }
+
      std::ifstream::pos_type filesize(const char* filename) {
 	  std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
 	  return in.tellg();
      }
 
-     std::vector<std::string> split(const std::string &str, char delim){
+     std::vector<std::string> split(const std::string &str, char delim) {
 	  std::istringstream iss(str); std::string tmp; std::vector<std::string> res;
 	  while(std::getline(iss, tmp, delim)) res.push_back(tmp);
 	  return res;
@@ -138,17 +155,59 @@ namespace nask_utility {
 	  } else {
 	       // tokenizerを先読みしてみる
 	       TParaToken src_token = tokenizer.LookAhead(2);
-	       std::string src_imm  = src_token.AsString();
 
 	       // Reg, Immの場合 => 1011wrrr
 	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
 	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
 	       nim_info->prefix = bs.to_ulong();
-	       nim_info->reg = reg;
-	       nim_info->imm = imm16; // FIXME: すごい適当
+
+	       if (is_legitimate_numeric(src_token.AsString())) {
+		    nim_info->reg = reg;
+		    nim_info->imm = imm16; // FIXME: すごい適当
+	       } else {
+		    nim_info->reg = reg;
+		    nim_info->imm = offs; // ターゲットはoffset
+	       }
 	  }
 
 	  return;
+     }
+
+     // MOV命令でoffsetが見つかった時に呼び出す
+     void Instructions::set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container) {
+
+	  // 見つかったoffset情報を記録
+	  OFFSET_ELEMENT elem;
+	  elem.label = store_label;
+	  elem.src_index = binout_container.size();
+	  elem.rel_index = binout_container.size() + 1;
+	  offsets.push_back(elem);
+
+	  // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
+	  binout_container.push_back(0x00);
+	  binout_container.push_back(0x7c);
+     }
+
+     void Instructions::update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
+
+	  std::cout << "updating a label...: " << found_label << std::endl;
+	  auto it = std::find_if(std::begin(offsets), std::end(offsets),
+				 [&](const OFFSET_ELEMENT& elem)
+				 { return elem.label.find(found_label) != std::string::npos; });
+
+	  if (it != std::end(offsets)) {
+	       // 見つかったJMP情報を記録
+	       std::cout << "found a label from stacked";
+	       OFFSET_ELEMENT elem(*it);
+	       elem.dst_index = binout_container.size() + 1;
+	       offsets.erase(it);
+	       // JMP先のアドレスをアップデートする
+	       std::cout << ", so bin[" << elem.rel_index << "] = " << elem.rel_offset() << std::endl;
+	       binout_container[elem.rel_index] = elem.rel_offset();
+	  } else {
+	       // 例外を起こしたほうがよさそう
+	       std::cout << "not found a label from stacked" << std::endl;
+	  }
      }
 
      // JMPオペコードが見つかった時に呼び出す
@@ -249,6 +308,7 @@ namespace nask_utility {
      //
      TParaCxxTokenTable Instructions::token_table;
      JMP_STACK Instructions::stack;
+     OFFS_STACK Instructions::offsets;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
           // ------------------------------
@@ -326,8 +386,7 @@ namespace nask_utility {
 		    }
 
 	       } else if (is_register(token_table, token) &&
-			  tokenizer.LookAhead(1).Is(",") &&
-			  tokenizer.LookAhead(2).IsInteger()) {
+			  tokenizer.LookAhead(1).Is(",")) {
 		    //
 		    // MOV Reg, Imm
 		    //-------------
@@ -349,34 +408,36 @@ namespace nask_utility {
 		    std::cout << dst_reg << " <= " << src_imm;
 
 		    const uint16_t nim = nim_info.prefix;
-		    if (nim > 0x6600) {
-			 const uint8_t first_byte  = nim & 0xff;
-			 const uint8_t second_byte = (nim >> 8);
-			 binout_container.push_back(second_byte);
-			 binout_container.push_back(first_byte);
-			 // debug logs
-			 std::cout << " NIM: ";
-			 std::cout << std::showbase << std::hex
-				   << static_cast<int>(second_byte);
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
-				   << static_cast<int>(first_byte);
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
-				   << static_cast<int>(token.AsLong()) << std::endl;
+		    if (nim_info.imm != offs) {
+			 if (nim > 0x6600) {
+			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t second_byte = (nim >> 8);
+			      binout_container.push_back(second_byte);
+			      binout_container.push_back(first_byte);
+			      // debug logs
+			      std::cout << " NIM: ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(second_byte);
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(first_byte);
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(token.AsLong()) << std::endl;
 
-		    } else {
-			 const uint8_t first_byte  = nim & 0xff;
-			 const uint8_t second_byte = (nim >> 8);
-			 binout_container.push_back(first_byte);
-			 // debug logs
-			 std::cout << " NIM: ";
-			 std::cout << std::showbase << std::hex
-				   << static_cast<int>(first_byte);
+			 } else {
+			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t second_byte = (nim >> 8);
+			      binout_container.push_back(first_byte);
+			      // debug logs
+			      std::cout << " NIM: ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(first_byte);
 
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
-				   << static_cast<int>(token.AsLong()) << std::endl;
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(token.AsLong()) << std::endl;
+			 }
 		    }
 
 		    // 即値(imm)を設定
@@ -386,10 +447,16 @@ namespace nask_utility {
 			 set_word_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == imm32) {
 			 set_dword_into_binout(token.AsLong(), binout_container, false);
+		    } else if (nim_info.imm == offs) {
+			 std::cout << " offset processing !" << std::endl;
+			 set_offset_rel_stack(token.AsString(), binout_container);
 		    } else {
 			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
 			 return 17;
 		    }
+
+		    // これで終了のはず
+		    break;
 
 	       } else {
 		    binout_container.push_back(token.AsLong());

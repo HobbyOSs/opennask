@@ -14,6 +14,7 @@ constexpr size_t imm8  = 1;
 constexpr size_t imm16 = 2;
 constexpr size_t imm32 = 4;
 constexpr size_t imm64 = 8;
+constexpr size_t offs  = 12;
 
 // 現在のnaskのモード
 enum OPENNASK_MODES {

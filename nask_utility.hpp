@@ -47,6 +47,18 @@ struct JMP_STACK_ELEMENT {
   };
 };
 
+struct OFFSET_ELEMENT {
+  std::string label; // ex) entry:
+  size_t src_index;  // JMPのオペコードが始まる場所
+  size_t dst_index;  // JMPの飛び先のラベルが始まる場所
+  size_t rel_index;  // rel_offsetを格納する場所
+  size_t rel_offset() {
+       // offset = destination - source + sizeof(opcode)
+       // sizeof(opcode)はとりあえず2byteにしとく
+       return dst_index - src_index + 0x02;
+  };
+};
+
 // MOV DEST, SRC
 //     動作：DEST←SRC
 //     DEST：レジスタ、メモリー
@@ -61,8 +73,13 @@ namespace nask_utility {
 
      // 処理の中でJMP情報の収集をする
      typedef std::vector<JMP_STACK_ELEMENT> JMP_STACK;
+     typedef std::vector<OFFSET_ELEMENT> OFFS_STACK;
      // 出力先
      typedef std::vector<uint8_t> VECTOR_BINOUT;
+
+     bool is_hex_notation(const std::string& s);
+     bool is_integer(const std::string& s);
+     bool is_legitimate_numeric(const std::string& s);
 
      std::ifstream::pos_type filesize(const char* filename);
      std::vector<std::string> split(const std::string &str, char delim);
@@ -104,6 +121,7 @@ namespace nask_utility {
      public:
 	  static TParaCxxTokenTable token_table;
 	  static JMP_STACK stack;
+	  static OFFS_STACK offsets;
 	  static size_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
@@ -113,6 +131,9 @@ namespace nask_utility {
 	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DD  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+
+	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container);
+	  void update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container);
 
 	  void set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container);
 	  void update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container);
@@ -195,14 +216,6 @@ namespace meta {
      // from: http://faithandbrave.hateblo.jp/entry/20071026/1193404885
      typedef std::function<int(TParaTokenizer &, nask_utility::VECTOR_BINOUT &)> nim_callback;
      typedef std::map<std::string, nim_callback> funcs_type;
-
-     //struct INST_SINGLETON {
-     // 	  static meta::funcs_type funcs;
-     // 	  static nask_utility::Instructions inst;
-     //};
-
-     //static void get_instance(TParaCxxTokenTable& token_table, INST_SINGLETON* singleton) {
-     //};
 };
 
 #endif /* NASK_UTILITY_HPP_ */
