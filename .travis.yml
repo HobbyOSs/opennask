@@ -1,0 +1,70 @@
+sudo: required
+
+dist: trusty
+
+language: cpp
+
+cache: apt
+
+branches:
+  only:
+    - master
+
+notifications:
+  email:
+    - idiotpanzer@gmail.com
+
+addons:
+  apt: &apt-global
+    sources: &apt-common-sources
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.8
+      - llvm-toolchain-precise
+    packages: &apt-common-packages
+      - clang-3.8
+      - g++-5
+      - gcc-5
+      - automake
+      - autoconf
+      - libtool
+
+before_install:
+
+install:
+
+before_script:
+  # g++
+  - if [ "${CXX}" = 'g++' ]; then export CXX=g++-5; fi
+  # clang
+  - if [ "${CXX}" = 'clang++' ]; then export CXX=clang++-3.8; fi
+  # mingw32
+  - if [ "${MINGW32}" = '1' ]; then export CXX=i686-w64-mingw32-g++; fi
+  # mingw64
+  - if [ "${MINGW64}" = '1' ]; then export CXX=x86_64-w64-mingw32-g++; fi
+  - ./bootstrap
+
+script:
+  - if [ "${CXX}" = 'g++-5' ]; then ./configure --disable-silent-rules && make; fi
+  # clang
+  - if [ "${CXX}" = 'clang++-3.8' ]; then ./configure --disable-silent-rules && make; fi
+  # mingw32
+  - if [ "${MINGW32}" = '1' ]; then ./cross-i686-w64-mingw32.sh; fi
+  # mingw64
+  #- if [ "${MINGW64}" = '1' ]; then ./cross-x86_64-w64-mingw32.sh; fi
+
+matrix:
+  include:
+    - compiler: clang++
+      env:
+    - compiler: g++
+      env:
+    - compiler: gcc
+      env: MINGW32=1
+      addons:
+        apt:
+          sources: *apt-common-sources
+          packages:
+            - *apt-common-packages
+            - binutils-mingw-w64-i686
+            - gcc-mingw-w64-i686
+            - g++-mingw-w64-i686

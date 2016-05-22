@@ -34,7 +34,7 @@ test-driver
 */config.*
 */libtool
 */ltmain.sh
-*/m4
+
 
 /autom4te.cache/*
 /autoscan.log

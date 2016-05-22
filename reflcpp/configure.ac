@@ -6,6 +6,7 @@ dnl --------------------------------
 AC_INIT([reflcpp], [0.2], [bug-report@address])
 dnl AC_INIT(reflcpp/Serializer.h)
 AM_CONFIG_HEADER(config.h)
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl -----------------------------------------------
 dnl Package name and version number (user defined)
