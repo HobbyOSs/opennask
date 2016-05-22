@@ -23,6 +23,20 @@ enum OPENNASK_MODES {
      ID_63BIT_MODE
 };
 
+// オペランドの種類
+// @see https://courses.engr.illinois.edu/ece390/resources/opcodes.html
+enum OPERAND_KINDS {
+     ID_Reg = 0,
+     ID_Reg16,
+     ID_Reg32,
+     ID_Mem,
+     ID_Mem16,
+     ID_Mem32,
+     ID_Acc,
+     ID_Imm,
+     ID_Imm8
+};
+
 constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */
 constexpr uint8_t SUP_80186	= 0x000000fe; /* bit 1 */
 constexpr uint8_t SUP_80286	= 0x000000fc; /* bit 2 */

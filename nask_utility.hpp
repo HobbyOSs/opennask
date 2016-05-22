@@ -87,7 +87,7 @@ namespace nask_utility {
      size_t get_labelpos(std::ifstream& stream, std::string token);
      bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token);
      bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token);
-     bool is_register(TParaCxxTokenTable& token_table, TParaToken& token);
+     bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_segment_register(TParaCxxTokenTable& token_table, TParaToken& token);
 
      template <class T> void plus_number_from_code(T& num, char c);
@@ -125,6 +125,7 @@ namespace nask_utility {
 	  static size_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
+	  int process_token_ADD (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DB  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DD  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

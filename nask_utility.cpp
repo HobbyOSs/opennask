@@ -80,7 +80,7 @@ namespace nask_utility {
 	  return token.AsString() == "\n";
      }
 
-     bool is_register(TParaCxxTokenTable& token_table, TParaToken& token) {
+     bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(REGISTERS), std::end(REGISTERS),
 				 [&](const std::string& s)
@@ -520,6 +520,96 @@ namespace nask_utility {
 	       } else {
 		    const std::string store_label = tokenizer.Next().AsString();
 		    set_jmp_stack(store_label, binout_container);
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
+     // 簡単なADD命令の実装
+     int Instructions::process_token_ADD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+
+		    if (is_register(token_table, token) &&
+			tokenizer.LookAhead(1).Is(",")  &&
+			is_register(token_table, tokenizer.LookAhead(2))) {
+			 // MOV Reg,Reg
+		    } else if (token.Is("[") &&
+			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       tokenizer.LookAhead(2).Is("]") &&
+			       tokenizer.LookAhead(3).Is(",") &&
+			       is_register(token_table, tokenizer.LookAhead(4))) {
+			 // MOV Mem,Reg
+		    } else if (is_register(token_table, token) &&
+			       tokenizer.LookAhead(1).Is(",")  &&
+			       tokenizer.LookAhead(2).Is("[")  &&
+			       is_register(token_table, tokenizer.LookAhead(3)) &&
+			       tokenizer.LookAhead(4).Is("]")) {
+			 // MOV Reg,Mem
+		    } else if (is_register(token_table, token) &&
+			       tokenizer.LookAhead(1).Is(",")  &&
+			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
+			 // MOV Acc,Imm
+			 // MOV Reg,Imm8
+			 // MOV Reg,Imm
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_imm  = src_token.AsString();
+
+			 // 次へ
+			 tokenizer.Next();
+			 tokenizer.Next();
+			 std::cout << dst_reg << " <= " << src_imm << std::endl;
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+
+			 if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
+			     src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
+			      // MOV Reg,Imm8 に決定 int8_t 内に収まっているので
+			      // NIM: 1000001w oo000mmm
+			      // 1000001 + w
+			      const std::bitset<8> bs_dst("1000001" + std::get<1>(tp_dst));
+			      // oo + 000 + mmm
+			      // FIXME: mmmではなくrrrかもしれない
+			      const std::bitset<8> bs_src("11000" + std::get<0>(tp_dst));
+
+			      // debug logs
+			      std::cout << "NIM(W): ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(bs_dst.to_ulong());
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(bs_src.to_ulong());
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(src_token.AsLong()) << std::endl;
+
+			      binout_container.push_back(bs_dst.to_ulong());
+			      binout_container.push_back(bs_src.to_ulong());
+			      binout_container.push_back(src_token.AsLong());
+			      break;
+
+			 } else {
+			      // MOV Acc,Imm
+			      // MOV Reg,Imm
+			 }
+			 break;
+
+		    } else if (token.Is("[") &&
+			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       tokenizer.LookAhead(2).Is("]") &&
+			       tokenizer.LookAhead(3).Is(",") &&
+			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
+			 // MOV Mem,Imm8
+			 // MOV Mem,Imm
+		    } else {
+			 std::cerr << "NASK : ADD syntax error" << std::endl;
+			 return 17;
+		    }
+
 		    break;
 	       }
 	  }
