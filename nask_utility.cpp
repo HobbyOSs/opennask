@@ -408,35 +408,37 @@ namespace nask_utility {
 		    std::cout << dst_reg << " <= " << src_imm;
 
 		    const uint16_t nim = nim_info.prefix;
-		    if (nim_info.imm != offs) {
-			 if (nim > 0x6600) {
-			      const uint8_t first_byte  = nim & 0xff;
-			      const uint8_t second_byte = (nim >> 8);
-			      binout_container.push_back(second_byte);
-			      binout_container.push_back(first_byte);
-			      // debug logs
-			      std::cout << " NIM: ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(second_byte);
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(first_byte);
+		    if (nim > 0x6600) {
+			 const uint8_t first_byte  = nim & 0xff;
+			 const uint8_t second_byte = (nim >> 8);
+			 binout_container.push_back(second_byte);
+			 binout_container.push_back(first_byte);
+			 // debug logs
+			 std::cout << " NIM(W): ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(second_byte);
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(first_byte);
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(token.AsLong()) << std::endl;
+
+		    } else {
+			 const uint8_t first_byte  = nim & 0xff;
+			 const uint8_t second_byte = (nim >> 8);
+			 binout_container.push_back(first_byte);
+			 // debug logs
+			 std::cout << " NIM:(B) ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(first_byte);
+
+			 if (nim_info.imm != offs) {
 			      std::cout << ", ";
 			      std::cout << std::showbase << std::hex
 					<< static_cast<int>(token.AsLong()) << std::endl;
-
 			 } else {
-			      const uint8_t first_byte  = nim & 0xff;
-			      const uint8_t second_byte = (nim >> 8);
-			      binout_container.push_back(first_byte);
-			      // debug logs
-			      std::cout << " NIM: ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(first_byte);
-
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(token.AsLong()) << std::endl;
+			      std::cout << ", " << token.AsString() << std::endl;
 			 }
 		    }
 
