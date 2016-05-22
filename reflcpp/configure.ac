@@ -97,17 +97,6 @@ AM_PROG_LIBTOOL
 AC_LANG_CPLUSPLUS
 
 dnl -----------------------------------------------
-dnl Checks for libraries.
-dnl -----------------------------------------------
-AC_ARG_ENABLE([codegenerator],
-    AS_HELP_STRING([--enable-codegenerator], [Enable feature to generate code]))
-
-AS_IF([test "x$codegenerator" = "xyes"], [
-    PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.0.0], [HAVE_LIBXML2=1], [HAVE_LIBXML2=0])
-    AM_CONDITIONAL([USE_LIBXML2], [test "$HAVE_LIBXML2" -eq 1])
-], [AM_CONDITIONAL([USE_LIBXML2], [false])])
-
-dnl -----------------------------------------------
 dnl Generates Makefile's, configuration files and scripts
 dnl -----------------------------------------------
 
