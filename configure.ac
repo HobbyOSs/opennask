@@ -53,5 +53,5 @@ esac
 
 AC_CONFIG_FILES([Makefile
 		 data/Makefile])
-AC_CONFIG_SUBDIRS([parasol])
+AC_CONFIG_SUBDIRS([reflcpp parasol])
 AC_OUTPUT

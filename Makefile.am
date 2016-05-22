@@ -5,7 +5,7 @@ changeLog: configure.ac
 	@echo "" >> ChangeLog
 	git log --stat --name-only --date=short --abbrev-commit >> ChangeLog
 
-SUBDIRS = parasol data
+SUBDIRS = reflcpp parasol data
 
 # main program
 bin_PROGRAMS	  = opennask
