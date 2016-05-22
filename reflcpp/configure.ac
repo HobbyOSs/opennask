@@ -66,6 +66,7 @@ dnl -----------------------------------------------
 
 AC_PROG_CC
 AC_PROG_CXX
+AM_PROG_AR
 AM_PROG_LIBTOOL
 AM_SANITY_CHECK
 
@@ -75,20 +76,19 @@ dnl -----------------------------------------------
 dnl Checks for libraries.
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(LIBXML, xml2 >= 2.0.0)
-AC_SUBST(LIBXML_CFLAGS)
-AC_SUBST(LIBXML_LIBS)
+PKG_CHECK_MODULES(LIBXML2, libxml-2.0 >= 2.0.0)
+AC_SUBST(LIBXML2_CFLAGS)
+AC_SUBST(LIBXML2_LIBS)
 
 dnl -----------------------------------------------
 dnl Generates Makefile's, configuration files and scripts
 dnl -----------------------------------------------
 
-AC_CONFIG_FILES([ \
-        Makefile \
-        reflcpp.pc \
-        reflcpp/Makefile \
-        test/Makefile \
-        tools/Makefile \
-        tools/codegenerator/Makefile
+dnl test/Makefile <-- I can't compile it :<
+AC_OUTPUT([
+	Makefile
+	reflcpp.pc
+	reflcpp/Makefile
+	tools/Makefile
+	tools/codegenerator/Makefile
 ])
-AC_OUTPUT

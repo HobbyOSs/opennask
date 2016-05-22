@@ -1,7 +1,8 @@
 ## top directory
 
-#Build in these directories:
-SUBDIRS= reflcpp test tools
+# Build in these directories:
+# test/Makefile <-- I can't compile it :<
+SUBDIRS= reflcpp tools
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = reflcpp.pc
