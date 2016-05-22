@@ -158,24 +158,28 @@ namespace nask_utility {
 	       { mods::REG_REG    , "00"},
 	       { mods::REG_DISP8  , "01"},
 	       { mods::REG_DISP16 , "10"},
-	       { mods::REG	     , "11"}
+	       { mods::REG	  , "11"}
 	  };
 
-	  // sss : Segment Register
+	  // mmm : Function
 	  //-----------------------
-	  // 000 : ES
-	  // 001 : CS
-	  // 010 : SS
-	  // 011 : DS
-	  // 100 : FS (Only 386+)
-	  // 101 : GS (Only 386+)
-	  const std::map<std::string, std::string> SEGMENT_REGISTERS_SSS_MAP {
-	       { "ES", "000"},
-	       { "CS", "001"},
-	       { "SS", "010"},
-	       { "DS", "011"},
-	       { "FS", "100"},
-	       { "GS", "101"}
+          // 000 : DS:[BX+SI]
+          // 001 : DS:[BX+DI]
+          // 010 : SS:[BP+SI]
+          // 011 : SS:[BP+DI]
+          // 100 : DS:[SI]
+          // 101 : DS:[DI]
+          // 110 : SS:[BP]
+          // 111 : DS:[BX]
+	  const std::map<std::string, std::string> REGISTERS_MMM_MAP {
+	       { "DS", "000"}, { "[BX+SI]", "000"},
+	       { "DS", "001"}, { "[BX+DI]", "001"},
+	       { "SS", "010"}, { "[BP+SI]", "010"},
+	       { "SS", "011"}, { "[BP+DI]", "011"},
+	       { "DS", "100"}, { "[SI]",    "100"},
+	       { "DS", "101"}, { "[DI]",    "101"},
+	       { "SS", "110"}, { "[BP]",    "110"},
+	       { "DS", "111"}, { "[BX]",    "111"},
 	  };
 
 	  // @see: https://courses.engr.illinois.edu/ece390/resources/opcodes.html
@@ -207,6 +211,23 @@ namespace nask_utility {
 	       { "BP", std::make_tuple("101", "1") },
 	       { "SI", std::make_tuple("110", "1") },
 	       { "DI", std::make_tuple("111", "1") },
+	  };
+
+	  // sss : Segment Register
+	  //-----------------------
+	  // 000 : ES
+	  // 001 : CS
+	  // 010 : SS
+	  // 011 : DS
+	  // 100 : FS (Only 386+)
+	  // 101 : GS (Only 386+)
+	  const std::map<std::string, std::string> SEGMENT_REGISTERS_SSS_MAP {
+	       { "ES", "000"},
+	       { "CS", "001"},
+	       { "SS", "010"},
+	       { "DS", "011"},
+	       { "FS", "100"},
+	       { "GS", "101"}
 	  };
 
 	  const std::string get_rm_from_reg(const std::string& src_reg);

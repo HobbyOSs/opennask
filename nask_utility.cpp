@@ -386,10 +386,53 @@ namespace nask_utility {
 		    }
 
 	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",")  &&
+		          tokenizer.LookAhead(2).Is("[")  &&
+		          tokenizer.LookAhead(4).Is("]")) {
+		    //
+		    // MOV Reg, Mem | 1000101woorrrmmm
+		    //---------------------------------
+		    // 0x8A /r	MOV r8, r/m8		r/m8をr8に転送します
+		    // 0x8B /r	MOV r16, r/m16		r/m16をr16に転送します
+		    // 0x8B /r	MOV r32, r/m32		r/m32をr32に転送します
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(3);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_mem  = "[" + src_token.AsString() + "]";
+
+		    std::cout << dst_reg << " <= " << src_mem << std::endl;
+
+		    // Reg, Immの場合 => 1000101w oorrrmmm
+		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+		    const std::string tp_src = ModRM::REGISTERS_MMM_MAP.at(src_mem);
+
+		    // 1000101 + w
+		    const std::bitset<8> bs_dst("1000101" + std::get<1>(tp_dst));
+		    // oo + rrr + mmm
+		    const std::bitset<8> bs_src("00" + std::get<0>(tp_dst) + tp_src);
+		    binout_container.push_back(bs_dst.to_ulong());
+		    binout_container.push_back(bs_src.to_ulong());
+
+		    std::cout << "NIM(W): ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_dst.to_ulong());
+		    std::cout << ", ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_src.to_ulong()) << std::endl;
+
+		    // コンマを飛ばして次へ
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    // これで終了のはず
+		    break;
+
+	       } else if (is_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")) {
 		    //
-		    // MOV Reg, Imm
-		    //-------------
+		    // MOV Reg, Imm | 1011wrrr
+		    //--------------------------------------------------------
 		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
 		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
 		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
@@ -459,7 +502,6 @@ namespace nask_utility {
 
 		    // これで終了のはず
 		    break;
-
 	       } else {
 		    binout_container.push_back(token.AsLong());
 	       }

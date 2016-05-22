@@ -101,10 +101,13 @@ dnl Generates Makefile's, configuration files and scripts
 dnl -----------------------------------------------
 
 dnl test/Makefile <-- I can't compile it :<
-AM_COND_IF([USE_LIBXML2],
-	[AC_SUBST(LIBXML2_CFLAGS)
-	 AC_SUBST(LIBXML2_LIBS)
-	 AC_CONFIG_FILES([tools/codegenerator/Makefile])])
+AC_ARG_ENABLE([codegenerator],
+    AS_HELP_STRING([--enable-codegenerator], [Enable feature to generate code]))
+
+AS_IF([test "x$codegenerator" = "xyes"], [
+    PKG_CHECK_MODULES([LIBXML2], [libxml-2.0 >= 2.0.0], [HAVE_LIBXML2=1], [HAVE_LIBXML2=0])
+    AM_CONDITIONAL([USE_LIBXML2], [test "$HAVE_LIBXML2" -eq 1])
+], [AM_CONDITIONAL([USE_LIBXML2], [false])])
 
 AC_OUTPUT([
 	Makefile
