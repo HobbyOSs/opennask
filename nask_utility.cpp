@@ -182,10 +182,6 @@ namespace nask_utility {
 	  elem.src_index = binout_container.size();
 	  elem.rel_index = binout_container.size() + 1;
 	  offsets.push_back(elem);
-
-	  // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
-	  binout_container.push_back(0x00);
-	  binout_container.push_back(0x7c);
      }
 
      void Instructions::update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
@@ -495,6 +491,9 @@ namespace nask_utility {
 		    } else if (nim_info.imm == offs) {
 			 std::cout << " offset processing !" << std::endl;
 			 set_offset_rel_stack(token.AsString(), binout_container);
+			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
+			 binout_container.push_back(0x00);
+			 binout_container.push_back(0x7c);
 		    } else {
 			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
 			 return 17;
@@ -507,6 +506,28 @@ namespace nask_utility {
 	       }
 	  }
 
+	  return 0;
+     }
+
+     // JE命令の実装
+     int Instructions::process_token_JE(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    const std::string store_label = token.AsString();
+		    if (store_label.empty()) {
+			 continue;
+		    } else {
+			 std::cout << "label: " << store_label << std::endl;
+			 set_offset_rel_stack(store_label, binout_container);
+			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
+			 binout_container.push_back(0x74);
+			 binout_container.push_back(0x00);
+			 break;
+		    }
+	       }
+	  }
 	  return 0;
      }
 
@@ -844,14 +865,14 @@ namespace nask_utility {
 	       } else {
 		    if (tokenizer.LookAhead(1).AsString() == "-" && tokenizer.LookAhead(2).AsString() == "$") {
 			 // ハイフンを処理する、どこまで埋めるか取得する
-			 for (ulong l = binout_container.size(); l < token.AsLong(); l++) {
+			 for (uint32_t l = binout_container.size(); l < token.AsLong(); l++) {
 			      binout_container.push_back(0x00);
 			 }
 			 // ハイフン処理は確定なのでtokenを進めておく
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
 		    } else {
-			 for (ulong l = 0; l < token.AsLong(); l++) {
+			 for (uint32_t l = 0; l < token.AsLong(); l++) {
 			      binout_container.push_back(0x00);
 			 }
 		    }

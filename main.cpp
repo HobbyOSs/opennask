@@ -36,6 +36,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
      const auto fp_HLT  = std::bind(&nask_utility::Instructions::process_token_HLT  , inst, _1, _2);
      const auto fp_INT  = std::bind(&nask_utility::Instructions::process_token_INT  , inst, _1, _2);
+     const auto fp_JE   = std::bind(&nask_utility::Instructions::process_token_JE   , inst, _1, _2);
      const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
      const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
      const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
@@ -46,6 +47,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("DW"  , fp_DW));
      funcs.insert(std::make_pair("HLT" , fp_HLT));
      funcs.insert(std::make_pair("INT" , fp_INT));
+     funcs.insert(std::make_pair("JE"  , fp_JE));
      funcs.insert(std::make_pair("JMP" , fp_JMP));
      funcs.insert(std::make_pair("MOV" , fp_MOV));
      funcs.insert(std::make_pair("RESB", fp_RESB));
@@ -104,6 +106,7 @@ int process_each_assembly_line(char** argv,
 			      std::cout << "coming another label" << std::endl;
 			      std::string label = token.AsString();
 			      inst.update_jmp_stack(label.substr(0, label.size() - 1), binout_container);
+			      inst.update_offset_rel_stack(label.substr(0, label.size() - 1), binout_container);
 			 }
 		    }
 	       }
