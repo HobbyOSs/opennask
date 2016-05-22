@@ -18,6 +18,9 @@ AX_CHECK_COMPILE_FLAG([-Wno-parentheses],[CXXFLAGS="$CXXFLAGS -Wno-parentheses"]
 # Checks for HostOS
 case "$host" in
         *-*-mingw*|*-*-cygwin*|*-*-msys*)
+    AC_DEFINE([drand48()], [(rand()*(1./MAX_RAND))], [drand48() not implemented in MinGW])
+    AC_DEFINE([srand48], [srand], [srand48() not implemented in MinGW])
+    AC_DEFINE([MAX_RAND], [32767], [MAX_RAND is at least 32767 on any standard library implementation])
                 ;;
         *-*-linux*)
                 ;;
@@ -49,19 +52,6 @@ AC_CHECK_LIB(m,sin,LIBS="-lm $LIBS" has_m=1,has_m=0)
 if test $has_m = 0; then
   AC_MSG_ERROR("ERROR: cannot find libm.")
 fi
-
-dnl -----------------------------------------------
-dnl Checks for functions.
-dnl -----------------------------------------------
-AC_CHECK_FUNC([drand48],
-	      [AC_MSG_RESULT([found drand48])],
-	      [AC_DEFINE([drand48()], [(rand()*(1./MAX_RAND))], [drand48() not implemented in MinGW])])
-AC_CHECK_FUNC([srand48],
-	      [AC_MSG_RESULT([found srand48])],
-	      [AC_DEFINE([srand48], [srand], [srand48() not implemented in MinGW])])
-AC_CHECK_DEFINE([MAX_RAND],
-		[AC_MSG_RESULT([found MAX_RAND])],
-		[AC_DEFINE([MAX_RAND], [32767], [MAX_RAND is at least 32767 on any standard library implementation])])
 
 ###### Output ######
 
