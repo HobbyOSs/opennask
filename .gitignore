@@ -56,7 +56,6 @@ ar-lib
 /config.*
 /libtool
 /ltmain.sh
-/m4
 
 *.deps/
 
