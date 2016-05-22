@@ -551,6 +551,12 @@ namespace nask_utility {
 	  }
      }
 
+     // 簡単なHLT命令の実装
+     int Instructions::process_token_HLT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xF4 を格納
+	  binout_container.push_back(0xf4);
+     }
+
      // 簡単なDD命令の実装
      int Instructions::process_token_DD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {

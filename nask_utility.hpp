@@ -125,11 +125,12 @@ namespace nask_utility {
 	  static size_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
-	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
-	  int process_token_JMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DB  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
-	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DD  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_HLT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_JMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
 	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container);

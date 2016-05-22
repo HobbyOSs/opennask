@@ -29,17 +29,19 @@ int process_each_assembly_line(char** argv,
      static nask_utility::Instructions inst;
      inst.token_table = token_table;
 
-     const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
-     const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
      const auto fp_DB   = std::bind(&nask_utility::Instructions::process_token_DB   , inst, _1, _2);
-     const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
      const auto fp_DD   = std::bind(&nask_utility::Instructions::process_token_DD   , inst, _1, _2);
+     const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
+     const auto fp_HLT  = std::bind(&nask_utility::Instructions::process_token_HLT  , inst, _1, _2);
+     const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
+     const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
      const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
-     funcs.insert(std::make_pair("MOV" , fp_MOV));
-     funcs.insert(std::make_pair("JMP" , fp_JMP));
      funcs.insert(std::make_pair("DB"  , fp_DB));
-     funcs.insert(std::make_pair("DW"  , fp_DW));
      funcs.insert(std::make_pair("DD"  , fp_DD));
+     funcs.insert(std::make_pair("DW"  , fp_DW));
+     funcs.insert(std::make_pair("HLT" , fp_HLT));
+     funcs.insert(std::make_pair("JMP" , fp_JMP));
+     funcs.insert(std::make_pair("MOV" , fp_MOV));
      funcs.insert(std::make_pair("RESB", fp_RESB));
 
      if (start_line != 0) {
