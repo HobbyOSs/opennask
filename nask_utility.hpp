@@ -150,6 +150,9 @@ namespace nask_utility {
 	  const std::regex rm010("(DL|DX|EDX)");
 	  const std::regex rm011("(BL|BX|EBX)");
 
+	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)");
+	  const std::regex regImm16("(AX|CX|DX|BX)");
+
 	  enum mods {
 	       REG_REG = 0, // mod=00: [レジスター+レジスター]
 	       REG_DISP8,   // mod=01: [レジスター+disp8]

@@ -156,7 +156,13 @@ namespace nask_utility {
 
 	       if (is_legitimate_numeric(src_token.AsString())) {
 		    nim_info->reg = reg;
-		    nim_info->imm = imm16; // FIXME: すごい適当
+		    // レジスタの種類を見る
+		    std::smatch match;
+		    if (regex_match(reg, match, ModRM::regImm08)) {
+			 nim_info->imm = imm8;
+		    } else {
+			 nim_info->imm = imm16;
+		    }
 	       } else {
 		    nim_info->reg = reg;
 		    nim_info->imm = offs; // ターゲットはoffset
