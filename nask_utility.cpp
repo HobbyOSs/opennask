@@ -557,6 +557,27 @@ namespace nask_utility {
 	  binout_container.push_back(0xf4);
      }
 
+     // 簡単なINT命令の実装
+     int Instructions::process_token_INT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xCC    INC 3       割り込み3（デバッガへのトラップ）
+	  // 0xCD ib INC imm8    割り込みベクタ番号のバイトサイズの即値による指定
+	  // 0xCE    INCO        割り込み4（OFが1である場合）
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (is_legitimate_numeric(token.AsString())) {
+			 binout_container.push_back(0xcd);
+			 binout_container.push_back(token.AsLong());
+		    } else {
+			 std::cerr << "NASK : INT param is not correct" << std::endl;
+			 return 17;
+		    }
+		    break;
+	       }
+	  }
+     }
+
      // 簡単なDD命令の実装
      int Instructions::process_token_DD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
