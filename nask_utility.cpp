@@ -353,6 +353,7 @@ namespace nask_utility {
      TParaCxxTokenTable Instructions::token_table;
      JMP_STACK Instructions::stack;
      OFFS_STACK Instructions::offsets;
+     uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
           // ------------------------------
@@ -892,12 +893,38 @@ namespace nask_utility {
 			      binout_container.push_back(b);
 			 }
 		    } else {
-			 std::cerr << "NASK : DD not quoted correctly' " << std::endl;
+			 std::cerr << "NASK : DD not quoted correctly" << std::endl;
 			 return 17;
 		    }
 	       } else {
 		    // DWを解釈
 		    set_dword_into_binout(token.AsLong(), binout_container);
+	       }
+	  }
+	  return 0;
+     }
+
+     // 簡単なORG命令の実装
+     int Instructions::process_token_ORG(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is(",")) {
+		    std::cerr << "NASK : ORG contains unused ',' " << std::endl;
+		    return 17;
+	       } else {
+		    std::cout << token.AsString() << std::endl;
+
+		    if (is_legitimate_numeric(token.AsString())) {
+			 dollar_position = token.AsLong();
+			 std::cout.setf(std::ios::hex, std::ios::basefield);
+			 std::cout << "ORG = " << dollar_position << std::endl;
+			 break;
+		    } else {
+			 std::cerr << "NASK : ORG specified incorrect value" << std::endl;
+			 return 17;
+		    }
 	       }
 	  }
 	  return 0;
@@ -913,9 +940,10 @@ namespace nask_utility {
 	       } else {
 		    if (tokenizer.LookAhead(1).AsString() == "-" && tokenizer.LookAhead(2).AsString() == "$") {
 			 // ハイフンを処理する、どこまで埋めるか取得する
-			 for (uint32_t l = binout_container.size(); l < token.AsLong(); l++) {
+			 for (uint32_t l = binout_container.size(); l < token.AsLong() - dollar_position; l++) {
 			      binout_container.push_back(0x00);
 			 }
+
 			 // ハイフン処理は確定なのでtokenを進めておく
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();

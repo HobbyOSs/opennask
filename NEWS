@@ -1,0 +1,5 @@
+Release 0.0.1 (2016-05-23 Hiroyuki Nagata <idiotpanzer@gmail.com>)
+===================================================================
+
+OS自作入門 ２日目までのオペコードを網羅
+* ADD, CMP, DB, DD, DW, HLT, INT, JE, JMP, MOV, ORG, RESB

@@ -122,7 +122,7 @@ namespace nask_utility {
 	  static TParaCxxTokenTable token_table;
 	  static JMP_STACK stack;
 	  static OFFS_STACK offsets;
-	  static size_t dollar_position; // $
+	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
 	  int process_token_ADD (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
@@ -135,6 +135,7 @@ namespace nask_utility {
 	  int process_token_JE  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_ORG (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
 	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,

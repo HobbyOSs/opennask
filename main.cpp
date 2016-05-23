@@ -39,6 +39,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_JE   = std::bind(&nask_utility::Instructions::process_token_JE   , inst, _1, _2);
      const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
      const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
+     const auto fp_ORG  = std::bind(&nask_utility::Instructions::process_token_ORG  , inst, _1, _2);
      const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
      funcs.insert(std::make_pair("ADD" , fp_ADD));
      funcs.insert(std::make_pair("CMP" , fp_CMP));
@@ -50,6 +51,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("JE"  , fp_JE));
      funcs.insert(std::make_pair("JMP" , fp_JMP));
      funcs.insert(std::make_pair("MOV" , fp_MOV));
+     funcs.insert(std::make_pair("ORG" , fp_ORG));
      funcs.insert(std::make_pair("RESB", fp_RESB));
 
      if (start_line != 0) {
