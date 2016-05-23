@@ -37,11 +37,12 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
 // 0xFF /5 JMP m16:32	m16:32で指定されるアドレスに絶対間接ファージャンプする
 struct JMP_STACK_ELEMENT {
   std::string label; // ex) entry:
-  size_t src_index;  // JMPのオペコードが始まる場所
-  size_t dst_index;  // JMPの飛び先のラベルが始まる場所
-  size_t rel_index;  // rel_offsetを格納する場所
-  size_t rel_offset() {
+  int src_index;  // JMPのオペコードが始まる場所
+  int dst_index;  // JMPの飛び先のラベルが始まる場所
+  int rel_index;  // rel_offsetを格納する場所
+  int rel_offset() {
        // offset = rel - dst
+       // マイナスの時は補数表現を使う必要アリ
        return dst_index - rel_index;
   };
 };

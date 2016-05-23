@@ -221,22 +221,46 @@ namespace nask_utility {
 	  }
      }
 
-     // JMPオペコードが見つかった時に呼び出す
+     // "JMPオペコード"が見つかった時に呼び出す
      void Instructions::set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container) {
 
-	  // 見つかったJMP情報を記録
-	  JMP_STACK_ELEMENT elem;
-	  elem.label = store_label;
-	  elem.src_index = binout_container.size();
-	  elem.rel_index = binout_container.size() + 1;
-	  stack.push_back(elem);
+	  auto it = std::find_if(std::begin(stack), std::end(stack),
+				 [&](const JMP_STACK_ELEMENT& elem)
+				 { return elem.label.find(store_label) != std::string::npos; });
 
-	  // とりあえず0xEBのみ実装
-	  binout_container.push_back(0xeb);
-	  binout_container.push_back(0x00);
+	  if (it != std::end(stack)) {
+	       std::cout << "found a label from stacked" << std::endl;
+	       JMP_STACK_ELEMENT elem(*it);
+	       elem.src_index = binout_container.size();
+	       elem.rel_index = binout_container.size() + 1;
+
+	       // JMPのアドレスをアップデートする
+	       std::cout.setf(std::ios::dec, std::ios::basefield);
+	       std::cout << "elem.rel_index: " << elem.rel_index << std::endl;
+	       std::cout << "elem.dst_index: " << elem.dst_index << std::endl;
+	       std::cout.setf(std::ios::hex, std::ios::basefield);
+	       std::cout << "bin[" << std::to_string(binout_container.size() + 1) << "] = "
+			 << elem.rel_offset() - 1 << std::endl;
+
+	       // とりあえず0xEBのみ実装
+	       binout_container.push_back(0xeb);
+	       binout_container.push_back(elem.rel_offset() - 1);
+
+	  } else {
+	       // 見つかったJMP情報を記録
+	       JMP_STACK_ELEMENT elem;
+	       elem.label = store_label;
+	       elem.src_index = binout_container.size();
+	       elem.rel_index = binout_container.size() + 1;
+	       stack.push_back(elem);
+
+	       // とりあえず0xEBのみ実装
+	       binout_container.push_back(0xeb);
+	       binout_container.push_back(0x00);
+	  }
      }
 
-     // ラベルが見つかった時に呼び出す
+     // "ラベル"が見つかった時に呼び出す
      void Instructions::update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
 
 	  std::cout << "updating a label for jmp...: " << found_label << std::endl;
@@ -259,8 +283,12 @@ namespace nask_utility {
 			 << elem.rel_offset() - 1 << std::endl;
 	       binout_container[elem.rel_index] = elem.rel_offset() - 1;
 	  } else {
-	       // 例外を起こしたほうがよさそう
-	       std::cout << "not found a label from stacked" << std::endl;
+	       std::cout << "store a found label into stack" << std::endl;
+	       // 見つかったラベル情報を記録
+	       JMP_STACK_ELEMENT elem;
+	       elem.label = found_label;
+	       elem.dst_index = binout_container.size();
+	       stack.push_back(elem);
 	  }
      }
 

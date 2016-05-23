@@ -63,6 +63,7 @@ int process_each_assembly_line(char** argv,
      for (line_number; std::getline(nas_file, input); line_number++) {
 
 	  /* 行数チェック */
+	  std::cout.setf(std::ios::dec, std::ios::basefield);
 	  std::cout << line_number << ": " << input << std::endl;
 	  // オペコードではなくラベルの可能性を探る
 	  if (nask_utility::ends_with(input, ":")) {
