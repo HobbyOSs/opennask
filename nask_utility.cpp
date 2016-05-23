@@ -173,32 +173,36 @@ namespace nask_utility {
      }
 
      // MOV命令でoffsetが見つかった時に呼び出す
-     void Instructions::set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container) {
+     void Instructions::set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,
+					     int src_index, int rel_index) {
 
 	  // 見つかったoffset情報を記録
 	  OFFSET_ELEMENT elem;
 	  elem.label = store_label;
-	  elem.src_index = binout_container.size();
-	  elem.rel_index = binout_container.size() + 1;
+	  elem.src_index = (src_index!= -1) ? 0x7c : binout_container.size() - 1;
+	  elem.rel_index = (rel_index!= -1) ? rel_index : binout_container.size();
 	  offsets.push_back(elem);
      }
 
      void Instructions::update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
 
-	  std::cout << "updating a label...: " << found_label << std::endl;
+	  std::cout << "updating a label for offsets...: " << found_label << std::endl;
 	  auto it = std::find_if(std::begin(offsets), std::end(offsets),
 				 [&](const OFFSET_ELEMENT& elem)
 				 { return elem.label.find(found_label) != std::string::npos; });
 
 	  if (it != std::end(offsets)) {
 	       // 見つかったJMP情報を記録
-	       std::cout << "found a label from stacked";
+	       std::cout << "found a label from stacked" << std::endl;
 	       OFFSET_ELEMENT elem(*it);
-	       elem.dst_index = binout_container.size() + 1;
+	       elem.dst_index = binout_container.size();
 	       offsets.erase(it);
 	       // JMP先のアドレスをアップデートする
-	       std::cout << ", so bin[" << elem.rel_index << "] = " << elem.rel_offset() << std::endl;
-	       binout_container[elem.rel_index] = elem.rel_offset();
+	       std::cout.setf(std::ios::hex, std::ios::basefield);
+	       std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
+	       std::cout << "bin[" << std::to_string(elem.rel_index + 1) << "] = " << 0x7c << std::endl;
+	       binout_container[elem.rel_index] = elem.dst_index;
+	       binout_container[elem.rel_index + 1] = 0x7c;
 	  } else {
 	       // 例外を起こしたほうがよさそう
 	       std::cout << "not found a label from stacked" << std::endl;
@@ -223,7 +227,7 @@ namespace nask_utility {
      // ラベルが見つかった時に呼び出す
      void Instructions::update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
 
-	  std::cout << "updating a label...: " << found_label << std::endl;
+	  std::cout << "updating a label for jmp...: " << found_label << std::endl;
 	  auto it = std::find_if(std::begin(stack), std::end(stack),
 				 [&](const JMP_STACK_ELEMENT& elem)
 				 { return elem.label.find(found_label) != std::string::npos; });
@@ -497,7 +501,6 @@ namespace nask_utility {
 			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
 			 return 17;
 		    }
-
 		    // これで終了のはず
 		    break;
 	       } else {

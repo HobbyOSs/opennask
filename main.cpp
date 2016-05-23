@@ -64,6 +64,14 @@ int process_each_assembly_line(char** argv,
 
 	  /* 行数チェック */
 	  std::cout << line_number << ": " << input << std::endl;
+	  // オペコードではなくラベルの可能性を探る
+	  if (nask_utility::ends_with(input, ":")) {
+	       std::string label = input;
+	       std::cout << "coming another label:" << label << std::endl;
+	       inst.update_jmp_stack(label.substr(0, label.size() - 1), binout_container);
+	       inst.update_offset_rel_stack(label.substr(0, label.size() - 1), binout_container);
+	       continue;
+	  }
 
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istrstream input_stream(input.c_str());
@@ -97,16 +105,7 @@ int process_each_assembly_line(char** argv,
 			      }
 			      std::cout << "eval " << token.AsString() <<" end" << std::endl;
 			 } else {
-			 }
-
-		    } else {
-
-			 // オペコードではなくラベルの可能性を探る
-			 if (nask_utility::ends_with(token.AsString(), ":")) {
-			      std::cout << "coming another label" << std::endl;
-			      std::string label = token.AsString();
-			      inst.update_jmp_stack(label.substr(0, label.size() - 1), binout_container);
-			      inst.update_offset_rel_stack(label.substr(0, label.size() - 1), binout_container);
+			      // What
 			 }
 		    }
 	       }
