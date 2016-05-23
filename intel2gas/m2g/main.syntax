@@ -1,0 +1,413 @@
+#  Try to put the more specialized forms before the
+#  general ones
+#
+#  Look in file DATAFILES for more info about <tag>s.
+
+General settings:
+@src_comment0=;
+@dst_comment0=\#
+-
+# Single instructions that don't need converting or extending
+<op:32>
+<op>
+-
+
+# cmps,lods,movs,stos,iret...  size extended
+<op:20>d
+<op>l
+-
+<op:20><text>
+<op><text>
+-
+
+# unused: aad aam
+<op:02> <@><mathnum>
+<op> <@>$<mathnum>
+-
+
+#pushfd, popfd
+p<text>fd
+p<text>f
+-
+
+#shl&shr , 1 
+<op:08> <@><size> <address>] , 1
+<op><m> <@><address>
+-
+<op:08> <@><reg> , 1
+@clobber=<reg>,<clobber>
+<op><r> <@>%<reg>
+-
+
+# movsx & movzx
+mov<text>x <@><reg1> , <reg2>
+@clobber=<reg1>,<clobber>
+mov<text><r><r-1> <@>%<reg2>, %<reg1>
+-
+mov<text>x <@><reg> , <size> <address>]
+@clobber=<reg>,<clobber>
+mov<text><m><r> <@><address>, %<reg>
+-
+mov<text>x <@><reg> , <address>]
+@clobber=<reg>,<clobber>
+mov<text><m><r> <@><address>, %<reg>
+-
+mov<text1>x <@><reg> , <text2>
+@clobber=<reg>,<clobber>
+mov<text1><m><r> <@><text2>, %<reg>
+-
+
+enter <@><mathnum1>, <mathnum2>
+enter <@>$<mathnum2>, $<mathnum1>
+-
+
+# Labels: convert local labels to lastbiglabel.locallabel
+# The <more> allows an instruction be placed on the same line
+
+# gcc generated label
+L<dec>: <@><more>
+.L<dec>: <@><more>
+-
+.<text>: <@><more>
+<label>.<text>: <@><more>
+-
+.<text> <@><more>
+<label>.<text>: <@><more>
+-
+<text>: <@><more>
+@label=<text>
+<label>: <@><more>
+-
+
+
+
+# Some mmx routines (and other that don't need the b/w/l extension)
+# can use either op:04 or reg:10
+<op:04> <@><reg:10> , <address>]
+@clobber=<reg>,<clobber>
+<op> <@><address>, %<reg>
+-
+<op:04> <@><reg> , <size> <address>]
+@clobber=<reg>,<clobber>
+<op> <@><address>, %<reg>
+-
+<op:04> <@><size> <address>] , <reg>
+<op> <@>%<reg>, <address>
+-
+<op:04> <@><address>] , <reg>
+<op> <@>%<reg>, <address>
+-
+<op:04> <@><reg1> , <reg2>
+@clobber=<reg1>,<clobber>
+<op> <@>%<reg2>, %<reg1>
+-
+<op:04> <@><reg> , <mathnum>
+@clobber=<reg>,<clobber>
+<op> <@>$<mathnum>, %<reg>
+-
+<op:04> <@><reg> , <text>+ <mathnum>
+@clobber=<reg>,<clobber>
+<op> <@><text>+<mathnum>, %<reg>
+-
+<op:04> <@><reg:10> , <size> <text>
+@clobber=<reg>,<clobber>
+<op> <@><text>, %<reg>
+-
+<op:04> <@><reg:10> , <text>
+@clobber=<reg>,<clobber>
+<op> <@><text>, %<reg>
+-
+<op:04> <@><size> <text>, <reg:10>
+<op> <@>%<reg>, <text>
+-
+<op:04> <@><reg>
+@clobber=<reg>,<clobber>
+<op> <@>%<reg>
+-
+<op:04> <@> <address>]
+<op> <@><address>
+-
+
+# Some fpu (op:10) routines.
+<op:10> <@><size> <address>]
+<op><m> <@><address>
+-
+<op:10> <@> <address>]
+<op> <@><address>
+-
+<op:10> <@><reg>
+<op> <@>%<reg>
+-
+<op:10> <@><fpureg>
+<op> <@>%<fpureg>
+-
+<op:10> <@><fpureg1>, <fpureg2>
+<op> <@>%<fpureg2>, %<fpureg1>
+-
+<op:10> <@><size> <text>
+<op> <@><text>
+-
+<op:10> <@><text>
+<op> <@>$<text>
+-
+
+# normal instructions
+<op> <@><size> <address>]
+<op><m> <@><address>
+-
+<op> <@><reg> , <address>]
+@clobber=<reg>,<clobber>
+<op><r> <@><address>, %<reg>
+-
+<op> <@><reg> , <size> <address>]
+@clobber=<reg>,<clobber>
+<op><r> <@><address>, %<reg>
+-
+<op> <@><address>] , <size> <mathnum>
+<op><m> <@>$<mathnum>, <address>
+-
+<op> <@><size> <address>] , <size> <mathnum>
+<op><m-1> <@>$<mathnum>, <address>
+-
+<op> <@><size> <address>] , <mathnum>
+<op><m-1> <@>$<mathnum>, <address>
+-
+<op> <@><size> <address>] , <reg>
+<op><r> <@>%<reg>, <address>
+-
+<op> <@><address>] , <reg>
+<op><r> <@>%<reg>, <address>
+-
+
+<op> <@><reg1> , <reg2>
+@clobber=<reg1>,<clobber>
+<op><r> <@>%<reg2>, %<reg1>
+-
+<op> <@><reg> , <size> <mathnum>
+@clobber=<reg>,<clobber>
+<op><r> <@>$<mathnum>, %<reg>
+-
+<op> <@><reg> , <mathnum>
+@clobber=<reg>,<clobber>
+<op><r> <@>$<mathnum>, %<reg>
+-
+<op> <@><reg> , offset <text>
+@clobber=<reg>,<clobber>
+<op><r> <@><text>, %<reg>
+-
+
+# Simple instructions
+<op> <@><size> <address>]
+<op><m> <@><address>
+-
+<op> <@><size> <mathnum>
+<op><m> <@>$<mathnum>
+-
+<op> <@><mathnum>
+<op>l <@>$<mathnum>
+-
+<op> <@><reg>
+@clobber=<reg>,<clobber>
+<op><r> <@>%<reg>
+-
+<op> <@><text>
+<op>l <@>%<reg>
+-
+
+# rep instructions
+<@>rep <text>d
+@clobber=ecx,<clobber>
+<@>rep\n<@><text>l
+-
+<@>rep <text>
+@clobber=ecx,<clobber>
+<@>rep\n<@><text>
+-
+
+# set flag->register
+set<text> <@><reg>
+@clobber=<reg>,<clobber>
+set<text>b <@>%<reg>
+-
+set<text> <@><address>]
+set<text>b <@><address>
+-
+
+# Jump instructions to local & general variables (gcc generated code)
+<jump> L<dec>
+<jump> .L<dec>
+-
+# Jump/loop/call instructions to local & general variables
+<jump> <@>.<text>
+<jump> <@><label>.<text>
+-
+<jump> <@><address>]
+<jump> <@>*<address>
+-
+<jump> <@><discard> .<text>
+<jump> <@><label>.<text>
+-
+<jump> <@><discard> <text>
+<jump> <@><text>
+-
+<jump> <@><text>
+<jump> <@><text>
+-
+
+.MODEL <text>
+\#.MODEL <text>
+-
+.<dec>86
+.i<dec>86
+-
+
+# Miscallenous other opcodes
+retf
+lret
+-
+retf <@><mathnum>
+lret <@>$<mathnum>
+-
+cbw
+cbtw
+-
+cwd
+cwtd
+-
+cdq
+cltd
+-
+cwde
+cwtl
+-
+xlatb
+xlat
+-
+wait
+fwait
+-
+
+
+# These are the last resort. 
+# The text is assumed to be a variable name
+<op> <@><reg> , <text>
+@clobber=<reg>,<clobber>
+<op><r> <@><text>, %<reg>
+-
+<op:04> <@><text>, <reg>
+<op> <@>%<reg>, <text>
+-
+<op> <@><text>, <reg>
+<op><r> <@>%<reg>, <text>
+-
+# This is for totally broken code
+<op> <@><text>, <mathnum>
+<op>l <@>$<mathnum>, <text>
+-
+
+
+# Some special directives
+BITS <num>
+SKIPLINE
+-
+ASSUME <string>
+\#ASSUME <string>
+-
+DGROUP <string>
+\#DGROUP <string>
+-
+# Can someone help with this one
+PUBLIC <@><text>
+.global <@><text>
+-
+PUBLIC <manypublics>
+<manypublics>
+-
+<text> PROC NEAR
+@label=<text>
+<text>:
+-
+COMMON <@><text> <num>
+.comm <@><text>,<num>
+-
+COMMON <@><text> <num1>: <num2>
+.comm <@><text>,<num1>,<num2>
+-
+EXTERN <@><text>
+.extern <@><text>
+-
+COMMENT <@><string>
+\# <@><string>
+-
+SECTION <text>
+<text>
+-
+SEGMENT <text>
+<text>
+-
+RESD <text>
+.space <text>*4
+-
+ALIGN <num1>, db <num2>
+.align <num1>, <num2>
+-
+ALIGN <num>
+.align <num>
+-
+END
+SKIPLINE
+-
+<text> ENDP
+\#<text> ENDP
+-
+_<section> ENDS
+SKIPLINE
+-
+_<section> <string>
+.<section>
+-
+
+# more directives
+include <text>
+\#include "<text>"
+-
+<text> <@1>equ <@2><mathnumber>
+.equ <@1><text>, <@2><mathnumber>
+-
+<text> <@1>equ <@2><string>
+.equ <@1><text>, <@2><string>
+-
+
+# data initialization
+<data> <@><numlist>
+.<dtype> <@><numlist>
+-
+<text> <@1><data> <@2>?
+<text>: <@1>.space <@2><dsize>
+-
+<text> <@><data> <num1> dup ( <num2>)
+<text>: <@>.space <dsize>*<num1>, <num2>
+-
+<text1> <@><data> <text2> dup ( <num>)
+<text1>: <@>.space <dsize>*<text2>, <num>
+-
+<text> <@1>db <@2>"<string>"
+<text>: <@1>.string <@2>"<string>"
+-
+<text> <@1><data> <@2><numlist>
+<text>: <@1>.<dtype> <@2><numlist>
+-
+<text> <@1><data> <@2><textlist>
+<text>: <@1>.<dtype> <@2><textlist>
+-
+
+# string constants
+db <@>'<string>' , 0
+.asciz <@>"<string>"
+-
+db <@>'<string>' , <num>
+.ascii <@>"<string>"\n.byte <@><num>
+-
+db <@>'<string>'
+.ascii <@>"<string>"
+-

@@ -1,0 +1,32 @@
+-
+- <mathnum>( <addr>)
+[<addr>-<mathnum>]
+-
+<mathnum>( <addr>)
+[<addr>+<mathnum>]
+-
+( <addr>)
+[<addr>]
+-
+#$<mathnum>
+#<mathnum>
+#-
+<mathnum>
+[<mathnum>]
+-
+<text>+ <mathnum>( <addr>)
+[<addr>+<text>+<mathnum>]
+-
+# gcc generated jump
+.L<dec>( <addr>)
+[L<dec>+<addr>]
+-
+<text>( <addr>)
+[<text>+<addr>]
+-
+$<text>
+<text>
+-
+<text>
+[<text>]
+-

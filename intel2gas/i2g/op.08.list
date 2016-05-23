@@ -1,0 +1,7 @@
+# These instructions have special form <op> xxx,1
+# which in AT&T format is simply <op> xxx
+-
+sal
+sar
+shr
+shl

@@ -1,0 +1,8 @@
+# match any comma seperated list of words
+-
+<text>, <textlist>
+<text>,<textlist>
+-
+<text>
+<text>
+-

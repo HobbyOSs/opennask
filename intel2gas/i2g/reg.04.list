@@ -1,0 +1,13 @@
+# 8 bit registers
+@r-2=<r-1>
+@r-1=<r>
+@r=b
+-
+al
+ah
+bl
+bh
+cl
+ch
+dl
+dh

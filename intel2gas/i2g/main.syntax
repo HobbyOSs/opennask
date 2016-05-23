@@ -1,0 +1,366 @@
+#  Try to put the more specialized forms before the
+#  general ones
+#
+#  Look in file DATAFILES for more info about <tag>s.
+
+General settings:
+@src_comment0=;
+@dst_comment0=\#
+-
+# Single instructions that don't need converting or extending
+<op:32>
+<op>
+-
+
+# cmps,lods,movs,stos,iret...  size extended
+<op:20>d
+<op>l
+-
+<op:20><text>
+<op><text>
+-
+
+# unused: aad aam
+<op:02> <@><mathnum>
+<op> <@>$<mathnum>
+-
+
+#pushfd, popfd
+p<text>fd
+p<text>f
+-
+
+#shl&shr , 1 
+<op:08> <@><size> [ <address>] , 1
+<op><m> <@><address>
+-
+<op:08> <@><reg> , 1
+<op><r> <@>%<reg>
+-
+
+# movsx & movzx
+mov<text>x <@><reg1> , <reg2>
+mov<text><r><r-1> <@>%<reg2>,%<reg1>
+-
+mov<text>x <@><reg> , <size> [ <address>]
+mov<text><m><r> <@><address>,%<reg>
+-
+mov<text>x <@><reg> , [ <address>]
+mov<text><m><r> <@><address>,%<reg>
+-
+
+enter <@><mathnum1>, <mathnum2>
+enter <@>$<mathnum2>,$<mathnum1>
+-
+
+# Some mmx routines (and other that don't need the b/w/l extension)
+# can use either op:04 or reg:10
+<op:04> <@><reg:10> , [ <address>]
+<op> <@><address>,%<reg>
+-
+<op:04> <@><reg> , <size> [ <address>]
+<op> <@><address>,%<reg>
+-
+<op:04> <@><size> [ <address>] , <reg>
+<op> <@>%<reg>,<address>
+-
+<op:04> <@>[ <address>] , <reg>
+<op> <@>%<reg>,<address>
+-
+<op:04> <@><reg1> , <reg2>
+<op> <@>%<reg2>,%<reg1>
+-
+<op:04> <@><reg> , <mathnum>
+<op> <@>$<mathnum>,%<reg>
+-
+<op:04> <@><reg> , <text>+ <mathnum>
+<op> <@>$<text>+<mathnum>,%<reg>
+-
+<op:04> <@><reg:10> , <size> <text>
+<op> <@>$<text>,%<reg>
+-
+<op:04> <@><reg:10> , <text>
+<op> <@>$<text>,%<reg>
+-
+<op:04> <@><size> <text>, <reg:10>
+<op> <@>%<reg>,$<text>
+-
+<op:04> <@><reg:10>
+<op> <@>%<reg>
+-
+<op:04> <@>[ <address>]
+<op> <@><address>
+-
+
+# Some fpu (op:10) routines.
+<op:10> <@><size> [ <address>]
+<op><m> <@><address>
+-
+<op:10> <@>[ <address>]
+<op> <@><address>
+-
+<op:10> <@><reg>
+<op> <@>%<reg>
+-
+<op:10> <@><fpureg>
+<op> <@>%<fpureg>
+-
+<op:10> <@><fpureg1>, <fpureg2>
+<op> <@>%<fpureg2>,%<fpureg1>
+-
+<op:10> <@><size> <text>
+<op> <@><text>
+-
+<op:10> <@><text>
+<op> <@>$<text>
+-
+
+# three op instructions
+<op> <@><reg1>, <reg2>, <mathnum>
+<op><r-1> <@>$<mathnum>,%<reg2>,%<reg1>
+-
+<op> <@><reg1>, <reg2>, <reg3>
+<op><r-2> <@>%<reg3>,%<reg2>,%<reg1>
+-
+<op> <@><size> [ <address>] , <reg>, <mathnum>
+<op><m> <@>$<mathnum>,%<reg>,<address>
+-
+
+
+# normal instructions
+<op> <@><size> [ <address>]
+<op><m> <@><address>
+-
+<op> <@><reg> , [ <address>]
+<op><r> <@><address>,%<reg>
+-
+<op> <@><reg> , <size> [ <address>]
+<op><r> <@><address>,%<reg>
+-
+<op> <@>[ <address>] , <size> <mathnum>
+<op><m> <@>$<mathnum>,<address>
+-
+<op> <@><size> [ <address>] , <size> <mathnum>
+<op><m-1> <@>$<mathnum>,<address>
+-
+<op> <@><size> [ <address>] , <mathnum>
+<op><m-1> <@>$<mathnum>,<address>
+-
+<op> <@>[ <address>] , <reg>
+<op><r> <@>%<reg>,<address>
+-
+
+<op> <@><reg1> , <reg2>
+<op><r> <@>%<reg2>,%<reg1>
+-
+<op> <@><reg> , <size> <mathnum>
+<op><r> <@>$<mathnum>,%<reg>
+-
+<op> <@><reg> , <mathnum>
+<op><r> <@>$<mathnum>,%<reg>
+-
+
+# Simple instructions
+<op> <@><size> [ <address>]
+<op><m> <@><address>
+-
+<op> <@><size> <mathnum>
+<op><m> <@>$<mathnum>
+-
+<op> <@><mathnum>
+<op>l <@>$<mathnum>
+-
+<op> <@><reg>
+<op><r> <@>%<reg>
+-
+
+# rep instructions
+<@>rep <text>d
+<@>rep\n<@><text>l
+-
+<@>rep <text>
+<@>rep\n<@><text>
+-
+
+# set flag->register
+set<text> <@><reg>
+set<text>b <@>%<reg>
+-
+set<text> <@>[ <address>]
+set<text>b <@><address>
+-
+
+# Jump instructions to local & general variables (gcc generated code)
+<jump> L<dec>
+<jump> .L<dec>
+-
+# Jump/loop/call instructions to local & general variables
+<jump> <@>.<text>
+<jump> <@><label>.<text>
+-
+<jump> <@>[ <address>]
+<jump> <@>*<address>
+-
+<jump> <@><discard> .<text>
+<jump> <@><label>.<text>
+-
+<jump> <@><discard> <text>
+<jump> <@><text>
+-
+<jump> <@>FAR <mathnum1>:<mathnum2>
+l<jump> <@><mathnum1>,<mathnum2>
+-
+<jump> <@>FAR [ <address>]
+l<jump> <@>*<address>
+-
+<jump> <@><reg>
+<jump> <@>*%<reg>
+-
+<jump> <@><text>
+<jump> <@><text>
+-
+
+# Miscallenous other opcodes
+retf
+lret
+-
+retf <@><mathnum>
+lret <@>$<mathnum>
+-
+cbw
+cbtw
+-
+cwd
+cwtd
+-
+cdq
+cltd
+-
+cwde
+cwtl
+-
+xlatb
+xlat
+-
+wait
+fwait
+-
+
+# These are the last resort. 
+# The text is assumed to be a variable name
+<op> <@><reg> , <text>
+<op><r> <@>$<text>, %<reg>
+-
+<op:04> <@><text>, <reg>
+<op> <@>%<reg>, $<text>
+-
+<op> <@><text>, <reg>
+<op><r> <@>%<reg>, $<text>
+-
+
+# Labels: convert local labels to lastbiglabel.locallabel
+# The <more> allows an instruction be placed on the same line
+
+# gcc generated label
+L<dec>: <@><more>
+.L<dec>: <@><more>
+-
+
+.<text>: <@><more>
+<label>.<text>: <@><more>
+-
+.<text> <@><more>
+<label>.<text>: <@><more>
+-
+<text>: <@><more>
+@label=<text>
+<label>: <@><more>
+-
+
+# some used prefixes
+LOCK <@><more>
+lock <@><more>
+-
+A16 <@><more>
+addr16 <@><more>
+-
+
+# Some special directives
+BITS <num>
+SKIPLINE
+-
+# Can someone help with this one
+GLOBAL <@><text>:function
+.global <@><text>
+-
+GLOBAL <@><text>
+.global <@><text>
+-
+COMMON <@><text> <num>
+.comm <@><text>,<num>
+-
+COMMON <@><text> <num1>: <num2>
+.comm <@><text>,<num1>,<num2>
+-
+EXTERN <@><text>
+.extern <@><text>
+-
+SECTION <text>
+<text>
+-
+SEGMENT <text>
+<text>
+-
+RESD <text>
+.space <text>*4
+-
+ALIGN <num1>, db <num2>
+.align <num1>, <num2>
+-
+ALIGN <num>
+.align <num>
+-
+
+# more directives
+%include '<text>'
+\#include "<text>"
+-
+%include "<text>"
+\#include "<text>"
+-
+%define <@><text> <mathnum>
+.equ <text>, <mathnum>
+-
+%define <@><text1> <text2>
+.equ <@><text1>, <text2>
+-
+<text> <@1>equ <@2><mathnumber>
+.equ <@1><text>, <@2><mathnumber>
+-
+<text1> <@1>equ <@2><text2>
+.equ <@1><text1>, <@2><text2>
+-
+%if
+.if
+-
+%endif
+.endif
+-
+%ifdef <@><text>
+.ifdef <@><text>
+-
+# data initialization
+<data> <numlist>
+.<dtype> <numlist>
+-
+
+# string constants
+db <@>'<string>' , 0
+.asciz <@>"<string>"
+-
+db <@>'<string>' , <num>
+.ascii <@>"<string>"\n.byte <@><num>
+-
+db <@>'<string>'
+.ascii <@>"<string>"
+-

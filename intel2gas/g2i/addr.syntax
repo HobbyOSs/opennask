@@ -1,0 +1,16 @@
+-
+%<reg>
+<reg>
+-
+%<reg> , <dec>
+<reg>*<dec>
+-
+, %<reg> , <dec>
+<reg>*<dec>
+-
+%<reg1> , %<reg2>
+<reg1>+<reg2>
+-
+%<reg1> , %<reg2> , <dec>
+<reg1>+<reg2>*<dec>
+-

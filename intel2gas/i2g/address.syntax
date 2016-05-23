@@ -1,0 +1,76 @@
+# converts addresses in [] to gas style
+# doesn't support segment override
+# only quite simple expressions, and only one way
+# like 5+4*ecx won't work, but ecx*4+5 will, add more if you need
+-
+<mathnum>
+$<mathnum>
+-
+<reg>
+(%<reg>)
+-
+<reg> <+-> <mathnum>
+<sgn><mathnum>(%<reg>)
+-
+<reg1> + <reg2>
+(%<reg1>,%<reg2>)
+-
+<reg1> + <reg2> <+-> <mathnum>
+<sgn><mathnum>(%<reg1>,%<reg2>)
+-
+<reg> * <dec>
+(%<reg>,<dec>)
+-
+<reg1> + <reg2> * <dec>
+(%<reg1>,%<reg2>,<dec>)
+-
+<reg1> + <dec> * <reg2>
+(%<reg1>,%<reg2>,<dec>)
+-
+# <+-> doesn't work after <dec>
+#<reg> * <dec> <+-> <mathnum>
+#<sgn><mathnum>(%<reg>,<dec>)
+#-
+#<reg1> + <reg2> * <dec> <+-> <mathnum>
+#<sgn><mathnum>(%<reg1>,%<reg2>,<dec>)
+#-
+
+<reg1> + <reg2> * <dec>+ <mathnum>
+<mathnum>(%<reg1>,%<reg2>,<dec>)
+-
+<reg1> + <reg2> * <dec>- <mathnum>
+-<mathnum>(%<reg1>,%<reg2>,<dec>)
+-
+<reg> + <text>
+<text>(%<reg>)
+-
+<reg> * <dec>+ <mathnum>
+<mathnum>(%<reg>,<dec>)
+-
+<reg> * <dec>+ <text>
+<text>(%<reg>,<dec>)
+-
+
+<text>+ <mathnum>+ <reg> * <dec>
+<text>+<mathnum>(,%<reg>,<dec>)
+-
+<text>+ <reg1> + <reg2> * <dec>
+<text>(%<reg1>,%<reg2>,<dec>)
+-
+<text>+ <reg> * <dec>+ <mathnum>
+<text>+<mathnum>(%<reg>,<dec>)
+-
+<text>+ <reg> * <dec>
+<text>(%<reg>,<dec>)
+-
+<text>+ <reg>
+<text>(%<reg>)
+-
+<text>+ <mathnum>
+<text>+<mathnum>
+-
+
+# WARNING! This matches everything
+<text>
+<text>
+-

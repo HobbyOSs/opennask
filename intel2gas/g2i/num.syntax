@@ -1,0 +1,12 @@
+# this simply converts the NASM number format to AT&T style
+# the hex,oct,dec,bin all only match the numbers they indicate
+-
+0b<bin>
+<bin>b
+-
+0x<hex>
+0<hex>h
+-
+<dec>
+<dec>
+-

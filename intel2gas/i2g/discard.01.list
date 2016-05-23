@@ -1,0 +1,6 @@
+# this is used in jmp to use the smaller instruction, gas does it automagically
+-
+short
+near
+near32
+near32 ptr

@@ -1,0 +1,8 @@
+@m-1=<m>
+@m=ll
+-
+qword
+qword ptr
+# this isn't a valid type but some define it
+mmword
+mmword ptr

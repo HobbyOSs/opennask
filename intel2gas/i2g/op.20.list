@@ -1,0 +1,14 @@
+#instructions that have a simple b/w/l mode without parameters
+-
+cmps
+ins
+lods
+movs
+outs
+scas
+stos
+iret
+popa
+pusha
+popf
+pushf

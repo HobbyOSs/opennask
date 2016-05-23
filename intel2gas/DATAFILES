@@ -1,0 +1,142 @@
+1.  How it Works(tm)
+--------------------
+First the program reads all .list and .syntax files from the appropriate 
+directory. The list files contain simple lists of registers and opcodes 
+of which the longest exact match is always used. The syntax files contain
+all the complex rules but unfortunately still use a first-match technique.
+
+
+
+2. General notes
+----------------
+
+All compares are case-insensitive.
+All tabs are converted to spaces.
+There is no limit for number of files, or syntaxes in them.
+
+
+
+3.  Variables
+-------------
+
+To set a new value to a variable:
+@variable=value
+
+The syntax to fetch the value of a variable, use the following tag:
+<variable>
+
+The value is expanded before assigning its value and can thus contain 
+references to other variables.
+
+
+
+4. List files
+-------------
+
+Lists of registers and opcodes are split to multiple files differentiated
+with bit masks to allow some flexibility in parsing rules.
+
+After a single line with only a '-' the list of strings follows, one string 
+per line. If the list file contains any variable definitions, they must be 
+defined before the list begins. A variable is only assigned a value if it
+is in the list file where the best match was found.
+
+Here's an example list file:
+
+@regtype=w
+-
+ax
+bx
+cx
+dx
+
+
+
+5.  Syntax files
+----------------
+
+The syntax files contain pairs of rules. The first rule is used while 
+trying to parse the input line, and if an exact match is found, the second 
+rule is used to construct the output line.
+
+
+5.1 Input line matching
+
+Each non-space character in the rule must match exactly with the input 
+to make a match. A space matches one or more spaces.
+A match for each new input line is sought from the main.syntax file.
+Each syntax file has its own variable namespace.
+
+If a special tag wrapped in <> is found then following steps are taken:
+1) If the tag is <text>:
+   All characters from the current input until the next character after 
+   the tag is encountered are set as the value of a variable text.
+   This can only fail if eol is the first character found.
+
+2) If the tag is <string>:
+   The remaining characters in the input line are copied as the value of
+   variable string. This always matches.
+
+3) If the <listname> is a name of a list group:
+   The value of the best match form the specified group is assigned to
+   variable called listname.
+   If no match was found then parsing of this rule is stopped.
+   * You can use the <listname:hh> syntax to limit the files in the group 
+     where match is searched. For example <reg:08> only matches segment
+     registers (that is, file reg.08.list). The default bit mask is ffh.
+
+4) If the <syntax> is a name of an another syntax file:
+   A new context is created which has the indicated syntax file as its
+   base. The tag is considered as a <text> tag whose contents are passed 
+   forward to the newly created context.
+   If an exact match is found then the variable syntax holds the output
+   constructed from the matching rules output rule.
+   * The input rules can be recursive, because a new context is always
+     created.
+
+5) If the tag is <more>:
+   This is a like the <syntax> tag, but it parses the rest of the input 
+   again with the main syntaxes. 
+   It is mainly used after labels to also parse other commands on the 
+   same line.
+
+6) If the tag is <@>:
+   This stores the current column in the input line as its value.
+
+To use more than one reference to the same list/syntax a number can be
+given after the tags name. The matched value is now stored to the 
+numbered variable name.  For example, "mov <reg1>,<reg2>".
+
+
+5.2 Before constructing output
+
+One can assign values to other variables as in list files.
+@varname=value
+The value can contain references to the newly created variables from 
+the parsed line.
+
+
+5.3 Constructing output line
+
+If the output line rule is only SKIPLINE then the whole line will be
+skipped.
+
+All normal characters are copied to the output line. A newline character
+can be inserted with \n. If a <tag> is found then the value of the tag 
+is stored to the output line. If no such variable exists, then nothing 
+is done.
+
+The only special tag is <@>, which doesn't output the column where it was
+encountered during reading, but instead tries to pad the output to the same
+column, if not already past it.
+
+
+
+6.  Currently used variables
+----------------------------
+
+<label>         last label
+<r>,<r-1>,<r-2> last register types
+<m>,<m-1>       last memory reference types
+<dtype>         last data initialization type size
+<sgn>           sign of last <+-> parse

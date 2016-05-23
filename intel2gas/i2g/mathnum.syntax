@@ -1,0 +1,17 @@
+# match any immediate number or expression
+-
+<num>
+<num>
+-
+<num>+ <mathnum>
+<num>+<mathnum>
+-
+<num>- <mathnum>
+<num>-<mathnum>
+-
+<num>* <mathnum>
+<num>*<mathnum>
+-
+( <mathnum>)
+(<mathnum>)
+-
