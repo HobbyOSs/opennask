@@ -41,9 +41,8 @@ struct JMP_STACK_ELEMENT {
   size_t dst_index;  // JMPの飛び先のラベルが始まる場所
   size_t rel_index;  // rel_offsetを格納する場所
   size_t rel_offset() {
-       // offset = destination - source + sizeof(opcode)
-       // sizeof(opcode)はとりあえず2byteにしとく
-       return dst_index - src_index + 0x02;
+       // offset = rel - dst - 1byte
+       return dst_index - rel_index;
   };
 };
 

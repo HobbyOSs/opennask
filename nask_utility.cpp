@@ -234,13 +234,18 @@ namespace nask_utility {
 
 	  if (it != std::end(stack)) {
 	       // 見つかったJMP情報を記録
-	       std::cout << "found a label from stacked";
+	       std::cout << "found a label from stacked" << std::endl;
 	       JMP_STACK_ELEMENT elem(*it);
-	       elem.dst_index = binout_container.size() + 1;
+	       elem.dst_index = binout_container.size();
 	       stack.erase(it);
 	       // JMP先のアドレスをアップデートする
-	       std::cout << ", so bin[" << elem.rel_index << "] = " << elem.rel_offset() << std::endl;
-	       binout_container[elem.rel_index] = elem.rel_offset();
+	       std::cout.setf(std::ios::dec, std::ios::basefield);
+	       std::cout << "elem.rel_index: " << elem.rel_index << std::endl;
+	       std::cout << "elem.dst_index: " << elem.dst_index << std::endl;
+	       std::cout.setf(std::ios::hex, std::ios::basefield);
+	       std::cout << "bin[" << std::to_string(elem.rel_index) << "] = "
+			 << elem.rel_offset() - 1 << std::endl;
+	       binout_container[elem.rel_index] = elem.rel_offset() - 1;
 	  } else {
 	       // 例外を起こしたほうがよさそう
 	       std::cout << "not found a label from stacked" << std::endl;
@@ -541,7 +546,8 @@ namespace nask_utility {
 	       } else if (token.Is(",")) {
 		    continue;
 	       } else {
-		    const std::string store_label = tokenizer.Next().AsString();
+		    const std::string store_label = token.AsString();
+		    std::cout << "label stored: " << store_label << std::endl;
 		    set_jmp_stack(store_label, binout_container);
 		    break;
 	       }
