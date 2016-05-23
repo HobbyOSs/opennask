@@ -34,7 +34,10 @@ enum OPERAND_KINDS {
      ID_Mem32,
      ID_Acc,
      ID_Imm,
-     ID_Imm8
+     ID_Imm8,
+     ID_Rel8,
+     ID_Rel16,
+     ID_Rel32
 };
 
 constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */

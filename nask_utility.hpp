@@ -41,16 +41,21 @@ struct JMP_STACK_ELEMENT {
   size_t dst_index;  // JMPの飛び先のラベルが始まる場所
   size_t rel_index;  // rel_offsetを格納する場所
   size_t rel_offset() {
-       // offset = rel - dst - 1byte
+       // offset = rel - dst
        return dst_index - rel_index;
   };
 };
 
 struct OFFSET_ELEMENT {
-  std::string label;   // ex) entry:
+  std::string label;   // ex) entry
+  OPERAND_KINDS operand;
   uint16_t src_index;  // JMPのオペコードが始まる場所
   uint16_t dst_index;  // JMPの飛び先のラベルが始まる場所
   uint16_t rel_index;  // rel_offsetを格納する場所
+  uint16_t rel_offset() {
+       // offset = rel - dst
+       return dst_index - rel_index;
+  };
 };
 
 // MOV DEST, SRC
@@ -132,7 +137,7 @@ namespace nask_utility {
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
 	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,
-				    int src_index = -1, int rel_index = -1);
+				    int src_index = -1, int rel_index = -1, OPERAND_KINDS operand = ID_Rel8);
 	  void update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container);
 
 	  void set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container);

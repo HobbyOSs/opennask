@@ -173,14 +173,18 @@ namespace nask_utility {
      }
 
      // MOV命令でoffsetが見つかった時に呼び出す
-     void Instructions::set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,
-					     int src_index, int rel_index) {
+     void Instructions::set_offset_rel_stack(std::string store_label,
+					     VECTOR_BINOUT& binout_container,
+					     int src_index,
+					     int rel_index,
+					     OPERAND_KINDS operand) {
 
 	  // 見つかったoffset情報を記録
 	  OFFSET_ELEMENT elem;
 	  elem.label = store_label;
-	  elem.src_index = (src_index!= -1) ? 0x7c : binout_container.size() - 1;
-	  elem.rel_index = (rel_index!= -1) ? rel_index : binout_container.size();
+	  elem.src_index = (src_index == -1) ? binout_container.size() - 1 : src_index;
+	  elem.rel_index = (rel_index == -1) ? binout_container.size()     : rel_index;
+	  elem.operand = operand;
 	  offsets.push_back(elem);
      }
 
@@ -196,13 +200,21 @@ namespace nask_utility {
 	       std::cout << "found a label from stacked" << std::endl;
 	       OFFSET_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
-	       offsets.erase(it);
+	       //offsets.erase(it);
 	       // JMP先のアドレスをアップデートする
 	       std::cout.setf(std::ios::hex, std::ios::basefield);
-	       std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
-	       std::cout << "bin[" << std::to_string(elem.rel_index + 1) << "] = " << 0x7c << std::endl;
-	       binout_container[elem.rel_index] = elem.dst_index;
-	       binout_container[elem.rel_index + 1] = 0x7c;
+	       if (elem.operand == ID_Rel16) {
+		    std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
+		    std::cout << "bin[" << std::to_string(elem.rel_index + 1) << "] = " << 0x7c << std::endl;
+		    binout_container[elem.rel_index] = elem.dst_index;
+		    binout_container[elem.rel_index + 1] = 0x7c;
+	       } else {
+		    std::cout << "bin[" << std::to_string(elem.rel_index) << "] = "
+			      << elem.rel_offset() - 1 << std::endl;
+		    binout_container[elem.rel_index] = elem.rel_offset() - 1;
+		    // std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
+		    // binout_container[elem.rel_index] = elem.dst_index;
+	       }
 	  } else {
 	       // 例外を起こしたほうがよさそう
 	       std::cout << "not found a label from stacked" << std::endl;
@@ -498,7 +510,7 @@ namespace nask_utility {
 			 set_dword_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == offs) {
 			 std::cout << " offset processing !" << std::endl;
-			 set_offset_rel_stack(token.AsString(), binout_container);
+			 set_offset_rel_stack(token.AsString(), binout_container, -1, -1, ID_Rel16);
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x7c);
@@ -527,7 +539,7 @@ namespace nask_utility {
 			 continue;
 		    } else {
 			 std::cout << "label: " << store_label << std::endl;
-			 set_offset_rel_stack(store_label, binout_container);
+			 set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
 			 binout_container.push_back(0x74);
 			 binout_container.push_back(0x00);
