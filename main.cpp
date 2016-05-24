@@ -8,6 +8,7 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
+#include "clogger.hpp"
 
 using namespace std::placeholders;
 
@@ -117,6 +118,11 @@ int process_each_assembly_line(char** argv,
 }
 
 int main(int argc, char** argv) {
+
+     // clogger
+     std::ofstream file("debug.log", std::ios::out | std::ios::trunc);
+     clogger logger(file.rdbuf());
+     std::streambuf* oldrdbuf = std::cout.rdbuf(&logger);
 
      if (argc < 2 || argc > 4) {
 	  std::cerr << "usage : >opennask source [object/binary] [list]" << std::endl;

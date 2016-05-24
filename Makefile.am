@@ -9,7 +9,12 @@ SUBDIRS = reflcpp parasol intel2gas data projects
 
 # main program
 bin_PROGRAMS	  = opennask
-opennask_SOURCES  = main.cpp nask_utility.cpp
+opennask_SOURCES  = main.cpp         \
+		    nask_utility.cpp \
+		    nask_utility.hpp \
+		    nask_defs.hpp    \
+		    clogger.hpp
+
 opennask_LDFLAGS  = -L./parasol -lparasol
 opennask_CXXFLAGS = -I$(top_builddir)/parasol
 
