@@ -28,7 +28,33 @@ addons:
       - autoconf
       - libtool
 
+matrix:
+  fast_finish: true
+  include:
+    - compiler: clang++
+      env:
+    - compiler: g++
+      env:
+    - compiler: ": MINGW32"
+      env:
+        - MINGW32=1
+        - MINGW_ROOT=/opt/mingw32
+        - MINGW_PREFIX=i686-w64-mingw32
+      addons:
+        apt:
+          sources:
+            - *apt-common-sources
+            - sourceline: 'ppa:tobydox/mingw-x-trusty'
+            - sourceline: 'deb http://ppa.launchpad.net/tobydox/mingw-x-trusty/ubuntu trusty main'
+          packages:
+            - *apt-common-packages
+            - mingw32-x-binutils
+            - mingw32-x-gcc
+            - mingw32-x-runtime
+
 before_install:
+  - sudo dpkg --add-architecture i386
+  - if [ "$MINGW_ROOT" ]; then export PATH=$MINGW_ROOT/bin:$PATH; fi
 
 install:
 
@@ -38,33 +64,16 @@ before_script:
   # clang
   - if [ "${CXX}" = 'clang++' ]; then export CXX=clang++-3.8; fi
   # mingw32
-  - if [ "${MINGW32}" = '1' ]; then export CXX=i686-w64-mingw32-g++; fi
+  - if [ "${MINGW32}" = '1' ]; then export CXX=${MINGW_PREFIX}-g++; fi
   # mingw64
-  - if [ "${MINGW64}" = '1' ]; then export CXX=x86_64-w64-mingw32-g++; fi
-  - ./bootstrap
+  - if [ "${MINGW64}" = '1' ]; then export CXX=${MINGW_PREFIX}-g++; fi
 
 script:
-  - if [ "${CXX}" = 'g++-5' ]; then ./configure && make; fi
+  - if [ "${CXX}" = 'g++-5' ]; then ./bootstrap && ./configure && make; fi
   # clang
-  - if [ "${CXX}" = 'clang++-3.8' ]; then ./configure && make; fi
+  - if [ "${CXX}" = 'clang++-3.8' ]; then ./bootstrap && ./configure && make; fi
   # mingw32
-  - if [ "${MINGW32}" = '1' ]; then ./cross-i686-w64-mingw32.sh; fi
+  - if [ "${MINGW32}" = '1' ]; then ./bootstrap && ./configure --prefix=${MINGW_ROOT} --build=x86_64-unknown-linux-gnu --host=x86_64-unknown-linux-gnu --target=${MINGW_PREFIX} && make; fi
   # mingw64
   #- if [ "${MINGW64}" = '1' ]; then ./cross-x86_64-w64-mingw32.sh; fi
-
-matrix:
-  include:
-    - compiler: clang++
-      env:
-    - compiler: g++
-      env:
-    - compiler: gcc
-      env: MINGW32=1
-      addons:
-        apt:
-          sources: *apt-common-sources
-          packages:
-            - *apt-common-packages
-            - binutils-mingw-w64-i686
-            - gcc-mingw-w64-i686
-            - g++-mingw-w64-i686
+  
