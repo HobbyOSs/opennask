@@ -73,7 +73,7 @@ script:
   # clang
   - if [ "${CXX}" = 'clang++-3.8' ]; then ./bootstrap && ./configure && make; fi
   # mingw32
-  - if [ "${MINGW32}" = '1' ]; then ./bootstrap && ./configure --prefix=${MINGW_ROOT} --build=x86_64-unknown-linux-gnu --host=${MINGW_PREFIX} --target=${MINGW_PREFIX} && make; fi
+  - if [ "${MINGW32}" = '1' ]; then ./bootstrap && ./configure --prefix=${MINGW_ROOT} --build=x86_64-unknown-linux-gnu --host=x86_64-unknown-linux-gnu --target=${MINGW_PREFIX} && make; fi
   # mingw64
   #- if [ "${MINGW64}" = '1' ]; then ./cross-x86_64-w64-mingw32.sh; fi
   
