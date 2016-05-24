@@ -6,5 +6,8 @@ opennask_SOURCES  = main.cpp         \
 		    nask_defs.hpp    \
 		    clogger.hpp
 
-opennask_LDFLAGS  = -L$(top_builddir)/parasol -lparasol
-opennask_CXXFLAGS = -I$(top_builddir)/parasol
+opennask_CXXFLAGS = -I$(top_builddir)/parasol \
+                    -I$(top_builddir)/fatlib
+
+opennask_LDFLAGS  = -L$(top_builddir)/parasol -lparasol \
+		    -L$(top_builddir)/fatlib  -lfat
