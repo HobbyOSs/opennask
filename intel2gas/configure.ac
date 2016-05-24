@@ -54,9 +54,8 @@ AC_C_INLINE
 AC_CHECK_FUNCS([memset strcasecmp strchr strdup strncasecmp strrchr strstr strtol])
 
 # Move from "i2gconf.h.in"
-#define RESOURCE_PATH "@prefix@/share/intel2gas/"
-#define USE_GLOB      1
-AC_DEFINE(USE_GLOB, 1, [Use Glob])
+AC_CHECK_HEADER([glob.h], AC_DEFINE(USE_GLOB, 1, [Use Glob]))
+
 AS_IF([test "$prefix" = "NONE"],
       [AC_DEFINE_UNQUOTED([RESOURCE_PATH], ["/usr/local/share/intel2gas/"], [Define research path with --prefix dir macro])],
       [AC_DEFINE_UNQUOTED([RESOURCE_PATH], ["$prefix/share/intel2gas/"],    [Define research path with --prefix dir macro])]
