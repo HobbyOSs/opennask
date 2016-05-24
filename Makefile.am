@@ -5,18 +5,7 @@ changeLog: configure.ac
 	@echo "" >> ChangeLog
 	git log --stat --name-only --date=short --abbrev-commit >> ChangeLog
 
-SUBDIRS = reflcpp parasol intel2gas data projects
-
-# main program
-bin_PROGRAMS	  = opennask
-opennask_SOURCES  = main.cpp         \
-		    nask_utility.cpp \
-		    nask_utility.hpp \
-		    nask_defs.hpp    \
-		    clogger.hpp
-
-opennask_LDFLAGS  = -L./parasol -lparasol
-opennask_CXXFLAGS = -I$(top_builddir)/parasol
+SUBDIRS = reflcpp parasol intel2gas src data projects
 
 # functional test
 ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
