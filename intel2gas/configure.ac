@@ -28,13 +28,16 @@ case "$host" in
         *-*-mingw*|*-*-cygwin*|*-*-msys*)
                 ;;
         *-*-linux*)
+                AC_CHECK_HEADER([glob.h], AC_DEFINE(USE_GLOB, 1, [Use Glob]))
                 ;;
         *-*-darwin*)
+                AC_CHECK_HEADER([glob.h], AC_DEFINE(USE_GLOB, 1, [Use Glob]))
 		if test "${ax_cv_c_compiler_vendor}x" = "clangx"; then
 		   CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 		fi
                 ;;
         *-*-*bsd*)
+                AC_CHECK_HEADER([glob.h], AC_DEFINE(USE_GLOB, 1, [Use Glob]))
                 ;;
         *)
                 AC_MSG_WARN([*** Please add $host to configure.ac checks!])
@@ -52,9 +55,6 @@ AC_C_INLINE
 
 # Checks for library functions.
 AC_CHECK_FUNCS([memset strcasecmp strchr strdup strncasecmp strrchr strstr strtol])
-
-# Move from "i2gconf.h.in"
-AC_CHECK_HEADER([glob.h], AC_DEFINE(USE_GLOB, 1, [Use Glob]))
 
 AS_IF([test "$prefix" = "NONE"],
       [AC_DEFINE_UNQUOTED([RESOURCE_PATH], ["/usr/local/share/intel2gas/"], [Define research path with --prefix dir macro])],
