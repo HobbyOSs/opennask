@@ -6,9 +6,5 @@ opennask_SOURCES  = main.cpp         \
 		    nask_defs.hpp    \
 		    clogger.hpp
 
-opennask_LDFLAGS  = -L$(top_builddir)/parasol -lparasol
+opennask_LDFLAGS  = -L$(top_builddir)/parasol -lparasol -lstdc++
 opennask_CXXFLAGS = -I$(top_builddir)/parasol
-
-# functional test
-ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
-TESTS = nask_functional_test.sh

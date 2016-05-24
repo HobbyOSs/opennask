@@ -1,5 +1,5 @@
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <algorithm>
 #include <fstream>
 #include "ParaTokenizer.hh"
@@ -63,7 +63,7 @@ int process_each_assembly_line(char** argv,
 	  }
      }
 
-     for (line_number; std::getline(nas_file, input); line_number++) {
+     for (; std::getline(nas_file, input); line_number++) {
 
 	  /* 行数チェック */
 	  std::cout.setf(std::ios::dec, std::ios::basefield);
@@ -78,7 +78,7 @@ int process_each_assembly_line(char** argv,
 	  }
 
 	  /* 入力行を istream にしてトークナイザを生成 */
-	  std::istrstream input_stream(input.c_str());
+	  std::istringstream input_stream(input.c_str());
 	  TParaTokenizer tokenizer(input_stream, &token_table);
 	  TParaToken token;
 
@@ -115,14 +115,17 @@ int process_each_assembly_line(char** argv,
 	       }
 	  }
      }
+     return 0;
 }
 
 int main(int argc, char** argv) {
 
      // clogger
+#ifndef __clang__
      std::ofstream file("debug.log", std::ios::out | std::ios::trunc);
      clogger logger(file.rdbuf());
      std::streambuf* oldrdbuf = std::cout.rdbuf(&logger);
+#endif
 
      if (argc < 2 || argc > 4) {
 	  std::cerr << "usage : >opennask source [object/binary] [list]" << std::endl;
@@ -145,7 +148,7 @@ int main(int argc, char** argv) {
 
      /* 出力するバイナリ情報 */
      std::vector<uint8_t> binout_container;
-     std::ofstream binout(argv[2], std::ios::out | std::ios::trunc | std::ios::binary);
+     std::ofstream binout(argv[2], std::ios::trunc | std::ios::binary);
      if ( binout.bad() || binout.fail() ) {
 	  std::cerr << "NASK : can't open " << argv[2] << std::endl;
 	  return 17;
@@ -155,9 +158,7 @@ int main(int argc, char** argv) {
      process_each_assembly_line(argv, nas_file, binout_container);
 
      // output binaries
-     for(std::vector<uint8_t>::const_iterator i = binout_container.begin(); i != binout_container.end(); ++i) {
-	  binout << *i;
-     }
+     binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
      binout.close();
 
      std::cout << std::endl;
