@@ -41,12 +41,11 @@ before_script:
   - if [ "${MINGW32}" = '1' ]; then export CXX=i686-w64-mingw32-g++; fi
   # mingw64
   - if [ "${MINGW64}" = '1' ]; then export CXX=x86_64-w64-mingw32-g++; fi
-  - ./bootstrap
 
 script:
-  - if [ "${CXX}" = 'g++-5' ]; then ./configure && make; fi
+  - if [ "${CXX}" = 'g++-5' ]; then ./bootstrap && ./configure && make; fi
   # clang
-  - if [ "${CXX}" = 'clang++-3.8' ]; then ./configure && make; fi
+  - if [ "${CXX}" = 'clang++-3.8' ]; then ./bootstrap && ./configure && make; fi
   # mingw32
   - if [ "${MINGW32}" = '1' ]; then ./cross-i686-w64-mingw32.sh; fi
   # mingw64
@@ -58,13 +57,15 @@ matrix:
       env:
     - compiler: g++
       env:
-    - compiler: gcc
+    - compiler: i686-w64-mingw32-g++
       env: MINGW32=1
       addons:
         apt:
-          sources: *apt-common-sources
+          sources:
+            - *apt-common-sources
+            - tobydox-mingw-x-trusty
           packages:
             - *apt-common-packages
-            - binutils-mingw-w64-i686
-            - gcc-mingw-w64-i686
-            - g++-mingw-w64-i686
+            - mingw32-x-binutils
+            - mingw32-x-gcc
+            - mingw32-x-runtime
