@@ -52,6 +52,15 @@ esac
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-		 data/Makefile])
+		 data/Makefile
+		 projects/Makefile
+		 projects/01_day/Makefile
+		 projects/02_day/Makefile
+		 projects/01_day/helloos1/Makefile
+		 projects/01_day/helloos2/Makefile
+		 projects/02_day/helloos3/Makefile
+		 projects/02_day/helloos4/Makefile
+		 projects/02_day/helloos5/Makefile])
 AC_CONFIG_SUBDIRS([reflcpp parasol intel2gas])
+
 AC_OUTPUT
