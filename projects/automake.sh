@@ -12,7 +12,8 @@ do
     FILENAME=${FILE%.*}
     FILE_DIR=`dirname ${FILEPATH}`
     INDEX=`basename ${FILE_DIR}`
-    BIN_NAME="${INDEX}_"`basename ${FILENAME}`
+    #BIN_NAME="${INDEX}_"`basename ${FILENAME}`
+    BIN_NAME=`basename ${FILENAME}`
     SRC_NAME=`basename ${FILENAME}`
 
     echo -e "#"                                                 > ${FILE_DIR}/Makefile.am
