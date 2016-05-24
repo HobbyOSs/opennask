@@ -8,3 +8,5 @@ libfat_la_LDFLAGS = -no-undefined -version-info 0:0:0
 
 EXTRA_DIST        = examples
 EXTRA_DATA        = $(wildcard examples/*) uni_up.inc libfat.sym README TODO
+
+SUBDIRS           = examples

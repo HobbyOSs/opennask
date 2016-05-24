@@ -6,6 +6,7 @@ AC_INIT([libfat], [0.1.4], [jb@wizard·ae·krakow·pl])
 AC_CONFIG_SRCDIR([lib.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wno-portability])
+AC_CONFIG_MACRO_DIRS([m4])
 
 # Checks for programs.
 AC_PROG_CC
@@ -28,6 +29,6 @@ LT_INIT
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([atexit localtime_r memset strchr])
 
-AC_CONFIG_FILES([Makefile])
-dnl              examples/Makefile])
+AC_CONFIG_FILES([Makefile
+                 examples/Makefile])
 AC_OUTPUT

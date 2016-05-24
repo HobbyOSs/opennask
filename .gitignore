@@ -3,12 +3,16 @@
 
 ### Autotools ###
 # http://www.gnu.org/software/automake
-
+# Executables
 opennask
 expressionsample
 statementsample
 tokenizersample
 intel2gas
+fdir
+fdstat
+fget
+fput
 
 Makefile
 Makefile.in

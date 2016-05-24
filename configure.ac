@@ -65,6 +65,7 @@ AC_CONFIG_FILES([Makefile
 		 projects/02_day/helloos3/Makefile
 		 projects/02_day/helloos4/Makefile
 		 projects/02_day/helloos5/Makefile])
-AC_CONFIG_SUBDIRS([reflcpp parasol intel2gas])
+
+AC_CONFIG_SUBDIRS([reflcpp parasol intel2gas fatlib])
 
 AC_OUTPUT
