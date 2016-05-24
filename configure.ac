@@ -6,14 +6,13 @@ AC_INIT([opennask], [0.0.1], [idiotpanzer@gmail.com])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_SRCDIR([src/nask_defs.hpp])
+AC_CONFIG_HEADERS([config.h])
 AC_SYS_LARGEFILE
 
 # Checks for programs.
-AC_PROG_AWK
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_MAKE_SET
-AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
 AC_LIBTOOL_WIN32_DLL
 LT_INIT
@@ -48,6 +47,8 @@ esac
 # Checks for header files.
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
 
 # Checks for library functions.
 
