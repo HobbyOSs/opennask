@@ -36,17 +36,13 @@ matrix:
     - compiler: g++
       env:
     - compiler: i686-w64-mingw32-g++
-      env:
-        - MINGW32=1
-        - APT_REPOS="ppa:tobydox/mingw-x-trusty"
-        - APT_PACKAGES="p7zip mingw32-x-gcc"
-        - MINGW_ROOT=/opt/mingw32
-        - MINGW_PREFIX=i686-w64-mingw32
+      env: MINGW32=1
       addons:
         apt:
           sources:
             - *apt-common-sources
-            - tobydox-mingw-x-trusty
+            - sourceline: 'ppa:tobydox/mingw-x-trusty'
+            - sourceline: 'deb http://ppa.launchpad.net/tobydox/mingw-x-trusty/ubuntu trusty main'
           packages:
             - *apt-common-packages
             - mingw32-x-binutils
@@ -54,11 +50,6 @@ matrix:
             - mingw32-x-runtime
 
 before_install:
-  - sudo dpkg --add-architecture i386
-  - if [ "$MINGW_ROOT" ]; then for APT_REPO in $APT_REPOS; do sudo add-apt-repository -y $APT_REPO; done; fi
-  - if [ "$MINGW_ROOT" ]; then sudo apt-get update -qq || true; fi
-  - if [ "$MINGW_ROOT" ]; then sudo apt-get install -qq -y --no-install-recommends $APT_PACKAGES; fi
-  - if [ "$MINGW_ROOT" ]; then export PATH=$MINGW_ROOT/bin:$PATH; fi
 
 install:
 
