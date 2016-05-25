@@ -16,18 +16,20 @@ do
     BIN_NAME=`basename ${FILENAME}`
     SRC_NAME=`basename ${FILENAME}`
 
-    echo -e "#"                                                 > ${FILE_DIR}/Makefile.am
-    echo -e "# Generated `date` "                              >> ${FILE_DIR}/Makefile.am
-    echo -e "#"                                                >> ${FILE_DIR}/Makefile.am
-    echo -e ""                                                 >> ${FILE_DIR}/Makefile.am
-    echo -e "NASK = \$(top_builddir)/src/opennask\$(EXEEXT)"   >> ${FILE_DIR}/Makefile.am
-    echo -e ""                                             >> ${FILE_DIR}/Makefile.am
-    echo -e "bin_PROGRAMS = ${NASK} ${BIN_NAME}.img"       >> ${FILE_DIR}/Makefile.am
-    echo -e "${BIN_NAME}_img_SOURCES = ${SRC_NAME}.nas"    >> ${FILE_DIR}/Makefile.am
-    echo -e ""                                             >> ${FILE_DIR}/Makefile.am
-    echo -e "${BIN_NAME}.img\$(EXEEXT) : ${SRC_NAME}.nas"  >> ${FILE_DIR}/Makefile.am
-    echo -e "\t\t\$(NASK) ${SRC_NAME}.nas ${BIN_NAME}.img" >> ${FILE_DIR}/Makefile.am
-    echo -e ""                                             >> ${FILE_DIR}/Makefile.am
+    echo -e "#"                                                           > ${FILE_DIR}/Makefile.am
+    echo -e "# Generated `date` "                                        >> ${FILE_DIR}/Makefile.am
+    echo -e "#"                                                          >> ${FILE_DIR}/Makefile.am
+    echo -e ""                                                           >> ${FILE_DIR}/Makefile.am
+    echo -e "NASK = \$(top_builddir)/src/opennask\$(EXEEXT)"             >> ${FILE_DIR}/Makefile.am
+    echo -e "FDSTAT = \$(top_builddir)/fatlib/examples/fdstat\$(EXEEXT)" >> ${FILE_DIR}/Makefile.am
+    echo -e ""                                                           >> ${FILE_DIR}/Makefile.am
+    echo -e "bin_PROGRAMS = ${NASK} ${BIN_NAME}.img"                     >> ${FILE_DIR}/Makefile.am
+    echo -e "${BIN_NAME}_img_SOURCES = ${SRC_NAME}.nas"                  >> ${FILE_DIR}/Makefile.am
+    echo -e ""                                                           >> ${FILE_DIR}/Makefile.am
+    echo -e "${BIN_NAME}.img\$(EXEEXT) : ${SRC_NAME}.nas"                >> ${FILE_DIR}/Makefile.am
+    echo -e "\t\t\$(NASK) ${SRC_NAME}.nas ${BIN_NAME}.img"               >> ${FILE_DIR}/Makefile.am
+    echo -e "\t\t\$(FDSTAT) ${BIN_NAME}.img"                             >> ${FILE_DIR}/Makefile.am
+    echo -e ""                                                           >> ${FILE_DIR}/Makefile.am
 
     AC_CONFIG_FILE=`echo ${FILE_DIR}/Makefile | sed -e 's/^\./projects/g'`
     echo -e "\t${AC_CONFIG_FILE}"

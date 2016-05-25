@@ -11,5 +11,6 @@
 for n in $(seq 1 7)
 do
     ./opennask data/0${n}_nasfile.nas data/0${n}_nasfile.img
+    ./fatlib/examples/fdstat data/0${n}_nasfile.img
     cd data && md5sum -c 0${n}_nasfile.hash && cd ../
 done
