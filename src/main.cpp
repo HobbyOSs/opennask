@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
+#include <getopt.h>
 #include "ParaTokenizer.hh"
 #include "ParaOperator.hh"
 #include "ParaExpression.hh"
@@ -120,6 +121,29 @@ int process_each_assembly_line(char** argv,
 
 int main(int argc, char** argv) {
 
+     int opt, i, option_index;
+     struct option long_options[] = {
+	  {"with-fat12", no_argument,        NULL, 'f'},
+	  {"help",       no_argument,        NULL, 'h'},
+	  {0, 0, 0, 0}// 配列の最後はすべて0で埋める
+     };
+
+     while((opt = getopt_long(argc, argv, "mes:", long_options, &option_index)) != -1){
+	  switch(opt){
+	  case 'f':
+	       break;
+	  case 'h':
+	       printf("usage:  [with-fat12 | help] source [object/binary] [list]\n");
+	       return 0;
+	       // 解析できないオプションが見つかった場合は「?」を返す
+	       // オプション引数が不足している場合も「?」を返す
+	  case '?':
+	       printf("unknown or required argument option -%c\n", optopt);
+	       printf("usage:  [with-fat12 | help] source [object/binary] [list]\n");
+	       return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
+	  }
+     }
+
      // clogger
 #ifndef __clang__
      std::ofstream file("debug.log", std::ios::out | std::ios::trunc);
@@ -127,30 +151,32 @@ int main(int argc, char** argv) {
      std::streambuf* oldrdbuf = std::cout.rdbuf(&logger);
 #endif
 
-     if (argc < 2 || argc > 4) {
-	  std::cerr << "usage : >opennask source [object/binary] [list]" << std::endl;
+     if (argc - optind < 2 || argc - optind > 4) {
+	  std::cerr << "usage:  [--with-fat12 | --help] source [object/binary] [list]" << std::endl;
 	  return 16;
      }
+     const char* assembly_src = argv[optind];
+     const char* assembly_dst = argv[optind + 1];
 
-     const size_t len = nask_utility::filesize(argv[1]);
+     const size_t len = nask_utility::filesize(assembly_src);
      if (len == -1) {
-	  std::cerr << "NASK : can't open " << argv[1] << std::endl;
+	  std::cerr << "NASK : can't open " << assembly_src << std::endl;
 	  return 17;
      }
 
      /* 入力するアセンブラ情報 */
      std::ifstream nas_file;
-     nas_file.open(argv[1]);
+     nas_file.open(assembly_src);
      if ( nas_file.bad() || nas_file.fail() ) {
-	  std::cerr << "NASK : can't read " << argv[1] << std::endl;
+	  std::cerr << "NASK : can't read " << assembly_src << std::endl;
 	  return 17;
      }
 
      /* 出力するバイナリ情報 */
      std::vector<uint8_t> binout_container;
-     std::ofstream binout(argv[2], std::ios::trunc | std::ios::binary);
+     std::ofstream binout(assembly_dst, std::ios::trunc | std::ios::binary);
      if ( binout.bad() || binout.fail() ) {
-	  std::cerr << "NASK : can't open " << argv[2] << std::endl;
+	  std::cerr << "NASK : can't open " << assembly_dst << std::endl;
 	  return 17;
      }
 
