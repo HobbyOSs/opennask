@@ -12,7 +12,7 @@ static list_t drives;
 int libdown = 0;
 time_t fat_time;
 
-inline int log2(unsigned v)
+inline int drive_log2(unsigned v)
 {
 	if(v & v-1)
 		return -EINVAL;
@@ -122,7 +122,7 @@ static int drive_open(DRIVE *dv, u8 *buf)
 	if(get16(buf+0x1FE)!=0xAA55)
 		return -EINVAL;
 
-	secsh = log2(get16(buf+11));
+	secsh = drive_log2(get16(buf+11));
 	if(secsh<9 || secsh>12)
 		return -EINVAL;
 
@@ -151,7 +151,7 @@ static int drive_open(DRIVE *dv, u8 *buf)
 		rootsec = (v-1 >> (secsh-5)) + 1;
 	}
 
-	clssh = log2(buf[13]);
+	clssh = drive_log2(buf[13]);
 	if(clssh<0)
 		return -EINVAL;
 
@@ -197,9 +197,9 @@ static int drive_open(DRIVE *dv, u8 *buf)
 	dv->root_start = dv->fat_start + dv->fat_num*dv->fat_nsec;
 
 	dv->base = (dv->root_start<<SECSH) + (rootsec<<secsh) - (2<<dv->clust_sh);
-	
+
 	/* for dstat only */
-	
+
 	dv->totsec = totsec;
 	dv->sec_sh = secsh;
 

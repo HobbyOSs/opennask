@@ -31,7 +31,7 @@ DRIVE *open_image(char *name)
 {
 	u8 buf[0x64];
 	int v;
-	
+
 	v = fd = open(name, O_RDONLY);
 	if(v<0) goto err;
 	flock(fd, LOCK_EX);
@@ -46,10 +46,10 @@ DRIVE *open_image(char *name)
 			errx(1, "DDI format not recognized");
 		start = fmt[n]<<8; /* should be a track size? */
 		bpc = fmt[n]<<9;
-		
+
 		n = (start - 0x64) / 6;
 		tab = (int*)malloc(n * sizeof tab[0]);
-		
+
 		for(i=0;i<n;i++) {
 			v = read(fd, buf, 6);
 			if(v != 6) goto err;

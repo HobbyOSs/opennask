@@ -10,6 +10,10 @@
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
 #include "clogger.hpp"
+#include "fatlib.h"
+#include "time.h"
+#include <errno.h>
+#include <err.h>
 
 using namespace std::placeholders;
 
@@ -119,9 +123,27 @@ int process_each_assembly_line(char** argv,
      return 0;
 }
 
+void nask_fdput(const char* img) {
+
+     const char *mode = "w";
+     DRIVE *dv;
+     FILE *dst;
+     char *name;
+     int o;
+
+     time(&fat_time);
+     dv = fat_open_image(img, 1);
+     if(!dv) err(1, "%s", img);
+     fat_set_cp(dv, fat_cp852);
+
+     return;
+}
+
 int main(int argc, char** argv) {
 
      int opt, i, option_index;
+     bool with_fat12 = false;
+
      struct option long_options[] = {
 	  {"with-fat12", no_argument,        NULL, 'f'},
 	  {"help",       no_argument,        NULL, 'h'},
@@ -131,6 +153,7 @@ int main(int argc, char** argv) {
      while((opt = getopt_long(argc, argv, "mes:", long_options, &option_index)) != -1){
 	  switch(opt){
 	  case 'f':
+	       with_fat12 = true;
 	       break;
 	  case 'h':
 	       printf("usage:  [with-fat12 | help] source [object/binary] [list]\n");
@@ -183,9 +206,14 @@ int main(int argc, char** argv) {
      // 入力の読み込みと解析，評価のループ
      process_each_assembly_line(argv, nas_file, binout_container);
 
-     // output binaries
-     binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
-     binout.close();
+     if (with_fat12) {
+	  // output binary in FAT12 disk image file
+	  nask_fdput(assembly_dst);
+     } else {
+	  // output binary
+	  binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
+	  binout.close();
+     }
 
      std::cout << std::endl;
 
