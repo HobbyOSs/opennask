@@ -29,6 +29,5 @@ LT_INIT
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([atexit localtime_r memset strchr])
 
-AC_CONFIG_FILES([Makefile
-                 examples/Makefile])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

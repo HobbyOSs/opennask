@@ -9,5 +9,5 @@ opennask_SOURCES  = main.cpp         \
 opennask_CXXFLAGS = -I$(top_builddir)/parasol \
                     -I$(top_builddir)/fatlib
 
-opennask_LDFLAGS  = -L$(top_builddir)/parasol -lparasol \
-		    -L$(top_builddir)/fatlib  -lfat
+opennask_LDADD    = $(top_builddir)/parasol/libparasol.a \
+		    $(top_builddir)/fatlib/libfat.a

@@ -5,9 +5,8 @@
 
 AUTOMAKE_OPTIONS 	= foreign subdir-objects
 
-lib_LTLIBRARIES		= libparasol.la
-libparasol_la_LDFLAGS   = -no-undefined -version-info 0:0:0
-libparasol_la_SOURCES	= ParaDefs.cc             \
+noinst_LIBRARIES	= libparasol.a
+libparasol_a_SOURCES	= ParaDefs.cc		  \
                           ParaTokenTable.cc	  \
                           ParaToken.cc		  \
                           ParaTokenizer.cc	  \
