@@ -9,6 +9,10 @@
 #include <time.h>
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef __linux__
 #define FLOPPY_DEFAULT "/dev/fd0"
 #endif
@@ -43,7 +47,7 @@ void fat_drive_close(DRIVE *dv);
  * @drive: drive
  * @path: path to file
  * @mode: fopen() flags
- *
+ fat_*
  * flags:
  *	r    open for reading
  *	w    truncate or create for writing
@@ -124,3 +128,7 @@ static inline char *fat_put_utf8(char *d, char *e, unsigned u)
 	}
 	return fat__put_utf8_p(d, e-1, u);
 }
+
+#ifdef __cplusplus
+};
+#endif
