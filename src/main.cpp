@@ -14,8 +14,16 @@
 #include "time.h"
 #include <errno.h>
 #include <err.h>
+#include <utime.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 using namespace std::placeholders;
+
+constexpr unsigned long BYTE     = 1;
+constexpr unsigned long KILOBYTE = 1024;
+constexpr unsigned long MEGABYTE = 1024 * 1024;
+constexpr unsigned long GIGABYTE = 1024 * 1024 * 1024;
 
 int process_each_assembly_line(char** argv,
 			       std::ifstream& nas_file,
@@ -123,7 +131,9 @@ int process_each_assembly_line(char** argv,
      return 0;
 }
 
-void nask_fdput(const char* img) {
+#include <fcntl.h>
+
+void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 
      const char *mode = "w";
      DRIVE *dv;
@@ -131,10 +141,36 @@ void nask_fdput(const char* img) {
      char *name;
      int o;
 
-     time(&fat_time);
-     dv = fat_open_image(img, 1);
-     if(!dv) err(1, "%s", img);
-     fat_set_cp(dv, fat_cp852);
+     // 一時ファイルを作成してファイルディスクリプタを得る
+     // std::string path(img);
+     // path += "XXXXXX";
+     // std::vector<char> dst_path(path.begin(), path.end());
+     // dst_path.push_back('\0');
+     // int fd = mkstemp(&dst_path[0]);
+     // if(fd == -1) {
+     //  	  perror("mkstemp");
+     //  	  exit(1);
+     // }
+     // if(ftruncate(fd, 512 * KILOBYTE)) {
+     //  	  perror("ftruncate");
+     //  	  exit(1);
+     // }
+     // close(fd);
+
+     // ブートセクター分を書き込む
+     int outfd = open(img, O_CREAT | O_WRONLY, 0666);
+     if(outfd == -1) {
+	  perror("Uanble to open output file");
+	  exit(1);
+     }
+     if(write(outfd, binout_container.data(), 512) != 512) {
+	  perror("Unable to write bootsector to output file");
+	  exit(1);
+     }
+
+     // この後fat12の構造を書き込む
+     //
+     //
 
      return;
 }
@@ -208,7 +244,9 @@ int main(int argc, char** argv) {
 
      if (with_fat12) {
 	  // output binary in FAT12 disk image file
-	  nask_fdput(assembly_dst);
+	  binout.flush();
+	  binout.close();
+	  nask_fdput(assembly_dst, binout_container);
      } else {
 	  // output binary
 	  binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
