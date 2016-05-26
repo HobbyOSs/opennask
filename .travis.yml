@@ -38,9 +38,9 @@ before_script:
   # clang
   - if [ "${CXX}" = 'clang++' ]; then export CXX=clang++-3.8; fi
   # mingw32
-  - if [ "${MINGW32}" = '1' ]; then export CXX=i686-w64-mingw32-g++; fi
+  #- if [ "${MINGW32}" = '1' ]; then export CXX=i686-w64-mingw32-g++; fi
   # mingw64
-  - if [ "${MINGW64}" = '1' ]; then export CXX=x86_64-w64-mingw32-g++; fi
+  #- if [ "${MINGW64}" = '1' ]; then export CXX=x86_64-w64-mingw32-g++; fi
   - ./bootstrap
 
 script:
@@ -48,7 +48,7 @@ script:
   # clang
   - if [ "${CXX}" = 'clang++-3.8' ]; then ./configure && make; fi
   # mingw32
-  - if [ "${MINGW32}" = '1' ]; then ./cross-i686-w64-mingw32.sh; fi
+  #- if [ "${MINGW32}" = '1' ]; then ./cross-i686-w64-mingw32.sh; fi
   # mingw64
   #- if [ "${MINGW64}" = '1' ]; then ./cross-x86_64-w64-mingw32.sh; fi
 
@@ -58,13 +58,13 @@ matrix:
       env:
     - compiler: g++
       env:
-    - compiler: gcc
-      env: MINGW32=1
-      addons:
-        apt:
-          sources: *apt-common-sources
-          packages:
-            - *apt-common-packages
-            - binutils-mingw-w64-i686
-            - gcc-mingw-w64-i686
-            - g++-mingw-w64-i686
+    #- compiler: gcc
+    #  env: MINGW32=1
+    #  addons:
+    #    apt:
+    #      sources: *apt-common-sources
+    #      packages:
+    #        - *apt-common-packages
+    #        - binutils-mingw-w64-i686
+    #        - gcc-mingw-w64-i686
+    #        - g++-mingw-w64-i686
