@@ -58,7 +58,7 @@ extern "C" {
 
 /* Handle the reporting of fatal errors.  Volatile to let gcc know that this doesn't return */
 
-static void
+void
 fatal_error (const char *fmt_string)
 {
   fprintf (stderr, fmt_string, program_name, device_name);
@@ -68,7 +68,7 @@ fatal_error (const char *fmt_string)
 
 /* Mark the specified cluster as having a particular value */
 
-static void
+void
 mark_FAT_cluster (int cluster, unsigned int value)
 {
   switch( size_fat ) {
@@ -109,7 +109,7 @@ mark_FAT_cluster (int cluster, unsigned int value)
 
 /* Mark a specified sector as having a particular value in it's FAT entry */
 
-static void
+void
 mark_FAT_sector (int sector, unsigned int value)
 {
   int cluster;
@@ -125,7 +125,7 @@ mark_FAT_sector (int sector, unsigned int value)
 
 /* Perform a test on a block.  Return the number of blocks that could be read successfully */
 
-static long
+long
 do_check (char *buffer, int try, off_t current_block)
 {
   long got;
@@ -149,7 +149,7 @@ do_check (char *buffer, int try, off_t current_block)
 /* Alarm clock handler - display the status of the quest for bad blocks!  Then retrigger the alarm for five senconds
    later (so we can come here again) */
 
-static void
+void
 alarm_intr (int alnum)
 {
   if (currently_testing >= blocks)
@@ -165,7 +165,7 @@ alarm_intr (int alnum)
 }
 #endif
 
-static void
+void
 check_blocks (void)
 {
   int try, got;
@@ -217,7 +217,7 @@ check_blocks (void)
 }
 
 
-static void
+void
 get_list_blocks (char *filename)
 {
   int i;
@@ -247,7 +247,7 @@ get_list_blocks (char *filename)
 /* Given a file descriptor and an offset, check whether the offset is a valid offset for the file - return FALSE if it
    isn't valid or TRUE if it is */
 
-static int
+int
 valid_offset (int fd, loff_t offset)
 {
   char ch;
@@ -263,7 +263,7 @@ valid_offset (int fd, loff_t offset)
 
 /* Given a filename, look to see how many blocks of BLOCK_SIZE are present, returning the answer */
 
-static unsigned long long
+unsigned long long
 count_blocks (char *filename)
 {
 #ifdef _WIN32
@@ -339,7 +339,7 @@ count_blocks (char *filename)
 
 /* Check to see if the specified device is currently mounted - abort if it is */
 
-static void
+void
 check_mount (char *device_name)
 {
 #ifndef _WIN32
@@ -416,7 +416,7 @@ establish_params (void)
 	}
 }
 #else
-static void
+void
 establish_params (int device_num,int size)
 {
   long loop_size;
@@ -618,7 +618,7 @@ establish_params (int device_num,int size)
 
 /* Create the filesystem data tables */
 
-static void
+void
 setup_tables (void)
 {
   unsigned num_sectors;
@@ -1152,7 +1152,7 @@ setup_tables (void)
   } while(0)
 
 
-static void
+void
 write_tables (void)
 {
   int x;
@@ -1225,7 +1225,7 @@ Usage: mkdosfs [-A] [-c] [-C] [-v] [-I] [-l bad-block-file] [-b backup-boot-sect
  * ++roman: On m68k, check if this is an Atari; if yes, turn on Atari variant
  * of MS-DOS filesystem by default.
  */
-static void check_atari( void )
+void check_atari( void )
 {
 #ifdef __mc68000__
     FILE *f;
