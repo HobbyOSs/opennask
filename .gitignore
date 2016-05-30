@@ -13,8 +13,6 @@ fdir
 fdstat
 fget
 fput
-dosfsck
-mkdosfs
 
 Makefile
 Makefile.in

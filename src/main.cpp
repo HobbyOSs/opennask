@@ -144,6 +144,22 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      // mkdosfs
      size_fat = 12;
      size_fat_by_user = 1;
+     blocks = 2880;
+
+     off_t offset = blocks*BLOCK_SIZE - 1;
+     char null = 0;
+     /* create the file */
+     dev = open( img, O_RDWR|O_CREAT|O_TRUNC, 0666 );
+     if (dev < 0)
+	  die("unable to create %s");
+     /* seek to the intended end-1, and write one byte. this creates a
+      * sparse-as-possible file of appropriate size. */
+     if (llseek( dev, offset, SEEK_SET ) != offset)
+	  die( "seek failed" );
+     if (write( dev, &null, 1 ) < 0)
+	  die( "write failed" );
+     if (llseek( dev, 0, SEEK_SET ) != 0)
+	  die( "seek failed" );
 
      setup_tables();		/* Establish the file system tables */
      write_tables();		/* Write the file system tables away! */
@@ -165,19 +181,15 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      // close(fd);
 
      // ブートセクター分を書き込む
-     int outfd = open(img, O_CREAT | O_WRONLY, 0666);
-     if(outfd == -1) {
-	  perror("Uanble to open output file");
-	  exit(1);
-     }
-     if(write(outfd, binout_container.data(), 512) != 512) {
-	  perror("Unable to write bootsector to output file");
-	  exit(1);
-     }
-
-     // この後fat12の構造を書き込む
-     //
-     //
+     // int outfd = open(img, O_CREAT | O_WRONLY, 0666);
+     // if(outfd == -1) {
+     //  	  perror("Uanble to open output file");
+     //  	  exit(1);
+     // }
+     // if(write(outfd, binout_container.data(), 512) != 512) {
+     //  	  perror("Unable to write bootsector to output file");
+     //  	  exit(1);
+     // }
 
      return;
 }
