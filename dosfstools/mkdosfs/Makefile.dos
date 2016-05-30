@@ -1,0 +1,19 @@
+CFLAGS=-Ox
+CC=cl -nologo
+OBJECTS = mkdosfs.obj getopt.obj
+
+all: mkdosfs.exe
+
+mkdosfs.exe: $(OBJECTS)
+	$(CC) $(LDFLAGS) $^ -o $@
+
+%.obj:	%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean :
+	rm -f *.obj *.i *.s *~ \#*# core .#* .new*
+
+distclean: clean
+	rm -f mkdosfs.exe *.a *# *.orig *.rej TAGS
+
+dep:
