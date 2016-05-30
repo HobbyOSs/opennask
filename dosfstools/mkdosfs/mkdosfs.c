@@ -52,6 +52,9 @@
 #include "mkdosfs.h"
 
 /* The function implementations */
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Handle the reporting of fatal errors.  Volatile to let gcc know that this doesn't return */
 
@@ -1246,6 +1249,9 @@ static void check_atari( void )
 #endif
 }
 
+#ifdef __cplusplus
+};
+#endif
 
 /* That's All Folks */
 /* Local Variables: */

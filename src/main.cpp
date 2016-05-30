@@ -131,7 +131,7 @@ int process_each_assembly_line(char** argv,
      return 0;
 }
 
-#include <fcntl.h>
+#include "mkdosfs.h"
 
 void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 
@@ -140,6 +140,13 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      FILE *dst;
      char *name;
      int o;
+
+     // mkdosfs
+     size_fat = 12;
+     size_fat_by_user = 1;
+
+     setup_tables();		/* Establish the file system tables */
+     write_tables();		/* Write the file system tables away! */
 
      // 一時ファイルを作成してファイルディスクリプタを得る
      // std::string path(img);
