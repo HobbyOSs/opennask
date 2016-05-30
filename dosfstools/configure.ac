@@ -33,7 +33,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([alarm getmntent memmove memset strchr strerror strrchr strspn strtol strtoul strtoull])
 
 AC_CONFIG_FILES([dosfsck/Makefile
+		 mkdosfs/Makefile
 		 Makefile
 		])
-dnl                 mkdosfs/Makefile])
 AC_OUTPUT

@@ -1,1 +1,1 @@
-SUBDIRS = dosfsck
+SUBDIRS = dosfsck mkdosfs

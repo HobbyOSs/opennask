@@ -16,7 +16,8 @@ noinst_HEADERS  = io.h      \
 		  common.h  \
 		  dosfsck.h \
 		  boot.h    \
-		  check.h
+		  check.h   \
+		  ../version.h
 
 # LIB
 noinst_LIBRARIES     = libdosfsck.a
