@@ -135,17 +135,13 @@ int process_each_assembly_line(char** argv,
 
 void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 
-     const char *mode = "w";
-     DRIVE *dv;
-     FILE *dst;
-     char *name;
-     int o;
-
-     // mkdosfs
-     size_fat = 12;
-     size_fat_by_user = 1;
-     blocks = 2880;
-     sector_size = 512;
+     // mkdosfs: see http://elm-chan.org/docs/fat.html
+     verbose             = 2;
+     size_fat            = 12;
+     size_fat_by_user    = 1;
+     blocks              = 2880;
+     sector_size         = 512;  // BPB_BytsPerSec
+     sectors_per_cluster = 1;    // BPB_SecPerClus
 
      off_t offset = blocks * 512 - 1;
      printf("offset[%d] = blocks[%d] * 512\n", offset, blocks);
@@ -164,8 +160,8 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      if (llseek( dev, 0, SEEK_SET ) != 0)
 	  die( "seek failed" );
 
-     setup_tables();		/* Establish the file system tables */
-     //write_tables();		/* Write the file system tables away! */
+     setup_tables(sectors_per_cluster);	/* Establish the file system tables */
+     //write_tables();                  /* Write the file system tables away! */
 
      // 一時ファイルを作成してファイルディスクリプタを得る
      // std::string path(img);

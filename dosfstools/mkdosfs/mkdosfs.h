@@ -577,7 +577,7 @@ static int hidden_sectors = 0;		/* Number of hidden sectors */
 #else
  void establish_params (int device_num, int size);
 #endif
- void setup_tables (void);
+ void setup_tables (int sectors_per_cluster);
  void write_tables (void);
 
 /* Compute ceil(a/b) */

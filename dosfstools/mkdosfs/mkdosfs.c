@@ -619,7 +619,7 @@ establish_params (int device_num,int size)
 /* Create the filesystem data tables */
 
 void
-setup_tables (void)
+setup_tables (int sectors_per_cluster)
 {
   unsigned num_sectors;
   unsigned cluster_count = 0, fat_length;

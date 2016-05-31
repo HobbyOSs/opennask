@@ -386,7 +386,7 @@ main (int argc, char **argv)
                                 /* Establish the media parameters */
 #endif
 
-  setup_tables ();		/* Establish the file system tables */
+  setup_tables (sectors_per_cluster);	/* Establish the file system tables */
 
   if (check)			/* Determine any bad block locations and mark them */
     check_blocks ();
