@@ -47,6 +47,9 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
+#ifndef MKDOSFS_H_
+#define MKDOSFS_H_
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -364,14 +367,6 @@ typedef long long ll_t;
 
 #define mark_sector_bad( sector ) mark_FAT_sector( sector, FAT_BAD )
 
-/* Compute ceil(a/b) */
-
-inline int
-cdiv (int a, int b)
-{
-  return (a + b - 1) / b;
-}
-
 /* MS-DOS filesystem structures -- I included them here instead of
    including linux/msdos_fs.h since that doesn't include some fields we
    need */
@@ -585,6 +580,12 @@ static int hidden_sectors = 0;		/* Number of hidden sectors */
  void setup_tables (void);
  void write_tables (void);
 
+/* Compute ceil(a/b) */
+ int cdiv (int a, int b);
+
+
 #ifdef __cplusplus
 };
 #endif
+
+#endif /* MKDOSFS_H_ */

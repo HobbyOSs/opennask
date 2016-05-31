@@ -1249,6 +1249,11 @@ void check_atari( void )
 #endif
 }
 
+int cdiv (int a, int b)
+{
+  return (a + b - 1) / b;
+}
+
 #ifdef __cplusplus
 };
 #endif

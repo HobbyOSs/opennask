@@ -145,8 +145,11 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      size_fat = 12;
      size_fat_by_user = 1;
      blocks = 2880;
+     sector_size = 512;
 
-     off_t offset = blocks*BLOCK_SIZE - 1;
+     off_t offset = blocks * 512 - 1;
+     printf("offset[%d] = blocks[%d] * 512\n", offset, blocks);
+
      char null = 0;
      /* create the file */
      dev = open( img, O_RDWR|O_CREAT|O_TRUNC, 0666 );
@@ -162,7 +165,7 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 	  die( "seek failed" );
 
      setup_tables();		/* Establish the file system tables */
-     write_tables();		/* Write the file system tables away! */
+     //write_tables();		/* Write the file system tables away! */
 
      // 一時ファイルを作成してファイルディスクリプタを得る
      // std::string path(img);
