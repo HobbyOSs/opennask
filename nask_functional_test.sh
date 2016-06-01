@@ -15,6 +15,6 @@ do
 done
 
 # 8 create FAT12
-./src/opennask --with-fat12 data/08_nasfile.nas data/08_nasfile.img
-./fatlib/examples/fdstat data/08_nasfile.img
+#./src/opennask --with-fat12 data/08_nasfile.nas data/08_nasfile.img
+#./fatlib/examples/fdstat data/08_nasfile.img
 #cd data && md5sum -c 0${n}_nasfile.hash && cd ../

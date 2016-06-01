@@ -180,6 +180,7 @@ namespace nask_utility {
 					     OPERAND_KINDS operand) {
 
 	  // 見つかったoffset情報を記録
+	  std::cout << "found a label, store it => " << store_label << std::endl;
 	  OFFSET_ELEMENT elem;
 	  elem.label = store_label;
 	  elem.src_index = (src_index == -1) ? binout_container.size() - 1 : src_index;
@@ -219,6 +220,22 @@ namespace nask_utility {
 	       // 例外を起こしたほうがよさそう
 	       std::cout << "not found a label from stacked" << std::endl;
 	  }
+     }
+
+     // すでにラベルがスタックに積まれている場合
+     bool Instructions::offset_is_already_stored(std::string found_label) {
+
+	  auto it = std::find_if(std::begin(offsets), std::end(offsets),
+				 [&](const OFFSET_ELEMENT& elem)
+				 { return elem.label.find(found_label) != std::string::npos; });
+
+	  std::cout << "stored ? :"
+		    << found_label
+		    << " => "
+		    << std::to_string(it != std::end(offsets))
+		    << std::endl;
+
+	  return it != std::end(offsets);
      }
 
      // "JMPオペコード"が見つかった時に呼び出す
@@ -568,10 +585,18 @@ namespace nask_utility {
 			 continue;
 		    } else {
 			 std::cout << "label: " << store_label << std::endl;
-			 set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
-			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
-			 binout_container.push_back(0x72);
-			 binout_container.push_back(0x00);
+			 if (offset_is_already_stored(store_label)) {
+			      // ラベルはすでにスタックに積まれているから参照する
+			      std::cout << "label: " << store_label << " is already stored"<< std::endl;
+			      update_offset_rel_stack(store_label, binout_container);
+			 } else {
+			      // ラベルが初めて見つかったのであれば探索する必要がある
+			      // とりあえずoffsetには0x00を入れておき見つかった時に更新する
+			      std::cout << "label: " << store_label << " is not stored"<< std::endl;
+			      set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
+			      binout_container.push_back(0x72);
+			      binout_container.push_back(0x00);
+			 }
 			 break;
 		    }
 	       }
@@ -590,10 +615,18 @@ namespace nask_utility {
 			 continue;
 		    } else {
 			 std::cout << "label: " << store_label << std::endl;
-			 set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
-			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
-			 binout_container.push_back(0x74);
-			 binout_container.push_back(0x00);
+			 if (offset_is_already_stored(store_label)) {
+			      // ラベルはすでにスタックに積まれているから参照する
+			      std::cout << "label: " << store_label << " is already stored"<< std::endl;
+			      update_offset_rel_stack(store_label, binout_container);
+			 } else {
+			      // ラベルが初めて見つかったのであれば探索する必要がある
+			      // とりあえずoffsetには0x00を入れておき見つかった時に更新する
+			      std::cout << "label: " << store_label << " is not stored"<< std::endl;
+			      set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
+			      binout_container.push_back(0x74);
+			      binout_container.push_back(0x00);
+			 }
 			 break;
 		    }
 	       }

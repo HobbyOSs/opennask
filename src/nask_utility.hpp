@@ -139,9 +139,12 @@ namespace nask_utility {
 	  int process_token_ORG (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
+	  // relX に関する関数
 	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,
 				    int src_index = -1, int rel_index = -1, OPERAND_KINDS operand = ID_Rel8);
 	  void update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container);
+	  bool offset_is_already_stored(std::string found_label);
+
 
 	  void set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container);
 	  void update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container);

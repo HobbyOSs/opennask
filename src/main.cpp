@@ -86,10 +86,14 @@ int process_each_assembly_line(char** argv,
 	  std::cout << line_number << ": " << input << std::endl;
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
-	       std::string label = input;
-	       std::cout << "coming another label:" << label << std::endl;
-	       inst.update_jmp_stack(label.substr(0, label.find(":", 0)), binout_container);
-	       inst.update_offset_rel_stack(label.substr(0, label.find(":", 0)), binout_container);
+	       std::string label = input.substr(0, input.find(":", 0));
+	       std::cout << "coming another label: " << label << std::endl;
+	       inst.update_jmp_stack(label, binout_container);
+	       inst.update_offset_rel_stack(label, binout_container);
+	       inst.set_offset_rel_stack(label,
+					 binout_container,
+					 binout_container.size(),
+					 binout_container.size() + 1);
 	       continue;
 	  }
 
