@@ -43,6 +43,7 @@ int process_each_assembly_line(char** argv,
      static nask_utility::Instructions inst;
      inst.token_table = token_table;
 
+     // このへんマクロかtemplateを使いたい
      const auto fp_ADD  = std::bind(&nask_utility::Instructions::process_token_ADD  , inst, _1, _2);
      const auto fp_CMP  = std::bind(&nask_utility::Instructions::process_token_CMP  , inst, _1, _2);
      const auto fp_DB   = std::bind(&nask_utility::Instructions::process_token_DB   , inst, _1, _2);
@@ -50,6 +51,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
      const auto fp_HLT  = std::bind(&nask_utility::Instructions::process_token_HLT  , inst, _1, _2);
      const auto fp_INT  = std::bind(&nask_utility::Instructions::process_token_INT  , inst, _1, _2);
+     const auto fp_JC   = std::bind(&nask_utility::Instructions::process_token_JC   , inst, _1, _2);
      const auto fp_JE   = std::bind(&nask_utility::Instructions::process_token_JE   , inst, _1, _2);
      const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
      const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
@@ -62,6 +64,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("DW"  , fp_DW));
      funcs.insert(std::make_pair("HLT" , fp_HLT));
      funcs.insert(std::make_pair("INT" , fp_INT));
+     funcs.insert(std::make_pair("JC"  , fp_JC));
      funcs.insert(std::make_pair("JE"  , fp_JE));
      funcs.insert(std::make_pair("JMP" , fp_JMP));
      funcs.insert(std::make_pair("MOV" , fp_MOV));
@@ -81,12 +84,12 @@ int process_each_assembly_line(char** argv,
 	  /* 行数チェック */
 	  std::cout.setf(std::ios::dec, std::ios::basefield);
 	  std::cout << line_number << ": " << input << std::endl;
-	  // オペコードではなくラベルの可能性を探る
-	  if (nask_utility::ends_with(input, ":")) {
+	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
+	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label = input;
 	       std::cout << "coming another label:" << label << std::endl;
-	       inst.update_jmp_stack(label.substr(0, label.size() - 1), binout_container);
-	       inst.update_offset_rel_stack(label.substr(0, label.size() - 1), binout_container);
+	       inst.update_jmp_stack(label.substr(0, label.find(":", 0)), binout_container);
+	       inst.update_offset_rel_stack(label.substr(0, label.find(":", 0)), binout_container);
 	       continue;
 	  }
 
