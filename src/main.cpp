@@ -133,19 +133,42 @@ int process_each_assembly_line(char** argv,
 
 #include "mkdosfs.h"
 
+//
+// FIXME: Currently, it's not working...
+//
 void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 
      // mkdosfs: see http://elm-chan.org/docs/fat.html
-     verbose             = 2;
-     size_fat            = 12;
-     size_fat_by_user    = 1;
-     blocks              = 2880;
-     sector_size         = 512;  // BPB_BytsPerSec
-     sectors_per_cluster = 1;    // BPB_SecPerClus
+     //sector_size         = 512;  // BPB_BytsPerSec
+     //sectors_per_cluster = 128;  // BPB_SecPerClus
+#ifdef _WIN32
+     static char dev_buf[] = "\\\\.\\X:";
+#else
+     struct stat statbuf;
+#endif
+     int i = 0, pos, ch;
+     int create = 0;
+     unsigned long long cblocks;
 
-     off_t offset = blocks * 512 - 1;
-     printf("offset[%d] = blocks[%d] * 512\n", offset, blocks);
+     time(&create_time);
+     volume_id = (long)create_time;	/* Default volume ID = creation time */
+     check_atari();
 
+     // C : Create a new file
+     create = TRUE;
+     // F : Choose FAT size
+     size_fat = 12;
+     size_fat_by_user = 1;
+
+     // s : Sectors per cluster
+     sectors_per_cluster = 1;
+
+     // S : Sector size
+     sector_size = 512;
+     sector_size_set = 1;
+     blocks = 2880;
+
+     off_t offset = blocks * BLOCK_SIZE - 1;
      char null = 0;
      /* create the file */
      dev = open( img, O_RDWR|O_CREAT|O_TRUNC, 0666 );
@@ -160,35 +183,48 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      if (llseek( dev, 0, SEEK_SET ) != 0)
 	  die( "seek failed" );
 
-     setup_tables(sectors_per_cluster);	/* Establish the file system tables */
-     //write_tables();                  /* Write the file system tables away! */
+#ifdef _WIN32
+     if (!is_device)
+	  check = 0;
+     establish_params();
+#else
+     if (fstat (dev, &statbuf) < 0)
+	  die ("unable to stat %s");
+     if (!S_ISBLK (statbuf.st_mode)) {
+	  statbuf.st_rdev = 0;
+	  check = 0;
+     }
+     else
+	  /*
+	   * Ignore any 'full' fixed disk devices, if -I is not given.
+	   * On a MO-disk one doesn't need partitions.  The filesytem can go
+	   * directly to the whole disk.  Under other OSes this is known as
+	   * the 'superfloppy' format.  As I don't know how to find out if
+	   * this is a MO disk I introduce a -I (ignore) switch.  -Joey
+	   */
+	  if (!ignore_full_disk && (
+		   (statbuf.st_rdev & 0xff3f) == 0x0300 || /* hda, hdb */
+		   (statbuf.st_rdev & 0xff0f) == 0x0800 || /* sd */
+		   (statbuf.st_rdev & 0xff3f) == 0x0d00 || /* xd */
+		   (statbuf.st_rdev & 0xff3f) == 0x1600 )  /* hdc, hdd */
+	       )
+	       die ("Will not try to make filesystem on full-disk device '%s' (use -I if wanted)");
 
-     // 一時ファイルを作成してファイルディスクリプタを得る
-     // std::string path(img);
-     // path += "XXXXXX";
-     // std::vector<char> dst_path(path.begin(), path.end());
-     // dst_path.push_back('\0');
-     // int fd = mkstemp(&dst_path[0]);
-     // if(fd == -1) {
-     //  	  perror("mkstemp");
-     //  	  exit(1);
-     // }
-     // if(ftruncate(fd, 512 * KILOBYTE)) {
-     //  	  perror("ftruncate");
-     //  	  exit(1);
-     // }
-     // close(fd);
+     establish_params (statbuf.st_rdev,statbuf.st_size);
+     /* Establish the media parameters */
+#endif
 
-     // ブートセクター分を書き込む
-     // int outfd = open(img, O_CREAT | O_WRONLY, 0666);
-     // if(outfd == -1) {
-     //  	  perror("Uanble to open output file");
-     //  	  exit(1);
-     // }
-     // if(write(outfd, binout_container.data(), 512) != 512) {
-     //  	  perror("Unable to write bootsector to output file");
-     //  	  exit(1);
-     // }
+     setup_tables (sectors_per_cluster);	/* Establish the file system tables */
+     write_tables ();		/* Write the file system tables away! */
+
+#ifdef _WIN32
+     if (is_device) {
+	  if (fsctl(dev, FSCTL_DISMOUNT_VOLUME) == -1)
+	       die("unable to dismount %s");
+	  if (fsctl(dev, FSCTL_UNLOCK_VOLUME) == -1)
+	       die("unable to unlock %s");
+     }
+#endif
 
      return;
 }
