@@ -86,14 +86,14 @@ int process_each_assembly_line(char** argv,
 	  std::cout << line_number << ": " << input << std::endl;
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
-	       std::string label = input.substr(0, input.find(":", 0));
-	       std::cout << "coming another label: " << label << std::endl;
-	       inst.update_jmp_stack(label, binout_container);
-	       inst.update_offset_rel_stack(label, binout_container);
-	       inst.set_offset_rel_stack(label,
-					 binout_container,
-					 binout_container.size(),
-					 binout_container.size() + 1);
+	       std::string label_dst = input.substr(0, input.find(":", 0));
+	       std::cout << "coming another label: " << label_dst << std::endl;
+
+               // label: (label_dstと呼ぶ)
+               // 1) label_dstの位置を記録する → label_dst_stack
+               // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
+	       inst.store_label_dst(label_dst, binout_container);
+	       inst.update_label_dst_offset(label_dst, binout_container);
 	       continue;
 	  }
 

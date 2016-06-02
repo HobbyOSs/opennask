@@ -172,37 +172,26 @@ namespace nask_utility {
 	  return;
      }
 
-     // MOV命令でoffsetが見つかった時に呼び出す
-     void Instructions::set_offset_rel_stack(std::string store_label,
-					     VECTOR_BINOUT& binout_container,
-					     int src_index,
-					     int rel_index,
-					     OPERAND_KINDS operand) {
-
-	  // 見つかったoffset情報を記録
-	  std::cout << "found a label, store it => " << store_label << std::endl;
-	  OFFSET_ELEMENT elem;
-	  elem.label = store_label;
-	  elem.src_index = (src_index == -1) ? binout_container.size() - 1 : src_index;
-	  elem.rel_index = (rel_index == -1) ? binout_container.size()     : rel_index;
-	  elem.operand = operand;
-	  offsets.push_back(elem);
+     // label: (label_dstと呼ぶ)
+     // 1) label_dstの位置を記録する → label_dst_stack
+     void Instructions::store_label_dst(std::string& label_dst, VECTOR_BINOUT& binout_container) {
+     	  LABEL_DST_ELEMENT elem;
+	  elem.label = label_dst;
+	  elem.src_index = binout_container.size();
+	  label_dst_stack.push_back(elem);
      }
 
-     void Instructions::update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
+     // label: (label_dstと呼ぶ)
+     // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
+     void Instructions::update_label_dst_offset(std::string& label_dst, VECTOR_BINOUT& binout_container) {
+	  auto it = std::find_if(std::begin(label_src_stack), std::end(label_src_stack),
+				 [&](const LABEL_SRC_ELEMENT& elem)
+				 { return elem.label.find(label_dst) != std::string::npos; });
 
-	  std::cout << "updating a label for offsets...: " << found_label << std::endl;
-	  auto it = std::find_if(std::begin(offsets), std::end(offsets),
-				 [&](const OFFSET_ELEMENT& elem)
-				 { return elem.label.find(found_label) != std::string::npos; });
-
-	  if (it != std::end(offsets)) {
-	       // 見つかったJMP情報を記録
-	       std::cout << "found a label from stacked" << std::endl;
-	       OFFSET_ELEMENT elem(*it);
+      	  if (it != std::end(label_src_stack)) {
+	       LABEL_SRC_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
-	       //offsets.erase(it);
-	       // JMP先のアドレスをアップデートする
+
 	       std::cout.setf(std::ios::hex, std::ios::basefield);
 	       if (elem.operand == ID_Rel16) {
 		    std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
@@ -213,100 +202,35 @@ namespace nask_utility {
 		    std::cout << "bin[" << std::to_string(elem.rel_index) << "] = "
 			      << elem.rel_offset() - 1 << std::endl;
 		    binout_container[elem.rel_index] = elem.rel_offset() - 1;
-		    // std::cout << "bin[" << std::to_string(elem.rel_index) << "] = " << elem.dst_index << std::endl;
-		    // binout_container[elem.rel_index] = elem.dst_index;
 	       }
-	  } else {
-	       // 例外を起こしたほうがよさそう
-	       std::cout << "not found a label from stacked" << std::endl;
 	  }
      }
 
-     // すでにラベルがスタックに積まれている場合
-     bool Instructions::offset_is_already_stored(std::string found_label) {
+     // OPECODE label (label_srcと呼ぶ)
+     // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
+     void Instructions::update_label_src_offset(std::string& label_src, VECTOR_BINOUT& binout_container) {
+	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
+				 [&](const LABEL_DST_ELEMENT& elem)
+				 { return elem.label.find(label_src) != std::string::npos; });
 
-	  auto it = std::find_if(std::begin(offsets), std::end(offsets),
-				 [&](const OFFSET_ELEMENT& elem)
-				 { return elem.label.find(found_label) != std::string::npos; });
-
-	  std::cout << "stored ? :"
-		    << found_label
-		    << " => "
-		    << std::to_string(it != std::end(offsets))
-		    << std::endl;
-
-	  return it != std::end(offsets);
-     }
-
-     // "JMPオペコード"が見つかった時に呼び出す
-     void Instructions::set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container) {
-
-	  auto it = std::find_if(std::begin(stack), std::end(stack),
-				 [&](const JMP_STACK_ELEMENT& elem)
-				 { return elem.label.find(store_label) != std::string::npos; });
-
-	  if (it != std::end(stack)) {
-	       std::cout << "found a label from stacked" << std::endl;
-	       JMP_STACK_ELEMENT elem(*it);
-	       elem.src_index = binout_container.size();
-	       elem.rel_index = binout_container.size() + 1;
-
-	       // JMPのアドレスをアップデートする
-	       std::cout.setf(std::ios::dec, std::ios::basefield);
-	       std::cout << "elem.rel_index: " << elem.rel_index << std::endl;
-	       std::cout << "elem.dst_index: " << elem.dst_index << std::endl;
-	       std::cout.setf(std::ios::hex, std::ios::basefield);
-	       std::cout << "bin[" << std::to_string(binout_container.size() + 1) << "] = "
-			 << elem.rel_offset() - 1 << std::endl;
-
-	       // とりあえず0xEBのみ実装
-	       binout_container.push_back(0xeb);
-	       binout_container.push_back(elem.rel_offset() - 1);
-
-	  } else {
-	       // 見つかったJMP情報を記録
-	       JMP_STACK_ELEMENT elem;
-	       elem.label = store_label;
-	       elem.src_index = binout_container.size();
-	       elem.rel_index = binout_container.size() + 1;
-	       stack.push_back(elem);
-
-	       // とりあえず0xEBのみ実装
-	       binout_container.push_back(0xeb);
-	       binout_container.push_back(0x00);
-	  }
-     }
-
-     // "ラベル"が見つかった時に呼び出す
-     void Instructions::update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container) {
-
-	  std::cout << "updating a label for jmp...: " << found_label << std::endl;
-	  auto it = std::find_if(std::begin(stack), std::end(stack),
-				 [&](const JMP_STACK_ELEMENT& elem)
-				 { return elem.label.find(found_label) != std::string::npos; });
-
-	  if (it != std::end(stack)) {
-	       // 見つかったJMP情報を記録
-	       std::cout << "found a label from stacked" << std::endl;
-	       JMP_STACK_ELEMENT elem(*it);
+      	  if (it != std::end(label_dst_stack)) {
+	       LABEL_DST_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
-	       stack.erase(it);
-	       // JMP先のアドレスをアップデートする
-	       std::cout.setf(std::ios::dec, std::ios::basefield);
-	       std::cout << "elem.rel_index: " << elem.rel_index << std::endl;
-	       std::cout << "elem.dst_index: " << elem.dst_index << std::endl;
 	       std::cout.setf(std::ios::hex, std::ios::basefield);
 	       std::cout << "bin[" << std::to_string(elem.rel_index) << "] = "
 			 << elem.rel_offset() - 1 << std::endl;
 	       binout_container[elem.rel_index] = elem.rel_offset() - 1;
-	  } else {
-	       std::cout << "store a found label into stack" << std::endl;
-	       // 見つかったラベル情報を記録
-	       JMP_STACK_ELEMENT elem;
-	       elem.label = found_label;
-	       elem.dst_index = binout_container.size();
-	       stack.push_back(elem);
 	  }
+     }
+
+     // OPECODE label (label_srcと呼ぶ)
+     // 2) 同名のlabel_dstが保存されていなければ、label_srcの位置を保存する → label_src_stack
+     void Instructions::store_label_src(std::string& label_src, VECTOR_BINOUT& binout_container) {
+     	  LABEL_SRC_ELEMENT elem;
+	  elem.label = label_src;
+	  elem.src_index = binout_container.size();
+	  elem.rel_index = binout_container.size() + 1;
+	  label_src_stack.push_back(elem);
      }
 
      // @detail uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
@@ -368,8 +292,8 @@ namespace nask_utility {
      // より網羅的な表: http://softwaretechnique.jp/OS_Development/Tips/IA32_Instructions/MOV.html
      //
      TParaCxxTokenTable Instructions::token_table;
-     JMP_STACK Instructions::stack;
-     OFFS_STACK Instructions::offsets;
+     LABEL_DST_STACK Instructions::label_dst_stack;
+     LABEL_SRC_STACK Instructions::label_src_stack;
      uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
@@ -556,10 +480,10 @@ namespace nask_utility {
 			 set_dword_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == offs) {
 			 std::cout << " offset processing !" << std::endl;
-			 set_offset_rel_stack(token.AsString(), binout_container, -1, -1, ID_Rel16);
+			 //set_offset_rel_stack(token.AsString(), binout_container, -1, -1, ID_Rel16);
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
-			 binout_container.push_back(0x00);
-			 binout_container.push_back(0x7c);
+			 //binout_container.push_back(0x00);
+			 //binout_container.push_back(0x7c);
 		    } else {
 			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
 			 return 17;
@@ -585,18 +509,18 @@ namespace nask_utility {
 			 continue;
 		    } else {
 			 std::cout << "label: " << store_label << std::endl;
-			 if (offset_is_already_stored(store_label)) {
-			      // ラベルはすでにスタックに積まれているから参照する
-			      std::cout << "label: " << store_label << " is already stored"<< std::endl;
-			      update_offset_rel_stack(store_label, binout_container);
-			 } else {
-			      // ラベルが初めて見つかったのであれば探索する必要がある
-			      // とりあえずoffsetには0x00を入れておき見つかった時に更新する
-			      std::cout << "label: " << store_label << " is not stored"<< std::endl;
-			      set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
-			      binout_container.push_back(0x72);
-			      binout_container.push_back(0x00);
-			 }
+			 //if (offset_is_already_stored(store_label)) {
+			 //     // ラベルはすでにスタックに積まれているから参照する
+			 //     std::cout << "label: " << store_label << " is already stored"<< std::endl;
+			 //     update_offset_rel_stack(store_label, binout_container);
+			 //} else {
+			 //     // ラベルが初めて見つかったのであれば探索する必要がある
+			 //     // とりあえずoffsetには0x00を入れておき見つかった時に更新する
+			 //     std::cout << "label: " << store_label << " is not stored"<< std::endl;
+			 //     set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
+			 //     binout_container.push_back(0x72);
+			 //     binout_container.push_back(0x00);
+			 //}
 			 break;
 		    }
 	       }
@@ -615,18 +539,18 @@ namespace nask_utility {
 			 continue;
 		    } else {
 			 std::cout << "label: " << store_label << std::endl;
-			 if (offset_is_already_stored(store_label)) {
-			      // ラベルはすでにスタックに積まれているから参照する
-			      std::cout << "label: " << store_label << " is already stored"<< std::endl;
-			      update_offset_rel_stack(store_label, binout_container);
-			 } else {
-			      // ラベルが初めて見つかったのであれば探索する必要がある
-			      // とりあえずoffsetには0x00を入れておき見つかった時に更新する
-			      std::cout << "label: " << store_label << " is not stored"<< std::endl;
-			      set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
-			      binout_container.push_back(0x74);
-			      binout_container.push_back(0x00);
-			 }
+			 //if (offset_is_already_stored(store_label)) {
+			 //     // ラベルはすでにスタックに積まれているから参照する
+			 //     std::cout << "label: " << store_label << " is already stored"<< std::endl;
+			 //     update_offset_rel_stack(store_label, binout_container);
+			 //} else {
+			 //     // ラベルが初めて見つかったのであれば探索する必要がある
+			 //     // とりあえずoffsetには0x00を入れておき見つかった時に更新する
+			 //     std::cout << "label: " << store_label << " is not stored"<< std::endl;
+			 //     set_offset_rel_stack(store_label, binout_container, binout_container.size(), binout_container.size() + 1);
+			 //     binout_container.push_back(0x74);
+			 //     binout_container.push_back(0x00);
+			 //}
 			 break;
 		    }
 	       }
@@ -644,7 +568,7 @@ namespace nask_utility {
 	       } else {
 		    const std::string store_label = token.AsString();
 		    std::cout << "label stored: " << store_label << std::endl;
-		    set_jmp_stack(store_label, binout_container);
+		    //set_jmp_stack(store_label, binout_container);
 		    break;
 	       }
 	  }

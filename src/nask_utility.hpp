@@ -35,7 +35,7 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
 // 0xEA cp JMP ptr16:32	オペランドで指定されるアドレスに絶対ファージャンプする
 // 0xFF /5 JMP m16:16	m16:16で指定されるアドレスに絶対間接ファージャンプする
 // 0xFF /5 JMP m16:32	m16:32で指定されるアドレスに絶対間接ファージャンプする
-struct JMP_STACK_ELEMENT {
+struct LABEL_DST_ELEMENT {
   std::string label; // ex) entry:
   int src_index;  // JMPのオペコードが始まる場所
   int dst_index;  // JMPの飛び先のラベルが始まる場所
@@ -47,13 +47,13 @@ struct JMP_STACK_ELEMENT {
   };
 };
 
-struct OFFSET_ELEMENT {
+struct LABEL_SRC_ELEMENT {
   std::string label;   // ex) entry
   OPERAND_KINDS operand;
-  uint16_t src_index;  // JMPのオペコードが始まる場所
-  uint16_t dst_index;  // JMPの飛び先のラベルが始まる場所
-  uint16_t rel_index;  // rel_offsetを格納する場所
-  uint16_t rel_offset() {
+  int src_index;  // JMPのオペコードが始まる場所
+  int dst_index;  // JMPの飛び先のラベルが始まる場所
+  int rel_index;  // rel_offsetを格納する場所
+  int rel_offset() {
        // offset = rel - dst
        return dst_index - rel_index;
   };
@@ -71,9 +71,9 @@ struct NIMONIC_INFO {
 
 namespace nask_utility {
 
-     // 処理の中でJMP情報の収集をする
-     typedef std::vector<JMP_STACK_ELEMENT> JMP_STACK;
-     typedef std::vector<OFFSET_ELEMENT> OFFS_STACK;
+     // 処理の中でlabel情報の収集をする
+     typedef std::vector<LABEL_DST_ELEMENT> LABEL_DST_STACK;
+     typedef std::vector<LABEL_SRC_ELEMENT> LABEL_SRC_STACK;
      // 出力先
      typedef std::vector<uint8_t> VECTOR_BINOUT;
 
@@ -120,8 +120,8 @@ namespace nask_utility {
      class Instructions {
      public:
 	  static TParaCxxTokenTable token_table;
-	  static JMP_STACK stack;
-	  static OFFS_STACK offsets;
+	  static LABEL_DST_STACK label_dst_stack;
+	  static LABEL_SRC_STACK label_src_stack;
 	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
@@ -140,14 +140,10 @@ namespace nask_utility {
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
 	  // relX に関する関数
-	  void set_offset_rel_stack(std::string store_label, VECTOR_BINOUT& binout_container,
-				    int src_index = -1, int rel_index = -1, OPERAND_KINDS operand = ID_Rel8);
-	  void update_offset_rel_stack(std::string found_label, VECTOR_BINOUT& binout_container);
-	  bool offset_is_already_stored(std::string found_label);
-
-
-	  void set_jmp_stack(std::string store_label, VECTOR_BINOUT& binout_container);
-	  void update_jmp_stack(std::string found_label, VECTOR_BINOUT& binout_container);
+	  void store_label_dst(std::string& label_dst, VECTOR_BINOUT& binout_container);
+	  void update_label_dst_offset(std::string& label_dst, VECTOR_BINOUT& binout_container);
+	  void store_label_src(std::string& label_src, VECTOR_BINOUT& binout_container);
+	  void update_label_src_offset(std::string& label_src, VECTOR_BINOUT& binout_container);
      };
 
      namespace ModRM {
