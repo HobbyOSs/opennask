@@ -87,7 +87,12 @@ int process_each_assembly_line(char** argv,
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));
-	       std::cout << "coming another label: " << label_dst << std::endl;
+	       std::cout << "coming another label: "
+			 << label_dst
+			 << " bin["
+			 << std::to_string(binout_container.size())
+			 << "]"
+			 << std::endl;
 
                // label: (label_dstと呼ぶ)
                // 1) label_dstの位置を記録する → label_dst_stack

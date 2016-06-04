@@ -42,8 +42,14 @@ struct LABEL_DST_ELEMENT {
   int rel_index;  // rel_offsetを格納する場所
   int rel_offset() {
        // offset = rel - dst
-       // マイナスの時は補数表現を使う必要アリ
-       return dst_index - rel_index;
+       std::cout.setf(std::ios::hex, std::ios::basefield);
+       std::cout << std::to_string(src_index)
+		 << " - "
+		 << std::to_string(rel_index)
+		 << " - 1"
+		 << std::endl;
+
+       return src_index - rel_index - 1;
   };
 };
 
@@ -55,7 +61,14 @@ struct LABEL_SRC_ELEMENT {
   int rel_index;  // rel_offsetを格納する場所
   int rel_offset() {
        // offset = rel - dst
-       return dst_index - rel_index;
+       std::cout.setf(std::ios::hex, std::ios::basefield);
+       std::cout << std::to_string(dst_index)
+		 << " - "
+		 << std::to_string(rel_index)
+		 << " + 1"
+		 << std::endl;
+
+       return dst_index - rel_index + 1;
   };
 };
 
