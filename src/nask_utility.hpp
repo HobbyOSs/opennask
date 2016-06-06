@@ -56,6 +56,7 @@ struct LABEL_DST_ELEMENT {
 struct LABEL_SRC_ELEMENT {
   std::string label;   // ex) entry
   OPERAND_KINDS operand;
+  bool abs = false;
   int src_index;  // JMPのオペコードが始まる場所
   int dst_index;  // JMPの飛び先のラベルが始まる場所
   int rel_index;  // rel_offsetを格納する場所
@@ -65,10 +66,10 @@ struct LABEL_SRC_ELEMENT {
        std::cout << std::to_string(dst_index)
 		 << " - "
 		 << std::to_string(rel_index)
-		 << " + 1"
+		 << " - 1"
 		 << std::endl;
 
-       return dst_index - rel_index + 1;
+       return dst_index - rel_index - 1;
   };
 };
 
@@ -155,8 +156,10 @@ namespace nask_utility {
 	  // relX に関する関数
 	  void store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container);
 	  void update_label_dst_offset(std::string label_dst, VECTOR_BINOUT& binout_container);
-	  void store_label_src(std::string label_src, VECTOR_BINOUT& binout_container);
-	  void update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container);
+	  bool dst_is_stored(std::string label_dst, VECTOR_BINOUT& binout_container);
+
+	  void store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs = false);
+	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container);
      };
 
      namespace ModRM {
