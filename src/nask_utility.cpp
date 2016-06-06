@@ -227,7 +227,9 @@ namespace nask_utility {
      // OPECODE label (label_srcと呼ぶ)
      // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
      //    処理対象があれば true, 処理対象がなければ false
-     bool Instructions::update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container) {
+     bool Instructions::update_label_src_offset(std::string label_src,
+						VECTOR_BINOUT& binout_container,
+						uint8_t nim) {
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
 				 { return elem.label.find(label_src) != std::string::npos; });
@@ -242,7 +244,7 @@ namespace nask_utility {
 			 << "] = "
 			 << elem.rel_offset() << std::endl;
 
-	       binout_container.push_back(0xeb);
+	       binout_container.push_back(nim);
 	       binout_container.push_back(elem.rel_offset());
 	       return true;
 	  }
@@ -516,7 +518,7 @@ namespace nask_utility {
 		    } else if (nim_info.imm == offs) {
 			 std::cout << " offset processing !" << std::endl;
 
-			 update_label_src_offset(token.AsString(), binout_container);
+			 update_label_src_offset(token.AsString(), binout_container, 0x00);
 			 store_label_src(token.AsString(), binout_container, true);
 
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
@@ -542,16 +544,17 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
-		    std::string label_src = token.AsString();
-		    if (label_src.empty()) {
+		    std::string store_label = token.AsString();
+		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label: " << label_src << std::endl;
-			 if (update_label_src_offset(label_src, binout_container)) {
-			      // do nothing
+			 std::cout << "label stored: " << store_label << std::endl;
+			 std::cout << "0x72, 0x00" << std::endl;
+
+			 if (dst_is_stored(store_label, binout_container)) {
+			      update_label_src_offset(store_label, binout_container, 0x72);
 			 } else {
-			      store_label_src(label_src, binout_container);
-			      std::cout << "0x72, 0x00" << std::endl;
+			      store_label_src(store_label, binout_container);
 			      binout_container.push_back(0x72);
 			      binout_container.push_back(0x00);
 			 }
@@ -572,9 +575,11 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label: " << store_label << std::endl;
-			 if (update_label_src_offset(store_label, binout_container)) {
-			      // do nothing
+			 std::cout << "label stored: " << store_label << std::endl;
+			 std::cout << "0x74, 0x00" << std::endl;
+
+			 if (dst_is_stored(store_label, binout_container)) {
+			      update_label_src_offset(store_label, binout_container, 0x74);
 			 } else {
 			      store_label_src(store_label, binout_container);
 			      binout_container.push_back(0x74);
@@ -600,7 +605,7 @@ namespace nask_utility {
 		    std::cout << "0xeb, 0x00" << std::endl;
 
 		    if (dst_is_stored(store_label, binout_container)) {
-			 update_label_src_offset(store_label, binout_container);
+			 update_label_src_offset(store_label, binout_container, 0xeb);
 		    } else {
 			 store_label_src(store_label, binout_container);
 			 binout_container.push_back(0xeb);

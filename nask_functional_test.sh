@@ -7,7 +7,8 @@
 # 5 line comments and opecode 'DW'
 # 6 Day1 assembly file
 # 7 Day2 assembly file
-for n in $(seq 1 7)
+# 8 Day3 assembly file + 'JC', 'JE'
+for n in $(seq 1 8)
 do
     ./src/opennask data/0${n}_nasfile.nas data/0${n}_nasfile.img
     ./fatlib/examples/fdstat data/0${n}_nasfile.img

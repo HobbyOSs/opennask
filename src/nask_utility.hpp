@@ -159,7 +159,7 @@ namespace nask_utility {
 	  bool dst_is_stored(std::string label_dst, VECTOR_BINOUT& binout_container);
 
 	  void store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs = false);
-	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container);
+	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
      };
 
      namespace ModRM {
