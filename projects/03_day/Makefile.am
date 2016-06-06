@@ -1,1 +1,1 @@
-SUBDIRS = harib00a
+SUBDIRS = harib00a harib00b

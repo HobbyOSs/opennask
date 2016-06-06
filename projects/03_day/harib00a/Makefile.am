@@ -1,5 +1,5 @@
 #
-# Generated 2016年  6月  1日 水曜日 23:55:00 JST 
+# Generated 2016年  6月  7日 火曜日 00:00:44 JST 
 #
 
 NASK = $(top_builddir)/src/opennask$(EXEEXT)
