@@ -818,12 +818,53 @@ namespace nask_utility {
 
 			      binout_container.push_back(bs_dst.to_ulong());
 			      binout_container.push_back(src_token.AsLong());
-			      break;
 
 			 } else {
-			      // MOV Reg,Imm8
-			      // MOV Reg,Imm
+			      // MOV Reg,Imm8 => 1000001woo111mmm
+			      // MOV Reg,Imm  => 1000000woo111mmm
+			      if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
+				  src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
+				   // Imm8
+				   std::cout << "Imm8: " << src_token.AsLong() << std::endl;
+				   const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
+				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
+				   // debug logs
+				   std::cout << "NIM(W): ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst1.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst2.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(src_token.AsLong()) << std::endl;
+
+				   binout_container.push_back(bs_dst1.to_ulong());
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
+
+			      } else {
+				   // Imm
+				   std::cout << "Imm: " << src_token.AsLong() << std::endl;
+				   const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
+				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
+
+				   // debug logs
+				   std::cout << "NIM(W): ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst1.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst2.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(src_token.AsLong()) << std::endl;
+
+				   binout_container.push_back(bs_dst1.to_ulong());
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
+			      }
 			 }
 			 break;
 
