@@ -52,6 +52,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_HLT  = std::bind(&nask_utility::Instructions::process_token_HLT  , inst, _1, _2);
      const auto fp_INT  = std::bind(&nask_utility::Instructions::process_token_INT  , inst, _1, _2);
      const auto fp_JAE  = std::bind(&nask_utility::Instructions::process_token_JAE  , inst, _1, _2);
+     const auto fp_JBE  = std::bind(&nask_utility::Instructions::process_token_JBE  , inst, _1, _2);
      const auto fp_JC   = std::bind(&nask_utility::Instructions::process_token_JC   , inst, _1, _2);
      const auto fp_JE   = std::bind(&nask_utility::Instructions::process_token_JE   , inst, _1, _2);
      const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
@@ -67,6 +68,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("HLT" , fp_HLT));
      funcs.insert(std::make_pair("INT" , fp_INT));
      funcs.insert(std::make_pair("JAE" , fp_JAE));
+     funcs.insert(std::make_pair("JBE" , fp_JBE));
      funcs.insert(std::make_pair("JC"  , fp_JC));
      funcs.insert(std::make_pair("JE"  , fp_JE));
      funcs.insert(std::make_pair("JMP" , fp_JMP));

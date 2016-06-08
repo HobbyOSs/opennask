@@ -565,6 +565,33 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // JBE命令の実装(JMP命令全般でまとめて良いかもしれない)
+     int Instructions::process_token_JBE(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    std::string store_label = token.AsString();
+		    if (store_label.empty()) {
+			 continue;
+		    } else {
+			 std::cout << "label stored: " << store_label << std::endl;
+			 std::cout << "0x76, 0x00" << std::endl;
+
+			 if (dst_is_stored(store_label, binout_container)) {
+			      update_label_src_offset(store_label, binout_container, 0x76);
+			 } else {
+			      store_label_src(store_label, binout_container);
+			      binout_container.push_back(0x76);
+			      binout_container.push_back(0x00);
+			 }
+			 break;
+		    }
+	       }
+	  }
+	  return 0;
+     }
+
      // JC命令の実装(JMP命令全般でまとめて良いかもしれない)
      int Instructions::process_token_JC(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
