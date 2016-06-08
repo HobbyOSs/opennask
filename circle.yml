@@ -1,9 +1,8 @@
 dependencies:
   pre:
-    - sudo apt-get update; sudo apt-get install automake autoconf libtool
-    - ./bootstrap && ./configure
-  override:
-    - make
+    - curl -fsSL https://git.io/v2Ifn | bash
+
 test:
   override:
-    - make check
+    - circleci-matrix:
+        parallel: true

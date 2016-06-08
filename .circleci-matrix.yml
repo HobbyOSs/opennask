@@ -1,0 +1,10 @@
+env:
+  - CXX=g++ CC=gcc
+  - CXX=clang++ CC=clang
+
+command:
+    - sudo apt-get update; sudo apt-get install automake autoconf libtool
+    - ./bootstrap
+    - ./configure
+    - make
+    - make check
