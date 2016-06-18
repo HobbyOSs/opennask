@@ -1,6 +1,9 @@
 dependencies:
   pre:
-    - curl -fsSL https://git.io/v2Ifn | bash
+    # Install circleci-matrix
+    - mkdir -p ~/.local/bin
+    - curl -fsSL https://git.io/v2Ifs -o ~/.local/bin/circleci-matrix
+    - chmod +x ~/.local/bin/circleci-matrix
 
 test:
   override:
