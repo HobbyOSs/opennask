@@ -2,6 +2,16 @@
 
 namespace nask_utility {
      namespace ModRM {
+	  const std::string get_MMMSSS_from_reg(const std::string& reg) {
+	       if (REGISTERS_MMM_MAP.count(reg) != 0) {
+		    return REGISTERS_MMM_MAP.at(reg);
+	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(reg) != 0) {
+		    return SEGMENT_REGISTERS_SSS_MAP.at(reg);
+	       } else {
+		    return "000";
+	       }
+	  }
+
 	  const std::string get_rm_from_reg(const std::string& src_reg) {
 	       std::smatch match;
 	       if (regex_match(src_reg, match, rm000)) {
@@ -80,7 +90,7 @@ namespace nask_utility {
 	  return token.AsString() == "\n";
      }
 
-     bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+     bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(REGISTERS), std::end(REGISTERS),
 				 [&](const std::string& s)
@@ -89,13 +99,17 @@ namespace nask_utility {
 	  return it != std::end(REGISTERS);
      }
 
-     bool is_segment_register(TParaCxxTokenTable& token_table, TParaToken& token) {
+     bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(SEGMENT_REGISTERS), std::end(SEGMENT_REGISTERS),
 				 [&](const std::string& s)
 				 { return token.AsString().find(s) != std::string::npos; });
 
 	  return it != std::end(SEGMENT_REGISTERS);
+     }
+
+     bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+	  return is_common_register(token_table, token) || is_segment_register(token_table, token);
      }
 
      template <class T> void plus_number_from_code(T& num, char c) {
@@ -392,7 +406,7 @@ namespace nask_utility {
 		    // MOV Sreg, register の時
 		    if (tokenizer.LookAhead(1).Is(",") &&
 			!tokenizer.LookAhead(2).IsEmpty() &&
-			is_register(token_table, src_token)) {
+			is_common_register(token_table, src_token)) {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
@@ -408,7 +422,7 @@ namespace nask_utility {
 			 break;
 		    }
 
-	       } else if (is_register(token_table, token) &&
+	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")  &&
 		          tokenizer.LookAhead(2).Is("[")  &&
 		          tokenizer.LookAhead(4).Is("]")) {
@@ -452,6 +466,42 @@ namespace nask_utility {
 		    break;
 
 	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",")  &&
+			  is_segment_register(token_table, tokenizer.LookAhead(2))) {
+
+		    // MOV Reg16,Seg
+		    // 10001100 oosssmmm
+		    //--------------------------------------------------------
+		    // 0x8C /r	MOV r/m16, Sreg	        セグメントレジスタをr/m16に転送します
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_reg  = src_token.AsString();
+
+		    std::cout << dst_reg << " <= " << src_reg << std::endl;
+
+		    // Reg16, Sregの場合 => oosssmmm
+		    const std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+		    const std::string tp_src = ModRM::get_MMMSSS_from_reg(src_reg);
+
+		    // 10001100
+		    const std::bitset<8> bs_dst("10001100");
+		    // oo + sss + mmm
+		    const std::bitset<8> bs_src("11" + std::get<0>(tp_dst) + tp_src);
+		    binout_container.push_back(bs_dst.to_ulong());
+		    binout_container.push_back(bs_src.to_ulong());
+
+		    std::cout << "NIM(W): ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_dst.to_ulong());
+		    std::cout << ", ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_src.to_ulong()) << std::endl;
+
+		    // これで終了のはず
+		    break;
+
+	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")) {
 		    //
 		    // MOV Reg, Imm | 1011wrrr
@@ -705,23 +755,23 @@ namespace nask_utility {
 		    break;
 	       } else {
 
-		    if (is_register(token_table, token) &&
+		    if (is_common_register(token_table, token) &&
 			tokenizer.LookAhead(1).Is(",")  &&
-			is_register(token_table, tokenizer.LookAhead(2))) {
+			is_common_register(token_table, tokenizer.LookAhead(2))) {
 			 // MOV Reg,Reg
 		    } else if (token.Is("[") &&
-			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
-			       is_register(token_table, tokenizer.LookAhead(4))) {
+			       is_common_register(token_table, tokenizer.LookAhead(4))) {
 			 // MOV Mem,Reg
-		    } else if (is_register(token_table, token) &&
+		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       tokenizer.LookAhead(2).Is("[")  &&
-			       is_register(token_table, tokenizer.LookAhead(3)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(3)) &&
 			       tokenizer.LookAhead(4).Is("]")) {
 			 // MOV Reg,Mem
-		    } else if (is_register(token_table, token) &&
+		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
 			 // MOV Acc,Imm
@@ -771,7 +821,7 @@ namespace nask_utility {
 			 break;
 
 		    } else if (token.Is("[") &&
-			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
@@ -795,23 +845,23 @@ namespace nask_utility {
 		    break;
 	       } else {
 
-		    if (is_register(token_table, token) &&
+		    if (is_common_register(token_table, token) &&
 			tokenizer.LookAhead(1).Is(",")  &&
-			is_register(token_table, tokenizer.LookAhead(2))) {
+			is_common_register(token_table, tokenizer.LookAhead(2))) {
 			 // MOV Reg,Reg
 		    } else if (token.Is("[") &&
-			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
-			       is_register(token_table, tokenizer.LookAhead(4))) {
+			       is_common_register(token_table, tokenizer.LookAhead(4))) {
 			 // MOV Mem,Reg
-		    } else if (is_register(token_table, token) &&
+		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       tokenizer.LookAhead(2).Is("[")  &&
-			       is_register(token_table, tokenizer.LookAhead(3)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(3)) &&
 			       tokenizer.LookAhead(4).Is("]")) {
 			 // MOV Reg,Mem
-		    } else if (is_register(token_table, token) &&
+		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
 			 // MOV Acc,Imm
@@ -896,7 +946,7 @@ namespace nask_utility {
 			 break;
 
 		    } else if (token.Is("[") &&
-			       is_register(token_table, tokenizer.LookAhead(1)) &&
+			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {

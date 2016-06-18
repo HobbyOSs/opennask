@@ -101,8 +101,9 @@ namespace nask_utility {
      size_t get_labelpos(std::ifstream& stream, std::string token);
      bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token);
      bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token);
+     bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token);
+     bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
-     bool is_segment_register(TParaCxxTokenTable& token_table, TParaToken& token);
 
      template <class T> void plus_number_from_code(T& num, char c);
      uint8_t get_plus_register_code(uint8_t byte, char c);
@@ -188,27 +189,6 @@ namespace nask_utility {
 	       { mods::REG	  , "11"}
 	  };
 
-	  // mmm : Function
-	  //-----------------------
-          // 000 : DS:[BX+SI]
-          // 001 : DS:[BX+DI]
-          // 010 : SS:[BP+SI]
-          // 011 : SS:[BP+DI]
-          // 100 : DS:[SI]
-          // 101 : DS:[DI]
-          // 110 : SS:[BP]
-          // 111 : DS:[BX]
-	  const std::map<std::string, std::string> REGISTERS_MMM_MAP {
-	       { "DS", "000"}, { "[BX+SI]", "000"},
-	       { "DS", "001"}, { "[BX+DI]", "001"},
-	       { "SS", "010"}, { "[BP+SI]", "010"},
-	       { "SS", "011"}, { "[BP+DI]", "011"},
-	       { "DS", "100"}, { "[SI]",    "100"},
-	       { "DS", "101"}, { "[DI]",    "101"},
-	       { "SS", "110"}, { "[BP]",    "110"},
-	       { "DS", "111"}, { "[BX]",    "111"},
-	  };
-
 	  // @see: https://courses.engr.illinois.edu/ece390/resources/opcodes.html
 	  // rrr : W=0 : W=1 : reg32
 	  //------------------------
@@ -240,6 +220,27 @@ namespace nask_utility {
 	       { "DI", std::make_tuple("111", "1") },
 	  };
 
+	  // mmm : Function
+	  //-----------------------
+          // 000 : DS:[BX+SI]
+          // 001 : DS:[BX+DI]
+          // 010 : SS:[BP+SI]
+          // 011 : SS:[BP+DI]
+          // 100 : DS:[SI]
+          // 101 : DS:[DI]
+          // 110 : SS:[BP]
+          // 111 : DS:[BX]
+	  const std::map<std::string, std::string> REGISTERS_MMM_MAP {
+	       { "DS", "000"}, { "[BX+SI]", "000"},
+	       { "DS", "001"}, { "[BX+DI]", "001"},
+	       { "SS", "010"}, { "[BP+SI]", "010"},
+	       { "SS", "011"}, { "[BP+DI]", "011"},
+	       { "DS", "100"}, { "[SI]",    "100"},
+	       { "DS", "101"}, { "[DI]",    "101"},
+	       { "SS", "110"}, { "[BP]",    "110"},
+	       { "DS", "111"}, { "[BX]",    "111"},
+	  };
+
 	  // sss : Segment Register
 	  //-----------------------
 	  // 000 : ES
@@ -258,6 +259,7 @@ namespace nask_utility {
 	  };
 
 	  const std::string get_rm_from_reg(const std::string& src_reg);
+	  const std::string get_MMMSSS_from_reg(const std::string& reg);
 	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg);
      };
 }
