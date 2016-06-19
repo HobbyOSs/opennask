@@ -34,10 +34,22 @@ namespace nask_utility {
 	       std::bitset<8> bs(modrm);
 	       return bs.to_ulong();
 	  };
+
+	  bool is_accumulator(const std::string& reg) {
+	       std::smatch match;
+	       return regex_match(reg, match, rm000);
+	  }
      };
 
      bool is_legitimate_numeric(const std::string& s) {
 	  return is_hex_notation(s) || is_integer(s);
+     }
+
+     bool is_integer(const std::string& s) {
+	  if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+	  char * p ;
+	  strtol(s.c_str(), &p, 10) ;
+	  return (*p == 0) ;
      }
 
      bool is_hex_notation(const std::string& s) {
@@ -46,11 +58,12 @@ namespace nask_utility {
 	       && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
      }
 
-     bool is_integer(const std::string& s) {
-	  if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
-	  char * p ;
-	  strtol(s.c_str(), &p, 10) ;
-	  return (*p == 0) ;
+     size_t get_imm_size(const std::string& hex_string) {
+	  if (is_hex_notation(hex_string)) {
+	       return hex_string.substr(2).size() / 2;
+	  } else {
+	       return 0;
+	  }
      }
 
      std::ifstream::pos_type filesize(const char* filename) {
@@ -298,6 +311,10 @@ namespace nask_utility {
 	  if (word == 0x0000 && zero_as_byte) {
 	       // push_back only 1byte
 	       binout_container.push_back(0x00);
+
+	       std::cout << "(B): ";
+	       std::cout << std::showbase << std::hex
+			 << static_cast<int>(0x00);
 	  } else {
 	       // http://stackoverflow.com/a/1289360/2565527
 	       const uint8_t first_byte  = (word >> 8) & 0xff;
@@ -305,6 +322,13 @@ namespace nask_utility {
 	       // push_back as little_endian
 	       binout_container.push_back(second_byte);
 	       binout_container.push_back(first_byte);
+
+	       std::cout << "(W): ";
+	       std::cout << std::showbase << std::hex
+			 << static_cast<int>(second_byte);
+	       std::cout << ", ";
+	       std::cout << std::showbase << std::hex
+			 << static_cast<int>(first_byte);
 	  }
      }
 
@@ -787,9 +811,35 @@ namespace nask_utility {
 			 tokenizer.Next();
 			 std::cout << dst_reg << " <= " << src_imm << std::endl;
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+			 // Imm8 or Imm16
+			 const size_t imm_size = get_imm_size(src_token.AsString());
+			 std::cout << "imm size: " << imm_size << std::endl;
 
-			 if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
-			     src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
+			 if (ModRM::is_accumulator(dst_reg)) {
+			      // MOV Acc,Imm
+			      // NIM: 0000010w
+			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
+			      // debug logs
+			      std::cout << "NIM(W): ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(bs_dst.to_ulong());
+			      std::cout << ", ";
+			      std::cout << std::showbase << std::hex
+					<< static_cast<int>(src_token.AsLong()) << std::endl;
+
+			      binout_container.push_back(bs_dst.to_ulong());
+
+			      if (imm_size == imm8) {
+				   std::cout << "imm8 ! => " << src_token.AsLong() << std::endl;
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   std::cout << "imm16 ! => " << src_token.AsLong() << std::endl;
+				   set_word_into_binout(src_token.AsLong(), binout_container, false);
+			      }
+			      break;
+
+			 } else if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
+				    src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
 			      // MOV Reg,Imm8 に決定 int8_t 内に収まっているので
 			      // NIM: 1000001w oo000mmm
 			      // 1000001 + w
@@ -815,7 +865,6 @@ namespace nask_utility {
 			      break;
 
 			 } else {
-			      // MOV Acc,Imm
 			      // MOV Reg,Imm
 			 }
 			 break;

@@ -94,6 +94,7 @@ namespace nask_utility {
      bool is_hex_notation(const std::string& s);
      bool is_integer(const std::string& s);
      bool is_legitimate_numeric(const std::string& s);
+     size_t get_imm_size(const std::string& hex_string);
 
      std::ifstream::pos_type filesize(const char* filename);
      std::vector<std::string> split(const std::string &str, char delim);
@@ -261,6 +262,7 @@ namespace nask_utility {
 	  const std::string get_rm_from_reg(const std::string& src_reg);
 	  const std::string get_MMMSSS_from_reg(const std::string& reg);
 	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg);
+	  bool is_accumulator(const std::string& reg);
      };
 }
 

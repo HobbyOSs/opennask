@@ -1,9 +1,12 @@
 dependencies:
   pre:
-    # Install circleci-matrix
-    - mkdir -p ~/.local/bin
-    - curl -fsSL https://git.io/v2Ifs -o ~/.local/bin/circleci-matrix
-    - chmod +x ~/.local/bin/circleci-matrix
+    - "[ -e ~/.local/bin/circleci-matrix ]
+    || mkdir -p ~/.local/bin
+    && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
+    && chmod +x ~/.local/bin/circleci-matrix"
+
+  cache_directories:
+    - ~/.local/bin/circleci-matrix
 
 test:
   override:
