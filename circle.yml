@@ -12,3 +12,7 @@ test:
   override:
     - ~/.local/bin/circleci-matrix:
         parallel: true
+        
+general:
+  artifacts:
+    - "data/"
