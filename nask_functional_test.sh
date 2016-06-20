@@ -11,6 +11,7 @@
 for n in $(seq 1 8)
 do
     ./src/opennask data/0${n}_nasfile.nas data/0${n}_nasfile.img
+    od -t x1 data/0${n}_nasfile.img > data/0${n}_nasfile.txt
     ./fatlib/examples/fdstat data/0${n}_nasfile.img
     cd data && md5sum -c 0${n}_nasfile.hash && cd ../
 done

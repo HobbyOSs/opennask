@@ -24,7 +24,7 @@ namespace nask_utility {
 		    return "011";
 	       }
 
-	       return "test";
+	       return "";
 	  };
 
 	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg) {
@@ -43,6 +43,11 @@ namespace nask_utility {
 
      bool is_legitimate_numeric(const std::string& s) {
 	  return is_hex_notation(s) || is_integer(s);
+     }
+
+     bool is_between_bytesize(const long l) {
+	  return (l <= std::numeric_limits<int8_t>::max() &&
+		  l >= std::numeric_limits<int8_t>::min());
      }
 
      bool is_integer(const std::string& s) {
@@ -897,25 +902,25 @@ namespace nask_utility {
 		    if (is_common_register(token_table, token) &&
 			tokenizer.LookAhead(1).Is(",")  &&
 			is_common_register(token_table, tokenizer.LookAhead(2))) {
-			 // MOV Reg,Reg
+			 // CMP Reg,Reg
 		    } else if (token.Is("[") &&
 			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_common_register(token_table, tokenizer.LookAhead(4))) {
-			 // MOV Mem,Reg
+			 // CMP Mem,Reg
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       tokenizer.LookAhead(2).Is("[")  &&
 			       is_common_register(token_table, tokenizer.LookAhead(3)) &&
 			       tokenizer.LookAhead(4).Is("]")) {
-			 // MOV Reg,Mem
+			 // CMP Reg,Mem
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
-			 // MOV Acc,Imm
-			 // MOV Reg,Imm8
-			 // MOV Reg,Imm
+			 // CMP Acc,Imm
+			 // CMP Reg,Imm8
+			 // CMP Reg,Imm
 			 TParaToken dst_token = token;
 			 TParaToken src_token = tokenizer.LookAhead(2);
 			 const std::string dst_reg  = dst_token.AsString();
@@ -929,8 +934,8 @@ namespace nask_utility {
 
 			 std::smatch match;
 			 if (regex_match(dst_reg, match, ModRM::rm000)) {
-			      // AL|AX|EAX なので "MOV Acc,Imm" に決定
-			      // MOV Acc,Imm
+			      // AL|AX|EAX なので "CMP Acc,Imm" に決定
+			      // CMP Acc,Imm
 			      // 0011110 + w
 			      const std::bitset<8> bs_dst("0011110" + std::get<1>(tp_dst));
 
@@ -946,19 +951,35 @@ namespace nask_utility {
 			      binout_container.push_back(src_token.AsLong());
 
 			 } else {
-			      // MOV Reg,Imm8 => 1000001woo111mmm
-			      // MOV Reg,Imm  => 1000000woo111mmm
-			      if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
-				  src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
-				   // Imm8
-				   std::cout << "Imm8: " << src_token.AsLong() << std::endl;
-				   const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
+			      // 8086 Opecodeの表のほうが間違えてる
+
+			      // CMP Reg8, Imm
+			      // ------------
+			      // 0x80 /7 ib | CMP r/m8, imm8
+			      //
+			      // CMP Reg16, Imm
+			      // ------------
+			      // 0x81 /7 iw | CMP r/m16, imm16
+			      // 0x83 /7 ib | CMP r/m16, imm8
+			      //
+			      // CMP Reg32, Imm
+			      // ------------
+			      // 0x80 /7 id | CMP r/m32, imm32
+			      // 0x83 /7 ib | CMP r/m32, imm8
+			      //
+			      if (is_between_bytesize(src_token.AsLong()) &&
+				  regex_match(dst_reg, match, ModRM::regImm08)) {
+				   // CMP Reg8, Imm
+				   // ------------
+				   // 0x80 /7 ib | CMP r/m8, imm8
+				   std::cout << "r/m8: " << dst_reg << std::endl;
+				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
 				   std::cout << "NIM(W): ";
 				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(bs_dst1.to_ulong());
+					     << static_cast<int>(0x80);
 				   std::cout << ", ";
 				   std::cout << std::showbase << std::hex
 					     << static_cast<int>(bs_dst2.to_ulong());
@@ -966,30 +987,40 @@ namespace nask_utility {
 				   std::cout << std::showbase << std::hex
 					     << static_cast<int>(src_token.AsLong()) << std::endl;
 
-				   binout_container.push_back(bs_dst1.to_ulong());
+				   binout_container.push_back(0x80);
 				   binout_container.push_back(bs_dst2.to_ulong());
 				   binout_container.push_back(src_token.AsLong());
 
+			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+				   const uint8_t op = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+				   // CMP Reg16, Imm
+				   // ------------
+				   // 0x83 /7 ib | CMP r/m16, imm8
+				   // 0x81 /7 iw | CMP r/m16, imm16
+				   std::cout << "r/m16: " << dst_reg << std::endl;
+				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
+				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
+
+				   // debug logs
+				   std::cout << "NIM(W): ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(op);
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst2.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(src_token.AsLong()) << std::endl;
+
+				   binout_container.push_back(op);
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
 			      } else {
-				   // Imm
-				   std::cout << "Imm: " << src_token.AsLong() << std::endl;
-				   const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
-				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
-
-				   // debug logs
-				   std::cout << "NIM(W): ";
-				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(bs_dst1.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(bs_dst2.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(src_token.AsLong()) << std::endl;
-
-				   binout_container.push_back(bs_dst1.to_ulong());
-				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_token.AsLong());
+				   // CMP Reg32, Imm
+				   // ------------
+				   // 0x80 /7 id | CMP r/m32, imm32
+				   // 0x83 /7 ib | CMP r/m32, imm8
+				   // 未実装
 			      }
 			 }
 			 break;
@@ -999,8 +1030,8 @@ namespace nask_utility {
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
-			 // MOV Mem,Imm8
-			 // MOV Mem,Imm
+			 // CMP Mem,Imm8
+			 // CMP Mem,Imm
 		    } else {
 			 std::cerr << "NASK : CMP syntax error" << std::endl;
 			 return 17;

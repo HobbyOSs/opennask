@@ -94,6 +94,7 @@ namespace nask_utility {
      bool is_hex_notation(const std::string& s);
      bool is_integer(const std::string& s);
      bool is_legitimate_numeric(const std::string& s);
+     bool is_between_bytesize(const long l);
      size_t get_imm_size(const std::string& hex_string);
 
      std::ifstream::pos_type filesize(const char* filename);
@@ -174,7 +175,8 @@ namespace nask_utility {
 	  const std::regex rm011("(BL|BX|EBX)");
 
 	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)");
-	  const std::regex regImm16("(AX|CX|DX|BX)");
+	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)");
+	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)");
 
 	  enum mods {
 	       REG_REG = 0, // mod=00: [レジスター+レジスター]
