@@ -15,4 +15,4 @@ test:
 
 general:
   artifacts:
-    - "data/*.txt"
+    - "data/artifacts/"

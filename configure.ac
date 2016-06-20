@@ -68,7 +68,9 @@ AC_CONFIG_FILES([Makefile
 		 projects/02_day/helloos5/Makefile
 		 projects/03_day/harib00a/Makefile
 		 projects/03_day/harib00b/Makefile
-		 projects/03_day/harib00c/Makefile])
+		 projects/03_day/harib00c/Makefile
+		 projects/03_day/harib00d/Makefile
+		 ])
 
 AC_CONFIG_SUBDIRS([reflcpp parasol intel2gas fatlib dosfstools])
 
