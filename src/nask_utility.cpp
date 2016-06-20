@@ -426,7 +426,6 @@ namespace nask_utility {
 		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
 		    //
-		    std::cout << "MOV REGISTER: " << token.AsString();
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
@@ -446,8 +445,14 @@ namespace nask_utility {
 			 binout_container.push_back(modrm);
 			 // これで終了のはず
 			 std::cout << " : NIM: ";
-			 std::cout << std::showbase << std::hex << 0x8e;
-			 std::cout << std::showbase << std::hex << static_cast<int>(modrm) << std::endl;
+			 std::cout << std::showbase
+				   << std::hex
+				   << 0x8e
+				   << ", ";
+			 std::cout << std::showbase
+				   << std::hex
+				   << static_cast<int>(modrm)
+				   << std::endl;
 			 break;
 		    }
 
@@ -787,25 +792,25 @@ namespace nask_utility {
 		    if (is_common_register(token_table, token) &&
 			tokenizer.LookAhead(1).Is(",")  &&
 			is_common_register(token_table, tokenizer.LookAhead(2))) {
-			 // MOV Reg,Reg
+			 // ADD Reg,Reg
 		    } else if (token.Is("[") &&
 			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_common_register(token_table, tokenizer.LookAhead(4))) {
-			 // MOV Mem,Reg
+			 // ADD Mem,Reg
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       tokenizer.LookAhead(2).Is("[")  &&
 			       is_common_register(token_table, tokenizer.LookAhead(3)) &&
 			       tokenizer.LookAhead(4).Is("]")) {
-			 // MOV Reg,Mem
+			 // ADD Reg,Mem
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
-			 // MOV Acc,Imm
-			 // MOV Reg,Imm8
-			 // MOV Reg,Imm
+			 // ADD Acc,Imm
+			 // ADD Reg,Imm8
+			 // ADD Reg,Imm
 			 TParaToken dst_token = token;
 			 TParaToken src_token = tokenizer.LookAhead(2);
 			 const std::string dst_reg  = dst_token.AsString();
@@ -821,7 +826,7 @@ namespace nask_utility {
 			 std::cout << "imm size: " << imm_size << std::endl;
 
 			 if (ModRM::is_accumulator(dst_reg)) {
-			      // MOV Acc,Imm
+			      // ADD Acc,Imm
 			      // NIM: 0000010w
 			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
 			      // debug logs
@@ -843,34 +848,103 @@ namespace nask_utility {
 			      }
 			      break;
 
-			 } else if (src_token.AsLong() <= std::numeric_limits<int8_t>::max() &&
-				    src_token.AsLong() >= std::numeric_limits<int8_t>::min()) {
-			      // MOV Reg,Imm8 に決定 int8_t 内に収まっているので
+			 } else {
+
+			      // ADD Reg8, Imm
+			      // -------------
+			      // 0x80 /0 ib  ADD r/m8, imm8
+                              // 0x81 /0 ib  ADD r/m8, imm8
+
+			      // ADD Reg16, Imm
+			      // -------------
+                              // 0x83 /0 ib  ADD r/m16, imm8
+                              // 0x81 /0 iw  ADD r/m16, imm16
+
+			      // ADD Reg32, Imm
+			      // -------------
+                              // 0x83 /0 ib  ADD r/m32, imm8
+                              // 0x81 /0 id  ADD r/m32, imm32
+			      std::smatch match;
+			      if (regex_match(dst_reg, match, ModRM::regImm08)) {
+				   // ADD Reg8, Imm
+				   // -------------
+				   // 0x80 /0 ib  ADD r/m8, imm8
+				   // 0x81 /0 ib  ADD r/m8, imm8
+				   std::cout << "r/m8: " << dst_reg << std::endl;
+				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
+				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+
+				   // debug logs
+				   std::cout << "NIM(W): ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(0x80);
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst2.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(src_token.AsLong()) << std::endl;
+
+				   binout_container.push_back(0x80);
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
+
+			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+				   const uint8_t op = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+				   // ADD Reg16, Imm
+				   // -------------
+				   // 0x83 /0 ib  ADD r/m16, imm8
+				   // 0x81 /0 iw  ADD r/m16, imm16
+				   std::cout << "r/m16: " << dst_reg << std::endl;
+				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
+				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+
+				   // debug logs
+				   std::cout << "NIM(W): ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(op);
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(bs_dst2.to_ulong());
+				   std::cout << ", ";
+				   std::cout << std::showbase << std::hex
+					     << static_cast<int>(src_token.AsLong()) << std::endl;
+
+				   binout_container.push_back(op);
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
+
+			      } else {
+				   // ADD Reg32, Imm
+				   // -------------
+				   // 0x83 /0 ib  ADD r/m32, imm8
+				   // 0x81 /0 id  ADD r/m32, imm32
+
+			      }
+
+			      // ADD Reg,Imm8 に決定 int8_t 内に収まっているので
 			      // NIM: 1000001w oo000mmm
 			      // 1000001 + w
-			      const std::bitset<8> bs_dst("1000001" + std::get<1>(tp_dst));
+			      // const std::bitset<8> bs_dst("1000001" + std::get<1>(tp_dst));
 			      // oo + 000 + mmm
 			      // FIXME: mmmではなくrrrかもしれない
-			      const std::bitset<8> bs_src("11000" + std::get<0>(tp_dst));
+			      // const std::bitset<8> bs_src("11000" + std::get<0>(tp_dst));
 
 			      // debug logs
-			      std::cout << "NIM(W): ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(bs_dst.to_ulong());
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(bs_src.to_ulong());
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(src_token.AsLong()) << std::endl;
-
-			      binout_container.push_back(bs_dst.to_ulong());
-			      binout_container.push_back(bs_src.to_ulong());
-			      binout_container.push_back(src_token.AsLong());
+			      //std::cout << "NIM(W): ";
+			      //std::cout << std::showbase << std::hex
+			      // 		<< static_cast<int>(bs_dst.to_ulong());
+			      //std::cout << ", ";
+			      //std::cout << std::showbase << std::hex
+			      // 		<< static_cast<int>(bs_src.to_ulong());
+			      //std::cout << ", ";
+			      //std::cout << std::showbase << std::hex
+			      // 		<< static_cast<int>(src_token.AsLong()) << std::endl;
+			      //
+			      //binout_container.push_back(bs_dst.to_ulong());
+			      //binout_container.push_back(bs_src.to_ulong());
+			      //binout_container.push_back(src_token.AsLong());
 			      break;
-
-			 } else {
-			      // MOV Reg,Imm
 			 }
 			 break;
 
@@ -879,8 +953,8 @@ namespace nask_utility {
 			       tokenizer.LookAhead(2).Is("]") &&
 			       tokenizer.LookAhead(3).Is(",") &&
 			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
-			 // MOV Mem,Imm8
-			 // MOV Mem,Imm
+			 // ADD Mem,Imm8
+			 // ADD Mem,Imm
 		    } else {
 			 std::cerr << "NASK : ADD syntax error" << std::endl;
 			 return 17;
