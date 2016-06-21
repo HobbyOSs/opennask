@@ -13,5 +13,7 @@ helloos.img$(EXEEXT) : helloos.nas
 		$(NASK) helloos.nas helloos.img
 		$(FDSTAT) helloos.img
 
-wine:
+wine: all
 		$(WINE_NASK) helloos.nas helloos_wine.img
+		od -t x1 helloos.img       > ipl_f.txt
+		od -t x1 helloos_wine.img  > ipl_t.txt

@@ -141,6 +141,7 @@ int process_each_assembly_line(char** argv,
 			      std::cout << "eval " << token.AsString() <<" end" << std::endl;
 			 } else {
 			      // What
+			      std::cout << "eval Unknown " << token.AsString() <<" end" << std::endl;
 			 }
 		    }
 	       }

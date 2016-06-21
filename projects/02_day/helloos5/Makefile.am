@@ -13,5 +13,7 @@ ipl.img$(EXEEXT) : ipl.nas
 		$(NASK) ipl.nas ipl.img
 		$(FDSTAT) ipl.img
 
-wine:
+wine: all
 		$(WINE_NASK) ipl.nas ipl_wine.img
+		od -t x1 ipl.img       > ipl_f.txt
+		od -t x1 ipl_wine.img  > ipl_t.txt

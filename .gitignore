@@ -27,6 +27,7 @@ libtool.m4
 .libs/
 ar-lib
 *.pc
+artifacts
 
 # http://www.gnu.org/software/autoconf
 *.dirstamp

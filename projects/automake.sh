@@ -31,8 +31,10 @@ do
     echo -e "\t\t\$(NASK) ${SRC_NAME}.nas ${BIN_NAME}.img"               >> ${FILE_DIR}/Makefile.am
     echo -e "\t\t\$(FDSTAT) ${BIN_NAME}.img"                             >> ${FILE_DIR}/Makefile.am
     echo -e ""                                                           >> ${FILE_DIR}/Makefile.am
-    echo -e "wine:"                                                      >> ${FILE_DIR}/Makefile.am
+    echo -e "wine: all"                                                  >> ${FILE_DIR}/Makefile.am
     echo -e "\t\t\$(WINE_NASK) ${SRC_NAME}.nas ${BIN_NAME}_wine.img"     >> ${FILE_DIR}/Makefile.am
+    echo -e "\t\tod -t x1 ${BIN_NAME}.img       > ipl_f.txt"             >> ${FILE_DIR}/Makefile.am
+    echo -e "\t\tod -t x1 ${BIN_NAME}_wine.img  > ipl_t.txt"             >> ${FILE_DIR}/Makefile.am
 
     AC_CONFIG_FILE=`echo ${FILE_DIR}/Makefile | sed -e 's/^\./projects/g'`
     echo -e "\t${AC_CONFIG_FILE}"
