@@ -284,6 +284,19 @@ namespace nask_utility {
 	  return false;
      }
 
+     std::string Instructions::get_equ_label_or_asis(std::string key) {
+	  if( this->equ_map.find(key) != this->equ_map.end() ) {
+	       std::cout << "label: "
+			 << key
+			 << " replaced "
+			 << equ_map[key]
+			 << std::endl;
+	       return this->equ_map[key];
+	  } else {
+	       return key;
+	  }
+     }
+
      bool Instructions::dst_is_stored(std::string label_src, VECTOR_BINOUT& binout_container) {
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
@@ -374,6 +387,7 @@ namespace nask_utility {
      TParaCxxTokenTable Instructions::token_table;
      LABEL_DST_STACK Instructions::label_dst_stack;
      LABEL_SRC_STACK Instructions::label_src_stack;
+     std::map<std::string, std::string> Instructions::equ_map;
      uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
@@ -991,14 +1005,14 @@ namespace nask_utility {
 			 // CMP Reg,Mem
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
-			       is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
+			       is_legitimate_numeric(get_equ_label_or_asis(tokenizer.LookAhead(2).AsString()))) {
 			 // CMP Acc,Imm
 			 // CMP Reg,Imm8
 			 // CMP Reg,Imm
 			 TParaToken dst_token = token;
 			 TParaToken src_token = tokenizer.LookAhead(2);
 			 const std::string dst_reg  = dst_token.AsString();
-			 const std::string src_imm  = src_token.AsString();
+			 const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
 
 			 // 次へ
 			 tokenizer.Next();
@@ -1184,6 +1198,37 @@ namespace nask_utility {
 	       } else {
 		    // DWを解釈, 0x00の際でもWORDで格納
 		    set_word_into_binout(token.AsLong(), binout_container, false);
+	       }
+	  }
+	  return 0;
+     }
+
+     int Instructions::process_token_EQU(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+
+		    if (tokenizer.LookAhead(1).Is("EQU")) {
+			 if (token.IsEmpty() || tokenizer.LookAhead(2).IsEmpty()) {
+			      std::cerr << "NASK : EQU syntax is not correct" << std::endl;
+			      return 17;
+			 } else {
+			      const std::string key = token.AsString();
+			      const std::string val = tokenizer.LookAhead(2).AsString();
+			      std::cout << key
+					<< " is keeped as "
+					<< val
+					<< " because of EQU"
+					<< std::endl;
+			      this->equ_map[key] = val;
+			      return 0;
+			 }
+		    } else {
+			 std::cerr << "NASK : EQU syntax is not correct" << std::endl;
+			 return 17;
+		    }
+		    std::cout << "!!!" << token.AsString() << "!!!" << std::endl;
 	       }
 	  }
 	  return 0;

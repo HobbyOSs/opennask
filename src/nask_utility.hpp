@@ -26,6 +26,10 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
      "SS"  // スタック
 };
 
+const std::array<std::string, 1> PRE_PROCESS_WORDS {
+     "EQU"
+};
+
 // 0xEB cb JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
 // 0xE9 cw JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
 // 0xE9 cd JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
@@ -139,6 +143,7 @@ namespace nask_utility {
 	  static TParaCxxTokenTable token_table;
 	  static LABEL_DST_STACK label_dst_stack;
 	  static LABEL_SRC_STACK label_src_stack;
+	  static std::map<std::string, std::string> equ_map;
 	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
@@ -147,6 +152,7 @@ namespace nask_utility {
 	  int process_token_DB  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DD  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_EQU (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_HLT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_INT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JAE (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
@@ -166,6 +172,8 @@ namespace nask_utility {
 
 	  void store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs = false);
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
+	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す
+	  std::string get_equ_label_or_asis(std::string key);
      };
 
      namespace ModRM {

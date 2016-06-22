@@ -20,7 +20,6 @@
 
 using namespace std::placeholders;
 
-constexpr unsigned long BYTE     = 1;
 constexpr unsigned long KILOBYTE = 1024;
 constexpr unsigned long MEGABYTE = 1024 * 1024;
 constexpr unsigned long GIGABYTE = 1024 * 1024 * 1024;
@@ -106,6 +105,17 @@ int process_each_assembly_line(char** argv,
 	       inst.store_label_dst(label_dst, binout_container);
 	       inst.update_label_dst_offset(label_dst, binout_container);
 	       continue;
+	  }
+
+	  for (const std::string pre_process_word : PRE_PROCESS_WORDS) {
+	       std::size_t found = input.find(pre_process_word);
+	       if (found != std::string::npos && pre_process_word == "EQU") {
+		    std::cout << "coming label EQU" << std::endl;
+		    std::istringstream input_stream(input.c_str());
+		    TParaTokenizer tokenizer(input_stream, &token_table);
+		    inst.process_token_EQU(tokenizer, binout_container);
+		    continue;
+	       }
 	  }
 
 	  /* 入力行を istream にしてトークナイザを生成 */
