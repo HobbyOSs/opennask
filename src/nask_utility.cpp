@@ -690,6 +690,33 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // JB命令の実装(JMP命令全般でまとめて良いかもしれない)
+     int Instructions::process_token_JB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    std::string store_label = token.AsString();
+		    if (store_label.empty()) {
+			 continue;
+		    } else {
+			 std::cout << "label stored: " << store_label << std::endl;
+			 std::cout << "0x72, 0x00" << std::endl;
+
+			 if (dst_is_stored(store_label, binout_container)) {
+			      update_label_src_offset(store_label, binout_container, 0x72);
+			 } else {
+			      store_label_src(store_label, binout_container);
+			      binout_container.push_back(0x72);
+			      binout_container.push_back(0x00);
+			 }
+			 break;
+		    }
+	       }
+	  }
+	  return 0;
+     }
+
      // JC命令の実装(JMP命令全般でまとめて良いかもしれない)
      int Instructions::process_token_JC(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
@@ -1011,8 +1038,10 @@ namespace nask_utility {
 			 // CMP Reg,Imm
 			 TParaToken dst_token = token;
 			 TParaToken src_token = tokenizer.LookAhead(2);
-			 const std::string dst_reg  = dst_token.AsString();
-			 const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
+			 const std::string dst_reg      = dst_token.AsString();
+			 const std::string src_imm_str  = get_equ_label_or_asis(src_token.AsString());
+			 const long src_imm = (src_imm_str != src_token.AsString()) ?
+			      std::stol(src_imm_str) : src_token.AsLong();
 
 			 // 次へ
 			 tokenizer.Next();
@@ -1033,10 +1062,10 @@ namespace nask_utility {
 					<< static_cast<int>(bs_dst.to_ulong());
 			      std::cout << ", ";
 			      std::cout << std::showbase << std::hex
-					<< static_cast<int>(src_token.AsLong()) << std::endl;
+					<< static_cast<int>(src_imm) << std::endl;
 
 			      binout_container.push_back(bs_dst.to_ulong());
-			      binout_container.push_back(src_token.AsLong());
+			      binout_container.push_back(src_imm);
 
 			 } else {
 			      // 8086 Opecodeの表のほうが間違えてる
@@ -1055,7 +1084,7 @@ namespace nask_utility {
 			      // 0x80 /7 id | CMP r/m32, imm32
 			      // 0x83 /7 ib | CMP r/m32, imm8
 			      //
-			      if (is_between_bytesize(src_token.AsLong()) &&
+			      if (is_between_bytesize(src_imm) &&
 				  regex_match(dst_reg, match, ModRM::regImm08)) {
 				   // CMP Reg8, Imm
 				   // ------------
@@ -1073,14 +1102,14 @@ namespace nask_utility {
 					     << static_cast<int>(bs_dst2.to_ulong());
 				   std::cout << ", ";
 				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(src_token.AsLong()) << std::endl;
+					     << static_cast<int>(src_imm) << std::endl;
 
 				   binout_container.push_back(0x80);
 				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_token.AsLong());
+				   binout_container.push_back(src_imm);
 
 			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-				   const uint8_t op = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+				   const uint8_t op = is_between_bytesize(src_imm) ? 0x83 : 0x81;
 				   // CMP Reg16, Imm
 				   // ------------
 				   // 0x83 /7 ib | CMP r/m16, imm8
@@ -1098,11 +1127,11 @@ namespace nask_utility {
 					     << static_cast<int>(bs_dst2.to_ulong());
 				   std::cout << ", ";
 				   std::cout << std::showbase << std::hex
-					     << static_cast<int>(src_token.AsLong()) << std::endl;
+					     << static_cast<int>(src_imm) << std::endl;
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_token.AsLong());
+				   binout_container.push_back(src_imm);
 			      } else {
 				   // CMP Reg32, Imm
 				   // ------------
