@@ -778,6 +778,35 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
+	       } else if (is_hex_notation(token.AsString())) {
+		    // ラベルではなく即値でジャンプ先を指定された場合
+		    // JMP rel8  | 0xEB cb
+		    // JMP rel16 | 0xE9 cw
+		    // JMP rel32 | 0xE9 cd
+		    if (is_between_bytesize(token.AsLong()) && imm8 == get_imm_size(token.AsString())) {
+			 // 0xEB
+			 std::cout << "JMP: " << token.AsString() << std::endl;
+			 std::cout << "0xeb with Byte" << std::endl;
+			 binout_container.push_back(0xeb);
+			 binout_container.push_back(token.AsLong());
+		    } else {
+			 // 0xE9
+			 std::cout << "JMP: " << token.AsString() << std::endl;
+			 if (get_imm_size(token.AsString()) == imm16) {
+			      std::cout << "0xe9 with Word" << std::endl;
+			      binout_container.push_back(0xe9);
+			      set_word_into_binout(token.AsLong(), binout_container);
+			 } else if (get_imm_size(token.AsString()) == imm32) {
+			      std::cout << "0xe9 with Dword" << std::endl;
+			      binout_container.push_back(0xe9);
+			      set_dword_into_binout(token.AsLong(), binout_container);
+			 } else {
+			      std::cerr << "NASK : JMP syntax error, imm size is wierd" << std::endl;
+			      return 17;
+			 }
+		    }
+		    break;
+
 	       } else {
 		    const std::string store_label = token.AsString();
 		    std::cout << "label stored: " << store_label << std::endl;

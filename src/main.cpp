@@ -69,7 +69,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("INT" , fp_INT));
      funcs.insert(std::make_pair("JAE" , fp_JAE));
      funcs.insert(std::make_pair("JBE" , fp_JBE));
-     funcs.insert(std::make_pair("JB"  , fp_JC));
+     funcs.insert(std::make_pair("JB"  , fp_JB));
      funcs.insert(std::make_pair("JC"  , fp_JC));
      funcs.insert(std::make_pair("JE"  , fp_JE));
      funcs.insert(std::make_pair("JMP" , fp_JMP));
