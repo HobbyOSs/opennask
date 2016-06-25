@@ -9,11 +9,12 @@ FDSTAT = $(top_builddir)/fatlib/examples/fdstat$(EXEEXT)
 bin_PROGRAMS =  helloos.img
 helloos_img_SOURCES = helloos.nas
 
+wine: all
+		$(WINE_NASK) helloos.nas helloos_wine.img
+		od -t x1 helloos.img	> helloos_f.txt
+		od -t x1 helloos_wine.img	> helloos_t.txt
+
 helloos.img$(EXEEXT) : helloos.nas
 		$(NASK) helloos.nas helloos.img
 		$(FDSTAT) helloos.img
 
-wine: all
-		$(WINE_NASK) helloos.nas helloos_wine.img
-		od -t x1 helloos.img       > ipl_f.txt
-		od -t x1 helloos_wine.img  > ipl_t.txt

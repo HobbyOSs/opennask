@@ -9,11 +9,12 @@ FDSTAT = $(top_builddir)/fatlib/examples/fdstat$(EXEEXT)
 bin_PROGRAMS =  ipl.img
 ipl_img_SOURCES = ipl.nas
 
+wine: all
+		$(WINE_NASK) ipl.nas ipl_wine.img
+		od -t x1 ipl.img	> ipl_f.txt
+		od -t x1 ipl_wine.img	> ipl_t.txt
+
 ipl.img$(EXEEXT) : ipl.nas
 		$(NASK) ipl.nas ipl.img
 		$(FDSTAT) ipl.img
 
-wine: all
-		$(WINE_NASK) ipl.nas ipl_wine.img
-		od -t x1 ipl.img       > ipl_f.txt
-		od -t x1 ipl_wine.img  > ipl_t.txt
