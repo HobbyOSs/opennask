@@ -47,7 +47,9 @@ do
     do
 	echo -e "${SRCS_WITHOUT_EXT[$I]}.img\$(EXEEXT) : ${SRCS_WITHOUT_EXT[$I]}.nas"	 >> ${FILE_DIR}/Makefile.am
 	echo -e "\t\t\$(NASK) ${SRCS_WITHOUT_EXT[$I]}.nas ${SRCS_WITHOUT_EXT[$I]}.img"	 >> ${FILE_DIR}/Makefile.am
-	echo -e "\t\t\$(FDSTAT) ${SRCS_WITHOUT_EXT[$I]}.img"				 >> ${FILE_DIR}/Makefile.am
+	if [ "${SRCS_WITHOUT_EXT[$I]}" = "ipl" ]; then
+	    echo -e "\t\t\$(FDSTAT) ${SRCS_WITHOUT_EXT[$I]}.img"				 >> ${FILE_DIR}/Makefile.am
+	fi
 	echo -e ""                                      				 >> ${FILE_DIR}/Makefile.am
     done
 

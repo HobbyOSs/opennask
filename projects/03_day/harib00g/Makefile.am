@@ -20,9 +20,7 @@ wine: all
 
 haribote.img$(EXEEXT) : haribote.nas
 		$(NASK) haribote.nas haribote.img
-		$(FDSTAT) haribote.img
 
 ipl10.img$(EXEEXT) : ipl10.nas
 		$(NASK) ipl10.nas ipl10.img
-		$(FDSTAT) ipl10.img
 

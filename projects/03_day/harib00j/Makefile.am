@@ -24,13 +24,10 @@ wine: all
 
 naskfunc.img$(EXEEXT) : naskfunc.nas
 		$(NASK) naskfunc.nas naskfunc.img
-		$(FDSTAT) naskfunc.img
 
 asmhead.img$(EXEEXT) : asmhead.nas
 		$(NASK) asmhead.nas asmhead.img
-		$(FDSTAT) asmhead.img
 
 ipl10.img$(EXEEXT) : ipl10.nas
 		$(NASK) ipl10.nas ipl10.img
-		$(FDSTAT) ipl10.img
 

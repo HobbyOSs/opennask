@@ -16,5 +16,4 @@ wine: all
 
 helloos.img$(EXEEXT) : helloos.nas
 		$(NASK) helloos.nas helloos.img
-		$(FDSTAT) helloos.img
 

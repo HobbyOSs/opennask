@@ -24,5 +24,4 @@ ipl.img$(EXEEXT) : ipl.nas
 
 haribote.img$(EXEEXT) : haribote.nas
 		$(NASK) haribote.nas haribote.img
-		$(FDSTAT) haribote.img
 
