@@ -87,7 +87,7 @@ inline fat_pos_t ofile_seek(struct ofile *of, fat_pos_t pos, int whence)
 	return pos;
 }
 
-#if __BSD__
+#if defined(__BSD__) || defined(__APPLE__)
 
 static fpos_t std_file_seek(void *cookie, fpos_t pos, int whence)
 {
@@ -172,7 +172,7 @@ FILE *fat_fopen(DRIVE *dv, const char *path, const char *mode)
 	of->pos = perm&FOP_APPEND ? of->file->size : 0;
 	of->perm = perm;
 
-#if __BSD__
+#if defined(__BSD__) || defined(__APPLE__)
 	f = funopen(of,
 		perm&FOP_READ ? std_file_read : 0,
 		perm&FOP_WRITE ? std_file_write : 0,

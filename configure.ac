@@ -78,6 +78,6 @@ AC_CONFIG_FILES([Makefile
 		 projects/03_day/harib00j/Makefile
 		 ])
 
-AC_CONFIG_SUBDIRS([reflcpp parasol intel2gas fatlib dosfstools])
+AC_CONFIG_SUBDIRS([parasol intel2gas fatlib dosfstools])
 
 AC_OUTPUT
