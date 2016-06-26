@@ -3,7 +3,8 @@ env:
   - CPP_COMPILER=clang++ C_COMPILER=clang
 
 command:
-    - sudo apt-get update; sudo apt-get install automake autoconf libtool
+    - sudo apt-get update
+    - sudo apt-get install automake autoconf libtool clang
     - ./bootstrap
     - CXX="$CPP_COMPILER" CC="$C_COMPILER" ./configure
     - make clean all
