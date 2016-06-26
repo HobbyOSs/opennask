@@ -65,7 +65,13 @@ namespace nask_utility {
 
      size_t get_imm_size(const std::string& hex_string) {
 	  if (is_hex_notation(hex_string)) {
-	       return hex_string.substr(2).size() / 2;
+	       const size_t s = hex_string.substr(2).size() / 2;
+	       std::cout << "check imm size: "
+			 << hex_string
+			 << " => "
+			 << s
+			 << std::endl;
+	       return s;
 	  } else {
 	       return 0;
 	  }
@@ -472,6 +478,64 @@ namespace nask_utility {
 				   << std::endl;
 			 break;
 		    }
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+			  tokenizer.LookAhead(3).Is(",") &&
+		          is_common_register(token_table, tokenizer.LookAhead(4))) {
+		    //
+		    // MOV Mem, Reg | 1000100w oorrrmmm
+		    // --------------------------------
+		    TParaToken dst_token = tokenizer.LookAhead(1);
+		    TParaToken src_token = tokenizer.LookAhead(4);
+		    const std::string dst_mem  = "[" + dst_token.AsString() + "]";
+		    const std::string src_reg  = src_token.AsString();
+
+		    std::cout << dst_mem << " <= " << src_reg << std::endl;
+
+		    // Mem, Regの場合 => 1000100w oo rrr mmm
+		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
+
+		    // 1000100 + w
+		    const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
+		    binout_container.push_back(bs_src.to_ulong());
+
+		    // oo + rrr + mmm
+		    // 00 + rrr + 110
+		    // この場合 mod=00, r/m=101で確定となる
+		    // r/m=101...[disp16], [disp32]
+		    const std::bitset<8> bs_dst("00" + std::get<0>(tp_dst) + "110");
+		    binout_container.push_back(bs_dst.to_ulong());
+
+		    switch (get_imm_size(dst_token.AsString())) {
+		    case imm8:
+			 binout_container.push_back(dst_token.AsLong());
+			 break;
+		    case imm16:
+			 set_word_into_binout(dst_token.AsLong(), binout_container, false);
+			 break;
+		    case imm32:
+			 set_dword_into_binout(dst_token.AsLong(), binout_container, false);
+			 break;
+		    default:
+			 std::cerr << "NASK : MOV syntax error, imm size is wierd" << std::endl;
+			 return 17;
+			 break;
+		    }
+
+		    std::cout << "NIM(W): ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_src.to_ulong())
+			      << ", "
+			      << static_cast<int>(bs_dst.to_ulong())
+			      << ", "
+			      << static_cast<int>(dst_token.AsLong()) << std::endl;
+
+		    // コンマを飛ばして次へ
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    // これで終了のはず
+		    break;
 
 	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")  &&
