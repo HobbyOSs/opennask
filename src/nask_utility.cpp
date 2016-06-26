@@ -332,7 +332,8 @@ namespace nask_utility {
 
 	       std::cout << "(B): ";
 	       std::cout << std::showbase << std::hex
-			 << static_cast<int>(0x00);
+			 << static_cast<int>(0x00)
+			 << std::endl;
 	  } else {
 	       // http://stackoverflow.com/a/1289360/2565527
 	       const uint8_t first_byte  = (word >> 8) & 0xff;
@@ -346,7 +347,9 @@ namespace nask_utility {
 			 << static_cast<int>(second_byte);
 	       std::cout << ", ";
 	       std::cout << std::showbase << std::hex
-			 << static_cast<int>(first_byte);
+			 << static_cast<int>(first_byte)
+			 << std::endl;
+
 	  }
      }
 
@@ -783,23 +786,33 @@ namespace nask_utility {
 		    // JMP rel8  | 0xEB cb
 		    // JMP rel16 | 0xE9 cw
 		    // JMP rel32 | 0xE9 cd
+
+		    // offset = dst - src - current_pos
 		    if (is_between_bytesize(token.AsLong()) && imm8 == get_imm_size(token.AsString())) {
 			 // 0xEB
+			 const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 2;
 			 std::cout << "JMP: " << token.AsString() << std::endl;
-			 std::cout << "0xeb with Byte" << std::endl;
+			 std::cout << "0xeb with Byte "
+				   << std::showbase << std::hex
+				   << jmp_offset << std::endl;
 			 binout_container.push_back(0xeb);
-			 binout_container.push_back(token.AsLong());
+			 binout_container.push_back(jmp_offset);
 		    } else {
 			 // 0xE9
 			 std::cout << "JMP: " << token.AsString() << std::endl;
+			 const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 3;
 			 if (get_imm_size(token.AsString()) == imm16) {
-			      std::cout << "0xe9 with Word" << std::endl;
+			      std::cout << "0xe9 with Word "
+					<< std::showbase << std::hex
+					<< jmp_offset << std::endl;
 			      binout_container.push_back(0xe9);
-			      set_word_into_binout(token.AsLong(), binout_container);
+			      set_word_into_binout(jmp_offset, binout_container);
 			 } else if (get_imm_size(token.AsString()) == imm32) {
-			      std::cout << "0xe9 with Dword" << std::endl;
+			      std::cout << "0xe9 with Dword "
+					<< std::showbase << std::hex
+					<< jmp_offset <<std::endl;
 			      binout_container.push_back(0xe9);
-			      set_dword_into_binout(token.AsLong(), binout_container);
+			      set_dword_into_binout(jmp_offset, binout_container);
 			 } else {
 			      std::cerr << "NASK : JMP syntax error, imm size is wierd" << std::endl;
 			      return 17;
