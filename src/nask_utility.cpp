@@ -522,14 +522,17 @@ namespace nask_utility {
 		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
 		    const std::string src_imm  = src_token.AsString();
 
-		    const long dst_imm = (get_equ_label_or_asis(dst_token.AsString()) != dst_token.AsString()) ?
-			 std::stol(get_equ_label_or_asis(dst_token.AsString())) : dst_token.AsLong();
+		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+		    const uint32_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
 
-		    std::cout << dst_mem << " <= " << src_imm << std::endl;
+		    std::cout << dst_mem << "(" << dst_addr_imm << ")" << " <= " << src_imm << std::endl;
 
 		    // Mem, Immの場合 => 1100011w oo 000 mmm
-		    // 1000100 + w
-		    const std::bitset<8> bs_src("1000100" + w);
+		    // 1100011 + w
+		    if (this->data_type == "DWORD") { // 66 NOP
+			 binout_container.push_back(0x66);
+		    }
+		    const std::bitset<8> bs_src("1100011" + w);
 		    binout_container.push_back(bs_src.to_ulong());
 
 		    // oo + rrr + mmm
@@ -538,6 +541,8 @@ namespace nask_utility {
 		    const std::bitset<8> bs_dst("00000110");
 		    binout_container.push_back(bs_dst.to_ulong());
 
+		    // 転送先は常にWORDサイズ
+		    set_word_into_binout(dst_addr_imm, binout_container, false);
 		    if (this->data_type == "BYTE") {
 			 binout_container.push_back(src_token.AsLong());
 		    } else if (this->data_type == "WORD") {
@@ -549,13 +554,15 @@ namespace nask_utility {
 			 return 17;
 		    }
 
-		    std::cout << "NIM(W): ";
-		    std::cout << std::showbase << std::hex
+		    std::cout << "NIM(W): "
+			      << std::showbase << std::hex
 			      << static_cast<int>(bs_src.to_ulong())
 			      << ", "
 			      << static_cast<int>(bs_dst.to_ulong())
 			      << ", "
-			      << static_cast<int>(dst_token.AsLong()) << std::endl;
+			      << static_cast<int>(dst_addr_imm)
+			      << ", "
+			      << static_cast<int>(src_token.AsLong()) << std::endl;
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
@@ -569,52 +576,41 @@ namespace nask_utility {
 			  tokenizer.LookAhead(3).Is(",") &&
 		          is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    //
-		    // MOV Mem, Reg | 1000100w oorrrmmm
+		    // MOV Mem     , Reg  | 1000100w oorrrmmm
+		    // MOV moffs8* , AL   | 0xA2
+		    // MOV moffs16*, AX   | 0xA3
+		    // MOV moffs32*, EAX  | 0xA3
+		    //
+		    // http://x86.renejeschke.de/html/file_module_x86_id_176.html
 		    // --------------------------------
 		    TParaToken dst_token = tokenizer.LookAhead(1);
 		    TParaToken src_token = tokenizer.LookAhead(4);
-		    const std::string dst_mem  = "[" + dst_token.AsString() + "]";
+		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
 		    const std::string src_reg  = src_token.AsString();
 
 		    std::cout << dst_mem << " <= " << src_reg << std::endl;
 
-		    // Mem, Regの場合 => 1000100w oo rrr mmm
-		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
-
-		    // 1000100 + w
-		    const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
-		    binout_container.push_back(bs_src.to_ulong());
-
-		    // oo + rrr + mmm
-		    // 00 + rrr + 110
-		    // この場合 mod=00, r/m=101で確定となる
-		    // r/m=101...[disp16], [disp32]
-		    const std::bitset<8> bs_dst("00" + std::get<0>(tp_dst) + "110");
-		    binout_container.push_back(bs_dst.to_ulong());
-
-		    switch (get_imm_size(dst_token.AsString())) {
-		    case imm8:
-			 binout_container.push_back(dst_token.AsLong());
-			 break;
-		    case imm16:
-			 set_word_into_binout(dst_token.AsLong(), binout_container, false);
-			 break;
-		    case imm32:
-			 set_dword_into_binout(dst_token.AsLong(), binout_container, false);
-			 break;
-		    default:
-			 std::cerr << "NASK : MOV syntax error, imm size is wierd" << std::endl;
-			 return 17;
-			 break;
+		    if (ModRM::is_accumulator(src_reg)) {
+			 std::cout << "MOV moffs* , AL or AX or EAX" << std::endl;
+			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
+			 binout_container.push_back(bs_src);
+			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+			 set_word_into_binout(dst_addr_imm, binout_container, false);
+		    } else {
+			 std::cout << "MOV Mem,Reg" << std::endl;
+			 // Mem, Regの場合 => 1000100w oo rrr mmm
+			 // 1000100 + w
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
+			 const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
+			 binout_container.push_back(bs_src.to_ulong());
+			 // oo + rrr + mmm
+			 // 00 + rrr + 110
+			 // この場合 mod=00, r/m=101で確定となる
+			 // r/m=101...[disp16], [disp32]
+			 const std::bitset<8> bs_dst("00" + std::get<0>(tp_dst) + "110");
+			 binout_container.push_back(bs_dst.to_ulong());
 		    }
-
-		    std::cout << "NIM(W): ";
-		    std::cout << std::showbase << std::hex
-			      << static_cast<int>(bs_src.to_ulong())
-			      << ", "
-			      << static_cast<int>(bs_dst.to_ulong())
-			      << ", "
-			      << static_cast<int>(dst_token.AsLong()) << std::endl;
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
