@@ -147,6 +147,11 @@ int process_each_assembly_line(char** argv,
 			      std::cout << "eval " << token.AsString() << std::endl;
 			      try {
 				   int r = it->second(tokenizer, binout_container);
+				   if (r != 0) {
+					// エラーがあった行を表示
+					std::cout << input << std::endl;
+					return r;
+				   }
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
