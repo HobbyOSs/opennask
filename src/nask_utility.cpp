@@ -788,6 +788,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なNOP命令の実装
+     int Instructions::process_token_NOP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0x90 を格納
+	  binout_container.push_back(0x90);
+	  return 0;
+     }
+
      // JAE命令の実装(JMP命令全般でまとめて良いかもしれない)
      int Instructions::process_token_JAE(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {

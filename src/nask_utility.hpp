@@ -170,6 +170,7 @@ namespace nask_utility {
 	  int process_token_JMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JNC (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_NOP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_ORG (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
