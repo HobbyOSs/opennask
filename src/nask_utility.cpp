@@ -594,9 +594,6 @@ namespace nask_utility {
 			 std::cout << "MOV moffs* , AL or AX or EAX" << std::endl;
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
-			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
-			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
-			 set_word_into_binout(dst_addr_imm, binout_container, false);
 		    } else {
 			 std::cout << "MOV Mem,Reg" << std::endl;
 			 // Mem, Regの場合 => 1000100w oo rrr mmm
@@ -611,6 +608,11 @@ namespace nask_utility {
 			 const std::bitset<8> bs_dst("00" + std::get<0>(tp_dst) + "110");
 			 binout_container.push_back(bs_dst.to_ulong());
 		    }
+
+		    // 転送先は常にWORD
+		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+		    const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+		    set_word_into_binout(dst_addr_imm, binout_container, false);
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
