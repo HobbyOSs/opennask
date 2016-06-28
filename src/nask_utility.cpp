@@ -136,6 +136,15 @@ namespace nask_utility {
 	  return is_common_register(token_table, token) || is_segment_register(token_table, token);
      }
 
+     bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token) {
+	  // データ型一覧から検索してあれば true
+	  auto it = std::find_if(std::begin(DATA_TYPES), std::end(DATA_TYPES),
+				 [&](const std::string& s)
+				 { return token.AsString().find(s) != std::string::npos; });
+
+	  return it != std::end(DATA_TYPES);
+     }
+
      template <class T> void plus_number_from_code(T& num, char c) {
 	  switch(c) {
 	  case 'A':
@@ -397,6 +406,7 @@ namespace nask_utility {
      LABEL_DST_STACK Instructions::label_dst_stack;
      LABEL_SRC_STACK Instructions::label_src_stack;
      std::map<std::string, std::string> Instructions::equ_map;
+     std::string Instructions::data_type;
      uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
@@ -445,6 +455,10 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
+	       } else if (is_datatype(token_table, token)) {
+		    std::cout << "declared datatype: " << token.AsString() << std::endl;
+		    data_type = token.AsString();
+		    continue;
 	       } else if (is_segment_register(token_table, token)) {
 		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
@@ -478,6 +492,79 @@ namespace nask_utility {
 				   << std::endl;
 			 break;
 		    }
+
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+			  tokenizer.LookAhead(3).Is(",") &&
+			  is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
+		    //
+		    // MOV Mem, Imm | 1100011w oo000mmm
+		    // --------------------------------
+		    // imm8の場合w=0, imm16,32の場合w=1
+		    //
+                    // 0xC6 /0	MOV r/m8,  imm8	  imm8をr/m8に転送します
+                    // 0xC7 /0	MOV r/m16, imm16  imm16をr/m16に転送します
+                    // 0xC7 /0	MOV r/m32, imm32  imm32をr/m32に転送します
+		    //
+		    std::string w = "";
+
+		    if (this->data_type == "BYTE") {
+			 w = "0";
+		    } else if (this->data_type == "WORD" || this->data_type == "DWORD") {
+			 w = "1";
+		    } else {
+			 std::cerr << "NASK : MOV syntax error, imm size is not supported now" << std::endl;
+			 return 17;
+		    }
+
+		    TParaToken dst_token = tokenizer.LookAhead(1);
+		    TParaToken src_token = tokenizer.LookAhead(4);
+		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+		    const std::string src_imm  = src_token.AsString();
+
+		    const long dst_imm = (get_equ_label_or_asis(dst_token.AsString()) != dst_token.AsString()) ?
+			 std::stol(get_equ_label_or_asis(dst_token.AsString())) : dst_token.AsLong();
+
+		    std::cout << dst_mem << " <= " << src_imm << std::endl;
+
+		    // Mem, Immの場合 => 1100011w oo 000 mmm
+		    // 1000100 + w
+		    const std::bitset<8> bs_src("1000100" + w);
+		    binout_container.push_back(bs_src.to_ulong());
+
+		    // oo + rrr + mmm
+		    // 00 + 000 + 110
+		    // この場合 mod=00, reg=000, r/m=101で確定となる
+		    const std::bitset<8> bs_dst("00000110");
+		    binout_container.push_back(bs_dst.to_ulong());
+
+		    if (this->data_type == "BYTE") {
+			 binout_container.push_back(src_token.AsLong());
+		    } else if (this->data_type == "WORD") {
+			 set_word_into_binout(src_token.AsLong(), binout_container, false);
+		    } else if (this->data_type == "DWORD") {
+			 set_dword_into_binout(src_token.AsLong(), binout_container, false);
+		    } else {
+			 std::cerr << "NASK : MOV syntax error, imm size is not supported now" << std::endl;
+			 return 17;
+		    }
+
+		    std::cout << "NIM(W): ";
+		    std::cout << std::showbase << std::hex
+			      << static_cast<int>(bs_src.to_ulong())
+			      << ", "
+			      << static_cast<int>(bs_dst.to_ulong())
+			      << ", "
+			      << static_cast<int>(dst_token.AsLong()) << std::endl;
+
+		    // コンマを飛ばして次へ
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    // これで終了のはず
+		    break;
+
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
 			  tokenizer.LookAhead(3).Is(",") &&
 		          is_common_register(token_table, tokenizer.LookAhead(4))) {

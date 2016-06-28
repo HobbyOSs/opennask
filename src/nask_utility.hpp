@@ -30,6 +30,10 @@ const std::array<std::string, 1> PRE_PROCESS_WORDS {
      "EQU"
 };
 
+const std::array<std::string, 10> DATA_TYPES {
+     "BYTE", "WORD", "DWORD", "FWORD", "QWORD", "TBYTE", "OWORD", "REAL4", "REAL8", "REAL10"
+};
+
 // 0xEB cb JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
 // 0xE9 cw JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
 // 0xE9 cd JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
@@ -110,6 +114,7 @@ namespace nask_utility {
      bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
+     bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
 
      template <class T> void plus_number_from_code(T& num, char c);
      uint8_t get_plus_register_code(uint8_t byte, char c);
@@ -144,6 +149,7 @@ namespace nask_utility {
 	  static LABEL_DST_STACK label_dst_stack;
 	  static LABEL_SRC_STACK label_src_stack;
 	  static std::map<std::string, std::string> equ_map;
+	  static std::string data_type;
 	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
