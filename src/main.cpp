@@ -44,6 +44,7 @@ int process_each_assembly_line(char** argv,
 
      // このへんマクロかtemplateを使いたい
      const auto fp_ADD  = std::bind(&nask_utility::Instructions::process_token_ADD  , inst, _1, _2);
+     const auto fp_CLI  = std::bind(&nask_utility::Instructions::process_token_CLI  , inst, _1, _2);
      const auto fp_CMP  = std::bind(&nask_utility::Instructions::process_token_CMP  , inst, _1, _2);
      const auto fp_DB   = std::bind(&nask_utility::Instructions::process_token_DB   , inst, _1, _2);
      const auto fp_DD   = std::bind(&nask_utility::Instructions::process_token_DD   , inst, _1, _2);
@@ -61,6 +62,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_ORG  = std::bind(&nask_utility::Instructions::process_token_ORG  , inst, _1, _2);
      const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
      funcs.insert(std::make_pair("ADD" , fp_ADD));
+     funcs.insert(std::make_pair("CLI" , fp_CLI));
      funcs.insert(std::make_pair("CMP" , fp_CMP));
      funcs.insert(std::make_pair("DB"  , fp_DB));
      funcs.insert(std::make_pair("DD"  , fp_DD));

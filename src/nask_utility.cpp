@@ -1198,6 +1198,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なCLI命令の実装
+     int Instructions::process_token_CLI(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xFA を格納
+	  binout_container.push_back(0xfa);
+	  return 0;
+     }
+
      // 簡単なCMP命令の実装
      int Instructions::process_token_CMP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
