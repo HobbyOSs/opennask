@@ -7,6 +7,7 @@ AC_CONFIG_SRCDIR([lib.h])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([foreign -Wno-portability])
 AC_CONFIG_MACRO_DIRS([m4])
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CC

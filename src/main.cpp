@@ -162,13 +162,16 @@ int process_each_assembly_line(char** argv,
      return 0;
 }
 
-#include "mkdosfs.h"
 
 //
 // FIXME: Currently, it's not working...
 //
 void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
 
+#ifndef __APPLE__
+
+#include "mkdosfs.h"
+     
      // mkdosfs: see http://elm-chan.org/docs/fat.html
      //sector_size         = 512;  // BPB_BytsPerSec
      //sectors_per_cluster = 128;  // BPB_SecPerClus
@@ -257,6 +260,8 @@ void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
      }
 #endif
 
+#endif
+     
      return;
 }
 

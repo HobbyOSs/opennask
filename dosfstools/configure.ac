@@ -7,6 +7,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([version.h])
 AC_CONFIG_HEADERS([config.h])
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CC

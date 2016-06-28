@@ -7,9 +7,14 @@ opennask_SOURCES  = main.cpp         \
 		    clogger.hpp
 
 opennask_CXXFLAGS = -I$(top_builddir)/parasol \
-                    -I$(top_builddir)/fatlib  \
-                    -I$(top_builddir)/dosfstools/mkdosfs
+                    -I$(top_builddir)/fatlib
 
 opennask_LDADD    = $(top_builddir)/parasol/libparasol.a \
-		    $(top_builddir)/fatlib/libfat.a      \
-                    $(top_builddir)/dosfstools/mkdosfs/libmkdosfs.a
+		    $(top_builddir)/fatlib/libfat.a
+
+if BUILD_DOSFSTOOLS
+# Add CXXFLAGS
+opennask_CXXFLAGS += -I$(top_builddir)/dosfstools/mkdosfs
+opennask_LDADD    += $(top_builddir)/dosfstools/mkdosfs/libmkdosfs.a 
+
+endif

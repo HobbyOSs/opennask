@@ -9,6 +9,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/nask_defs.hpp])
 AC_CONFIG_HEADERS([config.h])
 AC_SYS_LARGEFILE
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -29,15 +30,19 @@ AX_CHECK_COMPILE_FLAG([-Wno-parentheses],[CXXFLAGS="$CXXFLAGS -Wno-parentheses"]
 # Checks for HostOS
 case "$host" in
         *-*-mingw*|*-*-cygwin*|*-*-msys*)
+		AM_CONDITIONAL(BUILD_DOSFSTOOLS, true)
                 ;;
         *-*-linux*)
+		AM_CONDITIONAL(BUILD_DOSFSTOOLS, true)
                 ;;
         *-*-darwin*)
 		if test "${ax_cv_c_compiler_vendor}x" = "clangx"; then
 		   CXXFLAGS="$CXXFLAGS -stdlib=libc++"
 		fi
+		AM_CONDITIONAL(BUILD_DOSFSTOOLS, false)
                 ;;
         *-*-*bsd*)
+		AM_CONDITIONAL(BUILD_DOSFSTOOLS, true)
                 ;;
         *)
                 AC_MSG_WARN([*** Please add $host to configure.ac checks!])
@@ -78,6 +83,9 @@ AC_CONFIG_FILES([Makefile
 		 projects/03_day/harib00j/Makefile
 		 ])
 
-AC_CONFIG_SUBDIRS([parasol intel2gas fatlib dosfstools])
+AC_CONFIG_SUBDIRS([parasol intel2gas fatlib])
+
+# dosfstools
+AM_COND_IF([BUILD_DOSFSTOOLS], [AC_CONFIG_SUBDIRS([dosfstools])])
 
 AC_OUTPUT

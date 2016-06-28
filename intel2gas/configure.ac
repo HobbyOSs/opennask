@@ -8,6 +8,7 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([loadable.h])
 AC_CONFIG_HEADERS([config.h])
+AM_SILENT_RULES([yes])
 
 # Checks for programs.
 AC_PROG_CXX
