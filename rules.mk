@@ -23,10 +23,17 @@ SUFFIXES = .ask .ias .3as
 #
 WINE		= /usr/bin/wine
 WINE_NASK	= $(WINE) ~/.wine/drive_c/MinGW/msys/1.0/bin/nask.exe
-CC1		= $(CC) -S -Wall
+CC1		= $(CC) -S -O2
+#CC1		= $(CC) -S -masm=intel
 
 INTEL2GAS	= $(top_builddir)/intel2gas/intel2gas$(EXEEXT)
 OPENNASK	= $(top_builddir)/src/opennask$(EXEEXT)
+
+I2G_DATA	= $(top_builddir)/intel2gas/
+G2I_DATA	= $(top_builddir)/intel2gas/
+
+export I2G_DATA
+export G2I_DATA
 
 bootpack.gas : bootpack.c Makefile
 	$(CC1) bootpack.c -o bootpack.gas
