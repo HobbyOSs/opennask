@@ -23,9 +23,16 @@ SUFFIXES = .ask .ias .3as
 #
 WINE		= /usr/bin/wine
 WINE_NASK	= $(WINE) ~/.wine/drive_c/MinGW/msys/1.0/bin/nask.exe
+CC1		= $(CC) -S -Wall
 
-# GAS2NASK	= $(top_builddir)/20GO/toolstdc/gas2nask$(EXEEXT)
-# NASK		= $(top_builddir)/20GO/toolstdc/nask$(EXEEXT)
-# LIBRARIAN	= $(top_builddir)/20GO/toolstdc/golib00w$(EXEEXT)
-# ASKA		= $(top_builddir)/28GO/aska/aska$(EXEEXT)
-# NASKCNV	= $(top_builddir)/20GO/toolstdc/naskcnv0$(EXEEXT)
+INTEL2GAS	= $(top_builddir)/intel2gas/intel2gas$(EXEEXT)
+OPENNASK	= $(top_builddir)/src/opennask$(EXEEXT)
+
+bootpack.gas : bootpack.c Makefile
+	$(CC1) bootpack.c -o bootpack.gas
+
+bootpack.nas : bootpack.gas Makefile
+	$(INTEL2GAS) -g -o bootpack.nas bootpack.gas
+
+bootpack.obj : bootpack.nas Makefile
+	$(OPENNASK) bootpack.nas bootpack.obj
