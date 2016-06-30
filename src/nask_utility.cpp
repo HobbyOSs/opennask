@@ -197,6 +197,7 @@ namespace nask_utility {
 	       TParaToken src_token = tokenizer.LookAhead(2);
 
 	       // Reg, Immの場合 => 1011wrrr
+	       std::cout << "check registor: " << reg << std::endl;
 	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
 	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
 	       nim_info->prefix = bs.to_ulong();
@@ -710,18 +711,18 @@ namespace nask_utility {
 		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
 		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
 		    //
-		    NIMONIC_INFO nim_info;
-		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
-
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
-		    const std::string src_imm  = src_token.AsString();
+		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
+		    std::cout << dst_reg << " <= " << src_imm << ", with imm" << std::endl;
+
+		    NIMONIC_INFO nim_info;
+		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
 		    token = tokenizer.Next();
-		    std::cout << dst_reg << " <= " << src_imm << ", imm => " << nim_info.imm;
 
 		    const uint16_t nim = nim_info.prefix;
 		    if (nim > 0x6600) {

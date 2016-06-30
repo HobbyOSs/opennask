@@ -238,27 +238,37 @@ namespace nask_utility {
 	       { "BP", std::make_tuple("101", "1") },
 	       { "SI", std::make_tuple("110", "1") },
 	       { "DI", std::make_tuple("111", "1") },
+	       {"EAX", std::make_tuple("000", "1") },
+	       {"ECX", std::make_tuple("001", "1") },
+	       {"EDX", std::make_tuple("010", "1") },
+	       {"EBX", std::make_tuple("011", "1") },
+	       {"ESP", std::make_tuple("100", "1") },
+	       {"EBP", std::make_tuple("101", "1") },
+	       {"ESI", std::make_tuple("110", "1") },
+	       {"EDI", std::make_tuple("111", "1") }
 	  };
 
+
+	  // This specify part of r/m
 	  // mmm : Function
 	  //-----------------------
-          // 000 : DS:[BX+SI]
-          // 001 : DS:[BX+DI]
-          // 010 : SS:[BP+SI]
-          // 011 : SS:[BP+DI]
-          // 100 : DS:[SI]
-          // 101 : DS:[DI]
-          // 110 : SS:[BP]
-          // 111 : DS:[BX]
+          // 000 : DS:[BX+SI]:[EAX]
+	  // 001 : DS:[BX+DI]:[ECX]
+	  // 010 : SS:[BP+SI]:[EDX]
+	  // 011 : SS:[BP+DI]:[EBX]
+          // 100 : DS:[SI]   :
+          // 101 : DS:[DI]   :
+          // 110 : SS:[BP]   :[ESI]
+	  // 111 : DS:[BX]   :[EDI]
 	  const std::map<std::string, std::string> REGISTERS_MMM_MAP {
-	       { "DS", "000"}, { "[BX+SI]", "000"},
-	       { "DS", "001"}, { "[BX+DI]", "001"},
-	       { "SS", "010"}, { "[BP+SI]", "010"},
-	       { "SS", "011"}, { "[BP+DI]", "011"},
-	       { "DS", "100"}, { "[SI]",    "100"},
-	       { "DS", "101"}, { "[DI]",    "101"},
-	       { "SS", "110"}, { "[BP]",    "110"},
-	       { "DS", "111"}, { "[BX]",    "111"},
+	       { "DS", "000"}, { "[BX+SI]", "000"}, { "[EAX]", "000"},
+	       { "DS", "001"}, { "[BX+DI]", "001"}, { "[ECX]", "001"},
+	       { "SS", "010"}, { "[BP+SI]", "010"}, { "[EDX]", "010"},
+	       { "SS", "011"}, { "[BP+DI]", "011"}, { "[EBX]", "011"},
+	       { "DS", "100"}, { "[SI]",    "100"}, // { "[]", "100"},
+	       { "DS", "101"}, { "[DI]",    "101"}, // { "[]", "101"},
+	       { "SS", "110"}, { "[BP]",    "110"}, { "[ESI]", "110"},
+	       { "DS", "111"}, { "[BX]",    "111"}, { "[EDI]", "111"},
 	  };
 
 	  // sss : Segment Register
