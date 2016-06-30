@@ -61,6 +61,7 @@ int process_each_assembly_line(char** argv,
      const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
      const auto fp_NOP  = std::bind(&nask_utility::Instructions::process_token_NOP  , inst, _1, _2);
      const auto fp_ORG  = std::bind(&nask_utility::Instructions::process_token_ORG  , inst, _1, _2);
+     const auto fp_OUT  = std::bind(&nask_utility::Instructions::process_token_OUT  , inst, _1, _2);
      const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
      funcs.insert(std::make_pair("ADD" , fp_ADD));
      funcs.insert(std::make_pair("CLI" , fp_CLI));
@@ -80,6 +81,7 @@ int process_each_assembly_line(char** argv,
      funcs.insert(std::make_pair("MOV" , fp_MOV));
      funcs.insert(std::make_pair("NOP" , fp_NOP));
      funcs.insert(std::make_pair("ORG" , fp_ORG));
+     funcs.insert(std::make_pair("OUT" , fp_OUT));
      funcs.insert(std::make_pair("RESB", fp_RESB));
 
      if (start_line != 0) {

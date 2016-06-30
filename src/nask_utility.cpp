@@ -1557,6 +1557,47 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なOUT命令の実装
+     int Instructions::process_token_OUT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (is_legitimate_numeric(token.AsString()) &&
+			tokenizer.LookAhead(1).Is(",") &&
+			ModRM::is_accumulator(tokenizer.LookAhead(2).AsString())) {
+			 // 0xE6 ib | OUT imm8, AL
+			 // 0xE7 ib | OUT imm8, AX
+			 // 0xE7 ib | OUT imm8, EAX
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_imm  = dst_token.AsString();
+			 const std::string src_reg  = src_token.AsString();
+			 std::cout << dst_imm << " <= " << src_reg << std::endl;
+
+			 const uint8_t opecode = (src_reg == "AL") ? 0xe6 : 0xe7;
+			 binout_container.push_back(opecode);
+			 binout_container.push_back(dst_token.AsLong());
+
+			 std::cout << "NIM(W): ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(opecode);
+			 std::cout << ", ";
+			 std::cout << std::showbase << std::hex
+				   << static_cast<int>(dst_token.AsLong())
+				   << std::endl;
+			 break;
+
+		    } else {
+			 std::cerr << "NASK : OUT specified incorrect value" << std::endl;
+			 return 17;
+		    }
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なRESB命令の実装
      int Instructions::process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
