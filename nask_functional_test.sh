@@ -16,7 +16,12 @@ do
     cd data && md5sum -c 0${n}_nasfile.hash && cd ../
 done
 
-# 8 create FAT12
-#./src/opennask --with-fat12 data/08_nasfile.nas data/08_nasfile.img
-#./fatlib/examples/fdstat data/08_nasfile.img
-#cd data && md5sum -c 0${n}_nasfile.hash && cd ../
+# Test each projects
+# 01_day |
+# 02_day |
+# 03_day | a~h
+for f in `find ./projects -name \*.hash | sort | grep -v wine`
+do
+    echo "md5sum -c ${f%.*}.hash"
+    md5sum -c ${f%.*}.hash
+done
