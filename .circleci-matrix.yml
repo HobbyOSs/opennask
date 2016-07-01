@@ -8,4 +8,4 @@ command:
     - ./bootstrap
     - CXX="$CPP_COMPILER" CC="$C_COMPILER" ./configure
     - make clean all
-    #- make check
+    - make check
