@@ -115,6 +115,7 @@ namespace nask_utility {
      bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
+     long get_imm_recursive(TParaCxxTokenTable& token_table, TParaTokenizer& tokenizer, size_t look_index);
 
      template <class T> void plus_number_from_code(T& num, char c);
      uint8_t get_plus_register_code(uint8_t byte, char c);
