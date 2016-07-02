@@ -42,6 +42,12 @@ int process_each_assembly_line(char** argv,
      static nask_utility::Instructions inst;
      inst.token_table = token_table;
 
+     // 基本的なオペレーター登録
+     inst.token_table.AddOperator("*");
+     inst.token_table.AddOperator("/");
+     inst.token_table.AddOperator("+");
+     inst.token_table.AddOperator("-");
+
      // このへんマクロかtemplateを使いたい
      const auto fp_ADD  = std::bind(&nask_utility::Instructions::process_token_ADD  , inst, _1, _2);
      const auto fp_CLI  = std::bind(&nask_utility::Instructions::process_token_CLI  , inst, _1, _2);
