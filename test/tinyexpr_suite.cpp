@@ -24,3 +24,20 @@ TEST(tinyexpr_suite, testInt)
      CHECK(std::isnan(c));
      CHECK_EQUAL(4, error);
 }
+
+TEST(tinyexpr_suite, testNask)
+{
+     int error;
+
+     const double ecx1 = te_interp("512*1024/4", &error);
+     CHECK(!std::isnan(ecx1));
+     CHECK_EQUAL(131072, ecx1);
+
+     const double ecx2 = te_interp("512/4", &error);
+     CHECK(!std::isnan(ecx2));
+     CHECK_EQUAL(128, ecx2);
+
+     const double dw = te_interp("8*3-1", &error);
+     CHECK(!std::isnan(dw));
+     CHECK_EQUAL(23, dw);
+}
