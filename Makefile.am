@@ -25,3 +25,7 @@ SUBDIRS += src data projects
 # functional test
 ASMS  = `seq -f "%02g_nasfile.nas" 1 7`
 TESTS = nask_functional_test.sh
+
+if USE_CPPUTEST
+   SUBDIRS += test
+endif

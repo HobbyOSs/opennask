@@ -4,8 +4,8 @@ env:
 
 command:
     - sudo apt-get update
-    - sudo apt-get install automake autoconf libtool clang
+    - sudo apt-get install automake autoconf libtool clang cpputest
     - ./bootstrap
-    - CXX="$CPP_COMPILER" CC="$C_COMPILER" ./configure
+    - CXX="$CPP_COMPILER" CC="$C_COMPILER" ./configure --enable-cpputest
     - make clean all
     - make check

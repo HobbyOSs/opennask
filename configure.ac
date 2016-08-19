@@ -57,7 +57,24 @@ case "$host" in
                 ;;
 esac
 
-# Checks for libraries.
+#-----------------------------------------------------------------------
+# Checks for CppUTest
+#
+AM_CONDITIONAL(USE_CPPUTEST, false)
+AC_ARG_ENABLE([cpputest],
+    AS_HELP_STRING([--enable-cpputest], [Enable feature to test with cpputest (Dev)]))
+
+AS_IF([test "x$enable_cpputest" = "xyes"], [
+   PKG_CHECK_MODULES([CPPUTEST], [cpputest], [has_cpputest=1], [has_cpputest=0])
+   AC_MSG_CHECKING([for whether to support cpputest])
+   if test $has_cpputest = 1; then
+      AM_CONDITIONAL(USE_CPPUTEST, true)
+      AC_DEFINE(USE_CPPUTEST, 1, [when building unit test code])
+      AC_MSG_RESULT(yes)
+   else
+      AC_MSG_RESULT(no)
+   fi
+])
 
 # Checks for header files.
 
@@ -92,11 +109,14 @@ AC_CONFIG_FILES([Makefile
 		 ])
 
 AC_CONFIG_SUBDIRS([parasol intel2gas fatlib])
-
-# dosfstools
 AM_COND_IF([BUILD_DOSFSTOOLS], [AC_CONFIG_SUBDIRS([dosfstools])])
+AM_COND_IF([USE_CPPUTEST], AC_CONFIG_FILES([test/Makefile]))
+
+AC_OUTPUT
+
 AM_COND_IF([BUILD_DOSFSTOOLS],
 	   [AC_MSG_RESULT([dosfstools  :	  build])],
 	   [AC_MSG_RESULT([dosfstools  :	  none])])
-
-AC_OUTPUT
+AM_COND_IF([USE_CPPUTEST],
+	   [AC_MSG_RESULT([cpputest  :		  build])],
+	   [AC_MSG_RESULT([cpputest  :		  none])])
