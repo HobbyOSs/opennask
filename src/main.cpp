@@ -43,10 +43,9 @@ int process_each_assembly_line(char** argv,
      inst.token_table = token_table;
 
      // 基本的なオペレーター登録
-     inst.token_table.AddOperator("*");
-     inst.token_table.AddOperator("/");
-     inst.token_table.AddOperator("+");
-     inst.token_table.AddOperator("-");
+     for (std::string op : PRE_PROCESS_OPERATORS) {
+	  inst.token_table.AddOperator(op);
+     }
 
      // このへんマクロかtemplateを使いたい
      const auto fp_ADD  = std::bind(&nask_utility::Instructions::process_token_ADD  , inst, _1, _2);
@@ -103,6 +102,32 @@ int process_each_assembly_line(char** argv,
 	  /* 行数チェック */
 	  std::cout.setf(std::ios::dec, std::ios::basefield);
 	  std::cout << line_number << ": " << input << std::endl;
+
+	  //std::string tmp = input;
+
+          // 入力行に四則計算が含まれる場合、それを書き換える
+	  //std::smatch match;
+	  //if (regex_match(tmp, match, nask_utility::math_op)) {
+	  //     std::cout<< "!!! contains ope => " << tmp << " !!!" << std::endl;
+	  //} else {
+	  //     //std::cout<< "NOT contains ope !!!" << std::endl;
+	  //}
+
+	  // if (tmp.find_first_of(";") != std::string::npos) {
+	  //      tmp = tmp.substr(0, tmp.find_first_of(";"));
+	  // }
+	  // if (tmp.find_first_of("#") != std::string::npos) {
+	  //      tmp = tmp.substr(0, tmp.find_first_of("#"));
+	  // }
+	  // for (std::string ope : PRE_PROCESS_OPERATORS) {
+	  //      if (nask_utility::contains(tmp, ope)) {
+	  //  	    std::cout<< "contains ope => " << ope << std::endl;
+	  //  	    tmp = nask_utility::format_math_exprs(tmp);
+	  //  	    std::cout<< "formatted ! => " << tmp << std::endl;
+	  //  	    return 17;
+	  //      }
+	  // }
+
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));

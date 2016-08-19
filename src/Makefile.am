@@ -4,6 +4,8 @@ opennask_SOURCES  = main.cpp         \
 		    nask_utility.cpp \
 		    nask_utility.hpp \
 		    nask_defs.hpp    \
+		    tinyexpr.c	     \
+		    tinyexpr.h	     \
 		    clogger.hpp
 
 opennask_CXXFLAGS = -I$(top_builddir)/parasol \
@@ -15,6 +17,6 @@ opennask_LDADD    = $(top_builddir)/parasol/libparasol.a \
 if BUILD_DOSFSTOOLS
 # Add CXXFLAGS
 opennask_CXXFLAGS += -I$(top_builddir)/dosfstools/mkdosfs
-opennask_LDADD    += $(top_builddir)/dosfstools/mkdosfs/libmkdosfs.a 
+opennask_LDADD    += $(top_builddir)/dosfstools/mkdosfs/libmkdosfs.a
 
 endif

@@ -30,6 +30,10 @@ const std::array<std::string, 1> PRE_PROCESS_WORDS {
      "EQU"
 };
 
+const std::array<std::string, 4> PRE_PROCESS_OPERATORS {
+     "*", "/", "+", "-"
+};
+
 const std::array<std::string, 10> DATA_TYPES {
      "BYTE", "WORD", "DWORD", "FWORD", "QWORD", "TBYTE", "OWORD", "REAL4", "REAL8", "REAL10"
 };
@@ -99,15 +103,25 @@ namespace nask_utility {
      // 出力先
      typedef std::vector<uint8_t> VECTOR_BINOUT;
 
+     // Javaにはありがちな基本的文字列処理
+     std::ifstream::pos_type filesize(const char* filename);
+     std::vector<std::string> split(const std::string &str, char delim);
+     std::string replace(std::string& str, const std::string& from, const std::string& to);
+     bool contains(const std::string& src, const std::string& query);
+     bool ends_with(std::string const &full_string, std::string const &ending);
+
+
+     // 四則計算
+     //const std::regex math_op("MOV");
+     //std::string format_math_exprs(std::string& expr);
+
+     // アセンブラ処理で使う判定系処理
      bool is_hex_notation(const std::string& s);
      bool is_integer(const std::string& s);
      bool is_legitimate_numeric(const std::string& s);
      bool is_between_bytesize(const long l);
      size_t get_imm_size(const std::string& hex_string);
 
-     std::ifstream::pos_type filesize(const char* filename);
-     std::vector<std::string> split(const std::string &str, char delim);
-     bool ends_with(std::string const &full_string, std::string const &ending);
      size_t get_labelpos(std::ifstream& stream, std::string token);
      bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token);
      bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token);

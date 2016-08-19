@@ -1,4 +1,5 @@
 #include "nask_utility.hpp"
+#include "tinyexpr.h"
 
 namespace nask_utility {
      namespace ModRM {
@@ -88,6 +89,19 @@ namespace nask_utility {
 	  return res;
      }
 
+     std::string replace(std::string& str, const std::string& from, const std::string& to) {
+	  std::string::size_type pos = 0;
+	  while (pos = str.find(from, pos), pos != std::string::npos) {
+	       str.replace(pos, from.length(), to);
+	       pos += to.length();
+	  }
+	  return str;
+     }
+
+     bool contains(const std::string& src, const std::string& query) {
+	  return src.find(query) != std::string::npos;
+     }
+
      bool ends_with(std::string const &full_string, std::string const &ending) {
 	  if (full_string.length() >= ending.length()) {
 	       return (0 == full_string.compare(full_string.length() - ending.length(), ending.length(), ending));
@@ -95,6 +109,19 @@ namespace nask_utility {
 	       return false;
 	  }
      }
+
+     //std::string format_math_exprs(std::string& expr) {
+     // 	  for (std::string ope : PRE_PROCESS_OPERATORS) {
+     // 	       // Add space padding to operands
+     // 	       expr = nask_utility::replace(expr, ope, " " + ope + " ");
+     // 	  }
+     // 	  // Keep replacing double spaces with single spaces until
+     // 	  // your string is properly formatted
+     // 	  while (expr.find("  ") != std::string::npos) {
+     // 	       expr = nask_utility::replace(expr, "  ", " ");
+     // 	  }
+     // 	  return expr;
+     //}
 
      size_t get_labelpos(std::ifstream& stream, std::string token) {
 	  std::string line;
@@ -505,6 +532,7 @@ namespace nask_utility {
 	  //         0xC7 /0	MOV r/m32, imm32	imm32をr/m32に転送します
 	  // REX.W + 0xC7 /0	MOV r/m64, imm64	imm64をr/m64に転送します
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
