@@ -15,6 +15,7 @@ fget
 fput
 dosfsck
 mkdosfs
+alltest
 
 Makefile
 Makefile.in
