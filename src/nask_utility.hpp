@@ -120,6 +120,7 @@ namespace nask_utility {
      bool is_integer(const std::string& s);
      bool is_legitimate_numeric(const std::string& s);
      bool is_between_bytesize(const long l);
+     bool is_contains_math_op(const std::string& subject);
      size_t get_imm_size(const std::string& hex_string);
 
      size_t get_labelpos(std::ifstream& stream, std::string token);

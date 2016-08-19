@@ -51,11 +51,25 @@ namespace nask_utility {
 		  l >= std::numeric_limits<int8_t>::min());
      }
 
+     bool is_contains_math_op(const std::string& subject) {
+	  try {
+	       std::regex re("[^0-9]*([-\\*/+0-9]*)[^0-9]*");
+	       std::smatch match;
+	       if (std::regex_search(subject, match, re) && match.size() > 1) {
+		    //std::cerr << "matched string: " << match[1] << std::endl;
+		    return true;
+	       }
+	  } catch (std::regex_error& e) {
+	       std::cout << e.what();
+	  }
+	  return false;
+     }
+
      bool is_integer(const std::string& s) {
 	  if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
 	  char * p ;
 	  strtol(s.c_str(), &p, 10) ;
-	  return (*p == 0) ;
+	  return (*p == 0);
      }
 
      bool is_hex_notation(const std::string& s) {
