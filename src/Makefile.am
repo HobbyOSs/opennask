@@ -6,7 +6,7 @@ opennask_SOURCES  = main.cpp         \
 		    nask_defs.hpp    \
 		    tinyexpr.c	     \
 		    tinyexpr.h	     \
-		    clogger.hpp
+		    easylogging++.h
 
 opennask_CXXFLAGS = -I$(top_builddir)/parasol \
                     -I$(top_builddir)/fatlib

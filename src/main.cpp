@@ -9,7 +9,6 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
-#include "clogger.hpp"
 #include "fatlib.h"
 #include "time.h"
 #include <errno.h>
@@ -17,6 +16,9 @@
 #include <utime.h>
 #include <unistd.h>
 #include <sys/types.h>
+
+// easylogging++
+INITIALIZE_EASYLOGGINGPP
 
 using namespace std::placeholders;
 
@@ -100,17 +102,16 @@ int process_each_assembly_line(char** argv,
      for (; std::getline(nas_file, input); line_number++) {
 
 	  /* 行数チェック */
-	  std::cout.setf(std::ios::dec, std::ios::basefield);
-	  std::cout << line_number << ": " << input << std::endl;
+	  LOG(INFO) << line_number << ": " << input << std::endl;
 
 	  //std::string tmp = input;
 
           // 入力行に四則計算が含まれる場合、それを書き換える
 	  //std::smatch match;
 	  //if (regex_match(tmp, match, nask_utility::math_op)) {
-	  //     std::cout<< "!!! contains ope => " << tmp << " !!!" << std::endl;
+	  //     LOG(INFO)<< "!!! contains ope => " << tmp << " !!!" << std::endl;
 	  //} else {
-	  //     //std::cout<< "NOT contains ope !!!" << std::endl;
+	  //     //LOG(INFO)<< "NOT contains ope !!!" << std::endl;
 	  //}
 
 	  // if (tmp.find_first_of(";") != std::string::npos) {
@@ -121,9 +122,9 @@ int process_each_assembly_line(char** argv,
 	  // }
 	  // for (std::string ope : PRE_PROCESS_OPERATORS) {
 	  //      if (nask_utility::contains(tmp, ope)) {
-	  //  	    std::cout<< "contains ope => " << ope << std::endl;
+	  //  	    LOG(INFO)<< "contains ope => " << ope << std::endl;
 	  //  	    tmp = nask_utility::format_math_exprs(tmp);
-	  //  	    std::cout<< "formatted ! => " << tmp << std::endl;
+	  //  	    LOG(INFO)<< "formatted ! => " << tmp << std::endl;
 	  //  	    return 17;
 	  //      }
 	  // }
@@ -131,7 +132,7 @@ int process_each_assembly_line(char** argv,
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));
-	       std::cout << "coming another label: "
+	       LOG(INFO) << "coming another label: "
 			 << label_dst
 			 << " bin["
 			 << std::to_string(binout_container.size())
@@ -149,7 +150,7 @@ int process_each_assembly_line(char** argv,
 	  for (const std::string pre_process_word : PRE_PROCESS_WORDS) {
 	       std::size_t found = input.find(pre_process_word);
 	       if (found != std::string::npos && pre_process_word == "EQU") {
-		    std::cout << "coming label EQU" << std::endl;
+		    LOG(INFO) << "coming label EQU" << std::endl;
 		    std::istringstream input_stream(input.c_str());
 		    TParaTokenizer tokenizer(input_stream, &token_table);
 		    inst.process_token_EQU(tokenizer, binout_container);
@@ -181,21 +182,21 @@ int process_each_assembly_line(char** argv,
 			 //
 			 meta::funcs_type::iterator it = funcs.find(token.AsString());
 			 if (it != funcs.end()) {
-			      std::cout << "eval " << token.AsString() << std::endl;
+			      LOG(INFO) << "eval " + token.AsString() << std::endl;
 			      try {
 				   int r = it->second(tokenizer, binout_container);
 				   if (r != 0) {
 					// エラーがあった行を表示
-					std::cout << input << std::endl;
+					LOG(INFO) << input << std::endl;
 					return r;
 				   }
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
-			      std::cout << "eval " << token.AsString() <<" end" << std::endl;
+			      LOG(INFO) << "eval " << token.AsString() <<" end" << std::endl;
 			 } else {
 			      // What
-			      std::cout << "eval Unknown " << token.AsString() <<" end" << std::endl;
+			      LOG(INFO) << "eval Unknown " << token.AsString() <<" end" << std::endl;
 			 }
 		    }
 	       }
@@ -335,12 +336,12 @@ int main(int argc, char** argv) {
 	  }
      }
 
-     // clogger
-#ifndef __clang__
-     std::ofstream file("debug.log", std::ios::out | std::ios::trunc);
-     clogger logger(file.rdbuf());
-     std::streambuf* oldrdbuf = std::cout.rdbuf(&logger);
-#endif
+     // easylogging++
+     el::Configurations defaultConf;
+     defaultConf.setGlobally(el::ConfigurationType::ToFile, "true");
+     defaultConf.setGlobally(el::ConfigurationType::Filename, "debug.log");
+     defaultConf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
+     el::Loggers::reconfigureLogger("default", defaultConf);
 
      if (argc - optind < 2 || argc - optind > 4) {
 	  std::cerr << "usage:  [--with-fat12 | --help] source [object/binary] [list]" << std::endl;
@@ -384,8 +385,6 @@ int main(int argc, char** argv) {
 	  binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
 	  binout.close();
      }
-
-     std::cout << std::endl;
 
      return 0;
 }

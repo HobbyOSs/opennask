@@ -60,7 +60,7 @@ namespace nask_utility {
 		    return true;
 	       }
 	  } catch (std::regex_error& e) {
-	       std::cout << e.what();
+	       LOG(INFO) << e.what();
 	  }
 	  return false;
      }
@@ -81,7 +81,7 @@ namespace nask_utility {
      size_t get_imm_size(const std::string& hex_string) {
 	  if (is_hex_notation(hex_string)) {
 	       const size_t s = hex_string.substr(2).size() / 2;
-	       std::cout << "check imm size: "
+	       LOG(INFO) << "check imm size: "
 			 << hex_string
 			 << " => "
 			 << s
@@ -207,7 +207,7 @@ namespace nask_utility {
 		    }
 	       }
 	       // 計算対象
-	       std::cout << str_expression << std::endl;
+	       LOG(INFO) << str_expression << std::endl;
 
 	       // トークンを計算する
 	       std::istringstream input_stream(str_expression.c_str());
@@ -226,7 +226,7 @@ namespace nask_utility {
 
 		    /* 解析に成功したら，評価 */
 		    TParaValue value = expr->Evaluate(&symbol_table);
-		    std::cout << value.AsString() << std::endl;
+		    LOG(INFO) << value.AsString() << std::endl;
 		    ret_val = value.AsLong();
 
 		    delete expr;
@@ -291,7 +291,7 @@ namespace nask_utility {
 	       TParaToken src_token = tokenizer.LookAhead(2);
 
 	       // Reg, Immの場合 => 1011wrrr
-	       std::cout << "check registor: " << reg << std::endl;
+	       LOG(INFO) << "check registor: " << reg << std::endl;
 	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
 	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
 	       nim_info->prefix = bs.to_ulong();
@@ -318,7 +318,7 @@ namespace nask_utility {
      // 1) label_dstの位置を記録する → label_dst_stack
      void Instructions::store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container) {
 
-	  std::cout << "stored label: "
+	  LOG(INFO) << "stored label: "
 		    << label_dst
 		    << " bin["
 		    << std::to_string(binout_container.size())
@@ -342,14 +342,13 @@ namespace nask_utility {
 	       LABEL_SRC_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
 
-	       std::cout.setf(std::ios::hex, std::ios::basefield);
 	       if (elem.abs) {
-		    std::cout << "update_label_dst_offset bin["
+		    LOG(INFO) << "update_label_dst_offset bin["
 			      << std::to_string(elem.rel_index - 1)
 			      << "] = "
 			      << elem.dst_index << std::endl;
 
-		    std::cout << "update_label_dst_offset bin["
+		    LOG(INFO) << "update_label_dst_offset bin["
 			      << std::to_string(elem.rel_index)
 			      << "] = "
 			      << 0x7c << std::endl;
@@ -357,7 +356,7 @@ namespace nask_utility {
 		    binout_container[elem.rel_index - 1] = elem.dst_index;
 		    binout_container[elem.rel_index] = 0x7c;
 	       } else {
-		    std::cout << "update_label_dst_offset bin["
+		    LOG(INFO) << "update_label_dst_offset bin["
 			      << std::to_string(elem.rel_index)
 			      << "] = "
 			      << elem.rel_offset() << std::endl;
@@ -380,8 +379,7 @@ namespace nask_utility {
 	       LABEL_DST_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
 	       elem.rel_index = binout_container.size() + 1;
-	       std::cout.setf(std::ios::hex, std::ios::basefield);
-	       std::cout << "update_label_src_offset bin["
+	       LOG(INFO) << "update_label_src_offset bin["
 			 << std::to_string(elem.rel_index)
 			 << "] = "
 			 << elem.rel_offset() << std::endl;
@@ -396,7 +394,7 @@ namespace nask_utility {
 
      std::string Instructions::get_equ_label_or_asis(std::string key) {
 	  if( this->equ_map.find(key) != this->equ_map.end() ) {
-	       std::cout << "label: "
+	       LOG(INFO) << "label: "
 			 << key
 			 << " replaced "
 			 << equ_map[key]
@@ -440,8 +438,8 @@ namespace nask_utility {
 	       // push_back only 1byte
 	       binout_container.push_back(0x00);
 
-	       std::cout << "(B): ";
-	       std::cout << std::showbase << std::hex
+	       LOG(INFO) << "(B): ";
+	       LOG(INFO) << std::showbase << std::hex
 			 << static_cast<int>(0x00)
 			 << std::endl;
 	  } else {
@@ -452,11 +450,11 @@ namespace nask_utility {
 	       binout_container.push_back(second_byte);
 	       binout_container.push_back(first_byte);
 
-	       std::cout << "(W): ";
-	       std::cout << std::showbase << std::hex
+	       LOG(INFO) << "(W): ";
+	       LOG(INFO) << std::showbase << std::hex
 			 << static_cast<int>(second_byte);
-	       std::cout << ", ";
-	       std::cout << std::showbase << std::hex
+	       LOG(INFO) << ", ";
+	       LOG(INFO) << std::showbase << std::hex
 			 << static_cast<int>(first_byte)
 			 << std::endl;
 
@@ -552,7 +550,7 @@ namespace nask_utility {
 	       } else if (token.Is(",")) {
 		    continue;
 	       } else if (is_datatype(token_table, token)) {
-		    std::cout << "declared datatype: " << token.AsString() << std::endl;
+		    LOG(INFO) << "declared datatype: " << token.AsString() << std::endl;
 		    data_type = token.AsString();
 		    continue;
 	       } else if (is_segment_register(token_table, token)) {
@@ -571,18 +569,18 @@ namespace nask_utility {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
-			 std::cout << " <= " << token.AsString();
+			 LOG(INFO) << " <= " << token.AsString();
 
 			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
 			 binout_container.push_back(0x8e);
 			 binout_container.push_back(modrm);
 			 // これで終了のはず
-			 std::cout << " : NIM: ";
-			 std::cout << std::showbase
+			 LOG(INFO) << " : NIM: ";
+			 LOG(INFO) << std::showbase
 				   << std::hex
 				   << 0x8e
 				   << ", ";
-			 std::cout << std::showbase
+			 LOG(INFO) << std::showbase
 				   << std::hex
 				   << static_cast<int>(modrm)
 				   << std::endl;
@@ -621,7 +619,7 @@ namespace nask_utility {
 		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
 		    const uint32_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
 
-		    std::cout << dst_mem << "(" << dst_addr_imm << ")" << " <= " << src_imm << std::endl;
+		    LOG(INFO) << dst_mem << "(" << dst_addr_imm << ")" << " <= " << src_imm << std::endl;
 
 		    // Mem, Immの場合 => 1100011w oo 000 mmm
 		    // 1100011 + w
@@ -650,7 +648,7 @@ namespace nask_utility {
 			 return 17;
 		    }
 
-		    std::cout << "NIM(W): "
+		    LOG(INFO) << "NIM(W): "
 			      << std::showbase << std::hex
 			      << static_cast<int>(bs_src.to_ulong())
 			      << ", "
@@ -684,14 +682,14 @@ namespace nask_utility {
 		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
 		    const std::string src_reg  = src_token.AsString();
 
-		    std::cout << dst_mem << " <= " << src_reg << std::endl;
+		    LOG(INFO) << dst_mem << " <= " << src_reg << std::endl;
 
 		    if (ModRM::is_accumulator(src_reg)) {
-			 std::cout << "MOV moffs* , AL or AX or EAX" << std::endl;
+			 LOG(INFO) << "MOV moffs* , AL or AX or EAX" << std::endl;
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
 		    } else {
-			 std::cout << "MOV Mem,Reg" << std::endl;
+			 LOG(INFO) << "MOV Mem,Reg" << std::endl;
 			 // Mem, Regの場合 => 1000100w oo rrr mmm
 			 // 1000100 + w
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
@@ -733,7 +731,7 @@ namespace nask_utility {
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_mem  = "[" + src_token.AsString() + "]";
 
-		    std::cout << dst_reg << " <= " << src_mem << std::endl;
+		    LOG(INFO) << dst_reg << " <= " << src_mem << std::endl;
 
 		    // Reg, Immの場合 => 1000101w oorrrmmm
 		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
@@ -746,11 +744,11 @@ namespace nask_utility {
 		    binout_container.push_back(bs_dst.to_ulong());
 		    binout_container.push_back(bs_src.to_ulong());
 
-		    std::cout << "NIM(W): ";
-		    std::cout << std::showbase << std::hex
+		    LOG(INFO) << "NIM(W): ";
+		    LOG(INFO) << std::showbase << std::hex
 			      << static_cast<int>(bs_dst.to_ulong());
-		    std::cout << ", ";
-		    std::cout << std::showbase << std::hex
+		    LOG(INFO) << ", ";
+		    LOG(INFO) << std::showbase << std::hex
 			      << static_cast<int>(bs_src.to_ulong()) << std::endl;
 
 		    // コンマを飛ばして次へ
@@ -774,7 +772,7 @@ namespace nask_utility {
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_reg  = src_token.AsString();
 
-		    std::cout << dst_reg << " <= " << src_reg << std::endl;
+		    LOG(INFO) << dst_reg << " <= " << src_reg << std::endl;
 
 		    // Reg16, Sregの場合 => oosssmmm
 		    const std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
@@ -787,11 +785,11 @@ namespace nask_utility {
 		    binout_container.push_back(bs_dst.to_ulong());
 		    binout_container.push_back(bs_src.to_ulong());
 
-		    std::cout << "NIM(W): ";
-		    std::cout << std::showbase << std::hex
+		    LOG(INFO) << "NIM(W): ";
+		    LOG(INFO) << std::showbase << std::hex
 			      << static_cast<int>(bs_dst.to_ulong());
-		    std::cout << ", ";
-		    std::cout << std::showbase << std::hex
+		    LOG(INFO) << ", ";
+		    LOG(INFO) << std::showbase << std::hex
 			      << static_cast<int>(bs_src.to_ulong()) << std::endl;
 
 		    // これで終了のはず
@@ -810,7 +808,7 @@ namespace nask_utility {
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
-		    std::cout << dst_reg << " <= " << src_imm << ", with imm" << std::endl;
+		    LOG(INFO) << dst_reg << " <= " << src_imm << ", with imm" << std::endl;
 
 		    NIMONIC_INFO nim_info;
 		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
@@ -826,14 +824,14 @@ namespace nask_utility {
 			 binout_container.push_back(second_byte);
 			 binout_container.push_back(first_byte);
 			 // debug logs
-			 std::cout << " NIM(W): ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << " NIM(W): ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(second_byte);
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << ", ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(first_byte);
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << ", ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(token.AsLong()) << std::endl;
 
 		    } else {
@@ -841,16 +839,16 @@ namespace nask_utility {
 			 const uint8_t second_byte = (nim >> 8);
 			 binout_container.push_back(first_byte);
 			 // debug logs
-			 std::cout << " NIM:(B) ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << " NIM:(B) ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(first_byte);
 
 			 if (nim_info.imm != offs) {
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
+			      LOG(INFO) << ", ";
+			      LOG(INFO) << std::showbase << std::hex
 					<< static_cast<int>(token.AsLong()) << std::endl;
 			 } else {
-			      std::cout << ", " << token.AsString() << std::endl;
+			      LOG(INFO) << ", " << token.AsString() << std::endl;
 			 }
 		    }
 
@@ -862,7 +860,7 @@ namespace nask_utility {
 		    } else if (nim_info.imm == imm32) {
 			 set_dword_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == offs) {
-			 std::cout << " offset processing !" << std::endl;
+			 LOG(INFO) << " offset processing !" << std::endl;
 
 			 update_label_src_offset(token.AsString(), binout_container, 0x00);
 			 store_label_src(token.AsString(), binout_container, true);
@@ -901,8 +899,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x73, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x73, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x73);
@@ -928,8 +926,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x76, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x76, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x76);
@@ -955,8 +953,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x72, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x72, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x72);
@@ -982,8 +980,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x72, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x72, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x72);
@@ -1009,8 +1007,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x74, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x74, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x74);
@@ -1043,24 +1041,24 @@ namespace nask_utility {
 		    if (is_between_bytesize(token.AsLong()) && imm8 == get_imm_size(token.AsString())) {
 			 // 0xEB
 			 const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 2;
-			 std::cout << "JMP: " << token.AsString() << std::endl;
-			 std::cout << "0xeb with Byte "
+			 LOG(INFO) << "JMP: " << token.AsString() << std::endl;
+			 LOG(INFO) << "0xeb with Byte "
 				   << std::showbase << std::hex
 				   << jmp_offset << std::endl;
 			 binout_container.push_back(0xeb);
 			 binout_container.push_back(jmp_offset);
 		    } else {
 			 // 0xE9
-			 std::cout << "JMP: " << token.AsString() << std::endl;
+			 LOG(INFO) << "JMP: " << token.AsString() << std::endl;
 			 const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 3;
 			 if (get_imm_size(token.AsString()) == imm16) {
-			      std::cout << "0xe9 with Word "
+			      LOG(INFO) << "0xe9 with Word "
 					<< std::showbase << std::hex
 					<< jmp_offset << std::endl;
 			      binout_container.push_back(0xe9);
 			      set_word_into_binout(jmp_offset, binout_container);
 			 } else if (get_imm_size(token.AsString()) == imm32) {
-			      std::cout << "0xe9 with Dword "
+			      LOG(INFO) << "0xe9 with Dword "
 					<< std::showbase << std::hex
 					<< jmp_offset <<std::endl;
 			      binout_container.push_back(0xe9);
@@ -1074,8 +1072,8 @@ namespace nask_utility {
 
 	       } else {
 		    const std::string store_label = token.AsString();
-		    std::cout << "label stored: " << store_label << std::endl;
-		    std::cout << "0xeb, 0x00" << std::endl;
+		    LOG(INFO) << "label stored: " << store_label << std::endl;
+		    LOG(INFO) << "0xeb, 0x00" << std::endl;
 
 		    if (dst_is_stored(store_label, binout_container)) {
 			 update_label_src_offset(store_label, binout_container, 0xeb);
@@ -1100,8 +1098,8 @@ namespace nask_utility {
 		    if (store_label.empty()) {
 			 continue;
 		    } else {
-			 std::cout << "label stored: " << store_label << std::endl;
-			 std::cout << "0x73, 0x00" << std::endl;
+			 LOG(INFO) << "label stored: " << store_label << std::endl;
+			 LOG(INFO) << "0x73, 0x00" << std::endl;
 
 			 if (dst_is_stored(store_label, binout_container)) {
 			      update_label_src_offset(store_label, binout_container, 0x73);
@@ -1154,31 +1152,31 @@ namespace nask_utility {
 			 // 次へ
 			 tokenizer.Next();
 			 tokenizer.Next();
-			 std::cout << dst_reg << " <= " << src_imm << std::endl;
+			 LOG(INFO) << dst_reg << " <= " << src_imm << std::endl;
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
 			 // Imm8 or Imm16
 			 const size_t imm_size = get_imm_size(src_token.AsString());
-			 std::cout << "imm size: " << imm_size << std::endl;
+			 LOG(INFO) << "imm size: " << imm_size << std::endl;
 
 			 if (ModRM::is_accumulator(dst_reg)) {
 			      // ADD Acc,Imm
 			      // NIM: 0000010w
 			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
 			      // debug logs
-			      std::cout << "NIM(W): ";
-			      std::cout << std::showbase << std::hex
+			      LOG(INFO) << "NIM(W): ";
+			      LOG(INFO) << std::showbase << std::hex
 					<< static_cast<int>(bs_dst.to_ulong());
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
+			      LOG(INFO) << ", ";
+			      LOG(INFO) << std::showbase << std::hex
 					<< static_cast<int>(src_token.AsLong()) << std::endl;
 
 			      binout_container.push_back(bs_dst.to_ulong());
 
 			      if (imm_size == imm8) {
-				   std::cout << "imm8 ! => " << src_token.AsLong() << std::endl;
+				   LOG(INFO) << "imm8 ! => " << src_token.AsLong() << std::endl;
 				   binout_container.push_back(src_token.AsLong());
 			      } else {
-				   std::cout << "imm16 ! => " << src_token.AsLong() << std::endl;
+				   LOG(INFO) << "imm16 ! => " << src_token.AsLong() << std::endl;
 				   set_word_into_binout(src_token.AsLong(), binout_container, false);
 			      }
 			      break;
@@ -1205,19 +1203,19 @@ namespace nask_utility {
 				   // -------------
 				   // 0x80 /0 ib  ADD r/m8, imm8
 				   // 0x81 /0 ib  ADD r/m8, imm8
-				   std::cout << "r/m8: " << dst_reg << std::endl;
+				   LOG(INFO) << "r/m8: " << dst_reg << std::endl;
 				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   std::cout << "NIM(W): ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << "NIM(W): ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(0x80);
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(bs_dst2.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(src_token.AsLong()) << std::endl;
 
 				   binout_container.push_back(0x80);
@@ -1230,19 +1228,19 @@ namespace nask_utility {
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m16, imm8
 				   // 0x81 /0 iw  ADD r/m16, imm16
-				   std::cout << "r/m16: " << dst_reg << std::endl;
+				   LOG(INFO) << "r/m16: " << dst_reg << std::endl;
 				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   std::cout << "NIM(W): ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << "NIM(W): ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(op);
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(bs_dst2.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(src_token.AsLong()) << std::endl;
 
 				   binout_container.push_back(op);
@@ -1266,14 +1264,14 @@ namespace nask_utility {
 			      // const std::bitset<8> bs_src("11000" + std::get<0>(tp_dst));
 
 			      // debug logs
-			      //std::cout << "NIM(W): ";
-			      //std::cout << std::showbase << std::hex
+			      //LOG(INFO) << "NIM(W): ";
+			      //LOG(INFO) << std::showbase << std::hex
 			      // 		<< static_cast<int>(bs_dst.to_ulong());
-			      //std::cout << ", ";
-			      //std::cout << std::showbase << std::hex
+			      //LOG(INFO) << ", ";
+			      //LOG(INFO) << std::showbase << std::hex
 			      // 		<< static_cast<int>(bs_src.to_ulong());
-			      //std::cout << ", ";
-			      //std::cout << std::showbase << std::hex
+			      //LOG(INFO) << ", ";
+			      //LOG(INFO) << std::showbase << std::hex
 			      // 		<< static_cast<int>(src_token.AsLong()) << std::endl;
 			      //
 			      //binout_container.push_back(bs_dst.to_ulong());
@@ -1347,7 +1345,7 @@ namespace nask_utility {
 			 // 次へ
 			 tokenizer.Next();
 			 tokenizer.Next();
-			 std::cout << dst_reg << " == " << src_imm << std::endl;
+			 LOG(INFO) << dst_reg << " == " << src_imm << std::endl;
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
 
 			 std::smatch match;
@@ -1358,11 +1356,11 @@ namespace nask_utility {
 			      const std::bitset<8> bs_dst("0011110" + std::get<1>(tp_dst));
 
 			      // debug logs
-			      std::cout << "NIM(B): ";
-			      std::cout << std::showbase << std::hex
+			      LOG(INFO) << "NIM(B): ";
+			      LOG(INFO) << std::showbase << std::hex
 					<< static_cast<int>(bs_dst.to_ulong());
-			      std::cout << ", ";
-			      std::cout << std::showbase << std::hex
+			      LOG(INFO) << ", ";
+			      LOG(INFO) << std::showbase << std::hex
 					<< static_cast<int>(src_imm) << std::endl;
 
 			      binout_container.push_back(bs_dst.to_ulong());
@@ -1390,19 +1388,19 @@ namespace nask_utility {
 				   // CMP Reg8, Imm
 				   // ------------
 				   // 0x80 /7 ib | CMP r/m8, imm8
-				   std::cout << "r/m8: " << dst_reg << std::endl;
+				   LOG(INFO) << "r/m8: " << dst_reg << std::endl;
 				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   std::cout << "NIM(W): ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << "NIM(W): ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(0x80);
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(bs_dst2.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(src_imm) << std::endl;
 
 				   binout_container.push_back(0x80);
@@ -1415,19 +1413,19 @@ namespace nask_utility {
 				   // ------------
 				   // 0x83 /7 ib | CMP r/m16, imm8
 				   // 0x81 /7 iw | CMP r/m16, imm16
-				   std::cout << "r/m16: " << dst_reg << std::endl;
+				   LOG(INFO) << "r/m16: " << dst_reg << std::endl;
 				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   std::cout << "NIM(W): ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << "NIM(W): ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(op);
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(bs_dst2.to_ulong());
-				   std::cout << ", ";
-				   std::cout << std::showbase << std::hex
+				   LOG(INFO) << ", ";
+				   LOG(INFO) << std::showbase << std::hex
 					     << static_cast<int>(src_imm) << std::endl;
 
 				   binout_container.push_back(op);
@@ -1546,7 +1544,7 @@ namespace nask_utility {
 			 } else {
 			      const std::string key = token.AsString();
 			      const std::string val = tokenizer.LookAhead(2).AsString();
-			      std::cout << key
+			      LOG(INFO) << key
 					<< " is keeped as "
 					<< val
 					<< " because of EQU"
@@ -1558,7 +1556,7 @@ namespace nask_utility {
 			 std::cerr << "NASK : EQU syntax is not correct" << std::endl;
 			 return 17;
 		    }
-		    std::cout << "!!!" << token.AsString() << "!!!" << std::endl;
+		    LOG(INFO) << "!!!" << token.AsString() << "!!!" << std::endl;
 	       }
 	  }
 	  return 0;
@@ -1636,12 +1634,11 @@ namespace nask_utility {
 		    std::cerr << "NASK : ORG contains unused ',' " << std::endl;
 		    return 17;
 	       } else {
-		    std::cout << token.AsString() << std::endl;
+		    LOG(INFO) << token.AsString() << std::endl;
 
 		    if (is_legitimate_numeric(token.AsString())) {
 			 dollar_position = token.AsLong();
-			 std::cout.setf(std::ios::hex, std::ios::basefield);
-			 std::cout << "ORG = " << dollar_position << std::endl;
+			 LOG(INFO) << "ORG = " << dollar_position << std::endl;
 			 break;
 		    } else {
 			 std::cerr << "NASK : ORG specified incorrect value" << std::endl;
@@ -1669,17 +1666,17 @@ namespace nask_utility {
 			 TParaToken src_token = tokenizer.LookAhead(2);
 			 const std::string dst_imm  = dst_token.AsString();
 			 const std::string src_reg  = src_token.AsString();
-			 std::cout << dst_imm << " <= " << src_reg << std::endl;
+			 LOG(INFO) << dst_imm << " <= " << src_reg << std::endl;
 
 			 const uint8_t opecode = (src_reg == "AL") ? 0xe6 : 0xe7;
 			 binout_container.push_back(opecode);
 			 binout_container.push_back(dst_token.AsLong());
 
-			 std::cout << "NIM(W): ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << "NIM(W): ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(opecode);
-			 std::cout << ", ";
-			 std::cout << std::showbase << std::hex
+			 LOG(INFO) << ", ";
+			 LOG(INFO) << std::showbase << std::hex
 				   << static_cast<int>(dst_token.AsLong())
 				   << std::endl;
 			 break;
