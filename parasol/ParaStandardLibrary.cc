@@ -72,7 +72,7 @@ int TParaConsoleObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argument
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
@@ -90,7 +90,7 @@ int TParaConsoleObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue&
 {
     Print(ArgumentList, ReturnValue);
     cout << endl;
-    
+
     return 1;
 }
 
@@ -184,7 +184,7 @@ int TParaInputFileObject::MethodIdOf(const string& MethodName)
 int TParaInputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
 {
     int Result = 0;
-    
+
     switch (MethodId) {
       case MethodId_GetLine:
         Result = GetLine(ArgumentList, ReturnValue);
@@ -195,7 +195,7 @@ int TParaInputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argume
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
@@ -289,7 +289,7 @@ int TParaOutputFileObject::MethodIdOf(const string& MethodName)
 int TParaOutputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
 {
     int Result = 0;
-    
+
     switch (MethodId) {
       case MethodId_Print:
 	Result = Print(ArgumentList, ReturnValue);
@@ -300,7 +300,7 @@ int TParaOutputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argum
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
@@ -318,7 +318,7 @@ int TParaOutputFileObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaVal
 {
     Print(ArgumentList, ReturnValue);
     (*_FileStream) << endl;
-    
+
     return 1;
 }
 
@@ -457,7 +457,7 @@ int TParaOutputPipeObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaVal
 {
     Print(ArgumentList, ReturnValue);
     fputc('\n', _Pipe);
-    
+
     return 1;
 }
 
@@ -518,7 +518,7 @@ int TParaFormatterObject::MethodIdOf(const std::string& MethodName)
 int TParaFormatterObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
 {
     int Result = 0;
-    
+
     switch (MethodId) {
       case MethodId_Put:
         Result = Put(ArgumentList, ReturnValue);
@@ -559,7 +559,7 @@ int TParaFormatterObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& A
 
 int TParaFormatterObject::Flush(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
 {
-    string Value = _FormatStream->str(); 
+    string Value = _FormatStream->str();
 
     delete _FormatStream;
     _FormatStream = new ostringstream();
@@ -580,9 +580,9 @@ int TParaFormatterObject::Put(vector<TParaValue*>& ArgumentList, TParaValue& Ret
 	}
 	else {
 	    (*_FormatStream) << ArgumentList[i]->AsString();
-	}	
+	}
     }
-    
+
     ReturnValue = TParaValue((TParaObjectPrototype*) this);
 
     return 1;
@@ -711,11 +711,11 @@ void TParaScannerObject::Construct(const string& ClassName, vector<TParaValue*>&
     if (ArgumentList.size() > 0) {
 	if (! ArgumentList[0]->IsString()) {
 	    throw TScriptException(
-		_InternalClassName + "::" + _InternalClassName + "()", 
+		_InternalClassName + "::" + _InternalClassName + "()",
 		"invalid argumrnt[s]"
 	    );
 	}
-	
+
 	TParaValue ReturnValue;
 	Load(ArgumentList, ReturnValue);
     }
@@ -751,7 +751,7 @@ int TParaScannerObject::MethodIdOf(const string& MethodName)
 int TParaScannerObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
 {
     int Result = 0;
-    
+
     switch (MethodId) {
       case MethodId_Load:
         Result = Load(ArgumentList, ReturnValue);
@@ -777,7 +777,7 @@ int TParaScannerObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argument
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
@@ -976,7 +976,7 @@ int TParaArgumentObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argumen
     }
 
     int Result = 0;
-    
+
     switch (MethodId) {
       case MethodId_NumberOfArguments:
         Result = NumberOfArguments(ArgumentList, ReturnValue);
@@ -1002,7 +1002,7 @@ int TParaArgumentObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argumen
       default:
 	return TParaObjectPrototype::InvokeMethod(MethodId, ArgumentList, ReturnValue);
     }
-    
+
     return Result;
 }
 
@@ -1137,7 +1137,7 @@ void TParaArgumentObject::Parse(void)
 
 	    if (Value.empty() && (i+1 < _argc)) {
 		if (NameLength != string::npos) {
-		    // already contains the assign operator// 
+		    // already contains the assign operator//
 		    i++;
 		    Value = _argv[i];
 		}
@@ -1220,7 +1220,7 @@ int TParaStringObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Argu
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
@@ -1267,12 +1267,12 @@ int TParaStringObject::Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue&
 int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
 {
     if (
-	(ArgumentList.size() < 2) || 
-	(! ArgumentList[0]->IsString()) || 
+	(ArgumentList.size() < 2) ||
+	(! ArgumentList[0]->IsString()) ||
 	(! ArgumentList[1]->IsLong())
     ){
 	throw TScriptException(
-	    "substr(string line, int offset, int length=-1)", 
+	    "substr(string line, int offset, int length=-1)",
 	    "invalid argument[s]"
 	);
     }
@@ -1283,12 +1283,12 @@ int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue
 	Offset = Line.size() + Offset;
     }
 
-    int Length;
+    size_t Length;
     if (ArgumentList.size() > 2) {
 	Length = ArgumentList[2]->AsLong();
 	if (Length < 0) {
 	    // perl compatible //
-	    Length = max(0, (int) Line.size() - Offset + Length);
+	    Length = max(0, static_cast<int>(Line.size() - Offset + Length));
 	}
     }
     else {
@@ -1303,12 +1303,12 @@ int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue
 int TParaStringObject::Index(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
 {
     if (
-	(ArgumentList.size() < 2) || 
-	(! ArgumentList[0]->IsString()) || 
+	(ArgumentList.size() < 2) ||
+	(! ArgumentList[0]->IsString()) ||
 	(! ArgumentList[1]->IsString())
     ){
 	throw TScriptException(
-	    "substr(string str, string sub_str, int offset=0)", 
+	    "substr(string str, string sub_str, int offset=0)",
 	    "invalid argument[s]"
 	);
     }
@@ -1372,7 +1372,7 @@ int TParaSystemObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Argu
       default:
 	Result = 0;
     }
-    
+
     return Result;
 }
 
