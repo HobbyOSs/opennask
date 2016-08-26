@@ -16,9 +16,7 @@
 #include <utime.h>
 #include <unistd.h>
 #include <sys/types.h>
-
-// easylogging++
-INITIALIZE_EASYLOGGINGPP
+#include "spdlog/spdlog.h"
 
 using namespace std::placeholders;
 
@@ -34,6 +32,9 @@ int process_each_assembly_line(char** argv,
      /* 以下，入力の読み込みと解析，評価のループ */
      long line_number = 1;
      std::string input;
+
+     // spdlog
+     auto logger = spdlog::basic_logger_mt("basic_logger", "debug.log");
 
      // デフォルトのトークンテーブル
      TParaCxxTokenTable token_table;
@@ -102,7 +103,7 @@ int process_each_assembly_line(char** argv,
      for (; std::getline(nas_file, input); line_number++) {
 
 	  /* 行数チェック */
-	  LOG(INFO) << line_number << ": " << input << std::endl;
+	  logger->info("{}: {}", line_number, input);
 
 	  //std::string tmp = input;
 
@@ -132,12 +133,8 @@ int process_each_assembly_line(char** argv,
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));
-	       LOG(INFO) << "coming another label: "
-			 << label_dst
-			 << " bin["
-			 << std::to_string(binout_container.size())
-			 << "]"
-			 << std::endl;
+	       logger->info("coming another label: {} bin[{}]",
+			    label_dst, std::to_string(binout_container.size()));
 
                // label: (label_dstと呼ぶ)
                // 1) label_dstの位置を記録する → label_dst_stack
@@ -150,7 +147,7 @@ int process_each_assembly_line(char** argv,
 	  for (const std::string pre_process_word : PRE_PROCESS_WORDS) {
 	       std::size_t found = input.find(pre_process_word);
 	       if (found != std::string::npos && pre_process_word == "EQU") {
-		    LOG(INFO) << "coming label EQU" << std::endl;
+		    logger->info("coming label EQU");
 		    std::istringstream input_stream(input.c_str());
 		    TParaTokenizer tokenizer(input_stream, &token_table);
 		    inst.process_token_EQU(tokenizer, binout_container);
@@ -182,21 +179,21 @@ int process_each_assembly_line(char** argv,
 			 //
 			 meta::funcs_type::iterator it = funcs.find(token.AsString());
 			 if (it != funcs.end()) {
-			      LOG(INFO) << "eval " + token.AsString() << std::endl;
+			      logger->info("eval {}", token.AsString());
 			      try {
 				   int r = it->second(tokenizer, binout_container);
 				   if (r != 0) {
 					// エラーがあった行を表示
-					LOG(INFO) << input << std::endl;
+					logger->info(input);
 					return r;
 				   }
 			      } catch (TScriptException te) {
 				   std::cerr << te << std::endl;
 			      }
-			      LOG(INFO) << "eval " << token.AsString() <<" end" << std::endl;
+			      logger->info("eval {} end", token.AsString());
 			 } else {
 			      // What
-			      LOG(INFO) << "eval Unknown " << token.AsString() <<" end" << std::endl;
+			      logger->info("eval Unknown {} end", token.AsString());
 			 }
 		    }
 	       }
@@ -335,13 +332,6 @@ int main(int argc, char** argv) {
 	       return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
 	  }
      }
-
-     // easylogging++
-     el::Configurations defaultConf;
-     defaultConf.setGlobally(el::ConfigurationType::ToFile, "true");
-     defaultConf.setGlobally(el::ConfigurationType::Filename, "debug.log");
-     defaultConf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
-     el::Loggers::reconfigureLogger("default", defaultConf);
 
      if (argc - optind < 2 || argc - optind > 4) {
 	  std::cerr << "usage:  [--with-fat12 | --help] source [object/binary] [list]" << std::endl;

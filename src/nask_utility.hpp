@@ -11,7 +11,7 @@
 #include "ParaMathLibrary.hh"
 #include "nask_defs.hpp"
 #include <functional>
-#include "easylogging++.h"
+#include "spdlog/spdlog.h"
 
 // 80x86 Opcodes
 // https://courses.engr.illinois.edu/ece390/resources/opcodes.html
