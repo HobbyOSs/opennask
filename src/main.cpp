@@ -34,7 +34,7 @@ int process_each_assembly_line(char** argv,
      std::string input;
 
      // spdlog
-     auto logger = spdlog::basic_logger_mt("basic_logger", "debug.log");
+     auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
 
      // デフォルトのトークンテーブル
      TParaCxxTokenTable token_table;

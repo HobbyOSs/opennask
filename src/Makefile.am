@@ -12,7 +12,7 @@ opennask_CXXFLAGS = -I$(top_builddir)/parasol \
                     -I$(top_builddir)/fatlib
 
 opennask_LDADD    = $(top_builddir)/parasol/libparasol.a \
-		    $(top_builddir)/fatlib/libfat.a
+		    $(top_builddir)/fatlib/libfat.a -lpthread
 
 if BUILD_DOSFSTOOLS
 # Add CXXFLAGS

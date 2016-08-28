@@ -4,7 +4,7 @@
 namespace nask_utility {
 
      static const std::shared_ptr<spdlog::logger> log() {
-	  return spdlog::basic_logger_mt("basic_logger", "debug.log");
+	  return spdlog::get("opennask");
      }
 
      namespace ModRM {
@@ -1339,12 +1339,10 @@ namespace nask_utility {
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): ");
-					     << static_cast<int>(op);
-				   log()->info(", ");
-					     << static_cast<int>(bs_dst2.to_ulong());
-				   log()->info(", ");
-					     << static_cast<int>(src_imm));
+				   log()->info("NIM(W): {}, {}, {}",
+					       static_cast<int>(op),
+					       static_cast<int>(bs_dst2.to_ulong()),
+					       static_cast<int>(src_imm));
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(bs_dst2.to_ulong());
@@ -1462,11 +1460,7 @@ namespace nask_utility {
 			 } else {
 			      const std::string key = token.AsString();
 			      const std::string val = tokenizer.LookAhead(2).AsString();
-			      log()->info << key
-					<< " is keeped as "
-					<< val
-					<< " because of EQU"
-					<< std::endl;
+			      log()->info("{} is keeped as {} because of EQU", key, val);
 			      this->equ_map[key] = val;
 			      return 0;
 			 }
@@ -1474,7 +1468,7 @@ namespace nask_utility {
 			 std::cerr << "NASK : EQU syntax is not correct" << std::endl;
 			 return 17;
 		    }
-		    log()->info("!!!" << token.AsString() << "!!!");
+		    log()->info("!!! {} !!!", token.AsString());
 	       }
 	  }
 	  return 0;
@@ -1584,19 +1578,15 @@ namespace nask_utility {
 			 TParaToken src_token = tokenizer.LookAhead(2);
 			 const std::string dst_imm  = dst_token.AsString();
 			 const std::string src_reg  = src_token.AsString();
-			 log()->info(dst_imm << " <= " << src_reg);
+			 log()->info("{} <= {}", dst_imm, src_reg);
 
 			 const uint8_t opecode = (src_reg == "AL") ? 0xe6 : 0xe7;
 			 binout_container.push_back(opecode);
 			 binout_container.push_back(dst_token.AsLong());
 
-			 log()->info("NIM(W): ";
-			 log()->info << std::showbase << std::hex
-				   << static_cast<int>(opecode);
-			 log()->info(", ";
-			 log()->info << std::showbase << std::hex
-				   << static_cast<int>(dst_token.AsLong())
-				  );
+			 log()->info("NIM(W): {}, {}",
+				     static_cast<int>(opecode),
+				     static_cast<int>(dst_token.AsLong()));
 			 break;
 
 		    } else {
