@@ -105,30 +105,12 @@ int process_each_assembly_line(char** argv,
 	  /* 行数チェック */
 	  logger->info("{}: {}", line_number, input);
 
-	  //std::string tmp = input;
-
           // 入力行に四則計算が含まれる場合、それを書き換える
-	  //std::smatch match;
-	  //if (regex_match(tmp, match, nask_utility::math_op)) {
-	  //     LOG(INFO)<< "!!! contains ope => " << tmp << " !!!" << std::endl;
-	  //} else {
-	  //     //LOG(INFO)<< "NOT contains ope !!!" << std::endl;
-	  //}
-
-	  // if (tmp.find_first_of(";") != std::string::npos) {
-	  //      tmp = tmp.substr(0, tmp.find_first_of(";"));
-	  // }
-	  // if (tmp.find_first_of("#") != std::string::npos) {
-	  //      tmp = tmp.substr(0, tmp.find_first_of("#"));
-	  // }
-	  // for (std::string ope : PRE_PROCESS_OPERATORS) {
-	  //      if (nask_utility::contains(tmp, ope)) {
-	  //  	    LOG(INFO)<< "contains ope => " << ope << std::endl;
-	  //  	    tmp = nask_utility::format_math_exprs(tmp);
-	  //  	    LOG(INFO)<< "formatted ! => " << tmp << std::endl;
-	  //  	    return 17;
-	  //      }
-	  // }
+	  std::string tmp = input;
+	  if (nask_utility::is_contains_math_op(input)) {
+	       input = nask_utility::expr_math_op(tmp);
+	       logger->info("{}: {}, *** math op replaced ***", line_number, input);
+	  }
 
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
