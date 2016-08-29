@@ -61,13 +61,34 @@ namespace nask_utility {
 	       std::regex re("[^0-9]*([-\\*/+0-9]*)[^0-9]*");
 	       std::smatch match;
 	       if (std::regex_search(subject, match, re) && match.size() > 1) {
-		    //std::cerr << "matched string: " << match[1] << std::endl;
-		    return true;
+		    std::string matched = match[1].str();
+		    // もっと良い書き方はないものか…
+		    for (std::string op : PRE_PROCESS_OPERATORS) {
+			 if (contains(match[1].str(), op)) {
+			      return true;
+			 }
+		    }
 	       }
 	  } catch (std::regex_error& e) {
 	       log()->info(e.what());
 	  }
 	  return false;
+     }
+
+     std::string expr_math_op(const std::string& subject) {
+	  try {
+	       std::regex re("([^0-9]*)([-\\*/+0-9]*)([^0-9]*)");
+	       std::smatch match;
+	       if (std::regex_search(subject, match, re) && match.size() > 1) {
+		    int error;
+		    const int process = te_interp(match[2].str().c_str(), &error);
+		    return match[1].str() + std::to_string(process) + match[3].str();
+	       }
+
+	  } catch (std::regex_error& e) {
+	       log()->info(e.what());
+	  }
+	  return "";
      }
 
      bool is_integer(const std::string& s) {

@@ -30,4 +30,19 @@ TEST(nask_suite, testNaskUtilityIsContainsMathOp)
      const std::string line4 = "		DW		83+1";
      const bool d = nask_utility::is_contains_math_op(line4);
      CHECK(d);
+
+     const std::string line5 = "		DW		83";
+     const bool e = nask_utility::is_contains_math_op(line5);
+     CHECK(!e);
+}
+
+TEST(nask_suite, testNaskUtilityExprMathOp)
+{
+     const std::string line1 = "		MOV		AX,1*8";
+     const std::string a = nask_utility::expr_math_op(line1);
+     CHECK_EQUAL("		MOV		AX,8", a);
+
+     const std::string line2 = "		MOV		ECX,512*1024/4";
+     const std::string b = nask_utility::expr_math_op(line2);
+     CHECK_EQUAL("		MOV		ECX,131072", b);
 }
