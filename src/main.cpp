@@ -105,13 +105,6 @@ int process_each_assembly_line(char** argv,
 	  /* 行数チェック */
 	  logger->info("{}: {}", line_number, input);
 
-          // 入力行に四則計算が含まれる場合、それを書き換える
-	  std::string tmp = input;
-	  if (nask_utility::is_contains_math_op(input)) {
-	       input = nask_utility::expr_math_op(tmp);
-	       logger->info("{}: {}, *** math op replaced ***", line_number, input);
-	  }
-
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));
@@ -126,6 +119,7 @@ int process_each_assembly_line(char** argv,
 	       continue;
 	  }
 
+	  // 入力行にマクロが含まれていれば書き換える
 	  for (const std::string pre_process_word : PRE_PROCESS_WORDS) {
 	       std::size_t found = input.find(pre_process_word);
 	       if (found != std::string::npos && pre_process_word == "EQU") {
@@ -135,6 +129,13 @@ int process_each_assembly_line(char** argv,
 		    inst.process_token_EQU(tokenizer, binout_container);
 		    continue;
 	       }
+	  }
+
+          // 入力行に四則計算が含まれる場合、それを書き換える
+	  std::string tmp = input;
+	  if (nask_utility::is_contains_math_op(input)) {
+	       input = nask_utility::expr_math_op(tmp);
+	       logger->info("{}: {}, *** math op replaced ***", line_number, input);
 	  }
 
 	  /* 入力行を istream にしてトークナイザを生成 */

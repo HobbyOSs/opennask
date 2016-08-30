@@ -1249,6 +1249,40 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なAND命令の実装
+     int Instructions::process_token_AND(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (ModRM::is_accumulator(token.AsString()) &&
+			tokenizer.LookAhead(1).Is(",")) {
+                         // 0x24 ib AND AL, imm8  ALとimm8とのANDをとる
+                         // 0x25 iw AND AX, imm16 AXとimm16とのANDをとる
+                         // 0x25 id AND EAX,imm32 EAXとimm32とのANDをとる
+			 TParaToken src_token = tokenizer.LookAhead(4);
+			 if (token.Is("AL")) {
+			      log()->info("0x24 {}", tokenizer.LookAhead(4).AsString());
+			      binout_container.push_back(0x24);
+			      binout_container.push_back(tokenizer.LookAhead(4).AsLong());
+			 } else if (token.Is("AX")) {
+			      log()->info("0x25 {}", tokenizer.LookAhead(4).AsString());
+			      binout_container.push_back(0x25);
+			      set_word_into_binout(tokenizer.LookAhead(4).AsLong(),
+						   binout_container);
+			 } else { // EAX
+			      log()->info("0x25 {}", tokenizer.LookAhead(4).AsString());
+			      binout_container.push_back(0x25);
+			      set_dword_into_binout(tokenizer.LookAhead(4).AsLong(),
+						    binout_container);
+			 }
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なCLI命令の実装
      int Instructions::process_token_CLI(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xFA を格納
