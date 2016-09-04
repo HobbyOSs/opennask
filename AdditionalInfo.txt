@@ -1,0 +1,4 @@
+.h.in-Files
+intel2gas/i2gconf.h.in
+
+.in.in-Files
