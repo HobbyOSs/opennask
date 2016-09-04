@@ -7,7 +7,8 @@
     licensing conditions
 */
 
-#include "config.h"
+#warning "FIXME: Create config.h with cmake"
+//#include "config.h"
 
 #define TAB_SIZE	  8
 #define STR_LEN 	  509

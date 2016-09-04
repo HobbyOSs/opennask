@@ -1,6 +1,9 @@
 
 # Created by https://www.gitignore.io/api/autotools,c++
 
+### Cmake ###
+build
+
 ### Autotools ###
 # http://www.gnu.org/software/automake
 # Executables
