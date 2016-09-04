@@ -2,9 +2,10 @@
 An 80x86 assembler like MASM/NASM for the tiny OS
 
 # build
-* You need to install autotools
+* You need to install cmake
 ```
-$ ./bootstrap
-$ ./configure
-$ make
+$ mkdir build
+$ cd build
+$ cmake -G "MSYS Makefiles" -DCMAKE_MAKE_PROGRAM=/usr/bin/make ..
+$ make 
 ```

@@ -21,18 +21,38 @@ set(parasol_STAT_SRCS
     ParaContainerLibrary.cc
     ParaMathLibrary.cc)
 
+set(parasol_HEADERS
+    ParaDefs.hh
+    ParaTokenTable.hh
+    ParaToken.hh
+    ParaTokenizer.hh
+    ParaValue.hh
+    ParaObject.hh
+    ParaOperator.hh
+    ParaExpression.hh
+    ParaSymbolTable.hh
+    ParaStatement.hh
+    ParaFunction.hh
+    ParaBuiltinFunction.hh
+    ParaPackage.hh
+    ParaParser.hh
+    ParaStandardLibrary.hh
+    ParaContainerLibrary.hh
+    ParaMathLibrary.hh)
+
+add_library(parasol STATIC ${parasol_STAT_SRCS})
 
 ########### next target ###############
 
-set(samples/statementsample_SRCS ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp)
-
-
-########### next target ###############
-
-set(samples/expressionsample_SRCS ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp)
-
+#set(samples_statementsample_SRCS samples/statementsample.cc)
+#add_executable(samples_statementsample ${samples_statementsample_SRCS} ${parasol_HEADERS})
 
 ########### next target ###############
 
-set(samples/tokenizersample_SRCS ${CMAKE_CURRENT_BINARY_DIR}/dummy.cpp)
+#set(samples_expressionsample_SRCS samples/expressionsample.cc)
+#add_executable(samples_expressionsample ${samples_expressionsample_SRCS} ${parasol_HEADERS})
 
+########### next target ###############
+
+#set(samples_tokenizersample_SRCS samples/tokenizersample.cc)
+#add_executable(samples_tokenizersample ${samples_tokenizersample_SRCS} ${parasol_HEADERS})
