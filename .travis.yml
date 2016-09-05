@@ -33,5 +33,4 @@ before_script:
   - cmake -G "Unix Makefiles" -DCMAKE_MAKE_PROGRAM=make ..
 
 script:
-  - cd build
   - make
