@@ -23,6 +23,7 @@ addons:
       - cmake
       - cmake-data
       - ninja-build
+      - cpputest
 
 before_install:
 
