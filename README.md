@@ -8,9 +8,14 @@ $ mkdir build
 $ cd build
 
 # if you use msys2
-$ cmake -G "MSYS Makefiles" -DCMAKE_MAKE_PROGRAM=/usr/bin/make ..
+$ cmake -G "MSYS Makefiles" ..
+$ make
 
 # if you use Unix environment
-$ cmake -G "Unix Makefiles" -DCMAKE_MAKE_PROGRAM=/usr/bin/make ..
+$ cmake -G "Unix Makefiles" ..
 $ make
+
+# if you can use Ninja
+$ cmake -G "Ninja" ..
+$ ninja
 ```
