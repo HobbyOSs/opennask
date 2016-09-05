@@ -2,8 +2,6 @@ dependencies:
   pre:
     - sudo apt-get update; sudo apt-get install cmake make
     - mkdir build
-    - cd build
-    - cmake -G "Unix Makefiles" -DCMAKE_MAKE_PROGRAM=make ..
+    - cd build && cmake -G "Unix Makefiles" -DCMAKE_MAKE_PROGRAM=make ..
   override:
-    - cd build
-    - make
+    - cd build && make
