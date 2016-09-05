@@ -9,6 +9,7 @@ cache: apt
 branches:
   only:
     - master
+    - cmake_ninja
 
 notifications:
   email:
