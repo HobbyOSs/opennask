@@ -1,18 +1,9 @@
 dependencies:
   pre:
-    - "[ -e ~/.local/bin/circleci-matrix ]
-    || mkdir -p ~/.local/bin
-    && curl -fsSL https://raw.githubusercontent.com/michaelcontento/circleci-matrix/master/src/circleci-matrix.sh -o ~/.local/bin/circleci-matrix
-    && chmod +x ~/.local/bin/circleci-matrix"
-
-  cache_directories:
-    - ~/.local/bin/circleci-matrix
-
-test:
+    - sudo apt-get update; sudo apt-get install cmake make
+    - mkdir build
+    - cd build
+    - cmake -G "Unix Makefiles" -DCMAKE_MAKE_PROGRAM=make ..
   override:
-    - ~/.local/bin/circleci-matrix:
-        parallel: true
-
-general:
-  artifacts:
-    - "data/artifacts/"
+    - cd build
+    - make
