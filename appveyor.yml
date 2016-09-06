@@ -1,0 +1,20 @@
+#
+# scripts that run after cloning repository
+#
+
+# Operating system (build VM template)
+os: Visual Studio 2015
+
+clone_folder: c:\projects\opennask
+
+platform: x64
+configuration: Release
+
+# scripts to run before build
+before_build:
+  - echo Running cmake...
+  - cd c:\projects\opennask
+  - cmake -DUSE_CPPUTEST=OFF -G "Visual Studio 14 2015 Win64" -H. -B_builds
+
+build_script:
+  - cmake --build _builds --config Release

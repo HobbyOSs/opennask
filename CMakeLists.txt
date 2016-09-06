@@ -1,8 +1,10 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+enable_testing()
 project(root)
 
-set(USE_CPPUTEST ON CACHE BOOL "false" FORCE)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+project(root)
 
 # Checks for HostOS
 # AC_MSG_CHECKING([for checking what kind of OS using...])
@@ -33,6 +35,10 @@ set(USE_CPPUTEST ON CACHE BOOL "false" FORCE)
 #                 AC_MSG_WARN([*** Please add $host to configure.ac checks!])
 #                 ;;
 # esac
+#
+#
+# AM_COND_IF([BUILD_DOSFSTOOLS], [AC_CONFIG_SUBDIRS([dosfstools])])
+# AM_COND_IF([USE_CPPUTEST], AC_CONFIG_FILES([test/Makefile]))
 #
 #-----------------------------------------------------------------------
 # Checks for CppUTest
@@ -92,3 +98,14 @@ add_subdirectory(parasol)
 add_subdirectory(intel2gas)
 add_subdirectory(fatlib)
 add_subdirectory(src)
+
+#-----------------------------------------------------------------------
+# Checks for CppUTest
+#
+OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
+if (USE_CPPUTEST)
+  add_definitions(-DUSE_CPPUTEST)
+  add_subdirectory(test)
+endif()
+
+add_subdirectory(data)
