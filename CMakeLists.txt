@@ -1,7 +1,7 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 enable_testing()
-project(root)
+project(root CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 project(root)
@@ -106,6 +106,5 @@ OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
 if (USE_CPPUTEST)
   add_definitions(-DUSE_CPPUTEST)
   add_subdirectory(test)
-endif()
-
-add_subdirectory(data)
+  add_subdirectory(data)
+endif(USE_CPPUTEST)

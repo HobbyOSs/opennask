@@ -12,9 +12,10 @@ configuration: Release
 
 # scripts to run before build
 before_build:
-  - echo Running cmake...
   - cd c:\projects\opennask
-  - cmake -DUSE_CPPUTEST=OFF -G "Visual Studio 14 2015 Win64" -H. -B_builds
+  - mkdir build
+  - cd build
+  - cmake -G "Visual Studio 14 2015 Win64" -DUSE_CPPUTEST=OFF ..
 
 build_script:
-  - cmake --build _builds --config Release
+  - cd c:\projects\opennask\build
