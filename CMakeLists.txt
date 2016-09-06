@@ -48,9 +48,8 @@ add_subdirectory(src)
 #-----------------------------------------------------------------------
 # Checks for CppUTest
 #
-OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" OFF)
-if (DEFINED USE_CPPUTEST)
-else()
+OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
+if (USE_CPPUTEST)
   add_definitions(-DUSE_CPPUTEST)
   add_subdirectory(test)
 endif()

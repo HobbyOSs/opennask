@@ -14,7 +14,7 @@ configuration: Release
 before_build:
   - echo Running cmake...
   - cd c:\projects\opennask
-  - cmake -DUSE_CPPUTEST=OFF -G "Visual Studio 14 2015 Win64"
+  - cmake -DUSE_CPPUTEST=OFF -G "Visual Studio 14 2015 Win64" -H. -B_builds
 
-build:
-  project: INSTALL.vcxproj
+build_script:
+  - cmake --build _builds --config Release
