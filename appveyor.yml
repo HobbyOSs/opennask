@@ -19,3 +19,4 @@ before_build:
 
 build_script:
   - cd c:\projects\opennask\build
+  - cmake --build .
