@@ -55,13 +55,7 @@ struct LABEL_DST_ELEMENT {
   int rel_index;  // rel_offsetを格納する場所
   int rel_offset() {
        // offset = rel - dst
-       std::cout.setf(std::ios::hex, std::ios::basefield);
-       std::cout << std::to_string(src_index)
-		 << " - "
-		 << std::to_string(rel_index)
-		 << " - 1"
-		 << std::endl;
-
+       spdlog::get("opennask")->info("{} - {} - 1", std::to_string(src_index), std::to_string(rel_index));
        return src_index - rel_index - 1;
   };
 };
@@ -75,13 +69,7 @@ struct LABEL_SRC_ELEMENT {
   int rel_index;  // rel_offsetを格納する場所
   int rel_offset() {
        // offset = rel - dst
-       std::cout.setf(std::ios::hex, std::ios::basefield);
-       std::cout << std::to_string(dst_index)
-		 << " - "
-		 << std::to_string(rel_index)
-		 << " - 1"
-		 << std::endl;
-
+       spdlog::get("opennask")->info("{} - {} - 1", std::to_string(dst_index), std::to_string(rel_index));
        return dst_index - rel_index - 1;
   };
 };
@@ -110,11 +98,6 @@ namespace nask_utility {
      std::string replace(std::string& str, const std::string& from, const std::string& to);
      bool contains(const std::string& src, const std::string& query);
      bool ends_with(std::string const &full_string, std::string const &ending);
-
-
-     // 四則計算
-     //const std::regex math_op("MOV");
-     //std::string format_math_exprs(std::string& expr);
 
      // アセンブラ処理で使う判定系処理
      bool is_hex_notation(const std::string& s);
