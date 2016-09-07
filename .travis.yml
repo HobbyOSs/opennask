@@ -36,4 +36,5 @@ before_script:
 
 script:
   - ninja
+  - ninja images
   - ctest

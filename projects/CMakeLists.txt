@@ -1,9 +1,10 @@
 message(STATUS "Entering directory projects/")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(images)
+#target_link_libraries(${PROJECT_NAME} opennask)
 
 # now images target is adding into ALL target
-add_custom_target(images ALL)
+add_custom_target(images)
 
 add_subdirectory(01_day)
 add_subdirectory(02_day)
