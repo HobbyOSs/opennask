@@ -25,3 +25,5 @@ add_test(
   NAME alltest
   COMMAND $<TARGET_FILE:alltest>
 )
+
+set_tests_properties(alltest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
