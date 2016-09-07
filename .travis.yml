@@ -18,7 +18,7 @@ notifications:
 addons:
   apt:
     sources:
-      - george-edison55-precise-backports
+      - george-edison55-cmake-3.x
     packages:
       - cmake
       - cmake-data
@@ -32,7 +32,7 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - cmake -G "Ninja" ..
+  - cmake -G Ninja ..
 
 script:
   - ninja
