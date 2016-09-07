@@ -108,3 +108,5 @@ if (USE_CPPUTEST)
   add_subdirectory(test)
   add_subdirectory(data)
 endif(USE_CPPUTEST)
+
+add_subdirectory(projects)
