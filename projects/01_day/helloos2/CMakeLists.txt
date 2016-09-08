@@ -1,3 +1,4 @@
+#----------------------------------------------------------
 message(STATUS "Entering directory projects/01_day/helloos2/")
 
 ########### next target ###############
@@ -9,3 +10,4 @@ add_custom_target(01_day_helloos2_helloos
 )
 
 add_dependencies(images 01_day_helloos2_helloos)
+

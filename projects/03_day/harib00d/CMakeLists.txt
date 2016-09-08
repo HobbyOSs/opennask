@@ -1,3 +1,4 @@
+#----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00d/")
 
 ########### next target ###############
@@ -9,3 +10,4 @@ add_custom_target(03_day_harib00d_ipl
 )
 
 add_dependencies(images 03_day_harib00d_ipl)
+
