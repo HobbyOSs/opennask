@@ -1080,6 +1080,25 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // LGDT命令の実装
+     int Instructions::process_token_LGDT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    // debug logs
+		    log()->info("NIM(W): {}", 0x0f);
+		    //log()->info(", {}", static_cast<int>(bs_dst2.to_ulong()));
+		    //log()->info(", {}", static_cast<int>(src_token.AsLong()));
+		    binout_container.push_back(0x0f);
+		    //binout_container.push_back(bs_dst2.to_ulong());
+		    //binout_container.push_back(src_token.AsLong());
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なADD命令の実装
      int Instructions::process_token_ADD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {

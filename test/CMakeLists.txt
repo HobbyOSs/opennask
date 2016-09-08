@@ -8,6 +8,7 @@ set(alltest_SRCS
     alltest.cpp
     nask_suite.cpp
     tinyexpr_suite.cpp
+    inst_suite.cpp
     ../src/tinyexpr.c
     ../src/nask_utility.cpp)
 
@@ -15,8 +16,11 @@ include_directories(${root_SOURCE_DIR}/parasol)
 include_directories(${root_SOURCE_DIR}/src)
 include_directories(${CPPUTEST_INCLUDE_DIR})
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(alltest ${alltest_SRCS})
-target_link_libraries(alltest parasol ${CPPUTEST_LIBRARY})
+target_link_libraries(alltest parasol Threads::Threads ${CPPUTEST_LIBRARY})
 
 set_property(TARGET alltest PROPERTY CXX_STANDARD 11)
 set_property(TARGET alltest PROPERTY CXX_STANDARD_REQUIRED ON)
