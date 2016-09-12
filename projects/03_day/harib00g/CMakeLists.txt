@@ -11,6 +11,8 @@ add_custom_target(03_day_harib00g_haribote
 )
 add_custom_target(03_day_harib00g_haribote_wine
   COMMAND ${WINE} ${WINE_NASK} ${haribote.img_SRCS} ${haribote_wine.img_OUTS}
+  COMMAND ${OD} -t x1 ${haribote.img_OUTS}      > ${haribote.img_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${haribote_wine.img_OUTS} > ${haribote_wine.img_OUTS}_t.txt
 )
 
 add_dependencies(images 03_day_harib00g_haribote)
@@ -26,6 +28,8 @@ add_custom_target(03_day_harib00g_ipl10
 )
 add_custom_target(03_day_harib00g_ipl10_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl10.img_SRCS} ${ipl10_wine.img_OUTS}
+  COMMAND ${OD} -t x1 ${ipl10.img_OUTS}      > ${ipl10.img_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${ipl10_wine.img_OUTS} > ${ipl10_wine.img_OUTS}_t.txt
 )
 
 add_dependencies(images 03_day_harib00g_ipl10)

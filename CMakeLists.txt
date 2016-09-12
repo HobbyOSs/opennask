@@ -8,6 +8,7 @@ project(root)
 
 set(WINE "/usr/bin/wine" CACHE INTERNAL "")
 set(WINE_NASK "~/.wine/drive_c/MinGW/msys/1.0/bin/nask.exe" CACHE INTERNAL "")
+set(OD "od" CACHE INTERNAL "")
 set(ENV{I2G_DATA} "${root_SOURCE_DIR}/intel2gas/")
 set(ENV{G2I_DATA} "${root_SOURCE_DIR}/intel2gas/")
 

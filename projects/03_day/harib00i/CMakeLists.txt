@@ -11,6 +11,8 @@ add_custom_target(03_day_harib00i_asmhead
 )
 add_custom_target(03_day_harib00i_asmhead_wine
   COMMAND ${WINE} ${WINE_NASK} ${asmhead.img_SRCS} ${asmhead_wine.img_OUTS}
+  COMMAND ${OD} -t x1 ${asmhead.img_OUTS}      > ${asmhead.img_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${asmhead_wine.img_OUTS} > ${asmhead_wine.img_OUTS}_t.txt
 )
 
 add_dependencies(images 03_day_harib00i_asmhead)
@@ -26,6 +28,8 @@ add_custom_target(03_day_harib00i_ipl10
 )
 add_custom_target(03_day_harib00i_ipl10_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl10.img_SRCS} ${ipl10_wine.img_OUTS}
+  COMMAND ${OD} -t x1 ${ipl10.img_OUTS}      > ${ipl10.img_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${ipl10_wine.img_OUTS} > ${ipl10_wine.img_OUTS}_t.txt
 )
 
 add_dependencies(images 03_day_harib00i_ipl10)
