@@ -1327,20 +1327,22 @@ namespace nask_utility {
                          // 0x24 ib AND AL, imm8  ALとimm8とのANDをとる
                          // 0x25 iw AND AX, imm16 AXとimm16とのANDをとる
                          // 0x25 id AND EAX,imm32 EAXとimm32とのANDをとる
-			 TParaToken src_token = tokenizer.LookAhead(4);
 			 if (token.Is("AL")) {
-			      log()->info("0x24 {}", tokenizer.LookAhead(4).AsString());
+			      log()->info("0x66 0x24 {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x24);
-			      binout_container.push_back(tokenizer.LookAhead(4).AsLong());
+			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
 			 } else if (token.Is("AX")) {
-			      log()->info("0x25 {}", tokenizer.LookAhead(4).AsString());
+			      log()->info("0x66 0x25 {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x25);
-			      set_word_into_binout(tokenizer.LookAhead(4).AsLong(),
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(),
 						   binout_container);
 			 } else { // EAX
-			      log()->info("0x25 {}", tokenizer.LookAhead(4).AsString());
+			      log()->info("0x66 0x25 {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x25);
-			      set_dword_into_binout(tokenizer.LookAhead(4).AsLong(),
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(),
 						    binout_container);
 			 }
 		    }
