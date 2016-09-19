@@ -1221,31 +1221,7 @@ namespace nask_utility {
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
-
 			      }
-
-			      // ADD Reg,Imm8 に決定 int8_t 内に収まっているので
-			      // NIM: 1000001w oo000mmm
-			      // 1000001 + w
-			      // const std::bitset<8> bs_dst("1000001" + std::get<1>(tp_dst));
-			      // oo + 000 + mmm
-			      // FIXME: mmmではなくrrrかもしれない
-			      // const std::bitset<8> bs_src("11000" + std::get<0>(tp_dst));
-
-			      // debug logs
-			      //log()->info("NIM(W): ";
-			      //log()->info << std::showbase << std::hex
-			      // 		<< static_cast<int>(bs_dst.to_ulong());
-			      //log()->info(", ";
-			      //log()->info << std::showbase << std::hex
-			      // 		<< static_cast<int>(bs_src.to_ulong());
-			      //log()->info(", ";
-			      //log()->info << std::showbase << std::hex
-			      // 		<< static_cast<int>(src_token.AsLong()));
-			      //
-			      //binout_container.push_back(bs_dst.to_ulong());
-			      //binout_container.push_back(bs_src.to_ulong());
-			      //binout_container.push_back(src_token.AsLong());
 			      break;
 			 }
 			 break;
@@ -1258,7 +1234,7 @@ namespace nask_utility {
 			 // ADD Mem,Imm8
 			 // ADD Mem,Imm
 		    } else {
-			 std::cerr << "NASK : ADD syntax error" << std::endl;
+			 std::cerr << "NASK : ADD syntax error " << token.AsString() << std::endl;
 			 return 17;
 		    }
 
@@ -1295,6 +1271,34 @@ namespace nask_utility {
 			      set_dword_into_binout(tokenizer.LookAhead(4).AsLong(),
 						    binout_container);
 			 }
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
+     // 簡単なCALL命令の実装
+     int Instructions::process_token_CALL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is(",")) {
+		    continue;
+	       } else if (is_hex_notation(token.AsString())) {
+		    // ラベルではなく即値でジャンプ先を指定された場合
+		    log()->info("** Not implemented **");
+	       } else {
+		    const std::string store_label = token.AsString();
+		    log()->info("label stored: ", store_label);
+		    log()->info("0xe8, 0x00");
+
+		    if (dst_is_stored(store_label, binout_container)) {
+			 update_label_src_offset(store_label, binout_container, 0xe8);
+		    } else {
+			 store_label_src(store_label, binout_container);
+			 binout_container.push_back(0xe8);
+			 binout_container.push_back(0x00);
 		    }
 		    break;
 	       }

@@ -156,6 +156,7 @@ namespace nask_utility {
 
 	  int process_token_ADD (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_AND (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_CALL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_CLI (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_CMP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DB  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
