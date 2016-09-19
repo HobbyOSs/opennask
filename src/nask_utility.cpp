@@ -195,6 +195,15 @@ namespace nask_utility {
 	  return it != std::end(SEGMENT_REGISTERS);
      }
 
+     bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+	  // レジスタ一覧から検索してあれば true
+	  auto it = std::find_if(std::begin(CONTROL_REGISTERS), std::end(CONTROL_REGISTERS),
+				 [&](const std::string& s)
+				 { return token.AsString().find(s) != std::string::npos; });
+
+	  return it != std::end(CONTROL_REGISTERS);
+     }
+
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
 	  return is_common_register(token_table, token) || is_segment_register(token_table, token);
      }
@@ -551,6 +560,33 @@ namespace nask_utility {
 		    log()->info("declared datatype: {}", token.AsString());
 		    data_type = token.AsString();
 		    continue;
+	       } else if (is_control_register(token_table, token)) {
+		    // 0x0F 0x22 /r
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_reg  = src_token.AsString();
+
+		    // CRn,Reg32
+		    // 00001111 00100000 11sssrrr
+		    // 0x0F     0x22
+		    if (tokenizer.LookAhead(1).Is(",") &&
+			!tokenizer.LookAhead(2).IsEmpty() &&
+			is_control_register(token_table, src_token)) {
+			 // コンマを飛ばして次へ
+			 token = tokenizer.Next();
+			 token = tokenizer.Next();
+			 log()->info(" <= {}", token.AsString());
+
+			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			 binout_container.push_back(0x0f);
+			 binout_container.push_back(0x22);
+			 binout_container.push_back(modrm);
+			 // これで終了のはず
+			 log()->info(" : NIM: {}, {}, {}", 0x0f, 0x22, static_cast<int>(modrm));
+			 break;
+		    }
+
 	       } else if (is_segment_register(token_table, token)) {
 		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
@@ -576,7 +612,6 @@ namespace nask_utility {
 			 log()->info(" : NIM: {}, {}", 0x8e, static_cast<int>(modrm));
 			 break;
 		    }
-
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
 			  tokenizer.LookAhead(3).Is(",") &&
@@ -771,6 +806,39 @@ namespace nask_utility {
 		    log()->info("NIM(W): {}, {}",
 				static_cast<int>(bs_dst.to_ulong()),
 				static_cast<int>(bs_src.to_ulong()));
+
+		    // これで終了のはず
+		    break;
+
+	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",")  &&
+			  is_control_register(token_table, tokenizer.LookAhead(2))) {
+
+		    // MOV Reg32, CRn
+		    //     00001111 00100010 11sssrrr
+		    //--------------------------------------------------------
+		    // 0x0F 0x20 /r | CRnをr32に転送します
+		    // ここでのsssは常に000にしかならない気がする
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_reg  = src_token.AsString();
+
+		    log()->info("{} <= {}", dst_reg, src_reg);
+
+		    // Reg32, CRnの場合 => 11sssrrr
+		    std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+
+		    // oo + sss + mmm
+		    const std::bitset<8> nim("11000" + std::get<0>(tp));
+		    binout_container.push_back(0x0f);
+		    binout_container.push_back(0x20);
+		    binout_container.push_back(nim.to_ulong());
+
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+				0x0f,
+				0x20,
+				static_cast<int>(nim.to_ulong()));
 
 		    // これで終了のはず
 		    break;

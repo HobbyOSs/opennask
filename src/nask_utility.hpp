@@ -27,6 +27,10 @@ const std::array<std::string, 4> SEGMENT_REGISTERS {
      "SS"  // スタック
 };
 
+const std::array<std::string, 4> CONTROL_REGISTERS {
+     "CR0", "CR2", "CR3", "CR4"
+};
+
 const std::array<std::string, 1> PRE_PROCESS_WORDS {
      "EQU"
 };
@@ -113,6 +117,7 @@ namespace nask_utility {
      bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token);
      bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
+     bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
      long get_imm_recursive(TParaCxxTokenTable& token_table, TParaTokenizer& tokenizer, size_t look_index);
