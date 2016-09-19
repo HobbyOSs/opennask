@@ -76,11 +76,14 @@ do
     echo ")"                                                                                          | tee -a ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}_wine"                                                      | tee -a ${CMAKELISTS}
     echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"      | tee -a ${CMAKELISTS}
+    echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}_od"                                                        | tee -a ${CMAKELISTS}
     echo "  COMMAND \${OD} -t x1 \${${BINARY_NAME}_OUTS}      > \${${BINARY_NAME}_OUTS}_f.txt"        | tee -a ${CMAKELISTS}
     echo "  COMMAND \${OD} -t x1 \${${WINE_BINARY_NAME}_OUTS} > \${${WINE_BINARY_NAME}_OUTS}_t.txt"   | tee -a ${CMAKELISTS}
     echo ")"                                                                                          | tee -a ${CMAKELISTS}
     echo ""                                                                                           | tee -a ${CMAKELISTS}
     echo "add_dependencies(images ${TARGET_NAME})"                                                    | tee -a ${CMAKELISTS}
     echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                 | tee -a ${CMAKELISTS}
+    echo "add_dependencies(od ${TARGET_NAME}_od)"                                                     | tee -a ${CMAKELISTS}
     echo ""                                                                                           | tee -a ${CMAKELISTS}
 done

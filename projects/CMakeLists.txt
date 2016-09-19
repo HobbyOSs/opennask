@@ -5,7 +5,10 @@ project(images)
 # now images target is adding into ALL target
 add_custom_target(images)
 add_custom_target(wine)
+add_custom_target(od)
+
 add_dependencies(wine images)
+add_dependencies(od wine)
 
 add_subdirectory(01_day)
 add_subdirectory(02_day)

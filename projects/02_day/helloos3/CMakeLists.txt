@@ -11,10 +11,13 @@ add_custom_target(02_day_helloos3_helloos
 )
 add_custom_target(02_day_helloos3_helloos_wine
   COMMAND ${WINE} ${WINE_NASK} ${helloos.img_SRCS} ${helloos_wine.img_OUTS}
+)
+add_custom_target(02_day_helloos3_helloos_od
   COMMAND ${OD} -t x1 ${helloos.img_OUTS}      > ${helloos.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${helloos_wine.img_OUTS} > ${helloos_wine.img_OUTS}_t.txt
 )
 
 add_dependencies(images 02_day_helloos3_helloos)
 add_dependencies(wine 02_day_helloos3_helloos_wine)
+add_dependencies(od 02_day_helloos3_helloos_od)
 
