@@ -1689,6 +1689,43 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なOR命令の実装
+     int Instructions::process_token_OR(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (ModRM::is_accumulator(token.AsString()) &&
+			tokenizer.LookAhead(1).Is(",")) {
+                         // 0x0C ib OR AL, imm8  ALとimm8とのORをとる
+			 // 0x0D iw OR AX, imm16 AXとimm16とのORをとる
+			 // 0x0D id OR EAX,imm32 EAXとimm32とのORをとる
+			 if (token.Is("AL")) {
+			      log()->info("0x66 0x0c {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(0x0c);
+			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			 } else if (token.Is("AX")) {
+			      log()->info("0x66 0x0d {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(0x0d);
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(),
+						   binout_container);
+			 } else { // EAX
+			      log()->info("0x66 0x0d {}", tokenizer.LookAhead(2).AsString());
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(0x0d);
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(),
+						    binout_container);
+			 }
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なORG命令の実装
      int Instructions::process_token_ORG(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 

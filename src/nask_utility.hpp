@@ -180,6 +180,7 @@ namespace nask_utility {
 	  int process_token_LGDT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_MOV (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_NOP (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_OR  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_ORG (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_OUT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
