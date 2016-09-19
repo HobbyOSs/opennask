@@ -1,3 +1,12 @@
+#define XSTR(x) #x
+#define STR(x)  XSTR(x)
+
+#define FUNC_STR(x) \
+     const auto fp_ ## x = std::bind(&nask_utility::Instructions::process_token_ ## x, inst, _1, _2); \
+     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
+
+#define X_INST_ITEM(x) FUNC_STR(x)
+
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -49,56 +58,41 @@ int process_each_assembly_line(char** argv,
      for (std::string op : PRE_PROCESS_OPERATORS) {
 	  inst.token_table.AddOperator(op);
      }
+//
+// 以下のような関数ポインタを生成している
+//#define FUNC_STR(x) \
+//     const auto fp_ ## x = std::bind(&nask_utility::Instructions::process_token_ ## x, inst, _1, _2); \
+//     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
 
-     // このへんマクロかtemplateを使いたい
-     const auto fp_ADD  = std::bind(&nask_utility::Instructions::process_token_ADD  , inst, _1, _2);
-     const auto fp_AND  = std::bind(&nask_utility::Instructions::process_token_AND  , inst, _1, _2);
-     const auto fp_CALL = std::bind(&nask_utility::Instructions::process_token_CALL , inst, _1, _2);
-     const auto fp_CLI  = std::bind(&nask_utility::Instructions::process_token_CLI  , inst, _1, _2);
-     const auto fp_CMP  = std::bind(&nask_utility::Instructions::process_token_CMP  , inst, _1, _2);
-     const auto fp_DB   = std::bind(&nask_utility::Instructions::process_token_DB   , inst, _1, _2);
-     const auto fp_DD   = std::bind(&nask_utility::Instructions::process_token_DD   , inst, _1, _2);
-     const auto fp_DW   = std::bind(&nask_utility::Instructions::process_token_DW   , inst, _1, _2);
-     const auto fp_HLT  = std::bind(&nask_utility::Instructions::process_token_HLT  , inst, _1, _2);
-     const auto fp_INT  = std::bind(&nask_utility::Instructions::process_token_INT  , inst, _1, _2);
-     const auto fp_JAE  = std::bind(&nask_utility::Instructions::process_token_JAE  , inst, _1, _2);
-     const auto fp_JBE  = std::bind(&nask_utility::Instructions::process_token_JBE  , inst, _1, _2);
-     const auto fp_JB   = std::bind(&nask_utility::Instructions::process_token_JB   , inst, _1, _2);
-     const auto fp_JC   = std::bind(&nask_utility::Instructions::process_token_JC   , inst, _1, _2);
-     const auto fp_JE   = std::bind(&nask_utility::Instructions::process_token_JE   , inst, _1, _2);
-     const auto fp_JMP  = std::bind(&nask_utility::Instructions::process_token_JMP  , inst, _1, _2);
-     const auto fp_JNC  = std::bind(&nask_utility::Instructions::process_token_JNC  , inst, _1, _2);
-     const auto fp_LGDT = std::bind(&nask_utility::Instructions::process_token_LGDT , inst, _1, _2);
-     const auto fp_MOV  = std::bind(&nask_utility::Instructions::process_token_MOV  , inst, _1, _2);
-     const auto fp_NOP  = std::bind(&nask_utility::Instructions::process_token_NOP  , inst, _1, _2);
-     const auto fp_OR   = std::bind(&nask_utility::Instructions::process_token_OR   , inst, _1, _2);
-     const auto fp_ORG  = std::bind(&nask_utility::Instructions::process_token_ORG  , inst, _1, _2);
-     const auto fp_OUT  = std::bind(&nask_utility::Instructions::process_token_OUT  , inst, _1, _2);
-     const auto fp_RESB = std::bind(&nask_utility::Instructions::process_token_RESB , inst, _1, _2);
-     funcs.insert(std::make_pair("ADD" , fp_ADD));
-     funcs.insert(std::make_pair("AND" , fp_AND));
-     funcs.insert(std::make_pair("CALL", fp_CALL));
-     funcs.insert(std::make_pair("CLI" , fp_CLI));
-     funcs.insert(std::make_pair("CMP" , fp_CMP));
-     funcs.insert(std::make_pair("DB"  , fp_DB));
-     funcs.insert(std::make_pair("DD"  , fp_DD));
-     funcs.insert(std::make_pair("DW"  , fp_DW));
-     funcs.insert(std::make_pair("HLT" , fp_HLT));
-     funcs.insert(std::make_pair("INT" , fp_INT));
-     funcs.insert(std::make_pair("JAE" , fp_JAE));
-     funcs.insert(std::make_pair("JBE" , fp_JBE));
-     funcs.insert(std::make_pair("JB"  , fp_JB));
-     funcs.insert(std::make_pair("JC"  , fp_JC));
-     funcs.insert(std::make_pair("JE"  , fp_JE));
-     funcs.insert(std::make_pair("JMP" , fp_JMP));
-     funcs.insert(std::make_pair("JNC" , fp_JNC));
-     funcs.insert(std::make_pair("LGDT", fp_LGDT));
-     funcs.insert(std::make_pair("MOV" , fp_MOV));
-     funcs.insert(std::make_pair("NOP" , fp_NOP));
-     funcs.insert(std::make_pair("OR"  , fp_OR));
-     funcs.insert(std::make_pair("ORG" , fp_ORG));
-     funcs.insert(std::make_pair("OUT" , fp_OUT));
-     funcs.insert(std::make_pair("RESB", fp_RESB));
+#define X_TABLE \
+  X_INST_ITEM(ADD)  \
+  X_INST_ITEM(AND)  \
+  X_INST_ITEM(CALL) \
+  X_INST_ITEM(CLI)  \
+  X_INST_ITEM(CMP)  \
+  X_INST_ITEM(DB)   \
+  X_INST_ITEM(DD)   \
+  X_INST_ITEM(DW)   \
+  X_INST_ITEM(HLT)  \
+  X_INST_ITEM(INT)  \
+  X_INST_ITEM(JAE)  \
+  X_INST_ITEM(JBE)  \
+  X_INST_ITEM(JB)   \
+  X_INST_ITEM(JC)   \
+  X_INST_ITEM(JE)   \
+  X_INST_ITEM(JMP)  \
+  X_INST_ITEM(JNC)  \
+  X_INST_ITEM(LGDT) \
+  X_INST_ITEM(MOV)  \
+  X_INST_ITEM(NOP)  \
+  X_INST_ITEM(OR)   \
+  X_INST_ITEM(ORG)  \
+  X_INST_ITEM(OUT)  \
+  X_INST_ITEM(RESB)
+
+#define NASK_INSTRACTIONS
+     X_TABLE
+#undef NASK_INSTRACTIONS
 
      if (start_line != 0) {
 	  // 開始位置まで飛ばす
