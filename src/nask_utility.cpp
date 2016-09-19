@@ -572,18 +572,22 @@ namespace nask_utility {
 		    // 0x0F     0x22
 		    if (tokenizer.LookAhead(1).Is(",") &&
 			!tokenizer.LookAhead(2).IsEmpty() &&
-			is_control_register(token_table, src_token)) {
+			is_control_register(token_table, dst_token)) {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
-			 log()->info(" <= {}", token.AsString());
+			 log()->info("{} <= {}", dst_reg, src_reg);
 
-			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			 std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(src_reg);
+			 const std::bitset<8> nim("11000" + std::get<0>(tp));
 			 binout_container.push_back(0x0f);
 			 binout_container.push_back(0x22);
-			 binout_container.push_back(modrm);
+			 binout_container.push_back(nim.to_ulong());
 			 // これで終了のはず
-			 log()->info(" : NIM: {}, {}, {}", 0x0f, 0x22, static_cast<int>(modrm));
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+				     0x0f,
+				     0x22,
+				     static_cast<int>(nim.to_ulong()));
 			 break;
 		    }
 
