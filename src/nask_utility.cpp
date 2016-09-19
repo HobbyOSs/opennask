@@ -1291,13 +1291,14 @@ namespace nask_utility {
 	       } else {
 		    const std::string store_label = token.AsString();
 		    log()->info("label stored: ", store_label);
-		    log()->info("0xe8, 0x00");
+		    log()->info("0xe8, 0x0000");
 
 		    if (dst_is_stored(store_label, binout_container)) {
 			 update_label_src_offset(store_label, binout_container, 0xe8);
 		    } else {
 			 store_label_src(store_label, binout_container);
 			 binout_container.push_back(0xe8);
+			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
 		    }
 		    break;
