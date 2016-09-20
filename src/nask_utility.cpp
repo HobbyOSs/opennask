@@ -677,7 +677,7 @@ namespace nask_utility {
 			 return 17;
 		    }
 
-		    log()->info("NIM(W): {}, {}, {}, {}",
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}",
 				static_cast<int>(bs_src.to_ulong()),
 				static_cast<int>(bs_dst.to_ulong()),
 				static_cast<int>(dst_addr_imm),

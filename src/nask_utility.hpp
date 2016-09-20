@@ -20,12 +20,24 @@ const std::array<std::string, 24> REGISTERS {
      "AH", "BH", "CH", "DH", "ESP", "EDI", "EBP", "ESI", "SP", "DI", "BP", "SI"
 };
 
-const std::array<std::string, 4> SEGMENT_REGISTERS {
+const std::array<std::string, 6> SEGMENT_REGISTERS {
      "CS", // コード
      "DS", // データ
      "ES", // エクストラ
-     "SS"  // スタック
+     "SS", // スタック
+     "FS",
+     "GS"
 };
+
+//
+// The registers FS and GS are segment registers. They have no processor-defined purpose,
+// but instead are given purpose by the OS's running them.
+// In Windows 64-bit the GS register is used to point to operating system defined structures.
+// FS and GS are commonly used by OS kernels to access thread-specific memory. In windows,
+// the GS register is used to manage thread-specific memory.
+// The linux kernel uses GS to access cpu-specific memory.
+//
+// https://stackoverflow.com/questions/10810203/what-is-the-fs-gs-register-intended-for/10810287#10810287
 
 const std::array<std::string, 4> CONTROL_REGISTERS {
      "CR0", "CR2", "CR3", "CR4"
