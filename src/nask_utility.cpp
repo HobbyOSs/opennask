@@ -613,7 +613,7 @@ namespace nask_utility {
 			 binout_container.push_back(0x8e);
 			 binout_container.push_back(modrm);
 			 // これで終了のはず
-			 log()->info(" : NIM: {}, {}", 0x8e, static_cast<int>(modrm));
+			 log()->info("NIM: 0x{:02x}, 0x{:02x}", 0x8e, static_cast<int>(modrm));
 			 break;
 		    }
 
@@ -1282,7 +1282,7 @@ namespace nask_utility {
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): {}, {}, {}",
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
 					       static_cast<int>(0x80),
 					       static_cast<int>(bs_dst2.to_ulong()),
 					       static_cast<int>(src_token.AsLong()));
@@ -1718,11 +1718,72 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
-		    if (ModRM::is_accumulator(token.AsString()) &&
-			tokenizer.LookAhead(1).Is(",")) {
-                         // 0x0C ib OR AL, imm8  ALとimm8とのORをとる
-			 // 0x0D iw OR AX, imm16 AXとimm16とのORをとる
-			 // 0x0D id OR EAX,imm32 EAXとimm32とのORをとる
+		    if (tokenizer.LookAhead(1).Is(",") &&
+			is_hex_notation(tokenizer.LookAhead(2).AsString())) {
+
+			 std::smatch match;
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_imm  = src_token.AsString();
+
+			 // [mod] 11, [reg] 001: /1, [r/m] xxx
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+			 const std::bitset<8> bs_dst("11001" + std::get<0>(tp_dst));
+
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      // 0x80 /1 ib | OR r/m8, imm8
+			      log()->info("NIM(B): 0x66, 0x80, 0x{:02x}, 0x{:02x}",
+					  bs_dst.to_ulong(), src_token.AsLong());
+
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(0x80);
+			      binout_container.push_back(bs_dst.to_ulong());
+			      binout_container.push_back(src_token.AsLong());
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      // 0x81 /1 iw | OR r/m16, imm16
+			      // 0x83 /1 ib | OR r/m16, imm8
+			      const uint8_t nim = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+			      log()->info("NIM(B/W): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					  nim,
+					  bs_dst.to_ulong(),
+					  src_token.AsLong());
+
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(nim);
+			      binout_container.push_back(bs_dst.to_ulong());
+			      if (is_between_bytesize(src_token.AsLong())) {
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   set_word_into_binout(src_token.AsLong(), binout_container);
+			      }
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			      // 0x81 /1 id | OR r/m32, imm32
+			      // 0x83 /1 ib | OR r/m32, imm8
+			      const uint8_t nim = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+			      log()->info("NIM(B/W): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					  nim,
+					  bs_dst.to_ulong(),
+					  src_token.AsLong());
+
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(nim);
+			      binout_container.push_back(bs_dst.to_ulong());
+			      if (is_between_bytesize(src_token.AsLong())) {
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   set_word_into_binout(src_token.AsLong(), binout_container);
+			      }
+			 }
+
+			 break;
+
+		    } else if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
+                         // 0x0C ib | OR AL, imm8  ALとimm8とのORをとる
+			 // 0x0D iw | OR AX, imm16 AXとimm16とのORをとる
+			 // 0x0D id | OR EAX,imm32 EAXとimm32とのORをとる
 			 if (token.Is("AL")) {
 			      log()->info("0x66 0x0c {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x66);
@@ -1732,15 +1793,15 @@ namespace nask_utility {
 			      log()->info("0x66 0x0d {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x0d);
-			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(),
-						   binout_container);
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 } else { // EAX
 			      log()->info("0x66 0x0d {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x0d);
-			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(),
-						    binout_container);
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 }
+			 // ここで終わりのはず
+			 break;
 		    }
 		    break;
 	       }
