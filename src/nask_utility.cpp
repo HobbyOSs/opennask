@@ -1157,15 +1157,37 @@ namespace nask_utility {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
-	       } else {
-		    // debug logs
-		    log()->info("NIM(W): {}", 0x0f);
-		    //log()->info(", {}", static_cast<int>(bs_dst2.to_ulong()));
-		    //log()->info(", {}", static_cast<int>(src_token.AsLong()));
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]")) {
+		    //----------------------------------------------------//
+		    // 0x0F 01 /2  | LGDT m16& 32    mをGDTRにロードします//
+		    //----------------------------------------------------//
+		    // [mod] 00 :
+		    // [reg] 010: /2
+		    // [r/m] 110: 固定値？
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x0f, 0x01, 0x16);
 		    binout_container.push_back(0x0f);
-		    //binout_container.push_back(bs_dst2.to_ulong());
-		    //binout_container.push_back(src_token.AsLong());
-		    break;
+		    binout_container.push_back(0x01);
+
+		    const std::string store_label = tokenizer.LookAhead(1).AsString();
+
+		    if (is_hex_notation(store_label)) {
+			 // ラベルではなく即値でジャンプ先を指定された場合
+			 log()->info("** Not implemented **");
+		    } else {
+			 if (dst_is_stored(store_label, binout_container)) {
+			      update_label_src_offset(store_label, binout_container, 0x16);
+			 } else {
+			      store_label_src(store_label, binout_container);
+			      binout_container.push_back(0x16);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+			 }
+			 break;
+		    }
+
+	       } else {
+		    std::cerr << "NASK : LGDT syntax error " << token.AsString() << std::endl;
+		    return 17;
 	       }
 	  }
 	  return 0;
