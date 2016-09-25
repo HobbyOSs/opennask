@@ -146,19 +146,6 @@ namespace nask_utility {
 	  }
      }
 
-     //std::string format_math_exprs(std::string& expr) {
-     // 	  for (std::string ope : PRE_PROCESS_OPERATORS) {
-     // 	       // Add space padding to operands
-     // 	       expr = nask_utility::replace(expr, ope, " " + ope + " ");
-     // 	  }
-     // 	  // Keep replacing double spaces with single spaces until
-     // 	  // your string is properly formatted
-     // 	  while (expr.find("  ") != std::string::npos) {
-     // 	       expr = nask_utility::replace(expr, "  ", " ");
-     // 	  }
-     // 	  return expr;
-     //}
-
      size_t get_labelpos(std::ifstream& stream, std::string token) {
 	  std::string line;
 	  for (long line_number = 1; std::getline(stream, line); ++line_number) {
@@ -876,7 +863,7 @@ namespace nask_utility {
 			 binout_container.push_back(second_byte);
 			 binout_container.push_back(first_byte);
 			 // debug logs
-			 log()->info(" NIM(W): {}, {}, {}",
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
 				     static_cast<int>(second_byte),
 				     static_cast<int>(first_byte),
 				     static_cast<int>(token.AsLong()));
@@ -886,13 +873,10 @@ namespace nask_utility {
 			 const uint8_t second_byte = (nim >> 8);
 			 binout_container.push_back(first_byte);
 			 // debug logs
-			 log()->info(" NIM:(B) {}", static_cast<int>(first_byte));
-
-			 if (nim_info.imm != offs) {
-			      log()->info(", {}", static_cast<int>(token.AsLong()));
-			 } else {
-			      log()->info(", {}", token.AsString());
-			 }
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}",
+				     static_cast<int>(first_byte),
+				     (nim_info.imm != offs) ?
+				     static_cast<int>(token.AsLong()) : token.AsLong());
 		    }
 
 		    // 即値(imm)を設定
