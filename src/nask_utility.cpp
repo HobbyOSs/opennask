@@ -1915,4 +1915,98 @@ namespace nask_utility {
 	  }
 	  return 0;
      }
+
+     // 簡単なSUB命令の実装
+     int Instructions::process_token_SUB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
+                         // 0x2C ib | SUB AL, imm8   | ALからimm8を引きます
+			 // 0x2D iw | SUB AX, imm16  | AXからimm16を引きます
+			 // 0x2D id | SUB EAX, imm32 | EAXからimm32を引きます
+			 const uint8_t nim = token.Is("AL") ? 0x2c : 0x2d;
+			 const uint8_t imm = tokenizer.LookAhead(2).AsLong();
+			 log()->info("NIM(B): 0x{:02x}, 0x{:02x}", nim, imm);
+			 binout_container.push_back(nim);
+			 if (token.Is("AL")) {
+			      binout_container.push_back(imm);
+			 } else if (token.Is("AX")) {
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 } else if (token.Is("EAX")) {
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 }
+			 break; // end
+
+		    } else if (is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
+                         // 0x80 /5 ib | SUB r/m8, imm8   | r/m8からimm8を引きます
+			 // 0x81 /5 iw | SUB r/m16, imm16 | r/m16からimm16を引きます
+			 // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
+			 // 0x83 /5 ib | SUB r/m16, imm8  | r/m16から符号拡張したimm8を引きます
+			 // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
+			 std::smatch match;
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg = dst_token.AsString();
+			 const std::string src_imm = src_token.AsString();
+			 const std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+
+			 // [mod] 11 :
+			 // [reg] 101: /5
+			 // [r/m] xxx:
+			 const std::bitset<8> bs_dst("11101" + std::get<0>(tp_dst));
+
+			 // FIXME: nask side process is strange,
+			 // ex1) imm is "512/4", => 0x83
+			 // ex2) imm is "1",     => 0x81
+			 const uint8_t nim1 = contains(src_imm, "-") ? 0x83 : 0x81;
+			 const uint8_t nim2 = bs_dst.to_ulong();
+
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      // 0x80 /5 ib | SUB r/m8, imm8   | r/m8からimm8を引きます
+			      log()->info("NIM(B): 0x80, 0x{:02x}, 0x{:02x}", nim2, tokenizer.LookAhead(2).AsLong());
+			      binout_container.push_back(0x80);
+			      binout_container.push_back(nim2);
+			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      // 0x81 /5 iw | SUB r/m16, imm16 | r/m16からimm16を引きます
+                              // 0x83 /5 ib | SUB r/m16, imm8  | r/m16から符号拡張したimm8を引きます
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			      binout_container.push_back(nim1);
+			      binout_container.push_back(nim2);
+			      if (nim1 == 0x83) {
+				   binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			      } else {
+				   set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			      }
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			      // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
+			      // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			      binout_container.push_back(nim1);
+			      binout_container.push_back(nim2);
+			      if (nim1 == 0x83) {
+				   binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			      } else {
+				   set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			      }
+			 } else {
+			      // memory
+			      std::cerr << "NASK : SUB syntax error, imm from memory is not supported now" << std::endl;
+			      return 17;
+			 }
+			 break; // end
+
+		    } else {
+			 // not implemented
+			 std::cerr << "NASK : SUB syntax error, not supported now" << std::endl;
+			 return 17;
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
 }

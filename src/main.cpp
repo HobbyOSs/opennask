@@ -89,7 +89,8 @@ int process_each_assembly_line(char** argv,
   X_INST_ITEM(OR)   \
   X_INST_ITEM(ORG)  \
   X_INST_ITEM(OUT)  \
-  X_INST_ITEM(RESB)
+  X_INST_ITEM(RESB) \
+  X_INST_ITEM(SUB)
 
 #define NASK_INSTRACTIONS
      X_TABLE
