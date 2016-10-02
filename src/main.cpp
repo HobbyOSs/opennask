@@ -74,6 +74,7 @@ int process_each_assembly_line(char** argv,
   X_INST_ITEM(DD)   \
   X_INST_ITEM(DW)   \
   X_INST_ITEM(HLT)  \
+  X_INST_ITEM(IN)   \
   X_INST_ITEM(INT)  \
   X_INST_ITEM(JAE)  \
   X_INST_ITEM(JBE)  \

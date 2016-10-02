@@ -1640,6 +1640,40 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // 簡単なIN命令の実装
+     int Instructions::process_token_IN(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+          // 0xE4 ib IN AL,  imm8 I/Oポートアドレスimm8からALにバイトを入力します
+	  // 0xE5 ib IN AX,  imm8 I/Oポートアドレスimm8からAXにワードを入力します
+	  // 0xE5 ib IN EAX, imm8 I/Oポートアドレスimm8からEAXにダブルワードを入力します
+	  // 0xEC    IN AL,  DX	  DXで指定するI/OポートアドレスからALにバイトを入力します
+	  // 0xED    IN AX,  DX	  DXで指定するI/OポートアドレスからAXにワードを入力します
+	  // 0xED    IN EAX, DX	  DXで指定するI/OポートアドレスからEAXにダブルワードを入力します
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
+			 if (tokenizer.LookAhead(2).Is("DX")) {
+			      const uint8_t nim = token.Is("AL") ? 0xec : 0xed;
+			      log()->info("NIM(B): 0x{:02x}", nim);
+			      binout_container.push_back(nim);
+			 } else {
+			      const uint8_t imm = tokenizer.LookAhead(2).AsLong();
+			      const uint8_t nim = token.Is("AL") ? 0xe4 : 0xe5;
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}", nim, imm);
+			      binout_container.push_back(nim);
+			      binout_container.push_back(imm);
+			 }
+		    } else {
+			 std::cerr << "NASK : IN instruction param should be accumlator" << std::endl;
+			 return 17;
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なINT命令の実装
      int Instructions::process_token_INT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xCC    INC 3       割り込み3（デバッガへのトラップ）
