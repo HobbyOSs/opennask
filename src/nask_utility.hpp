@@ -120,6 +120,7 @@ namespace nask_utility {
      bool is_integer(const std::string& s);
      bool is_legitimate_numeric(const std::string& s);
      bool is_between_bytesize(const long l);
+     bool is_imm8(const std::string& token);
      bool is_contains_math_op(const std::string& subject);
      std::string expr_math_op(const std::string& subject);
      size_t get_imm_size(const std::string& hex_string);
@@ -181,6 +182,7 @@ namespace nask_utility {
 	  int process_token_DW  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_EQU (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_HLT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_IMUL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_IN  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_INT (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JAE (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
