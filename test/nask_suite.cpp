@@ -46,3 +46,17 @@ TEST(nask_suite, testNaskUtilityExprMathOp)
      const std::string b = nask_utility::expr_math_op(line2);
      CHECK_EQUAL("		MOV		ECX,131072", b);
 }
+
+TEST(nask_suite, testNaskUtilityIsImm8)
+{
+     const bool will_true1 = nask_utility::is_imm8("0xff");
+     CHECK(will_true1);
+     const bool will_true2 = nask_utility::is_imm8("128");
+     CHECK(will_true2);
+     const bool will_false1 = nask_utility::is_imm8("0x80ff");
+     CHECK(!will_false1);
+     const bool will_false2 = nask_utility::is_imm8("-500");
+     CHECK(!will_false2);
+     const bool will_false3 = nask_utility::is_imm8("258");
+     CHECK(!will_false3);
+}

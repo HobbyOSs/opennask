@@ -52,8 +52,20 @@ namespace nask_utility {
      }
 
      bool is_between_bytesize(const long l) {
-	  return (l <= std::numeric_limits<int8_t>::max() &&
-		  l >= std::numeric_limits<int8_t>::min());
+	  if (l < 0) {
+	       return SCHAR_MIN <= l && l <= SCHAR_MAX;
+	  } else {
+	       return 0 <= l && l <= UCHAR_MAX;
+	  }
+     }
+
+     bool is_imm8(const std::string& token) {
+	  if (is_hex_notation(token)) {
+	       return imm8 == get_imm_size(token);
+	  } else {
+	       return is_between_bytesize(std::stol(token));
+	  }
+	  return true;
      }
 
      bool is_contains_math_op(const std::string& subject) {
@@ -1637,6 +1649,43 @@ namespace nask_utility {
      int Instructions::process_token_HLT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xF4 を格納
 	  binout_container.push_back(0xf4);
+	  return 0;
+     }
+
+     // IMUL命令の実装
+     int Instructions::process_token_IMUL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (is_register(token_table, token) && tokenizer.LookAhead(1).Is(",")) {
+                         // 0x6B /r ib | IMUL r16, imm8  | r16を符号拡張即値imm8で符号付き乗算し、結果をr16に格納します
+                         // 0x69 /r iw | IMUL r16, imm16 | r16を即値imm16で符号付き乗算し、結果をr16に格納します
+                         // 0x6B /r ib | IMUL r32, imm8  | r32を符号拡張即値imm8で符号付き乗算し、結果をr32に格納します
+			 // 0x69 /r iw | IMUL r32, imm32 | r32を即値imm32で符号付き乗算し、結果をr16に格納します
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_imm  = src_token.AsString();
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
+			 const uint8_t nim = is_imm8(src_imm) ? 0x6b : 0x69;
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      // IMUL r16, imm8  = RegWord,RegWord,Imm8 | 01101011oorrrmmm
+			      // IMUL r16, imm16 = RegWord,RegWord,Imm  | 01101001oorrrmmm
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			      // IMUL r32, imm8  = RegWord,RegWord,Imm8 | 01101011oorrrmmm
+			      // IMUL r32, imm32 = RegWord,RegWord,Imm  | 01101001oorrrmmm
+			 }
+
+		    } else {
+			 std::cerr << "NASK : IN instruction param should be accumlator" << std::endl;
+			 return 17;
+		    }
+		    break;
+	       }
+	  }
 	  return 0;
      }
 
