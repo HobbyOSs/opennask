@@ -1669,18 +1669,34 @@ namespace nask_utility {
 			 const std::string src_imm  = src_token.AsString();
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
 			 const uint8_t nim = is_imm8(src_imm) ? 0x6b : 0x69;
+			 const std::bitset<8> bs_dst("11" + std::get<0>(tp_dst) + std::get<0>(tp_dst));
 
 			 std::smatch match;
-			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			 if (regex_match(dst_reg, match, ModRM::regImm16) || regex_match(dst_reg, match, ModRM::regImm32)) {
 			      // IMUL r16, imm8  = RegWord,RegWord,Imm8 | 01101011oorrrmmm
 			      // IMUL r16, imm16 = RegWord,RegWord,Imm  | 01101001oorrrmmm
-			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			      // IMUL r32, imm8  = RegWord,RegWord,Imm8 | 01101011oorrrmmm
 			      // IMUL r32, imm32 = RegWord,RegWord,Imm  | 01101001oorrrmmm
+
+			      // [mod] 10 : A 16-bit signed displacement follows the opcode
+			      // [reg] rrr: from dest register
+			      // [r/m] rrr: from dest register
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim, bs_dst.to_ulong(), src_token.AsLong());
+			      binout_container.push_back(nim);
+			      binout_container.push_back(bs_dst.to_ulong());
+			      if (is_imm8(src_imm)) {
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   set_word_into_binout(src_token.AsLong(), binout_container);
+			      }
+			      break;
+			 } else {
+			      std::cerr << "NASK : IMUL specified strange register" << std::endl;
+			      return 17;
 			 }
 
 		    } else {
-			 std::cerr << "NASK : IN instruction param should be accumlator" << std::endl;
+			 std::cerr << "NASK : IMUL syntax is strange" << std::endl;
 			 return 17;
 		    }
 		    break;
