@@ -132,6 +132,8 @@ namespace nask_utility {
      bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token);
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
+     template<size_t N> bool is_registers_with_args(const TParaToken& token, const std::array<std::string, N>& regs);
+
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
      long get_imm_recursive(TParaCxxTokenTable& token_table, TParaTokenizer& tokenizer, size_t look_index);
 

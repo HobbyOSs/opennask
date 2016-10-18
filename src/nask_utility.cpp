@@ -214,31 +214,25 @@ namespace nask_utility {
 	  return token.AsString() == "\n";
      }
 
-     bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+     template<size_t N>
+     bool is_registers_with_args(const TParaToken& token, const std::array<std::string, N>& regs) {
 	  // レジスタ一覧から検索してあれば true
-	  auto it = std::find_if(std::begin(REGISTERS), std::end(REGISTERS),
+	  auto it = std::find_if(std::begin(regs), std::end(regs),
 				 [&](const std::string& s)
 				 { return token.AsString() == s; });
+	  return it != std::end(regs);
+     }
 
-	  return it != std::end(REGISTERS);
+     bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+	  return is_registers_with_args(token, REGISTERS);
      }
 
      bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
-	  // レジスタ一覧から検索してあれば true
-	  auto it = std::find_if(std::begin(SEGMENT_REGISTERS), std::end(SEGMENT_REGISTERS),
-				 [&](const std::string& s)
-				 { return token.AsString() == s; });
-
-	  return it != std::end(SEGMENT_REGISTERS);
+	  return is_registers_with_args(token, SEGMENT_REGISTERS);
      }
 
      bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
-	  // レジスタ一覧から検索してあれば true
-	  auto it = std::find_if(std::begin(CONTROL_REGISTERS), std::end(CONTROL_REGISTERS),
-				 [&](const std::string& s)
-				 { return token.AsString() == s; });
-
-	  return it != std::end(CONTROL_REGISTERS);
+	  return is_registers_with_args(token, CONTROL_REGISTERS);
      }
 
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
