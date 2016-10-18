@@ -346,20 +346,23 @@ namespace nask_utility {
 
 	  if (reg == "AL" || reg == "BL" || reg == "CL" || reg == "DL") {
 	       // prefix = "B0+rb" (AL:+0, CL:+1, DL:+2, BL:+3)
+	       log()->info("reg == AL|BL|CL|DL");
 	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb0, reg.at(0));
 	       nim_info->reg = reg;
 	       nim_info->imm = imm8;
 	  } else if (reg == "EAX" || reg == "EBX" || reg == "ECX" || reg == "EDX") {
 	       // prefix = "B8+rd" (EAX:+0, EBX:+1, ECX:+2, EDX:+3)
+	       log()->info("reg == EAX|EBX|ECX|EDX");
 	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb8, reg.at(1));
 	       nim_info->reg = reg;
 	       nim_info->imm = imm32;
 	  } else {
 	       // tokenizerを先読みしてみる
+	       log()->info("reg == {}", reg);
 	       TParaToken src_token = tokenizer.LookAhead(2);
 
 	       // Reg, Immの場合 => 1011wrrr
-	       log()->info("check registor: {}", reg);
+	       log()->info("check register: {}", reg);
 	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
 	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
 	       nim_info->prefix = bs.to_ulong();
@@ -452,7 +455,7 @@ namespace nask_utility {
 
      std::string Instructions::get_equ_label_or_asis(std::string key) {
 	  if( this->equ_map.find(key) != this->equ_map.end() ) {
-	       log()->info("label: {} replaced ", key, equ_map[key]);
+	       log()->info("label: {} replaced as {}", key, equ_map[key]);
 	       return this->equ_map[key];
 	  } else {
 	       return key;
@@ -603,6 +606,7 @@ namespace nask_utility {
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_reg  = src_token.AsString();
+		    log()->info("Reg {} <= {}", dst_reg, src_reg);
 
 		    // CRn,Reg32
 		    // 00001111 00100000 11sssrrr
@@ -628,7 +632,9 @@ namespace nask_utility {
 			 break;
 		    }
 
-	       } else if (is_segment_register(token_table, token)) {
+	       } else if (is_segment_register(token_table, token) &&
+			  tokenizer.LookAhead(2).Is(",")          &&
+			  is_register(token_table, tokenizer.LookAhead(3))) {
 		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
 		    //
@@ -636,6 +642,7 @@ namespace nask_utility {
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_reg  = src_token.AsString();
+		    log()->info("Sreg {} <= {}", dst_reg, src_reg);
 
 		    // MOV Sreg, register の時
 		    if (tokenizer.LookAhead(1).Is(",") &&
@@ -884,7 +891,7 @@ namespace nask_utility {
 		    // これで終了のはず
 		    break;
 
-	       } else if (is_common_register(token_table, token) &&
+	       } else if (is_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")) {
 		    //
 		    // MOV Reg, Imm | 1011wrrr
@@ -952,6 +959,7 @@ namespace nask_utility {
 		    // これで終了のはず
 		    break;
 	       } else {
+		    log()->info("not matching");
 		    binout_container.push_back(token.AsLong());
 	       }
 	  }
