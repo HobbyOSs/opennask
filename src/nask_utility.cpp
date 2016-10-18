@@ -218,7 +218,7 @@ namespace nask_utility {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(REGISTERS), std::end(REGISTERS),
 				 [&](const std::string& s)
-				 { return token.AsString().find(s) != std::string::npos; });
+				 { return token.AsString() == s; });
 
 	  return it != std::end(REGISTERS);
      }
@@ -227,7 +227,7 @@ namespace nask_utility {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(SEGMENT_REGISTERS), std::end(SEGMENT_REGISTERS),
 				 [&](const std::string& s)
-				 { return token.AsString().find(s) != std::string::npos; });
+				 { return token.AsString() == s; });
 
 	  return it != std::end(SEGMENT_REGISTERS);
      }
@@ -236,13 +236,15 @@ namespace nask_utility {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(CONTROL_REGISTERS), std::end(CONTROL_REGISTERS),
 				 [&](const std::string& s)
-				 { return token.AsString().find(s) != std::string::npos; });
+				 { return token.AsString() == s; });
 
 	  return it != std::end(CONTROL_REGISTERS);
      }
 
      bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
-	  return is_common_register(token_table, token) || is_segment_register(token_table, token);
+	  const bool r = is_common_register(token_table, token) || is_segment_register(token_table, token);
+	  log()->info("{} is_register? -> {}", token.AsString(), r);
+	  return r;
      }
 
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token) {
@@ -633,8 +635,7 @@ namespace nask_utility {
 		    }
 
 	       } else if (is_segment_register(token_table, token) &&
-			  tokenizer.LookAhead(2).Is(",")          &&
-			  is_register(token_table, tokenizer.LookAhead(3))) {
+			  tokenizer.LookAhead(1).Is(",")) {
 		    //
 		    // 8E /r | MOV Sreg,r/m16** | Move r/m16 to segment register
 		    //
