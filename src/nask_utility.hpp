@@ -229,6 +229,18 @@ namespace nask_utility {
 	       REG          // mod=11: レジスター
 	  };
 
+	  enum reg_field {
+	       SLASH_0 = 0, // '/0'
+	       SLASH_1,     // '/1'
+	       SLASH_2,     // '/2'
+	       SLASH_3,     // '/3'
+	       SLASH_4,     // '/4'
+	       SLASH_5,     // '/5'
+	       SLASH_6,     // '/6'
+	       SLASH_7,     // '/7'
+	       SLASH_R      // '/r'
+	  };
+
 	  const std::map<enum mods, std::string> MOD_TO_STR {
 	       { mods::REG_REG    , "00"},
 	       { mods::REG_DISP8  , "01"},
@@ -317,7 +329,7 @@ namespace nask_utility {
 
 	  const std::string get_rm_from_reg(const std::string& src_reg);
 	  const std::string get_MMMSSS_from_reg(const std::string& reg);
-	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg);
+	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, enum reg_field reg = SLASH_R);
 	  bool is_accumulator(const std::string& reg);
      };
 }

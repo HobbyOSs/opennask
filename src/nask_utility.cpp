@@ -33,10 +33,10 @@ namespace nask_utility {
 	       return "";
 	  };
 
-	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg) {
+	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, enum reg_field reg) {
 	       std::string modrm = ModRM::MOD_TO_STR.at(m);
-	       modrm += SEGMENT_REGISTERS_SSS_MAP.at(dst_reg);
-	       modrm += get_rm_from_reg(src_reg);
+	       modrm += get_rm_from_reg(dst_reg);
+	       modrm += get_rm_from_reg(dst_reg);
 	       std::bitset<8> bs(modrm);
 	       return bs.to_ulong();
 	  };
@@ -608,11 +608,11 @@ namespace nask_utility {
 			 token = tokenizer.Next();
 			 log()->info(" <= {}", token.AsString());
 
-			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg);
 			 binout_container.push_back(0x8e);
 			 binout_container.push_back(modrm);
 			 // これで終了のはず
-			 log()->info("NIM: 0x{:02x}, 0x{:02x}", 0x8e, static_cast<int>(modrm));
+			 log()->info("NIM: 0x{:02x}, 0x{:02x}", 0x8e, modrm);
 			 break;
 		    }
 
