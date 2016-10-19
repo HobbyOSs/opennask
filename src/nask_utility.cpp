@@ -33,6 +33,16 @@ namespace nask_utility {
 	       return "";
 	  };
 
+	  const uint8_t get_opecode_from_reg(uint8_t base, const std::string& reg_name) {
+	       std::tuple<std::string, std::string> tuple = REGISTERS_RRR_MAP.at(reg_name);
+	       std::string register_number = std::get<0>(tuple);
+	       const std::bitset<8> bitset("00000" + register_number);
+	       log()->info("+rb, +rw, +rd, +ro = 00000{}", register_number);
+	       const uint8_t ret = base + bitset.to_ulong();
+	       log()->info("0x{:02x} + 0x{:02x} = 0x{:02x}", base, bitset.to_ulong(), ret);
+	       return ret;
+	  }
+
 	  // @param m       : [mod] mods::REG_REG, REG_DISP8, REG_DISP16, REG
 	  // @param dst_reg : [reg] Register with std::string
 	  // @param reg     : [r/m] '/x' with Enum
@@ -373,11 +383,11 @@ namespace nask_utility {
 			 nim_info->imm = imm16;
 		    }
 	       } else {
+		    log()->info("MOV this is label: {}", src_token.AsString());
 		    nim_info->reg = reg;
 		    nim_info->imm = offs; // ターゲットはoffset
 	       }
 	  }
-
 	  return;
      }
 
@@ -887,6 +897,51 @@ namespace nask_utility {
 		    break;
 
 	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",")  &&
+			  !is_legitimate_numeric(get_equ_label_or_asis(tokenizer.LookAhead(2).AsString())) &&
+			  !is_legitimate_numeric(tokenizer.LookAhead(2).AsString())) {
+		    //
+		    // MOV Reg, Imm | 1011wrrr
+		    // Immがオフセットで示されている場合
+		    //--------------------------------------------------------
+		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
+		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
+		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
+		    //
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
+		    log()->info("{} <= {}, represented with label", dst_reg, src_imm);
+
+		    std::smatch match;
+		    //update_label_src_offset(src_imm, binout_container, 0x00);
+		    //store_label_src(src_imm, binout_container, true);
+
+		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			 const uint8_t o = ModRM::get_opecode_from_reg(0xb0, dst_reg);
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", o, 0x00);
+			 binout_container.push_back(o);
+			 binout_container.push_back(0x00);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
+			 log()->info("NIM:(W) 0x{:02x}, 0x{:02x}, 0x{:02x}", o, 0x00, 0x00);
+			 binout_container.push_back(o);
+			 binout_container.push_back(0x00);
+			 binout_container.push_back(0x00);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
+			 log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
+			 binout_container.push_back(0x66);
+			 binout_container.push_back(o);
+			 binout_container.push_back(0x00);
+			 binout_container.push_back(0x00);
+			 binout_container.push_back(0x00);
+			 binout_container.push_back(0x00);
+		    }
+		    break;
+
+	       } else if (is_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")) {
 		    //
 		    // MOV Reg, Imm | 1011wrrr
@@ -909,41 +964,46 @@ namespace nask_utility {
 		    token = tokenizer.Next();
 
 		    const uint16_t nim = nim_info.prefix;
-		    if (nim > 0x6600) {
-			 const uint8_t first_byte  = nim & 0xff;
-			 const uint8_t second_byte = (nim >> 8);
-			 binout_container.push_back(second_byte);
-			 binout_container.push_back(first_byte);
-			 // debug logs
-			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-				     static_cast<int>(second_byte),
-				     static_cast<int>(first_byte),
-				     static_cast<int>(token.AsLong()));
+		    if (nim_info.imm != offs) {
+			 if (nim > 0x6600) {
+			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t second_byte = (nim >> 8);
+			      binout_container.push_back(second_byte);
+			      binout_container.push_back(first_byte);
+			      // debug logs
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					  static_cast<int>(second_byte),
+					  static_cast<int>(first_byte),
+					  static_cast<int>(token.AsLong()));
 
-		    } else {
-			 const uint8_t first_byte  = nim & 0xff;
-			 const uint8_t second_byte = (nim >> 8);
-			 binout_container.push_back(first_byte);
-			 // debug logs
-			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}",
-				     static_cast<int>(first_byte),
-				     (nim_info.imm != offs) ?
-				     static_cast<int>(token.AsLong()) : token.AsLong());
+			 } else {
+			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t second_byte = (nim >> 8);
+			      binout_container.push_back(first_byte);
+			      // debug logs
+			      log()->info("NIM:(B) 0x{:02x}, 0x{:02x}",
+					  static_cast<int>(first_byte),
+					  (nim_info.imm != offs) ?
+					  static_cast<int>(token.AsLong()) : token.AsLong());
+			 }
 		    }
+
+		    log()->info("still alive");
 
 		    // 即値(imm)を設定
 		    if (nim_info.imm == imm8) {
+			 log()->info("Imm8");
 			 binout_container.push_back(token.AsLong());
 		    } else if (nim_info.imm == imm16) {
+			 log()->info("Imm16");
 			 set_word_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == imm32) {
+			 log()->info("Imm32");
 			 set_dword_into_binout(token.AsLong(), binout_container, false);
 		    } else if (nim_info.imm == offs) {
-			 log()->info(" offset processing !");
-
+			 log()->info("Offset processing !");
 			 update_label_src_offset(token.AsString(), binout_container, 0x00);
 			 store_label_src(token.AsString(), binout_container, true);
-
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x7c);

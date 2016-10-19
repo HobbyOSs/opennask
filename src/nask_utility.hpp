@@ -330,6 +330,7 @@ namespace nask_utility {
 	  };
 
 	  const std::string get_rm_from_reg(const std::string& src_reg);
+	  const uint8_t get_opecode_from_reg(uint8_t base, const std::string& reg_name);
 	  const std::string get_MMMSSS_from_reg(const std::string& reg);
 	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, enum reg_field reg = SLASH_R);
 	  bool is_accumulator(const std::string& reg);
