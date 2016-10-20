@@ -253,6 +253,38 @@ namespace nask_utility {
 	  }
      }
 
+     std::vector<std::string> Instructions::get_equ_keyset() {
+	  std::vector<std::string> keyset;
+
+	  for (auto it = this->equ_map.begin(); it != this->equ_map.end(); ++it) {
+	       keyset.push_back(it->first);
+	  }
+
+	  // 長い文字列を先頭にする
+	  std::sort(keyset.begin(), keyset.end(),
+		    [] (std::string l, std::string r) -> bool {
+			 return l.length() > r.length();
+		    });
+
+	  return keyset;
+     }
+
+     std::string Instructions::try_replace_equ(const std::string& line) {
+	  std::string replaced(line);
+	  for (auto const &key : this->get_equ_keyset()) {
+	       if (nask_utility::contains(line, key)) {
+		    // C++ syntax is poor... :<
+		    const std::string dec = nask_utility::is_hex_notation(this->equ_map[key]) ?
+			 std::to_string(std::stoul(this->equ_map[key], nullptr, 16)) : this->equ_map[key];
+
+		    //logger->info("asm contains {} as {}", key, dec);
+		    replaced = nask_utility::replace(replaced, key, dec);
+		    //logger->info("{}: {} // *** EQU replaced ***", line_number, replaced);
+	       }
+	  }
+	  return replaced;
+     }
+
      bool Instructions::dst_is_stored(std::string label_src, VECTOR_BINOUT& binout_container) {
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)

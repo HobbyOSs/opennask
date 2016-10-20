@@ -158,6 +158,8 @@ namespace nask_utility {
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
 	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す
 	  std::string get_equ_label_or_asis(std::string key);
+	  std::vector<std::string> get_equ_keyset();
+	  std::string try_replace_equ(const std::string& line);
 
 	  // FIXME: MOV命令の際のユーティリティコード、後で無くす
 	  void set_nimonic_with_register(const std::string& reg,

@@ -24,6 +24,7 @@ namespace nask_utility {
      bool is_imm8(const std::string& token);
      bool is_contains_math_op(const std::string& subject);
      std::string expr_math_op(const std::string& subject);
+
      size_t get_imm_size(const std::string& hex_string);
 };
 

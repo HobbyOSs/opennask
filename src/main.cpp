@@ -138,54 +138,20 @@ int process_each_assembly_line(char** argv,
 
           // 入力行に四則計算が含まれる場合、それを書き換える
 	  std::string tmp = input;
-	  std::vector<std::string> keyset;
-
-	  // EQU情報の収集
-	  do {
-	       for (auto it = inst.equ_map.begin(); it != inst.equ_map.end(); ++it) {
-		    keyset.push_back(it->first);
-	       }
-
-	       // 長い文字列を先頭にする
-	       std::sort(keyset.begin(), keyset.end(),
-			 [] (std::string l, std::string r) -> bool {
-			      return l.length() > r.length();
-			 });
-	  } while(0);
 
 	  if (nask_utility::is_contains_math_op(input)) {
 	       // EQUで定義されている文字列があれば変換しておく
-	       for (auto const &key : keyset) {
-		    if (nask_utility::contains(tmp, key)) {
-			 // C++ syntax is poor... :<
-			 const std::string dec = nask_utility::is_hex_notation(inst.equ_map[key]) ?
-			      std::to_string(std::stoul(inst.equ_map[key], nullptr, 16)) : inst.equ_map[key];
-
-			 logger->info("asm contains {} as {}", key, dec);
-			 tmp = nask_utility::replace(tmp, key, dec);
-			 logger->info("{}: {} // *** EQU replaced ***", line_number, tmp);
-		    }
-	       }
+	       tmp = inst.try_replace_equ(input);
 	       input = nask_utility::expr_math_op(tmp);
 	       logger->info("{}: {} // *** math op replaced ***", line_number, input);
 	  } else {
 	       //
 	       // 上で処理しきれなかったものを何とかする
 	       //
-	       for (auto const &key : keyset) {
-		    if (nask_utility::contains(tmp, key)) {
-			 // C++ syntax is poor... :<
-			 const std::string dec = nask_utility::is_hex_notation(inst.equ_map[key]) ?
-			      std::to_string(std::stoul(inst.equ_map[key], nullptr, 16)) : inst.equ_map[key];
-
-			 logger->info("asm contains {} as {}", key, dec);
-			 tmp = nask_utility::replace(tmp, key, dec);
-			 logger->info("{}: {} // *** EQU replaced ***", line_number, tmp);
-		    }
-	       }
+	       tmp = inst.try_replace_equ(input);
 	       if (nask_utility::is_contains_math_op(tmp)) {
-		    logger->info("{}: {} // *** EQU & math op will be replaced ***", line_number, input);
 		    input = nask_utility::expr_math_op(tmp);
+		    logger->info("{}: {} // *** EQU & math op are replaced ***", line_number, input);
 	       }
 	  }
 
