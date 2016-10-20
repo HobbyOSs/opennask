@@ -14,6 +14,8 @@ set(PACKAGE_BUGREPORT ON CACHE STRING "idiotpanzer@gmail.com" FORCE)
 
 set(opennask_SRCS
     main.cpp
+    mod_rm.cpp
+    mod_rm.hpp
     nask_utility.cpp
     nask_utility.hpp
     nask_defs.hpp
