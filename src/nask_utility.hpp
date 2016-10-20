@@ -82,10 +82,6 @@ namespace nask_utility {
      uint16_t get_plus_register_code(uint16_t word, char c);
      uint32_t get_plus_register_code(uint32_t dword, char c);
 
-     void set_nimonic_with_register(const std::string& reg,
-				    NIMONIC_INFO* nim_info,
-				    TParaTokenizer& tokenizer);
-
      // @detail uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的には0x00をバイトサイズで格納する傾向があるので、そうじゃない場合はフラグを設定する
      //
@@ -162,6 +158,11 @@ namespace nask_utility {
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
 	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す
 	  std::string get_equ_label_or_asis(std::string key);
+
+	  // FIXME: MOV命令の際のユーティリティコード、後で無くす
+	  void set_nimonic_with_register(const std::string& reg,
+					 NIMONIC_INFO* nim_info,
+					 TParaTokenizer& tokenizer);
      };
 }
 

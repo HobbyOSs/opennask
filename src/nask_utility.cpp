@@ -92,9 +92,9 @@ namespace nask_utility {
 	  return dword;
      }
 
-     void set_nimonic_with_register(const std::string& reg,
-				    NIMONIC_INFO* nim_info,
-				    TParaTokenizer& tokenizer) {
+     void Instructions::set_nimonic_with_register(const std::string& reg,
+						  NIMONIC_INFO* nim_info,
+						  TParaTokenizer& tokenizer) {
 
 	  if (reg == "AL" || reg == "BL" || reg == "CL" || reg == "DL") {
 	       // prefix = "B0+rb" (AL:+0, CL:+1, DL:+2, BL:+3)
@@ -110,23 +110,30 @@ namespace nask_utility {
 	       nim_info->imm = imm32;
 	  } else {
 	       // tokenizerを先読みしてみる
-	       log()->info("reg == {}", reg);
 	       TParaToken src_token = tokenizer.LookAhead(2);
 
-	       // Reg, Immの場合 => 1011wrrr
-	       log()->info("check register: {}", reg);
-	       std::tuple<std::string, std::string> tp = ModRM::REGISTERS_RRR_MAP.at(reg);
-	       const std::bitset<8> bs("1011" + std::get<1>(tp) + std::get<0>(tp));
-	       nim_info->prefix = bs.to_ulong();
+	       // 対象のsrcの部分がEQUとして保存されていれば取得
+	       const std::string numeric_test = get_equ_label_or_asis(src_token.AsString());
 
-	       if (is_legitimate_numeric(src_token.AsString())) {
+	       if (is_legitimate_numeric(numeric_test)) {
 		    nim_info->reg = reg;
 		    // レジスタの種類を見る
 		    std::smatch match;
 		    if (regex_match(reg, match, ModRM::regImm08)) {
+			 const uint8_t modrm = ModRM::get_opecode_from_reg(0xb0, reg);
+			 log()->info("register is for imm8: {}, opecode 0x{:02x}", reg, modrm);
+			 nim_info->prefix = modrm;
 			 nim_info->imm = imm8;
-		    } else {
+		    } else if (regex_match(reg, match, ModRM::regImm16)) {
+			 const uint8_t modrm = ModRM::get_opecode_from_reg(0xb8, reg);
+			 log()->info("register is for imm16: {}, opecode 0x{:02x}", reg, modrm);
+			 nim_info->prefix = modrm;
 			 nim_info->imm = imm16;
+		    } else {
+			 const uint8_t modrm = ModRM::get_opecode_from_reg(0xb8, reg);
+			 log()->info("register is for imm32: {}, opecode 0x{:02x}", reg, modrm);
+			 nim_info->prefix = modrm;
+			 nim_info->imm = imm32;
 		    }
 	       } else {
 		    log()->info("MOV this is label: {}", src_token.AsString());
@@ -729,8 +736,8 @@ namespace nask_utility {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
 			 log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
 			 binout_container.push_back(0x66);
-			 binout_container.push_back(o);
 			 store_label_src(src_imm, binout_container, false, imm32);
+			 binout_container.push_back(o);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
@@ -761,9 +768,9 @@ namespace nask_utility {
 		    token = tokenizer.Next();
 
 		    const uint16_t nim = nim_info.prefix;
-		    if (nim_info.imm != offs) {
+		    if (nim_info.imm != offs && nim_info.imm != imm32 ) {
 			 if (nim > 0x6600) {
-			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t first_byte	= nim & 0xff;
 			      const uint8_t second_byte = (nim >> 8);
 			      binout_container.push_back(second_byte);
 			      binout_container.push_back(first_byte);
@@ -774,7 +781,7 @@ namespace nask_utility {
 					  static_cast<int>(token.AsLong()));
 
 			 } else {
-			      const uint8_t first_byte  = nim & 0xff;
+			      const uint8_t first_byte	= nim & 0xff;
 			      const uint8_t second_byte = (nim >> 8);
 			      binout_container.push_back(first_byte);
 			      // debug logs
@@ -789,12 +796,19 @@ namespace nask_utility {
 		    if (nim_info.imm == imm8) {
 			 log()->info("Imm8");
 			 binout_container.push_back(token.AsLong());
+
 		    } else if (nim_info.imm == imm16) {
 			 log()->info("Imm16");
 			 set_word_into_binout(token.AsLong(), binout_container, false);
+
 		    } else if (nim_info.imm == imm32) {
-			 log()->info("Imm32");
-			 set_dword_into_binout(token.AsLong(), binout_container, false);
+			 binout_container.push_back(0x66);
+			 binout_container.push_back(nim);
+			 const long real_src_imm = std::stoul(src_imm, nullptr, 16);
+
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x66, nim, real_src_imm);
+			 set_dword_into_binout(real_src_imm, binout_container, false);
+
 		    } else if (nim_info.imm == offs) {
 			 log()->info("Offset processing !");
 			 update_label_src_offset(token.AsString(), binout_container, 0x00);
