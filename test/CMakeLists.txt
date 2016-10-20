@@ -10,8 +10,9 @@ set(alltest_SRCS
     tinyexpr_suite.cpp
     inst_suite.cpp
     ../src/tinyexpr.c
-    ../src/nask_utility.cpp)
-
+    ../src/nask_utility.cpp
+    ../src/mod_rm.cpp)
+    
 include_directories(${root_SOURCE_DIR}/parasol)
 include_directories(${root_SOURCE_DIR}/src)
 include_directories(${CPPUTEST_INCLUDE_DIR})
