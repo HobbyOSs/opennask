@@ -171,10 +171,41 @@ namespace nask_utility {
 		    binout_container[elem.rel_index - 1] = elem.dst_index;
 		    binout_container[elem.rel_index] = 0x7c;
 	       } else {
-		    log()->info("update_label_dst_offset bin[{}] = {}",
-				std::to_string(elem.rel_index),
-				elem.rel_offset());
-		    binout_container[elem.rel_index] = elem.rel_offset();
+		    switch (elem.offset_size) {
+		    case imm16:
+			 log()->info("update_label_dst_offset bin[{}, {}] = 0x{:02x}",
+				     std::to_string(elem.rel_index),
+				     std::to_string(elem.rel_index + 1),
+				     elem.rel_offset());
+
+			 set_word_into_binout(elem.rel_offset(),
+					      binout_container,
+					      false,
+					      elem.rel_index);
+			 break;
+
+		    case imm32:
+			 log()->info("update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
+				     std::to_string(elem.rel_index),
+				     std::to_string(elem.rel_index + 1),
+				     std::to_string(elem.rel_index + 2),
+				     std::to_string(elem.rel_index + 3),
+				     elem.rel_offset());
+
+			 set_dword_into_binout(elem.rel_offset(),
+					       binout_container,
+					       false,
+					       elem.rel_index);
+			 break;
+
+		    case imm8:
+		    default:
+			 log()->info("update_label_dst_offset bin[{}] = 0x{:02x}",
+				     std::to_string(elem.rel_index),
+				     elem.rel_offset());
+			 binout_container[elem.rel_index] = elem.rel_offset();
+			 break;
+		    }
 	       }
 	  }
      }
@@ -185,6 +216,7 @@ namespace nask_utility {
      bool Instructions::update_label_src_offset(std::string label_src,
 						VECTOR_BINOUT& binout_container,
 						uint8_t nim) {
+
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
 				 { return elem.label.find(label_src) != std::string::npos; });
@@ -223,9 +255,10 @@ namespace nask_utility {
 
      // OPECODE label (label_srcと呼ぶ)
      // 2) 同名のlabel_dstが保存されていなければ、label_srcの位置を保存する → label_src_stack
-     void Instructions::store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs) {
+     void Instructions::store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs, size_t offset_size) {
      	  LABEL_SRC_ELEMENT elem;
 	  elem.abs   = abs;
+	  elem.offset_size = offset_size;
 	  elem.label = label_src;
 	  elem.src_index = binout_container.size();
 	  elem.rel_index = binout_container.size() + 1;
@@ -238,31 +271,39 @@ namespace nask_utility {
      // @param word             格納するWORDサイズのバイナリ
      // @param binout_container 出力先コンテナ
      // @param zero_as_byte     0x00をバイトサイズで格納する
+     // @param start_index      格納するコンテナの開始index
      //
      void set_word_into_binout(const uint16_t& word,
 			       VECTOR_BINOUT& binout_container,
-			       bool zero_as_byte) {
+			       bool zero_as_byte,
+			       size_t start_index) {
 
 	  if (word == 0x0000 && zero_as_byte) {
 	       // push_back only 1byte
 	       binout_container.push_back(0x00);
-	       log()->info("(B): {}", static_cast<int>(0x00));
+	       log()->info("(B): 0x00");
 	  } else {
 	       // http://stackoverflow.com/a/1289360/2565527
 	       const uint8_t first_byte  = (word >> 8) & 0xff;
 	       const uint8_t second_byte = word & 0xff;
 	       // push_back as little_endian
-	       binout_container.push_back(second_byte);
-	       binout_container.push_back(first_byte);
-	       log()->info("(W): {}, {}",
-			   static_cast<int>(second_byte),
-			   static_cast<int>(first_byte));
+	       if (start_index == 0) {
+		    binout_container.push_back(second_byte);
+		    binout_container.push_back(first_byte);
+	       } else {
+		    binout_container.at(start_index + 0) = second_byte;
+		    binout_container.at(start_index + 1) = first_byte;
+	       }
+	       log()->info("(W): 0x{:02x}, 0x{:02x}", second_byte, first_byte);
 	  }
      }
 
      // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
-     void set_dword_into_binout(const uint32_t& dword, VECTOR_BINOUT& binout_container, bool zero_as_byte) {
+     void set_dword_into_binout(const uint32_t& dword,
+				VECTOR_BINOUT& binout_container,
+				bool zero_as_byte,
+				size_t start_index) {
 
 	  if (dword == 0x00000000 && zero_as_byte) {
 	       // push_back only 1byte
@@ -276,12 +317,19 @@ namespace nask_utility {
 	       bytes[2] = (cp_dword >> 8)  & 0xff;
 	       bytes[3] = cp_dword & 0xff;
 
-	       //printf("[0-3] => 0x%02x 0x%02x 0x%02x 0x%02x", bytes[0], bytes[1], bytes[2], bytes[3]);
-	       // push_back as little_endian
-	       binout_container.push_back(bytes[3]);
-	       binout_container.push_back(bytes[2]);
-	       binout_container.push_back(bytes[1]);
-	       binout_container.push_back(bytes[0]);
+	       if (start_index == 0) {
+		    binout_container.push_back(bytes[3]);
+		    binout_container.push_back(bytes[2]);
+		    binout_container.push_back(bytes[1]);
+		    binout_container.push_back(bytes[0]);
+	       } else {
+		    binout_container.at(start_index + 0) = bytes[3];
+		    binout_container.at(start_index + 1) = bytes[2];
+		    binout_container.at(start_index + 2) = bytes[1];
+		    binout_container.at(start_index + 3) = bytes[0];
+	       }
+	       log()->info("(DW): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+			   bytes[3], bytes[2], bytes[1], bytes[0]);
 	  }
      }
 
@@ -661,25 +709,28 @@ namespace nask_utility {
 		    log()->info("{} <= {}, represented with label", dst_reg, src_imm);
 
 		    std::smatch match;
-		    //update_label_src_offset(src_imm, binout_container, 0x00);
-		    //store_label_src(src_imm, binout_container, true);
 
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb0, dst_reg);
 			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", o, 0x00);
 			 binout_container.push_back(o);
+			 store_label_src(src_imm, binout_container, false, imm8);
 			 binout_container.push_back(0x00);
+
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
 			 log()->info("NIM:(W) 0x{:02x}, 0x{:02x}, 0x{:02x}", o, 0x00, 0x00);
 			 binout_container.push_back(o);
+			 store_label_src(src_imm, binout_container, false, imm16);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
+
 		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
 			 log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
 			 binout_container.push_back(0x66);
 			 binout_container.push_back(o);
+			 store_label_src(src_imm, binout_container, false, imm32);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
@@ -733,8 +784,6 @@ namespace nask_utility {
 					  static_cast<int>(token.AsLong()) : token.AsLong());
 			 }
 		    }
-
-		    log()->info("still alive");
 
 		    // 即値(imm)を設定
 		    if (nim_info.imm == imm8) {

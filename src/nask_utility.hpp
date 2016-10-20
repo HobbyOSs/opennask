@@ -23,10 +23,10 @@
 // 0xFF /5 JMP m16:32	m16:32で指定されるアドレスに絶対間接ファージャンプする
 struct LABEL_DST_ELEMENT {
   std::string label; // ex) entry:
-  int src_index;  // JMPのオペコードが始まる場所
-  int dst_index;  // JMPの飛び先のラベルが始まる場所
-  int rel_index;  // rel_offsetを格納する場所
-  int rel_offset() {
+  long src_index;  // JMPのオペコードが始まる場所
+  long dst_index;  // JMPの飛び先のラベルが始まる場所
+  long rel_index;  // rel_offsetを格納する場所
+  long rel_offset() {
        // offset = rel - dst
        spdlog::get("opennask")->info("{} - {} - 1", std::to_string(src_index), std::to_string(rel_index));
        return src_index - rel_index - 1;
@@ -37,10 +37,11 @@ struct LABEL_SRC_ELEMENT {
   std::string label;   // ex) entry
   OPERAND_KINDS operand;
   bool abs = false;
-  int src_index;  // JMPのオペコードが始まる場所
-  int dst_index;  // JMPの飛び先のラベルが始まる場所
-  int rel_index;  // rel_offsetを格納する場所
-  int rel_offset() {
+  long src_index;  // JMPのオペコードが始まる場所
+  long dst_index;  // JMPの飛び先のラベルが始まる場所
+  long rel_index;  // rel_offsetを格納する場所
+  size_t offset_size; // オフセットの格納サイズを指定する
+  long rel_offset() {
        // offset = rel - dst
        spdlog::get("opennask")->info("{} - {} - 1", std::to_string(dst_index), std::to_string(rel_index));
        return dst_index - rel_index - 1;
@@ -91,16 +92,24 @@ namespace nask_utility {
      // @param word             格納するWORDサイズのバイナリ
      // @param binout_container 出力先コンテナ
      // @param zero_as_byte     0x00をバイトサイズで格納する
+     // @param start_index      格納するコンテナの開始index
      //
      void set_word_into_binout(const uint16_t& word,
 			       VECTOR_BINOUT& binout_container,
-			       bool zero_as_byte = true);
+			       bool zero_as_byte = true,
+			       size_t start_index = 0);
 
      // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-     // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
+     // nask的にはDDは0x00を普通に詰めるらしい（NASMの仕様かな？）
+     //
+     // @param dword            格納するDWORDサイズのバイナリ
+     // @param binout_container 出力先コンテナ
+     // @param zero_as_byte     0x00をバイトサイズで格納する
+     // @param start_index      格納するコンテナの開始index
      void set_dword_into_binout(const uint32_t& dword,
 				VECTOR_BINOUT& binout_container,
-				bool zero_as_byte = false);
+				bool zero_as_byte = false,
+				size_t start_index = 0);
 
      // アセンブラ命令処理
      class Instructions {
@@ -147,7 +156,9 @@ namespace nask_utility {
 	  void update_label_dst_offset(std::string label_dst, VECTOR_BINOUT& binout_container);
 	  bool dst_is_stored(std::string label_dst, VECTOR_BINOUT& binout_container);
 
-	  void store_label_src(std::string label_src, VECTOR_BINOUT& binout_container, bool abs = false);
+	  void store_label_src(std::string label_src,
+			       VECTOR_BINOUT& binout_container,
+			       bool abs = false, size_t offset_size = imm8);
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
 	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す
 	  std::string get_equ_label_or_asis(std::string key);
