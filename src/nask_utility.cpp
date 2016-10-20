@@ -804,7 +804,8 @@ namespace nask_utility {
 		    } else if (nim_info.imm == imm32) {
 			 binout_container.push_back(0x66);
 			 binout_container.push_back(nim);
-			 const long real_src_imm = std::stoul(src_imm, nullptr, 16);
+			 const long real_src_imm = is_hex_notation(src_imm) ?
+			      std::stoul(src_imm, nullptr, 16) : src_token.AsLong();
 
 			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x66, nim, real_src_imm);
 			 set_dword_into_binout(real_src_imm, binout_container, false);
