@@ -173,59 +173,6 @@ namespace nask_utility {
 	  return it != std::end(DATA_TYPES);
      }
 
-     long get_imm_recursive(TParaCxxTokenTable& token_table, TParaTokenizer& tokenizer, size_t look_index) {
-
-	  long ret_val = 0;
-
-	  if (look_index != 0) {
-	       std::string str_expression = "";
-	       for (size_t i = look_index;; i=i+2) {
-		    if (!tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i+1).IsOperator()) {
-			 // *,/,+,-だった場合
-			 str_expression += tokenizer.LookAhead(i).AsString();
-			 str_expression += tokenizer.LookAhead(i+1).AsString();
-			 continue;
-		    } else if (!tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i+1).IsEmpty()) {
-			 // 計算記号がない場合
-			 str_expression += tokenizer.LookAhead(i).AsString();
-			 break;
-		    } else {
-			 break;
-		    }
-	       }
-	       // 計算対象
-	       log()->info(str_expression);
-
-	       // トークンを計算する
-	       std::istringstream input_stream(str_expression.c_str());
-	       TParaTokenizer tokenizer(input_stream, &token_table);
-
-	       TParaExpression* expr = 0;
-	       TParaObjectPrototypeTable object_prototype_table;
-	       TParaBuiltinFunctionTable builtin_function_table;
-	       TParaCxxOperatorTable operator_table;
-	       TParaSymbolTable symbol_table(&object_prototype_table, &builtin_function_table);
-	       TParaExpressionParser expression_parser(&operator_table);
-
-	       try {
-		    /* トークナイザを渡して，入力を解析 */
-		    expr = expression_parser.Parse(&tokenizer, &symbol_table);
-
-		    /* 解析に成功したら，評価 */
-		    TParaValue value = expr->Evaluate(&symbol_table);
-		    log()->info(value.AsString());
-		    ret_val = value.AsLong();
-
-		    delete expr;
-
-	       } catch (TScriptException &e) {
-		    std::cerr << "ERROR: " << e << std::endl;
-	       }
-
-	  }
-	  return ret_val;
-     }
-
      template <class T> void plus_number_from_code(T& num, char c) {
 	  switch(c) {
 	  case 'A':

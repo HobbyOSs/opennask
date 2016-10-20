@@ -135,7 +135,6 @@ namespace nask_utility {
      template<size_t N> bool is_registers_with_args(const TParaToken& token, const std::array<std::string, N>& regs);
 
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
-     long get_imm_recursive(TParaCxxTokenTable& token_table, TParaTokenizer& tokenizer, size_t look_index);
 
      template <class T> void plus_number_from_code(T& num, char c);
      uint8_t get_plus_register_code(uint8_t byte, char c);
