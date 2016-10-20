@@ -8,6 +8,53 @@
 #include <bitset>
 #include <regex>
 #include <tuple>
+#include "spdlog/spdlog.h"
+
+static const std::shared_ptr<spdlog::logger> log() {
+     return spdlog::get("opennask");
+}
+
+// 80x86 Opcodes
+// https://courses.engr.illinois.edu/ece390/resources/opcodes.html
+const std::array<std::string, 24> REGISTERS {
+     "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX",
+     "AH", "BH", "CH", "DH", "ESP", "EDI", "EBP", "ESI", "SP", "DI", "BP", "SI"
+};
+
+const std::array<std::string, 6> SEGMENT_REGISTERS {
+     "CS", // コード
+     "DS", // データ
+     "ES", // エクストラ
+     "SS", // スタック
+     "FS",
+     "GS"
+};
+
+//
+// The registers FS and GS are segment registers. They have no processor-defined purpose,
+// but instead are given purpose by the OS's running them.
+// In Windows 64-bit the GS register is used to point to operating system defined structures.
+// FS and GS are commonly used by OS kernels to access thread-specific memory. In windows,
+// the GS register is used to manage thread-specific memory.
+// The linux kernel uses GS to access cpu-specific memory.
+//
+// https://stackoverflow.com/questions/10810203/what-is-the-fs-gs-register-intended-for/10810287#10810287
+
+const std::array<std::string, 4> CONTROL_REGISTERS {
+     "CR0", "CR2", "CR3", "CR4"
+};
+
+const std::array<std::string, 1> PRE_PROCESS_WORDS {
+     "EQU"
+};
+
+const std::array<std::string, 4> PRE_PROCESS_OPERATORS {
+     "*", "/", "+", "-"
+};
+
+const std::array<std::string, 10> DATA_TYPES {
+     "BYTE", "WORD", "DWORD", "FWORD", "QWORD", "TBYTE", "OWORD", "REAL4", "REAL8", "REAL10"
+};
 
 // byte sized part of an opcode
 constexpr size_t imm8  = 1;

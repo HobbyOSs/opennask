@@ -11,49 +11,6 @@
 #include "ParaMathLibrary.hh"
 #include "nask_defs.hpp"
 #include <functional>
-#include "spdlog/spdlog.h"
-
-// 80x86 Opcodes
-// https://courses.engr.illinois.edu/ece390/resources/opcodes.html
-const std::array<std::string, 24> REGISTERS {
-     "AL", "BL", "CL", "DL", "EAX", "EBX", "ECX", "EDX", "AX", "BX", "CX", "DX",
-     "AH", "BH", "CH", "DH", "ESP", "EDI", "EBP", "ESI", "SP", "DI", "BP", "SI"
-};
-
-const std::array<std::string, 6> SEGMENT_REGISTERS {
-     "CS", // コード
-     "DS", // データ
-     "ES", // エクストラ
-     "SS", // スタック
-     "FS",
-     "GS"
-};
-
-//
-// The registers FS and GS are segment registers. They have no processor-defined purpose,
-// but instead are given purpose by the OS's running them.
-// In Windows 64-bit the GS register is used to point to operating system defined structures.
-// FS and GS are commonly used by OS kernels to access thread-specific memory. In windows,
-// the GS register is used to manage thread-specific memory.
-// The linux kernel uses GS to access cpu-specific memory.
-//
-// https://stackoverflow.com/questions/10810203/what-is-the-fs-gs-register-intended-for/10810287#10810287
-
-const std::array<std::string, 4> CONTROL_REGISTERS {
-     "CR0", "CR2", "CR3", "CR4"
-};
-
-const std::array<std::string, 1> PRE_PROCESS_WORDS {
-     "EQU"
-};
-
-const std::array<std::string, 4> PRE_PROCESS_OPERATORS {
-     "*", "/", "+", "-"
-};
-
-const std::array<std::string, 10> DATA_TYPES {
-     "BYTE", "WORD", "DWORD", "FWORD", "QWORD", "TBYTE", "OWORD", "REAL4", "REAL8", "REAL10"
-};
 
 // 0xEB cb JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
 // 0xE9 cw JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
@@ -107,23 +64,6 @@ namespace nask_utility {
      typedef std::vector<LABEL_SRC_ELEMENT> LABEL_SRC_STACK;
      // 出力先
      typedef std::vector<uint8_t> VECTOR_BINOUT;
-
-     // Javaにはありがちな基本的文字列処理
-     std::ifstream::pos_type filesize(const char* filename);
-     std::vector<std::string> split(const std::string &str, char delim);
-     std::string replace(std::string& str, const std::string& from, const std::string& to);
-     bool contains(const std::string& src, const std::string& query);
-     bool ends_with(std::string const &full_string, std::string const &ending);
-
-     // アセンブラ処理で使う判定系処理
-     bool is_hex_notation(const std::string& s);
-     bool is_integer(const std::string& s);
-     bool is_legitimate_numeric(const std::string& s);
-     bool is_between_bytesize(const long l);
-     bool is_imm8(const std::string& token);
-     bool is_contains_math_op(const std::string& subject);
-     std::string expr_math_op(const std::string& subject);
-     size_t get_imm_size(const std::string& hex_string);
 
      size_t get_labelpos(std::ifstream& stream, std::string token);
      bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token);

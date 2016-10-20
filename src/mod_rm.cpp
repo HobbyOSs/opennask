@@ -32,9 +32,9 @@ namespace nask_utility {
 	       std::tuple<std::string, std::string> tuple = REGISTERS_RRR_MAP.at(reg_name);
 	       std::string register_number = std::get<0>(tuple);
 	       const std::bitset<8> bitset("00000" + register_number);
-	       //log()->info("+rb, +rw, +rd, +ro = 00000{}", register_number);
+	       log()->info("+rb, +rw, +rd, +ro = 00000{}", register_number);
 	       const uint8_t ret = base + bitset.to_ulong();
-	       //log()->info("0x{:02x} + 0x{:02x} = 0x{:02x}", base, bitset.to_ulong(), ret);
+	       log()->info("0x{:02x} + 0x{:02x} = 0x{:02x}", base, bitset.to_ulong(), ret);
 	       return ret;
 	  }
 

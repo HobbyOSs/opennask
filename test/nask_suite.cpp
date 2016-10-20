@@ -1,4 +1,5 @@
 #include "nask_utility.hpp"
+#include "string_util.hpp"
 #include <CppUTest/TestHarness.h>
 
 TEST_GROUP(nask_suite)

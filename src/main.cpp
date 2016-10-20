@@ -18,6 +18,7 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
+#include "string_util.hpp"
 #include "fatlib.h"
 #include "time.h"
 #include <errno.h>
@@ -25,7 +26,6 @@
 #include <utime.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "spdlog/spdlog.h"
 
 using namespace std::placeholders;
 

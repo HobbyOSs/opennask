@@ -16,6 +16,8 @@ set(opennask_SRCS
     main.cpp
     mod_rm.cpp
     mod_rm.hpp
+    string_util.cpp
+    string_util.hpp
     nask_utility.cpp
     nask_utility.hpp
     nask_defs.hpp
