@@ -1680,7 +1680,7 @@ namespace nask_utility {
 			      if (is_imm8(src_imm)) {
 				   binout_container.push_back(src_token.AsLong());
 			      } else {
-				   set_word_into_binout(src_token.AsLong(), binout_container);
+				   set_dword_into_binout(src_token.AsLong(), binout_container);
 			      }
 			      break;
 			 } else {
@@ -2042,7 +2042,8 @@ namespace nask_utility {
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			      // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
 			      // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
-			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			      log()->info("NIM(B): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			      binout_container.push_back(0x66);
 			      binout_container.push_back(nim1);
 			      binout_container.push_back(nim2);
 			      if (nim1 == 0x83) {
