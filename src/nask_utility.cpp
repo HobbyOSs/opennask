@@ -372,6 +372,27 @@ namespace nask_utility {
 	  }
      }
 
+     void set_hexstring_into_binout(const std::string& in,
+				    VECTOR_BINOUT& binout_container) {
+
+	      const size_t len = in.length();
+	      std::vector<uint8_t> c;
+
+	      for(size_t i = 0; i < len; i += 2) {
+		   std::istringstream strm(in.substr(i, 2));
+		   uint8_t x = std::stoi(strm.str(), nullptr, 16);
+		   log()->info("(BIN): 0x{:02x} ({})", x, strm.str());
+		   c.push_back(x);
+	      }
+
+	      // てきとう
+	      std::reverse(c.begin(), c.end());
+	      for( auto it = c.begin(); it != c.end(); ++it )
+	      {
+		   binout_container.push_back(*it);
+	      }
+     }
+
      // MOVの命令
      // http://www5c.biglobe.ne.jp/~ecb/assembler/2_1.html
      // MOV DEST, SRC
@@ -437,7 +458,7 @@ namespace nask_utility {
 		    continue;
 	       } else if (is_datatype(token_table, token)) {
 		    log()->info("declared datatype: {}", token.AsString());
-		    data_type = token.AsString();
+		    this->data_type = token.AsString();
 		    continue;
 	       } else if (is_control_register(token_table, token)) {
 		    // 0x0F 0x22 /r
@@ -625,8 +646,12 @@ namespace nask_utility {
 
 	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")  &&
-		          tokenizer.LookAhead(2).Is("[")  &&
-		          tokenizer.LookAhead(4).Is("]")) {
+			  // MOV XX, [YY] // normal pattern
+			  (tokenizer.LookAhead(2).Is("[") &&tokenizer.LookAhead(4).Is("]")) ||
+			  // MOV XX, BYTE [YY] // normal pattern
+			  (is_datatype(token_table, tokenizer.LookAhead(2)) &&
+			   tokenizer.LookAhead(3).Is("[") &&tokenizer.LookAhead(5).Is("]"))
+		    ) {
 		    //
 		    // MOV Reg, Mem | 1000101woorrrmmm
 		    //---------------------------------
@@ -634,15 +659,18 @@ namespace nask_utility {
 		    // 0x8B /r	MOV r16, r/m16		r/m16をr16に転送します
 		    // 0x8B /r	MOV r32, r/m32		r/m32をr32に転送します
 		    TParaToken dst_token = token;
-		    TParaToken src_token = tokenizer.LookAhead(3);
+		    TParaToken src_token = is_datatype(token_table, tokenizer.LookAhead(2)) ?
+			 tokenizer.LookAhead(4) : tokenizer.LookAhead(3);
 		    const std::string dst_reg  = dst_token.AsString();
-		    const std::string src_mem  = "[" + src_token.AsString() + "]";
+		    const std::string src_reg  = get_equ_label_or_asis(src_token.AsString());
+		    const std::string src_mem  = "[" + get_equ_label_or_asis(src_token.AsString()) + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
 
 		    // Reg, Immの場合 => 1000101w oorrrmmm
 		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
-		    const std::string tp_src = ModRM::REGISTERS_MMM_MAP.at(src_mem);
+		    const std::string tp_src = ModRM::REGISTERS_MMM_MAP.count(src_reg) ?
+			 ModRM::REGISTERS_MMM_MAP.at(src_reg) : "110"; // [disp16]
 
 		    // 1000101 + w
 		    const std::bitset<8> bs_dst("1000101" + std::get<1>(tp_dst));
@@ -650,10 +678,17 @@ namespace nask_utility {
 		    const std::bitset<8> bs_src("00" + std::get<0>(tp_dst) + tp_src);
 		    binout_container.push_back(bs_dst.to_ulong());
 		    binout_container.push_back(bs_src.to_ulong());
+		    if (!ModRM::REGISTERS_MMM_MAP.count(src_reg) && is_hex_notation(src_reg)) {
+			 const std::string from = "0x";
+			 const std::string to = "";
+			 const std::string hex = replace(src_reg, from, to);
+			 set_hexstring_into_binout(hex, binout_container);
+		    }
 
-		    log()->info("NIM(W): {}, {}",
-				static_cast<int>(bs_dst.to_ulong()),
-				static_cast<int>(bs_src.to_ulong()));
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}",
+				bs_dst.to_ulong(),
+				bs_src.to_ulong(),
+				!ModRM::REGISTERS_MMM_MAP.count(src_mem) ? src_token.AsString() : "N/A");
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();

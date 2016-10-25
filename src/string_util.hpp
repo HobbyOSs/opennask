@@ -12,7 +12,7 @@ namespace nask_utility {
      // Javaにはありがちな基本的文字列処理
      std::ifstream::pos_type filesize(const char* filename);
      std::vector<std::string> split(const std::string &str, char delim);
-     std::string replace(std::string& str, const std::string& from, const std::string& to);
+     const std::string replace(const std::string& in, const std::string& from, const std::string& to);
      bool contains(const std::string& src, const std::string& query);
      bool ends_with(std::string const &full_string, std::string const &ending);
 

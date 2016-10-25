@@ -95,13 +95,15 @@ namespace nask_utility {
 	  return res;
      }
 
-     std::string replace(std::string& str, const std::string& from, const std::string& to) {
+     const std::string replace(const std::string& in, const std::string& from, const std::string& to) {
+	  std::string str = std::string(in);
 	  std::string::size_type pos = 0;
 	  while (pos = str.find(from, pos), pos != std::string::npos) {
 	       str.replace(pos, from.length(), to);
 	       pos += to.length();
 	  }
-	  return str;
+	  const auto s = std::string(str);
+	  return s;
      }
 
      bool contains(const std::string& src, const std::string& query) {
