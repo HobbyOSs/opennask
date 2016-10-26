@@ -84,6 +84,23 @@ namespace nask_utility {
 	       return bs.to_ulong();
 	  };
 
+	  // @param m       : [mod] mods::REG
+	  // @param dst_reg : [reg] Register with std::string
+	  // @param src_reg : [r/m] Register with std::string
+	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg) {
+	       //
+	       // Generate ModR/M byte with arguments
+	       // [mod] 2bit
+	       // [reg] 3bit
+	       // [r/m] 3bit
+	       //
+	       std::string modrm = ModRM::MOD_TO_STR.at(m);
+	       modrm += get_rm_from_reg(src_reg);
+	       modrm += get_rm_from_reg(dst_reg);
+	       std::bitset<8> bs(modrm);
+	       return bs.to_ulong();
+	  };
+
 	  bool is_accumulator(const std::string& reg) {
 	       std::smatch match;
 	       return regex_match(reg, match, rm000);

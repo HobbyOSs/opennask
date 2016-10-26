@@ -1229,6 +1229,47 @@ namespace nask_utility {
 			tokenizer.LookAhead(1).Is(",")  &&
 			is_common_register(token_table, tokenizer.LookAhead(2))) {
 			 // ADD Reg,Reg
+			 //
+                         // 0x00 /r     ADD r/m8, r8        r8をr/m8に加算する
+                         // 0x01 /r     ADD r/m16, r16      r16をr/m16に加算する
+                         // 0x01 /r     ADD r/m32, r32      r32をr/m32に加算する
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_reg  = src_token.AsString();
+			 log()->info("{} + {}", dst_reg, src_reg);
+
+			 std::smatch match;
+			 if (regex_match(src_reg, match, ModRM::regImm08)) {
+			      const uint8_t op  = 0x00;
+			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG_REG, dst_reg);
+			      // debug logs
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", op, nim);
+			      binout_container.push_back(op);
+			      binout_container.push_back(nim);
+			 } else {
+			      const uint8_t pre = 0x66;
+			      const uint8_t op  = 0x01;
+			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			      if (regex_match(src_reg, match, ModRM::regImm32)) {
+				   // see: http://wiki.osdev.org/X86-64_Instruction_Encoding#Legacy_Prefixes
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}", pre, op, nim);
+				   binout_container.push_back(pre);
+				   binout_container.push_back(op);
+				   binout_container.push_back(nim);
+			      } else {
+				   // debug logs
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}", op, nim);
+				   binout_container.push_back(op);
+				   binout_container.push_back(nim);
+			      }
+			 }
+
+			 // 次へ
+			 tokenizer.Next();
+			 tokenizer.Next();
+			 break;
+
 		    } else if (token.Is("[") &&
 			       is_common_register(token_table, tokenizer.LookAhead(1)) &&
 			       tokenizer.LookAhead(2).Is("]") &&
@@ -1255,7 +1296,7 @@ namespace nask_utility {
 			 // 次へ
 			 tokenizer.Next();
 			 tokenizer.Next();
-			 log()->info("{} <= {}", dst_reg, src_imm);
+			 log()->info("{} + {}", dst_reg, src_imm);
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
 			 // Imm8 or Imm16
 			 const size_t imm_size = get_imm_size(src_token.AsString());
