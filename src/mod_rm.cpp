@@ -25,7 +25,7 @@ namespace nask_utility {
 		    return "011";
 	       }
 
-	       return "";
+	       return "110";
 	  };
 
 	  const uint8_t get_opecode_from_reg(uint8_t base, const std::string& reg_name) {

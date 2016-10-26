@@ -646,9 +646,11 @@ namespace nask_utility {
 
 	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")  &&
-			  // MOV XX, [YY] // normal pattern
-			  (tokenizer.LookAhead(2).Is("[") &&tokenizer.LookAhead(4).Is("]")) ||
-			  // MOV XX, BYTE [YY] // normal pattern
+			  // MOV XX, [YY]
+			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(4).Is("]")) ||
+			  // MOV XX, [YY+00]
+			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(6).Is("]")) ||
+                          // MOV XX, BYTE [YY]
 			  (is_datatype(token_table, tokenizer.LookAhead(2)) &&
 			   tokenizer.LookAhead(3).Is("[") &&tokenizer.LookAhead(5).Is("]"))
 		    ) {
@@ -669,26 +671,48 @@ namespace nask_utility {
 
 		    // Reg, Immの場合 => 1000101w oorrrmmm
 		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
-		    const std::string tp_src = ModRM::REGISTERS_MMM_MAP.count(src_reg) ?
-			 ModRM::REGISTERS_MMM_MAP.at(src_reg) : "110"; // [disp16]
-
 		    // 1000101 + w
 		    const std::bitset<8> bs_dst("1000101" + std::get<1>(tp_dst));
-		    // oo + rrr + mmm
-		    const std::bitset<8> bs_src("00" + std::get<0>(tp_dst) + tp_src);
-		    binout_container.push_back(bs_dst.to_ulong());
-		    binout_container.push_back(bs_src.to_ulong());
-		    if (!ModRM::REGISTERS_MMM_MAP.count(src_reg) && is_hex_notation(src_reg)) {
-			 const std::string from = "0x";
-			 const std::string to = "";
-			 const std::string hex = replace(src_reg, from, to);
-			 set_hexstring_into_binout(hex, binout_container);
+
+		    // mod=00: [レジスター+レジスター]
+		    // mod=01: [レジスター+disp8]
+		    const std::string mod = tokenizer.LookAhead(6).Is("]") ? "01" : "00";
+		    const std::string tp_src = ModRM::get_rm_from_reg(src_reg);
+		    const std::bitset<8> bs_src(mod + std::get<0>(tp_dst) + tp_src);
+		    log()->info("ModR/M byte: {}", mod + std::get<0>(tp_dst) + tp_src);
+
+		    if (mod == "01") {
+			 // FIXME
+			 binout_container.push_back(0x67);
+			 binout_container.push_back(0x66);
+			 binout_container.push_back(bs_dst.to_ulong());
+			 binout_container.push_back(bs_src.to_ulong());
+			 binout_container.push_back(tokenizer.LookAhead(5).AsLong());
+
+			 log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+				     bs_dst.to_ulong(),
+				     bs_src.to_ulong(),
+				     tokenizer.LookAhead(5).AsLong()
+			      );
+
+		    } else {
+			 binout_container.push_back(bs_dst.to_ulong());
+			 binout_container.push_back(bs_src.to_ulong());
+
+			 if (!ModRM::REGISTERS_MMM_MAP.count(src_reg) && is_hex_notation(src_reg)) {
+			      const std::string from = "0x";
+			      const std::string to = "";
+			      const std::string hex = replace(src_reg, from, to);
+			      set_hexstring_into_binout(hex, binout_container);
+			 }
+
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}",
+				     bs_dst.to_ulong(),
+				     bs_src.to_ulong(),
+				     !ModRM::REGISTERS_MMM_MAP.count(src_mem) ? src_token.AsString() : "N/A");
+
 		    }
 
-		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}",
-				bs_dst.to_ulong(),
-				bs_src.to_ulong(),
-				!ModRM::REGISTERS_MMM_MAP.count(src_mem) ? src_token.AsString() : "N/A");
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
