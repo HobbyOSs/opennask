@@ -2008,6 +2008,88 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // SHR命令の実装
+     int Instructions::process_token_SHR(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+
+		    if (is_common_register(token_table, token)) {
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src  = src_token.AsString();
+
+			 // 次へ
+			 tokenizer.Next();
+			 tokenizer.Next();
+			 log()->info("{} / 2 {} times", dst_reg, src);
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      // 0xD0 /5     SHR r/m8        r/m8を2で1回符号なし除算します※
+			      // 0xD2 /5     SHR r/m8, CL    r/m8を2でCL回符号なし除算します※
+			      // 0xC0 /5 ib  SHR r/m8, imm8  r/m8を2でimm8回符号なし除算します※
+			      const uint8_t op  = src_token.IsEmpty() ? 0xd0 : ( src == "CL" ? 0xd2 : 0xc0 );
+			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_5);
+
+			      // debug logs
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}", op, nim, src_token.AsString());
+
+			      binout_container.push_back(op);
+			      binout_container.push_back(nim);
+			      if (op == 0xc0) {
+				   binout_container.push_back(src_token.AsLong());
+			      }
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      // 0xD1 /5     SHR r/m16       r/m16を2で1回符号なし除算します※
+			      // 0xD3 /5     SHR r/m16, CL   r/m16を2でCL回符号なし除算します※
+			      // 0xC1 /5 ib  SHR r/m16, imm8 r/m16を2でimm8回符号なし除算します※
+			      const uint8_t op  = src_token.IsEmpty() ? 0xd1 : ( src == "CL" ? 0xd3 : 0xc1 );
+			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_5);
+
+			      // debug logs
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}", op, nim, src_token.AsString());
+
+			      binout_container.push_back(op);
+			      binout_container.push_back(nim);
+			      if (op == 0xc1) {
+				   binout_container.push_back(src_token.AsLong());
+			      }
+
+			 } else {
+			      // 0xD1 /5     SHR r/m32       r/m32を2で1回符号なし除算します※
+			      // 0xD3 /5     SHR r/m32, CL   r/m32を2でCL回符号なし除算します※
+			      // 0xC1 /5 ib  SHR r/m32, imm8 r/m32を2でimm8回符号なし除算します※
+			      const uint8_t op  = src_token.IsEmpty() ? 0xd1 : ( src == "CL" ? 0xd3 : 0xc1 );
+			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_5);
+
+			      // debug logs
+			      log()->info("NIM(W): 0x66, 0x{:02x}, 0x{:02x}, {}", op, nim, src_token.AsString());
+
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(op);
+			      binout_container.push_back(nim);
+			      if (op == 0xc1) {
+				   binout_container.push_back(src_token.AsLong());
+			      }
+			 }
+			 break;
+
+		    } else {
+			 // error
+			 std::cerr << "NASK : SHR syntax error" << std::endl;
+			 return 17;
+		    }
+
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なSUB命令の実装
      int Instructions::process_token_SUB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
