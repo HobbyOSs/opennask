@@ -1239,8 +1239,7 @@ namespace nask_utility {
 			      // NIM: 0000010w
 			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
 			      // debug logs
-			      log()->info("NIM(W): {}, {}", static_cast<int>(bs_dst.to_ulong()),
-					  static_cast<int>(src_token.AsLong()));
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_token.AsLong());
 
 			      binout_container.push_back(bs_dst.to_ulong());
 
@@ -1281,38 +1280,49 @@ namespace nask_utility {
 
 				   // debug logs
 				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-					       static_cast<int>(0x80),
-					       static_cast<int>(bs_dst2.to_ulong()),
-					       static_cast<int>(src_token.AsLong()));
+					       0x80,
+					       bs_dst2.to_ulong(),
+					       src_token.AsLong());
 
 				   binout_container.push_back(0x80);
 				   binout_container.push_back(bs_dst2.to_ulong());
 				   binout_container.push_back(src_token.AsLong());
 
 			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-				   const uint8_t op = is_between_bytesize(src_token.AsLong()) ? 0x83 : 0x81;
+				   const uint8_t op = is_imm8(src_token.AsString()) ? 0x83 : 0x81;
 				   // ADD Reg16, Imm
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m16, imm8
 				   // 0x81 /0 iw  ADD r/m16, imm16
 				   log()->info("r/m16: ", dst_reg);
-				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): {}", static_cast<int>(op));
-				   log()->info(", {}", static_cast<int>(bs_dst2.to_ulong()));
-				   log()->info(", {}", static_cast<int>(src_token.AsLong()));
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					       op, bs_dst2.to_ulong(), src_token.AsLong());
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(bs_dst2.to_ulong());
 				   binout_container.push_back(src_token.AsLong());
 
 			      } else {
+				   const uint8_t op = is_imm8(src_token.AsString()) ? 0x83 : 0x81;
 				   // ADD Reg32, Imm
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
+				   log()->info("r/m32: ", dst_reg);
+				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+
+				   // debug logs
+				   log()->info("NIM(W): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					       op, bs_dst2.to_ulong(), src_token.AsLong());
+
+				   binout_container.push_back(0x66);
+				   binout_container.push_back(op);
+				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(src_token.AsLong());
+
 			      }
 			      break;
 			 }
