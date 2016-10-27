@@ -28,7 +28,7 @@ struct LABEL_DST_ELEMENT {
   long rel_index;  // rel_offsetを格納する場所
   long rel_offset() {
        // offset = rel - dst
-       spdlog::get("opennask")->info("{} - {} - 1", std::to_string(src_index), std::to_string(rel_index));
+       spdlog::get("opennask")->info("dst_offs: {} - {} - 1", std::to_string(src_index), std::to_string(rel_index));
        return src_index - rel_index - 1;
   };
 };
@@ -43,7 +43,7 @@ struct LABEL_SRC_ELEMENT {
   size_t offset_size; // オフセットの格納サイズを指定する
   long rel_offset() {
        // offset = rel - dst
-       spdlog::get("opennask")->info("{} - {} - 1", std::to_string(dst_index), std::to_string(rel_index));
+       spdlog::get("opennask")->info("src_offs: {} - {} - 1", std::to_string(dst_index), std::to_string(rel_index));
        return dst_index - rel_index - 1;
   };
 };
@@ -163,6 +163,7 @@ namespace nask_utility {
 	  bool dst_is_stored(std::string label_dst);
 
 	  void store_label_src(std::string label_src,VECTOR_BINOUT& binout_container, bool abs = false, size_t offset_size = imm8);
+	  const long get_label_src_offset(std::string label_src); // DB, DW, DD用
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container);
 	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す

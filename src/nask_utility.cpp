@@ -147,9 +147,7 @@ namespace nask_utility {
      // label: (label_dstと呼ぶ)
      // 1) label_dstの位置を記録する → label_dst_stack
      void Instructions::store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container) {
-	  log()->info("stored label: {} bin[{}]",
-		      label_dst,
-		      std::to_string(binout_container.size()));
+	  log()->info("stored label: {} bin[{}]", label_dst, binout_container.size());
      	  LABEL_DST_ELEMENT elem;
 	  elem.label = label_dst;
 	  elem.src_index = binout_container.size();
@@ -163,6 +161,7 @@ namespace nask_utility {
 	  for (auto it = std::begin(label_src_stack); it != std::end(label_src_stack); ++it) {
 	       // C++って::selectみたいなことできんのかい
 	       LABEL_SRC_ELEMENT elem(*it);
+	       //log()->info("update target: {}, stored info {}", label_dst, elem.label);
 	       if (elem.label != label_dst)
 		    continue;
 
@@ -242,6 +241,20 @@ namespace nask_utility {
 	  }
      }
 
+     const long Instructions::get_label_src_offset(std::string label_src) {
+
+	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
+				 [&](const LABEL_DST_ELEMENT& elem)
+				 { return elem.label == label_src; });
+
+      	  if (it != std::end(label_dst_stack)) {
+	       LABEL_DST_ELEMENT elem(*it);
+	       log()->info("matched label: {} with {}", elem.label, label_src);
+	       const long abs_size = elem.src_index + dollar_position;
+	       return abs_size;
+	  }
+     }
+
      // OPECODE label (label_srcと呼ぶ)
      // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
      //    処理対象があれば true, 処理対象がなければ false
@@ -251,7 +264,7 @@ namespace nask_utility {
 
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
-				 { return elem.label.find(label_src) != std::string::npos; });
+				 { return elem.label == label_src; });
 
       	  if (it != std::end(label_dst_stack)) {
 	       LABEL_DST_ELEMENT elem(*it);
@@ -277,7 +290,7 @@ namespace nask_utility {
 
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
-				 { return elem.label.find(label_src) != std::string::npos; });
+				 { return elem.label == label_src; });
 
       	  if (it != std::end(label_dst_stack)) {
 	       /**
@@ -1814,10 +1827,11 @@ namespace nask_utility {
 		    }
 	       } else if ( !is_legitimate_numeric(token.AsString()) && !token.IsEmpty() ) {
 		    // DW
-		    log()->info("DW sets rel: {}", token.AsString());
-		    if (dst_is_stored(token.AsString())) {
-			 update_label_src_offset(token.AsString(), binout_container);
-		    }
+		    const std::string store_label = token.AsString();
+		    const long abs_size = get_label_src_offset(store_label);
+		    log()->info("DW found rel: {}", store_label);
+		    log()->info("DW absolute size: {}", abs_size);
+		    set_word_into_binout(abs_size, binout_container);
 		    break;
 	       } else {
 		    // DWを解釈, 0x00の際でもWORDで格納
@@ -2014,10 +2028,12 @@ namespace nask_utility {
 
 	       } else if ( !is_legitimate_numeric(token.AsString()) && !token.IsEmpty() ) {
 		    // DD
-		    log()->info("DD sets rel: {}", token.AsString());
-		    if (dst_is_stored(token.AsString())) {
-			 update_label_src_offset(token.AsString(), binout_container);
-		    }
+		    const std::string store_label = token.AsString();
+		    const long abs_size = get_label_src_offset(store_label);
+		    log()->info("DD found rel: {}", store_label);
+		    log()->info("DD absolute size: {}", abs_size);
+		    // DDだけどWORDサイズで格納？？
+		    set_word_into_binout(abs_size, binout_container);
 		    break;
 	       } else {
 		    // DDを解釈
