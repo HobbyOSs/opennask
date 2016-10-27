@@ -244,6 +244,33 @@ namespace nask_utility {
 	  return false;
      }
 
+     // OPECODE label (label_srcと呼ぶ)
+     // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
+     //    処理対象があれば true, 処理対象がなければ false
+     bool Instructions::update_label_src_offset(std::string label_src,
+						VECTOR_BINOUT& binout_container) {
+
+	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
+				 [&](const LABEL_DST_ELEMENT& elem)
+				 { return elem.label.find(label_src) != std::string::npos; });
+
+      	  if (it != std::end(label_dst_stack)) {
+	       /**
+	       LABEL_DST_ELEMENT elem(*it);
+	       elem.dst_index = binout_container.size();
+	       elem.rel_index = binout_container.size() + 1;
+	       log()->info("update_label_src_offset bin[{}] = {}",
+			   std::to_string(elem.rel_index),
+			   elem.rel_offset());
+
+	       binout_container.push_back(elem.rel_offset());
+	       */
+	       return true;
+	  }
+
+	  return false;
+     }
+
      std::string Instructions::get_equ_label_or_asis(std::string key) {
 	  if( this->equ_map.find(key) != this->equ_map.end() ) {
 	       log()->info("label: {} replaced as {}", key, equ_map[key]);
@@ -285,7 +312,7 @@ namespace nask_utility {
 	  return replaced;
      }
 
-     bool Instructions::dst_is_stored(std::string label_src, VECTOR_BINOUT& binout_container) {
+     bool Instructions::dst_is_stored(std::string label_src) {
 	  auto it = std::find_if(std::begin(label_dst_stack), std::end(label_dst_stack),
 				 [&](const LABEL_DST_ELEMENT& elem)
 				 { return elem.label.find(label_src) != std::string::npos; });
@@ -953,7 +980,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x73, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x73);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -980,7 +1007,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x76, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x76);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1007,7 +1034,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x72, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x72);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1034,7 +1061,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x72, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x72);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1061,7 +1088,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x74, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x74);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1133,7 +1160,7 @@ namespace nask_utility {
 		    log()->info("label stored: ", store_label);
 		    log()->info("0xeb, 0x00");
 
-		    if (dst_is_stored(store_label, binout_container)) {
+		    if (dst_is_stored(store_label)) {
 			 update_label_src_offset(store_label, binout_container, 0xeb);
 		    } else {
 			 store_label_src(store_label, binout_container);
@@ -1159,7 +1186,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x73, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x73);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1186,7 +1213,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x75, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x75);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1213,7 +1240,7 @@ namespace nask_utility {
 			 log()->info("label stored: ", store_label);
 			 log()->info("0x74, 0x00");
 
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x74);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1249,7 +1276,7 @@ namespace nask_utility {
 			 // ラベルではなく即値でジャンプ先を指定された場合
 			 log()->info("** Not implemented **");
 		    } else {
-			 if (dst_is_stored(store_label, binout_container)) {
+			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x16);
 			 } else {
 			      store_label_src(store_label, binout_container);
@@ -1529,7 +1556,7 @@ namespace nask_utility {
 		    log()->info("label stored: ", store_label);
 		    log()->info("0xe8, 0x0000");
 
-		    if (dst_is_stored(store_label, binout_container)) {
+		    if (dst_is_stored(store_label)) {
 			 update_label_src_offset(store_label, binout_container, 0xe8);
 		    } else {
 			 store_label_src(store_label, binout_container);
@@ -1754,9 +1781,17 @@ namespace nask_utility {
 			 std::cerr << "NASK : DW not quoted correctly' " << std::endl;
 			 return 17;
 		    }
+	       } else if ( !is_legitimate_numeric(token.AsString()) && !token.IsEmpty() ) {
+		    // DW
+		    log()->info("DW sets rel: {}", token.AsString());
+		    if (dst_is_stored(token.AsString())) {
+			 update_label_src_offset(token.AsString(), binout_container);
+		    }
+		    break;
 	       } else {
 		    // DWを解釈, 0x00の際でもWORDで格納
 		    set_word_into_binout(token.AsLong(), binout_container, false);
+		    continue;
 	       }
 	  }
 	  return 0;
@@ -1945,9 +1980,18 @@ namespace nask_utility {
 			 std::cerr << "NASK : DD not quoted correctly" << std::endl;
 			 return 17;
 		    }
+
+	       } else if ( !is_legitimate_numeric(token.AsString()) && !token.IsEmpty() ) {
+		    // DD
+		    log()->info("DD sets rel: {}", token.AsString());
+		    if (dst_is_stored(token.AsString())) {
+			 update_label_src_offset(token.AsString(), binout_container);
+		    }
+		    break;
 	       } else {
-		    // DWを解釈
+		    // DDを解釈
 		    set_dword_into_binout(token.AsLong(), binout_container);
+		    continue;
 	       }
 	  }
 	  return 0;

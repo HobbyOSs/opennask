@@ -160,12 +160,11 @@ namespace nask_utility {
 	  // relX に関する関数
 	  void store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container);
 	  void update_label_dst_offset(std::string label_dst, VECTOR_BINOUT& binout_container);
-	  bool dst_is_stored(std::string label_dst, VECTOR_BINOUT& binout_container);
+	  bool dst_is_stored(std::string label_dst);
 
-	  void store_label_src(std::string label_src,
-			       VECTOR_BINOUT& binout_container,
-			       bool abs = false, size_t offset_size = imm8);
+	  void store_label_src(std::string label_src,VECTOR_BINOUT& binout_container, bool abs = false, size_t offset_size = imm8);
 	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container, uint8_t nim);
+	  bool update_label_src_offset(std::string label_src, VECTOR_BINOUT& binout_container);
 	  // EQUで保存されているラベルの実体を取り出すか、そのまま返す
 	  std::string get_equ_label_or_asis(std::string key);
 	  std::vector<std::string> get_equ_keyset();
