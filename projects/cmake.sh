@@ -53,6 +53,8 @@ do
     TARGET_NAME=`echo ${NAS_FILE} | sed -e 's|\/|_|g' | sed -e 's/.nas//g'`
 
     OS_FILE=`echo ${NAS_FILE} | sed -e 's|^\.\/||' | sed -e 's/asmhead.nas/os.img/g'`
+    SYS_FILE=`echo ${NAS_FILE} | sed -e 's|^\.\/||' | sed -e 's/asmhead.nas/os.sys/g'`
+    IPL_FILE=`echo ${NAS_FILE} | sed -e 's|^\.\/||' | sed -e 's/asmhead.nas/ipl.bin/g'`
     TARGET_OS_NAME=`echo ${TARGET_NAME} | sed -e 's|_asmhead||g'`
 
     NAS_DIR=(`echo ${NAS_FILE} | sed -r 's|/[^/]+$||' | sed -e 's|^\.\/||'`)
@@ -93,6 +95,8 @@ do
     if [[ $NAS_FILE == *"asmhead.nas" ]]; then
 	echo "#----------------------------------------------------------"                            | tee -a ${CMAKELISTS}
 	echo "set(${TARGET_OS_NAME}_OS \${root_BINARY_DIR}/projects/${OS_FILE})"                      | tee -a ${CMAKELISTS}
+	echo "set(${TARGET_OS_NAME}_OS_SYS \${root_BINARY_DIR}/projects/${SYS_FILE})"                 | tee -a ${CMAKELISTS}
+	echo "set(${TARGET_OS_NAME}_OS_IPL \${root_BINARY_DIR}/projects/${IPL_FILE})"                 | tee -a ${CMAKELISTS}
 	echo ""                                                                                       | tee -a ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
 	echo "  COMMAND \${QEMU} \${QEMUOPT} \${root_BINARY_DIR}/projects/${OS_FILE}"                 | tee -a ${CMAKELISTS}
