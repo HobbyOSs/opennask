@@ -642,10 +642,10 @@ namespace nask_utility {
 		    }
 
 		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}",
-				static_cast<int>(bs_src.to_ulong()),
-				static_cast<int>(bs_dst.to_ulong()),
-				static_cast<int>(dst_addr_imm),
-				static_cast<int>(src_token.AsLong()));
+				bs_src.to_ulong(),
+				bs_dst.to_ulong(),
+				dst_addr_imm,
+				src_token.AsLong());
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
@@ -656,10 +656,83 @@ namespace nask_utility {
 		    break;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+			  //!is_common_register(token_table, tokenizer.LookAhead(1)) &&
+			  tokenizer.LookAhead(3).Is(",") &&
+		          is_common_register(token_table, tokenizer.LookAhead(4))) {
+		    //
+		    // MOV r/m8, r8       | 0x88 /r
+		    // MOV r/m16, r16     | 0x89 /r
+		    // MOV r/m32, r32     | 0x89 /r
+		    TParaToken dst_token = tokenizer.LookAhead(1);
+		    TParaToken src_token = tokenizer.LookAhead(4);
+		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+		    const std::string src_reg  = src_token.AsString();
+
+		    log()->info("{} <= {}", dst_mem, src_reg);
+
+		    std::smatch match;
+		    if (regex_match(src_reg, match, ModRM::regImm08)) {
+			 // MOV r/m8, r8       | 0x88 /r
+			 const uint8_t modrm = ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+			 log()->info("NIM(B): 0x88, 0x{:02x}, {}", modrm, tokenizer.LookAhead(2).AsString());
+			 binout_container.push_back(0x88);
+			 binout_container.push_back(modrm);
+			 if (is_hex_notation(dst_token.AsString())) {
+			      const std::string from = "0x";
+			      const std::string to = "";
+			      const std::string hex = replace(dst_token.AsString(), from, to);
+			      set_hexstring_into_binout(hex, binout_container);
+			 }
+
+		    } /** else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			 // 0x81 /5 iw | SUB r/m16, imm16 | r/m16からimm16を引きます
+			 // 0x83 /5 ib | SUB r/m16, imm8  | r/m16から符号拡張したimm8を引きます
+
+			 // FIXME: nask side process is strange,
+			 // ex1) imm is "512/4", => 0x83
+			 // ex2) imm is "1",     => 0x81
+			 const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
+			 log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			 binout_container.push_back(nim1);
+			 binout_container.push_back(nim2);
+			 if (nim1 == 0x83) {
+			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			 } else {
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 }
+		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			 // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
+			 // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
+
+			 // FIXME: nask side process is strange,
+			 // ex1) imm is "512/4", => 0x83
+			 // ex2) imm is "1",     => 0x81
+			 const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
+			 log()->info("NIM(B): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
+			 binout_container.push_back(0x66);
+			 binout_container.push_back(nim1);
+			 binout_container.push_back(nim2);
+			 if (nim1 == 0x83) {
+			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
+			 } else {
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 }
+		    } else {
+			 // memory
+			 std::cerr << "NASK : SUB syntax error, imm from memory is not supported now" << std::endl;
+			 return 17;
+		    } */
+
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    break;
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
 			  tokenizer.LookAhead(3).Is(",") &&
 		          is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    //
 		    // MOV Mem     , Reg  | 1000100w oorrrmmm
+		    //
 		    // MOV moffs8* , AL   | 0xA2
 		    // MOV moffs16*, AX   | 0xA3
 		    // MOV moffs32*, EAX  | 0xA3

@@ -13,6 +13,7 @@ namespace nask_utility {
 	  const std::regex rm001("(CL|CX|ECX)");
 	  const std::regex rm010("(DL|DX|EDX)");
 	  const std::regex rm011("(BL|BX|EBX)");
+	  const std::regex rm101("(CH|BP|EBP)");
 
 	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)");
 	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)");

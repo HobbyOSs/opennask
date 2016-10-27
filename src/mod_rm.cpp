@@ -23,6 +23,8 @@ namespace nask_utility {
 		    return "010";
 	       } else if (regex_match(src_reg, match, rm011)) {
 		    return "011";
+	       } else if (regex_match(src_reg, match, rm101)) {
+		    return "101";
 	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(src_reg)) {
 		    // ここの順序は変えないように
 		    return SEGMENT_REGISTERS_SSS_MAP.at(src_reg);
