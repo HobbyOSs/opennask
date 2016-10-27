@@ -863,9 +863,9 @@ namespace nask_utility {
 			      binout_container.push_back(first_byte);
 			      // debug logs
 			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-					  static_cast<int>(second_byte),
-					  static_cast<int>(first_byte),
-					  static_cast<int>(token.AsLong()));
+					  second_byte,
+					  first_byte,
+					  token.AsLong());
 
 			 } else {
 			      const uint8_t first_byte	= nim & 0xff;
@@ -1068,6 +1068,19 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
+	       } else if (tokenizer.LookAhead(2).AsString() == ":") {
+		    // JMP ptr16:16 | 0xEA cd
+		    // JMP ptr16:32 | 0xEA cp
+		    std::string data_type = token.AsString();
+		    const long ptr16 = tokenizer.LookAhead(1).AsLong();
+		    const long addr  = tokenizer.LookAhead(3).AsLong();
+		    log()->info("NIM(W): 0x66, 0xea, 0x{:02x}, 0x{:02x}", addr, ptr16);
+		    binout_container.push_back(0x66);
+		    binout_container.push_back(0xea);
+		    set_dword_into_binout(addr, binout_container);
+		    set_word_into_binout(ptr16, binout_container);
+		    break;
+
 	       } else if (is_hex_notation(token.AsString())) {
 		    // ラベルではなく即値でジャンプ先を指定された場合
 		    // JMP rel8  | 0xEB cb

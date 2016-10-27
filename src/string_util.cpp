@@ -52,7 +52,11 @@ namespace nask_utility {
 	       if (std::regex_search(subject, match, re) && match.size() > 1) {
 		    int error;
 		    const int process = te_interp(match[2].str().c_str(), &error);
-		    return match[1].str() + std::to_string(process) + match[3].str();
+		    const std::string cat = match[1].str() + match[2].str() + match[3].str();
+		    const std::string empty = "";
+
+		    std::string result = replace(subject, cat, empty);
+		    return match[1].str() + std::to_string(process) + match[3].str() + result;
 	       }
 
 	  } catch (std::regex_error& e) {
