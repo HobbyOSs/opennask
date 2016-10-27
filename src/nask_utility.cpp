@@ -159,11 +159,12 @@ namespace nask_utility {
      // label: (label_dstと呼ぶ)
      // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
      void Instructions::update_label_dst_offset(std::string label_dst, VECTOR_BINOUT& binout_container) {
+
 	  auto it = std::find_if(std::begin(label_src_stack), std::end(label_src_stack),
 				 [&](const LABEL_SRC_ELEMENT& elem)
 				 { return elem.label.find(label_dst) != std::string::npos; });
 
-      	  if (it != std::end(label_src_stack)) {
+	  for (; it != std::end(label_src_stack); ++it) {
 	       LABEL_SRC_ELEMENT elem(*it);
 	       elem.dst_index = binout_container.size();
 
@@ -180,12 +181,12 @@ namespace nask_utility {
 	       } else {
 		    switch (elem.offset_size) {
 		    case imm16:
-			 log()->info("update_label_dst_offset bin[{}, {}] = 0x{:02x}",
+			 log()->info("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
 				     std::to_string(elem.rel_index),
 				     std::to_string(elem.rel_index + 1),
-				     elem.rel_offset());
+				     elem.rel_offset() - 1);
 
-			 set_word_into_binout(elem.rel_offset(),
+			 set_word_into_binout(elem.rel_offset() - 1,
 					      binout_container,
 					      false,
 					      elem.rel_index);
@@ -1559,7 +1560,7 @@ namespace nask_utility {
 		    if (dst_is_stored(store_label)) {
 			 update_label_src_offset(store_label, binout_container, 0xe8);
 		    } else {
-			 store_label_src(store_label, binout_container);
+			 store_label_src(store_label, binout_container, false, imm16);
 			 binout_container.push_back(0xe8);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
