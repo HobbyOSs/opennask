@@ -52,8 +52,8 @@ TEST(nask_suite, testNaskUtilityIsImm8)
 {
      const bool will_true1 = nask_utility::is_imm8("0xff");
      CHECK(will_true1);
-     const bool will_true2 = nask_utility::is_imm8("128");
-     CHECK(will_true2);
+     const bool will_false0 = nask_utility::is_imm8("128");
+     CHECK(!will_false0);
      const bool will_false1 = nask_utility::is_imm8("0x80ff");
      CHECK(!will_false1);
      const bool will_false2 = nask_utility::is_imm8("-500");

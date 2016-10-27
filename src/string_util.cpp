@@ -17,7 +17,10 @@ namespace nask_utility {
 	  if (is_hex_notation(token)) {
 	       return imm8 == get_imm_size(token);
 	  } else {
-	       return is_between_bytesize(std::stol(token));
+	       if (is_integer(token)) {
+		    log()->info("is imm8 ? {}", token);
+		    return is_between_bytesize(std::stol(token));
+	       }
 	  }
 	  return true;
      }
