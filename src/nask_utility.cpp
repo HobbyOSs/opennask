@@ -193,7 +193,7 @@ namespace nask_utility {
 			 break;
 
 		    case imm32:
-			 log()->info("update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
+			 log()->info("imm32: update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
 				     std::to_string(elem.rel_index),
 				     std::to_string(elem.rel_index + 1),
 				     std::to_string(elem.rel_index + 2),
@@ -208,10 +208,10 @@ namespace nask_utility {
 
 		    case imm8:
 		    default:
-			 log()->info("update_label_dst_offset bin[{}] = 0x{:02x}",
+			 log()->info("imm8: update_label_dst_offset bin[{}] = 0x{:02x}",
 				     std::to_string(elem.rel_index + 1),
 				     elem.rel_offset());
-			 binout_container[elem.rel_index + 1] = elem.rel_offset();
+			 binout_container[elem.rel_index] = elem.rel_offset();
 			 break;
 		    }
 	       }
@@ -1250,6 +1250,9 @@ namespace nask_utility {
 			      store_label_src(store_label, binout_container);
 			      binout_container.push_back(0x74);
 			      binout_container.push_back(0x00);
+			      log()->info("bin[{}] = 0x74, bin[{}] = 0x00",
+					  binout_container.size() - 1,
+					  binout_container.size());
 			 }
 			 break;
 		    }
