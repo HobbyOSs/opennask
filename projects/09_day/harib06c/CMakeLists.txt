@@ -21,6 +21,13 @@ add_dependencies(images 09_day_harib06c_asmhead)
 add_dependencies(wine 09_day_harib06c_asmhead_wine)
 add_dependencies(od 09_day_harib06c_asmhead_od)
 
+#----------------------------------------------------------
+set(09_day_harib06c_OS ${root_BINARY_DIR}/projects/09_day/harib06c/os.img)
+
+add_custom_target(09_day_harib06c_run
+  COMMAND ${QEMU} ${QEMUOPT} ${root_BINARY_DIR}/projects/09_day/harib06c/os.img
+)
+
 ########### next target ###############
 set(ipl10.img_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06c/ipl10.nas)
 set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/09_day/harib06c/ipl10.img)

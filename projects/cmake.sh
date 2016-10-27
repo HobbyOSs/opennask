@@ -52,6 +52,9 @@ do
     WINE_BIN_FILE=`echo ${NAS_FILE} | sed -e 's|^\.\/||' | sed -e 's/.nas/_wine.img/g'`
     TARGET_NAME=`echo ${NAS_FILE} | sed -e 's|\/|_|g' | sed -e 's/.nas//g'`
 
+    OS_FILE=`echo ${NAS_FILE} | sed -e 's|^\.\/||' | sed -e 's/asmhead.nas/os.img/g'`
+    TARGET_OS_NAME=`echo ${TARGET_NAME} | sed -e 's|_asmhead||g'`
+
     NAS_DIR=(`echo ${NAS_FILE} | sed -r 's|/[^/]+$||' | sed -e 's|^\.\/||'`)
     CMAKELISTS="${NAS_DIR}/CMakeLists.txt"
 
@@ -86,4 +89,15 @@ do
     echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                 | tee -a ${CMAKELISTS}
     echo "add_dependencies(od ${TARGET_NAME}_od)"                                                     | tee -a ${CMAKELISTS}
     echo ""                                                                                           | tee -a ${CMAKELISTS}
+
+    if [[ $NAS_FILE == *"asmhead.nas" ]]; then
+	echo "#----------------------------------------------------------"                            | tee -a ${CMAKELISTS}
+	echo "set(${TARGET_OS_NAME}_OS \${root_BINARY_DIR}/projects/${OS_FILE})"                      | tee -a ${CMAKELISTS}
+	echo ""                                                                                       | tee -a ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
+	echo "  COMMAND \${QEMU} \${QEMUOPT} \${root_BINARY_DIR}/projects/${OS_FILE}"                 | tee -a ${CMAKELISTS}
+	echo ")"										      | tee -a ${CMAKELISTS}
+	echo ""		        								      | tee -a ${CMAKELISTS}
+	#echo "add_dependencies(${TARGET_NAME}_run ${TARGET_NAME})"                                    | tee -a ${CMAKELISTS}
+    fi
 done
