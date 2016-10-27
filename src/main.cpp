@@ -84,6 +84,7 @@ int process_each_assembly_line(char** argv,
   X_INST_ITEM(JE)   \
   X_INST_ITEM(JMP)  \
   X_INST_ITEM(JNC)  \
+  X_INST_ITEM(JNZ)  \
   X_INST_ITEM(JZ)   \
   X_INST_ITEM(LGDT) \
   X_INST_ITEM(MOV)  \
