@@ -504,15 +504,11 @@ namespace nask_utility {
 		    log()->info("Sreg {} <= {}", dst_reg, src_reg);
 
 		    // MOV Sreg, register の時
-		    if (tokenizer.LookAhead(1).Is(",") &&
-			!tokenizer.LookAhead(2).IsEmpty() &&
-			is_common_register(token_table, src_token)) {
+		    if (tokenizer.LookAhead(1).Is(",") && is_common_register(token_table, src_token)) {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
-			 log()->info(" <= {}", token.AsString());
-
-			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg);
+			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
 			 binout_container.push_back(0x8e);
 			 binout_container.push_back(modrm);
 			 // これで終了のはず

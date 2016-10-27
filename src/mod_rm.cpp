@@ -23,6 +23,8 @@ namespace nask_utility {
 		    return "010";
 	       } else if (regex_match(src_reg, match, rm011)) {
 		    return "011";
+	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(src_reg)) {
+		    return SEGMENT_REGISTERS_SSS_MAP.at(src_reg);
 	       }
 
 	       return "110";
@@ -94,9 +96,11 @@ namespace nask_utility {
 	       // [reg] 3bit
 	       // [r/m] 3bit
 	       //
+	       log()->info("Generate ModR/M: dst:{}, src:{}", dst_reg, src_reg);
 	       std::string modrm = ModRM::MOD_TO_STR.at(m);
-	       modrm += get_rm_from_reg(src_reg);
 	       modrm += get_rm_from_reg(dst_reg);
+	       modrm += get_rm_from_reg(src_reg);
+	       log()->info("Generate ModR/M: bitset:{}", modrm);
 	       std::bitset<8> bs(modrm);
 	       return bs.to_ulong();
 	  };
