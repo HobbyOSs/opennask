@@ -683,6 +683,7 @@ namespace nask_utility {
 		    TParaToken dst_token = tokenizer.LookAhead(1);
 		    TParaToken src_token = tokenizer.LookAhead(4);
 		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
 		    const std::string src_reg  = src_token.AsString();
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
@@ -691,7 +692,6 @@ namespace nask_utility {
 			 log()->info("MOV moffs* , AL or AX");
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
-			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
 			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
 			 set_word_into_binout(dst_addr_imm, binout_container, false);
 		    } else {
@@ -716,10 +716,11 @@ namespace nask_utility {
 			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 			 }
 
-			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
-			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
-			 set_word_into_binout(dst_addr_imm, binout_container, false);
-
+			 if (!is_common_register(token_table, dst_addr)) {
+			      const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+			      const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+			      set_word_into_binout(dst_addr_imm, binout_container, false);
+			 }
 		    }
 
 		    // コンマを飛ばして次へ
