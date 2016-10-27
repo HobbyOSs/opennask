@@ -966,8 +966,8 @@ namespace nask_utility {
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
 			 log()->info("NIM:(W) 0x{:02x}, 0x{:02x}, 0x{:02x}", o, 0x00, 0x00);
+			 store_label_src(src_imm, binout_container, true, imm16);
 			 binout_container.push_back(o);
-			 store_label_src(src_imm, binout_container, false, imm16);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
 
