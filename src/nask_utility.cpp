@@ -2251,11 +2251,6 @@ namespace nask_utility {
 			 // [reg] 101: /5
 			 // [r/m] xxx:
 			 const std::bitset<8> bs_dst("11101" + std::get<0>(tp_dst));
-
-			 // FIXME: nask side process is strange,
-			 // ex1) imm is "512/4", => 0x83
-			 // ex2) imm is "1",     => 0x81
-			 const uint8_t nim1 = contains(src_imm, "-") ? 0x83 : 0x81;
 			 const uint8_t nim2 = bs_dst.to_ulong();
 
 			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
@@ -2267,6 +2262,11 @@ namespace nask_utility {
 			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
 			      // 0x81 /5 iw | SUB r/m16, imm16 | r/m16からimm16を引きます
                               // 0x83 /5 ib | SUB r/m16, imm8  | r/m16から符号拡張したimm8を引きます
+
+			      // FIXME: nask side process is strange,
+			      // ex1) imm is "512/4", => 0x83
+			      // ex2) imm is "1",     => 0x81
+			      const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
 			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
 			      binout_container.push_back(nim1);
 			      binout_container.push_back(nim2);
@@ -2278,6 +2278,11 @@ namespace nask_utility {
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			      // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
 			      // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
+
+			      // FIXME: nask side process is strange,
+			      // ex1) imm is "512/4", => 0x83
+			      // ex2) imm is "1",     => 0x81
+			      const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
 			      log()->info("NIM(B): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
 			      binout_container.push_back(0x66);
 			      binout_container.push_back(nim1);

@@ -10,11 +10,7 @@ namespace nask_utility {
      }
 
      bool is_between_bytesize(const long l) {
-	  if (l < 0) {
-	       return SCHAR_MIN <= l && l <= SCHAR_MAX;
-	  } else {
-	       return 0 <= l && l <= UCHAR_MAX;
-	  }
+	  return SCHAR_MIN <= l && l <= SCHAR_MAX;
      }
 
      bool is_imm8(const std::string& token) {
