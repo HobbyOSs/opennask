@@ -180,7 +180,17 @@ namespace nask_utility {
 				     dollar_position + elem.dst_index);
 
 			 set_dword_into_binout(dollar_position + elem.dst_index,
-					       binout_container, false, elem.rel_index); // FIXME
+					       binout_container, false, elem.rel_index);
+			 break;
+
+		    case imm16:
+			 log()->info("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
+				     elem.rel_index,
+				     elem.rel_index + 1,
+				     dollar_position + elem.dst_index);
+
+			 set_word_into_binout(dollar_position + elem.dst_index,
+					      binout_container, false, elem.rel_index);
 			 break;
 
 		    case imm8:
@@ -1300,7 +1310,7 @@ namespace nask_utility {
 			 if (dst_is_stored(store_label)) {
 			      update_label_src_offset(store_label, binout_container, 0x16);
 			 } else {
-			      store_label_src(store_label, binout_container);
+			      store_label_src(store_label, binout_container, true, imm16);
 			      binout_container.push_back(0x16);
 			      binout_container.push_back(0x00);
 			      binout_container.push_back(0x00);
