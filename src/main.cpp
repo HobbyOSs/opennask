@@ -205,6 +205,7 @@ int process_each_assembly_line(char** argv,
 	       }
 	  }
      }
+     logger->info("final size: bin[{}]", binout_container.size());
      return 0;
 }
 

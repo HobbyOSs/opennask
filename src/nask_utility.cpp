@@ -169,16 +169,30 @@ namespace nask_utility {
 	       // 処理の開始
 	       elem.dst_index = binout_container.size();
 	       if (elem.abs) {
-		    log()->info("update_label_dst_offset bin[{}] = {}",
-				std::to_string(elem.rel_index - 1),
-				elem.dst_index);
+		    // ORGからの絶対値でオフセットを設定する
+		    switch (elem.offset_size) {
+		    case imm32:
+			 log()->info("imm32: update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
+				     elem.rel_index,
+				     elem.rel_index + 1,
+				     elem.rel_index + 2,
+				     elem.rel_index + 3,
+				     dollar_position + elem.dst_index);
 
-		    log()->info("update_label_dst_offset bin[{}]] = {}",
-				std::to_string(elem.rel_index), 0x7c);
+			 set_dword_into_binout(dollar_position + elem.dst_index,
+					       binout_container, false, elem.rel_index); // FIXME
+			 break;
 
-		    binout_container[elem.rel_index - 1] = elem.dst_index;
-		    binout_container[elem.rel_index] = 0x7c;
+		    case imm8:
+		    default:
+			 log()->info("imm8: update_label_dst_offset bin[{}] = {}, bin[{}] = {}",
+				     elem.rel_index - 1, elem.dst_index, elem.rel_index, 0x7c);
+			 binout_container[elem.rel_index - 1] = elem.dst_index;
+			 binout_container[elem.rel_index] = 0x7c;
+			 break;
+		    }
 	       } else {
+		    // ラベルからの相対値でオフセットを設定する
 		    switch (elem.offset_size) {
 		    case imm16:
 			 log()->info("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
@@ -865,7 +879,7 @@ namespace nask_utility {
 			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
 			 log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
 			 binout_container.push_back(0x66);
-			 store_label_src(src_imm, binout_container, false, imm32);
+			 store_label_src(src_imm, binout_container, true, imm32);
 			 binout_container.push_back(o);
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x00);
