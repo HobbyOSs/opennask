@@ -24,7 +24,11 @@ namespace nask_utility {
 	       } else if (regex_match(src_reg, match, rm011)) {
 		    return "011";
 	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(src_reg)) {
+		    // ここの順序は変えないように
 		    return SEGMENT_REGISTERS_SSS_MAP.at(src_reg);
+	       } else if (REGISTERS_MMM_MAP.count(src_reg)) {
+		    // ここの順序は変えないように
+		    return REGISTERS_MMM_MAP.at(src_reg);
 	       }
 
 	       return "110";
@@ -98,7 +102,7 @@ namespace nask_utility {
 	       // [r/m] 3bit
 	       //
 	       std::bitset<8> bsl(op);
-	       log()->info("Generate ModR/M: d bit:{} dst:{}, src:{}", bsl[4], dst_reg, src_reg);
+	       log()->info("Generate ModR/M: d bit:{} dst:{}, src:{}", bsl[3], dst_reg, src_reg);
 	       std::string modrm = ModRM::MOD_TO_STR.at(m);
 
                //        hgfedcba
@@ -109,9 +113,11 @@ namespace nask_utility {
                // The d bit in the opcode determines which operand is the source,
 	       // and which is the destination
 	       if (bsl[3]) { // d=0 or 1
+		    log()->info("d=1: REG <- MOD R/M, REG is the destination");
 		    modrm += get_rm_from_reg(dst_reg);
 		    modrm += get_rm_from_reg(src_reg);
 	       } else {
+		    log()->info("d=0: MOD R/M <- REG, REG is the source");
 		    modrm += get_rm_from_reg(src_reg);
 		    modrm += get_rm_from_reg(dst_reg);
 	       }

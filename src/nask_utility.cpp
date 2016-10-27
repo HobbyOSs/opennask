@@ -608,29 +608,35 @@ namespace nask_utility {
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
 
-		    if (ModRM::is_accumulator(src_reg)) {
-			 log()->info("MOV moffs* , AL or AX or EAX");
+		    if (src_reg == "AL" || src_reg == "AX") {
+			 log()->info("MOV moffs* , AL or AX");
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
+			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+			 set_word_into_binout(dst_addr_imm, binout_container, false);
 		    } else {
 			 log()->info("MOV Mem,Reg");
 			 // Mem, Regの場合 => 1000100w oo rrr mmm
 			 // 1000100 + w
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
 			 const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
+
+			 // old prefixes
+			 binout_container.push_back(0x67);
+			 binout_container.push_back(0x66);
 			 binout_container.push_back(bs_src.to_ulong());
+
 			 // oo + rrr + mmm
 			 // 00 + rrr + 110
-			 // この場合 mod=00, r/m=101で確定となる
-			 // r/m=101...[disp16], [disp32]
-			 const std::bitset<8> bs_dst("00" + std::get<0>(tp_dst) + "110");
-			 binout_container.push_back(bs_dst.to_ulong());
+			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
+			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(),
+								     ModRM::REG_REG,
+								     dst_mem, src_reg);
+			 binout_container.push_back(modrm);
+			 log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 		    }
 
-		    // 転送先は常にWORD
-		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
-		    const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
-		    set_word_into_binout(dst_addr_imm, binout_container, false);
 
 		    // コンマを飛ばして次へ
 		    token = tokenizer.Next();
@@ -692,6 +698,14 @@ namespace nask_utility {
 			      );
 
 		    } else {
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::regImm32) &&
+			     regex_match(src_reg, match, ModRM::regImm32) ) {
+			      binout_container.push_back(0x67);
+			      binout_container.push_back(0x66);
+			 }
+
 			 binout_container.push_back(bs_dst.to_ulong());
 			 binout_container.push_back(bs_src.to_ulong());
 
