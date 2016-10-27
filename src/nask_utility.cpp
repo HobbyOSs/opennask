@@ -32,7 +32,20 @@ namespace nask_utility {
 	  return it != std::end(regs);
      }
 
+     template<size_t N>
+     bool is_registers_with_args(const std::string& token, const std::array<std::string, N>& regs) {
+	  // レジスタ一覧から検索してあれば true
+	  auto it = std::find_if(std::begin(regs), std::end(regs),
+				 [&](const std::string& s)
+				 { return token == s; });
+	  return it != std::end(regs);
+     }
+
      bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+	  return is_registers_with_args(token, REGISTERS);
+     }
+
+     bool is_common_register(TParaCxxTokenTable& token_table, const std::string token) {
 	  return is_registers_with_args(token, REGISTERS);
      }
 
@@ -656,7 +669,69 @@ namespace nask_utility {
 		    break;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
-			  //!is_common_register(token_table, tokenizer.LookAhead(1)) &&
+			  tokenizer.LookAhead(3).Is(",") &&
+		          is_common_register(token_table, tokenizer.LookAhead(4))) {
+		    //
+		    // MOV Mem     , Reg  | 1000100w oorrrmmm
+		    //
+		    // MOV moffs8* , AL   | 0xA2
+		    // MOV moffs16*, AX   | 0xA3
+		    // MOV moffs32*, EAX  | 0xA3
+		    //
+		    // http://x86.renejeschke.de/html/file_module_x86_id_176.html
+		    // --------------------------------
+		    TParaToken dst_token = tokenizer.LookAhead(1);
+		    TParaToken src_token = tokenizer.LookAhead(4);
+		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+		    const std::string src_reg  = src_token.AsString();
+
+		    log()->info("{} <= {}", dst_mem, src_reg);
+
+		    if (src_reg == "AL" || src_reg == "AX") {
+			 log()->info("MOV moffs* , AL or AX");
+			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
+			 binout_container.push_back(bs_src);
+			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+			 set_word_into_binout(dst_addr_imm, binout_container, false);
+		    } else {
+			 log()->info("MOV Mem,Reg");
+			 // Mem, Regの場合 => 1000100w oo rrr mmm
+			 // 1000100 + w
+			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
+			 const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
+
+			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
+			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(), ModRM::REG_REG, dst_mem, src_reg);
+			 std::smatch match;
+			 if (regex_match(src_reg, match, ModRM::regImm32)) {
+			      binout_container.push_back(0x67);
+			      binout_container.push_back(0x66);
+			      binout_container.push_back(bs_src.to_ulong());
+			      binout_container.push_back(modrm);
+			      log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
+			 } else {
+			      binout_container.push_back(bs_src.to_ulong());
+			      binout_container.push_back(modrm);
+			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
+			 }
+
+			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
+			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
+			 set_word_into_binout(dst_addr_imm, binout_container, false);
+
+		    }
+
+		    // コンマを飛ばして次へ
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    token = tokenizer.Next();
+		    // これで終了のはず
+		    break;
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+			  !is_common_register(token_table, get_equ_label_or_asis(tokenizer.LookAhead(1).AsString())) &&
 			  tokenizer.LookAhead(3).Is(",") &&
 		          is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    //
@@ -727,63 +802,6 @@ namespace nask_utility {
 		    token = tokenizer.Next();
 		    break;
 
-	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
-			  tokenizer.LookAhead(3).Is(",") &&
-		          is_common_register(token_table, tokenizer.LookAhead(4))) {
-		    //
-		    // MOV Mem     , Reg  | 1000100w oorrrmmm
-		    //
-		    // MOV moffs8* , AL   | 0xA2
-		    // MOV moffs16*, AX   | 0xA3
-		    // MOV moffs32*, EAX  | 0xA3
-		    //
-		    // http://x86.renejeschke.de/html/file_module_x86_id_176.html
-		    // --------------------------------
-		    TParaToken dst_token = tokenizer.LookAhead(1);
-		    TParaToken src_token = tokenizer.LookAhead(4);
-		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
-		    const std::string src_reg  = src_token.AsString();
-
-		    log()->info("{} <= {}", dst_mem, src_reg);
-
-		    if (src_reg == "AL" || src_reg == "AX") {
-			 log()->info("MOV moffs* , AL or AX");
-			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
-			 binout_container.push_back(bs_src);
-			 const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
-			 const uint16_t dst_addr_imm = std::stol(dst_addr, nullptr, 16);
-			 set_word_into_binout(dst_addr_imm, binout_container, false);
-		    } else {
-			 log()->info("MOV Mem,Reg");
-			 // Mem, Regの場合 => 1000100w oo rrr mmm
-			 // 1000100 + w
-			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(src_reg);
-			 const std::bitset<8> bs_src("1000100" + std::get<1>(tp_dst));
-
-			 // old prefixes
-			 binout_container.push_back(0x67);
-			 binout_container.push_back(0x66);
-			 binout_container.push_back(bs_src.to_ulong());
-
-			 // oo + rrr + mmm
-			 // 00 + rrr + 110
-			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
-			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(),
-								     ModRM::REG_REG,
-								     dst_mem, src_reg);
-			 binout_container.push_back(modrm);
-			 log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
-		    }
-
-
-		    // コンマを飛ばして次へ
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    // これで終了のはず
-		    break;
-
 	       } else if (is_common_register(token_table, token) &&
 			  tokenizer.LookAhead(1).Is(",")  &&
 			  // MOV XX, [YY]
@@ -817,7 +835,9 @@ namespace nask_utility {
 		    // mod=00: [レジスター+レジスター]
 		    // mod=01: [レジスター+disp8]
 		    const std::string mod = tokenizer.LookAhead(6).Is("]") ? "01" : "00";
-		    const std::string tp_src = ModRM::get_rm_from_reg(src_reg);
+		    const std::string tp_src =
+			 ModRM::get_rm_from_reg(tokenizer.LookAhead(2).Is("[") ? src_mem : src_reg);
+
 		    const std::bitset<8> bs_src(mod + std::get<0>(tp_dst) + tp_src);
 		    log()->info("ModR/M byte: {}", mod + std::get<0>(tp_dst) + tp_src);
 
