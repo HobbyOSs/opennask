@@ -508,7 +508,7 @@ namespace nask_utility {
 			 // コンマを飛ばして次へ
 			 token = tokenizer.Next();
 			 token = tokenizer.Next();
-			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			 const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG, src_reg, dst_reg);
 			 binout_container.push_back(0x8e);
 			 binout_container.push_back(modrm);
 			 // これで終了のはず
@@ -1259,7 +1259,7 @@ namespace nask_utility {
 			 } else {
 			      const uint8_t pre = 0x66;
 			      const uint8_t op  = 0x01;
-			      const uint8_t nim = ModRM::generate_modrm(ModRM::REG, dst_reg, src_reg);
+			      const uint8_t nim = ModRM::generate_modrm(0x01, ModRM::REG, src_reg, dst_reg);
 			      if (regex_match(src_reg, match, ModRM::regImm32)) {
 				   // see: http://wiki.osdev.org/X86-64_Instruction_Encoding#Legacy_Prefixes
 				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}", pre, op, nim);
@@ -1429,28 +1429,23 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
-		    if (ModRM::is_accumulator(token.AsString()) &&
-			tokenizer.LookAhead(1).Is(",")) {
+		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
                          // 0x24 ib AND AL, imm8  ALとimm8とのANDをとる
                          // 0x25 iw AND AX, imm16 AXとimm16とのANDをとる
                          // 0x25 id AND EAX,imm32 EAXとimm32とのANDをとる
 			 if (token.Is("AL")) {
-			      log()->info("0x66 0x24 {}", tokenizer.LookAhead(2).AsString());
-			      binout_container.push_back(0x66);
+			      log()->info("0x24 {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x24);
 			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
 			 } else if (token.Is("AX")) {
-			      log()->info("0x66 0x25 {}", tokenizer.LookAhead(2).AsString());
-			      binout_container.push_back(0x66);
+			      log()->info("0x25 {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x25);
-			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(),
-						   binout_container);
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 } else { // EAX
 			      log()->info("0x66 0x25 {}", tokenizer.LookAhead(2).AsString());
 			      binout_container.push_back(0x66);
 			      binout_container.push_back(0x25);
-			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(),
-						    binout_container);
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 }
 		    }
 		    break;

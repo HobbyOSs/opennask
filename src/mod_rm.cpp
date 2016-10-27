@@ -86,20 +86,35 @@ namespace nask_utility {
 	       return bs.to_ulong();
 	  };
 
+	  // @param op      : opecode for detecting which register is src/dst
 	  // @param m       : [mod] mods::REG
-	  // @param dst_reg : [reg] Register with std::string
 	  // @param src_reg : [r/m] Register with std::string
-	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, const std::string& src_reg) {
+	  // @param dst_reg : [reg] Register with std::string
+	  uint8_t generate_modrm(const uint8_t op, enum mods m, const std::string& src_reg, const std::string& dst_reg) {
 	       //
 	       // Generate ModR/M byte with arguments
 	       // [mod] 2bit
 	       // [reg] 3bit
 	       // [r/m] 3bit
 	       //
-	       log()->info("Generate ModR/M: dst:{}, src:{}", dst_reg, src_reg);
+	       std::bitset<8> bsl(op);
+	       log()->info("Generate ModR/M: d bit:{} dst:{}, src:{}", bsl[4], dst_reg, src_reg);
 	       std::string modrm = ModRM::MOD_TO_STR.at(m);
-	       modrm += get_rm_from_reg(dst_reg);
-	       modrm += get_rm_from_reg(src_reg);
+
+               //        hgfedcba
+	       // --------------------------------------------------------------
+	       //   8e = 10001110 => d=1: REG <- MOD R/M, REG is the destination
+	       //   01 = 00000001 => d=0: MOD R/M <- REG, REG is the source
+	       // --------------------------------------------------------------
+               // The d bit in the opcode determines which operand is the source,
+	       // and which is the destination
+	       if (bsl[3]) { // d=0 or 1
+		    modrm += get_rm_from_reg(dst_reg);
+		    modrm += get_rm_from_reg(src_reg);
+	       } else {
+		    modrm += get_rm_from_reg(src_reg);
+		    modrm += get_rm_from_reg(dst_reg);
+	       }
 	       log()->info("Generate ModR/M: bitset:{}", modrm);
 	       std::bitset<8> bs(modrm);
 	       return bs.to_ulong();
