@@ -65,36 +65,37 @@ int process_each_assembly_line(char** argv,
 //     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
 
 #define X_TABLE \
-  X_INST_ITEM(ADD)  \
-  X_INST_ITEM(AND)  \
-  X_INST_ITEM(CALL) \
-  X_INST_ITEM(CLI)  \
-  X_INST_ITEM(CMP)  \
-  X_INST_ITEM(DB)   \
-  X_INST_ITEM(DD)   \
-  X_INST_ITEM(DW)   \
-  X_INST_ITEM(HLT)  \
-  X_INST_ITEM(IMUL) \
-  X_INST_ITEM(IN)   \
-  X_INST_ITEM(INT)  \
-  X_INST_ITEM(JAE)  \
-  X_INST_ITEM(JBE)  \
-  X_INST_ITEM(JB)   \
-  X_INST_ITEM(JC)   \
-  X_INST_ITEM(JE)   \
-  X_INST_ITEM(JMP)  \
-  X_INST_ITEM(JNC)  \
-  X_INST_ITEM(JNZ)  \
-  X_INST_ITEM(JZ)   \
-  X_INST_ITEM(LGDT) \
-  X_INST_ITEM(MOV)  \
-  X_INST_ITEM(NOP)  \
-  X_INST_ITEM(OR)   \
-  X_INST_ITEM(ORG)  \
-  X_INST_ITEM(OUT)  \
-  X_INST_ITEM(RET)  \
-  X_INST_ITEM(RESB) \
-  X_INST_ITEM(SHR)  \
+  X_INST_ITEM(ADD)    \
+  X_INST_ITEM(ALIGNB) \
+  X_INST_ITEM(AND)    \
+  X_INST_ITEM(CALL)   \
+  X_INST_ITEM(CLI)    \
+  X_INST_ITEM(CMP)    \
+  X_INST_ITEM(DB)     \
+  X_INST_ITEM(DD)     \
+  X_INST_ITEM(DW)     \
+  X_INST_ITEM(HLT)    \
+  X_INST_ITEM(IMUL)   \
+  X_INST_ITEM(IN)     \
+  X_INST_ITEM(INT)    \
+  X_INST_ITEM(JAE)    \
+  X_INST_ITEM(JBE)    \
+  X_INST_ITEM(JB)     \
+  X_INST_ITEM(JC)     \
+  X_INST_ITEM(JE)     \
+  X_INST_ITEM(JMP)    \
+  X_INST_ITEM(JNC)    \
+  X_INST_ITEM(JNZ)    \
+  X_INST_ITEM(JZ)     \
+  X_INST_ITEM(LGDT)   \
+  X_INST_ITEM(MOV)    \
+  X_INST_ITEM(NOP)    \
+  X_INST_ITEM(OR)     \
+  X_INST_ITEM(ORG)    \
+  X_INST_ITEM(OUT)    \
+  X_INST_ITEM(RET)    \
+  X_INST_ITEM(RESB)   \
+  X_INST_ITEM(SHR)    \
   X_INST_ITEM(SUB)
 
 #define NASK_INSTRACTIONS

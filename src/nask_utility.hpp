@@ -124,6 +124,7 @@ namespace nask_utility {
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
 	  int process_token_ADD (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_ALIGNB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_AND (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_CALL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_CLI (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

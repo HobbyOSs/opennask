@@ -1464,6 +1464,25 @@ namespace nask_utility {
 	  return 0;
      }
 
+     int Instructions::process_token_ALIGNB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  TParaToken token = tokenizer.Next();
+	  if (!token.IsEmpty() || token.AsLong() % 2 == 0 ) {
+	       log()->info("ALIGNB {}", token.AsString());
+	       const size_t unit = static_cast<int>(token.AsLong());
+	       const size_t nearest_size = binout_container.size() / unit + 1;
+	       const size_t times = nearest_size * unit - binout_container.size();
+
+	       log()->info("ALIGNB stores 0x00 {} times", times);
+	       for (size_t l = 0; l < times; l++) {
+		    binout_container.push_back(0x00);
+	       }
+	  } else {
+	       std::cerr << "NASK : ALIGNB syntax error " << token.AsString() << std::endl;
+	       return 17;
+	  }
+	  return 0;
+     }
+
      // 簡単なAND命令の実装
      int Instructions::process_token_AND(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
