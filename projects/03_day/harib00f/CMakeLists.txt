@@ -28,8 +28,9 @@ add_custom_target(03_day_harib00f_haribote_sys
   COMMAND cat ${03_day_harib00f_HEADB} ${03_day_harib00f_BOOTB} > ${03_day_harib00f_SYS}			
 )											
 add_custom_target(03_day_harib00f_haribote_img						
+  COMMAND rm -f ${03_day_harib00f_OS}
   COMMAND mformat -f 1440 -C -B ${03_day_harib00f_IPLB} -i ${03_day_harib00f_OS}	
-  COMMAND mcopy ${03_day_harib00f_SYS} -i ${03_day_harib00f_OS}			
+  COMMAND mcopy -n ${03_day_harib00f_SYS} ${03_day_harib00f_OS}			
 )											
 ########### next target ###############
 set(haribote.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/haribote.nas)

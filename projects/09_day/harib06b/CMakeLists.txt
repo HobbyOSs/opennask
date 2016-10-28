@@ -28,8 +28,9 @@ add_custom_target(09_day_harib06b_sys
   COMMAND cat ${09_day_harib06b_HEADB} ${09_day_harib06b_BOOTB} > ${09_day_harib06b_SYS}			
 )											
 add_custom_target(09_day_harib06b_img						
+  COMMAND rm -f ${09_day_harib06b_OS}
   COMMAND mformat -f 1440 -C -B ${09_day_harib06b_IPLB} -i ${09_day_harib06b_OS}	
-  COMMAND mcopy ${09_day_harib06b_SYS} -i ${09_day_harib06b_OS}			
+  COMMAND mcopy -n ${09_day_harib06b_SYS} ${09_day_harib06b_OS}			
 )											
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06b/asmhead.nas)

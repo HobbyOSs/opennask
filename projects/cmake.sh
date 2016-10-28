@@ -104,9 +104,10 @@ do
         echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e _HariMain \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}	"     | tee -a ${CMAKELISTS} 
         echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}			"     | tee -a ${CMAKELISTS} 
         echo ")											"     | tee -a ${CMAKELISTS} 
-        echo "add_custom_target(${TARGET_OS_NAME}_img						"     | tee -a ${CMAKELISTS} 
+        echo "add_custom_target(${TARGET_OS_NAME}_img						"     | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                               | tee -a ${CMAKELISTS} 
         echo "  COMMAND mformat -f 1440 -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}	"     | tee -a ${CMAKELISTS} 
-        echo "  COMMAND mcopy \${${NAS_DIR_TARGET}_SYS} -i \${${NAS_DIR_TARGET}_OS}			"     | tee -a ${CMAKELISTS} 
+        echo "  COMMAND mcopy -n \${${NAS_DIR_TARGET}_SYS} \${${NAS_DIR_TARGET}_OS}			"     | tee -a ${CMAKELISTS} 
         echo ")											"     | tee -a ${CMAKELISTS} 
 	
 	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}

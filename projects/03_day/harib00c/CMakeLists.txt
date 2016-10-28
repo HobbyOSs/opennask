@@ -28,8 +28,9 @@ add_custom_target(03_day_harib00c_ipl_sys
   COMMAND cat ${03_day_harib00c_HEADB} ${03_day_harib00c_BOOTB} > ${03_day_harib00c_SYS}			
 )											
 add_custom_target(03_day_harib00c_ipl_img						
+  COMMAND rm -f ${03_day_harib00c_OS}
   COMMAND mformat -f 1440 -C -B ${03_day_harib00c_IPLB} -i ${03_day_harib00c_OS}	
-  COMMAND mcopy ${03_day_harib00c_SYS} -i ${03_day_harib00c_OS}			
+  COMMAND mcopy -n ${03_day_harib00c_SYS} ${03_day_harib00c_OS}			
 )											
 ########### next target ###############
 set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00c/ipl.nas)

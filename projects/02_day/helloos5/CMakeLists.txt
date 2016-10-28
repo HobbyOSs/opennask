@@ -28,8 +28,9 @@ add_custom_target(02_day_helloos5_ipl_sys
   COMMAND cat ${02_day_helloos5_HEADB} ${02_day_helloos5_BOOTB} > ${02_day_helloos5_SYS}			
 )											
 add_custom_target(02_day_helloos5_ipl_img						
+  COMMAND rm -f ${02_day_helloos5_OS}
   COMMAND mformat -f 1440 -C -B ${02_day_helloos5_IPLB} -i ${02_day_helloos5_OS}	
-  COMMAND mcopy ${02_day_helloos5_SYS} -i ${02_day_helloos5_OS}			
+  COMMAND mcopy -n ${02_day_helloos5_SYS} ${02_day_helloos5_OS}			
 )											
 ########### next target ###############
 set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/02_day/helloos5/ipl.nas)
