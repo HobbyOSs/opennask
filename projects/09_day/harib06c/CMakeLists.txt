@@ -1,6 +1,36 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/09_day/harib06c/")
 
+set(NASK ${root_BINARY_DIR}/src/opennask)
+set(09_day_harib06c_OS    ${root_BINARY_DIR}/projects/09_day/harib06c/os.img)
+set(09_day_harib06c_SYS	  ${root_BINARY_DIR}/projects/09_day/harib06c/os.sys)
+set(09_day_harib06c_IPLB  ${root_BINARY_DIR}/projects/09_day/harib06c/ipl.bin)
+set(09_day_harib06c_IPLS  ${root_SOURCE_DIR}/projects/09_day/harib06c/ipl10.nas)
+set(09_day_harib06c_HEADB ${root_BINARY_DIR}/projects/09_day/harib06c/asmhead.bin)
+set(09_day_harib06c_HEADS ${root_SOURCE_DIR}/projects/09_day/harib06c/asmhead.nas)
+set(09_day_harib06c_BOOTB ${root_BINARY_DIR}/projects/09_day/harib06c/boot.bin)
+set(09_day_harib06c_CCO	  ${root_BINARY_DIR}/projects/09_day/harib06c/boot.o)
+set(09_day_harib06c_CCS	  ${root_SOURCE_DIR}/projects/09_day/harib06c/*.c)
+
+add_custom_target(09_day_harib06c_run                                           
+  COMMAND ${QEMU} ${QEMUOPT} ${09_day_harib06c_OS}				
+)											
+add_custom_target(09_day_harib06c_debug						
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${09_day_harib06c_OS} -redir tcp:5555:127.0.0.1:1234 &
+)											
+add_custom_target(09_day_harib06c_ipl						
+  COMMAND ${NASK} ${09_day_harib06c_IPLS} ${09_day_harib06c_IPLB}		
+)											
+add_custom_target(09_day_harib06c_sys						
+  COMMAND ${NASK} ${09_day_harib06c_HEADS} ${09_day_harib06c_HEADB}		
+  COMMAND gcc ${09_day_harib06c_CCS}  -c -o ${09_day_harib06c_CCO}	
+  COMMAND ld -o ${09_day_harib06c_BOOTB} -e _HariMain ${09_day_harib06c_CCO} ${09_day_harib06c_FUNCO}	
+  COMMAND cat ${09_day_harib06c_HEADB} ${09_day_harib06c_BOOTB} > ${09_day_harib06c_SYS}			
+)											
+add_custom_target(09_day_harib06c_img						
+  COMMAND mformat -f 1440 -C -B ${09_day_harib06c_IPLB} -i ${09_day_harib06c_OS}	
+  COMMAND mcopy ${09_day_harib06c_SYS} -i ${09_day_harib06c_OS}			
+)											
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06c/asmhead.nas)
 set(asmhead.img_OUTS ${root_BINARY_DIR}/projects/09_day/harib06c/asmhead.img)
@@ -22,12 +52,6 @@ add_dependencies(wine 09_day_harib06c_asmhead_wine)
 add_dependencies(od 09_day_harib06c_asmhead_od)
 
 #----------------------------------------------------------
-set(09_day_harib06c_OS ${root_BINARY_DIR}/projects/09_day/harib06c/os.img)
-
-add_custom_target(09_day_harib06c_run
-  COMMAND ${QEMU} ${QEMUOPT} ${root_BINARY_DIR}/projects/09_day/harib06c/os.img
-)
-
 ########### next target ###############
 set(ipl10.img_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06c/ipl10.nas)
 set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/09_day/harib06c/ipl10.img)
@@ -48,6 +72,7 @@ add_dependencies(images 09_day_harib06c_ipl10)
 add_dependencies(wine 09_day_harib06c_ipl10_wine)
 add_dependencies(od 09_day_harib06c_ipl10_od)
 
+#----------------------------------------------------------
 ########### next target ###############
 set(naskfunc.img_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06c/naskfunc.nas)
 set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/09_day/harib06c.imgkfunc.img)
@@ -68,3 +93,4 @@ add_dependencies(images 09_day_harib06ckfunc)
 add_dependencies(wine 09_day_harib06ckfunc_wine)
 add_dependencies(od 09_day_harib06ckfunc_od)
 
+#----------------------------------------------------------
