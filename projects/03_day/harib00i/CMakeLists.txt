@@ -15,9 +15,19 @@ set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/bootpack.l
 
 add_custom_target(03_day_harib00i_run
   COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00i_OS}
+  DEPENDS 03_day_harib00i_img
 )
 add_custom_target(03_day_harib00i_debug
   COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00i_OS} -redir tcp:5555:127.0.0.1:1234 &
+  DEPENDS 03_day_harib00i_img
+)
+add_custom_target(03_day_harib00i_clean
+  COMMAND rm -f ${03_day_harib00i_OS}
+  COMMAND rm -f ${03_day_harib00i_SYS}
+  COMMAND rm -f ${03_day_harib00i_IPLB}
+  COMMAND rm -f ${03_day_harib00i_HEADB}
+  COMMAND rm -f ${03_day_harib00i_BOOTB}
+  COMMAND rm -f ${03_day_harib00i_CCO}
 )
 add_custom_target(03_day_harib00i_ipl
   COMMAND ${NASK} ${03_day_harib00i_IPLS} ${03_day_harib00i_IPLB}
@@ -27,10 +37,12 @@ add_custom_target(03_day_harib00i_sys
   COMMAND gcc ${03_day_harib00i_CCS}  -c -o ${03_day_harib00i_CCO}
   COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} -nostdlib ${03_day_harib00i_CCO} ${03_day_harib00i_FUNCO}
   COMMAND cat ${03_day_harib00i_HEADB} ${03_day_harib00i_BOOTB} > ${03_day_harib00i_SYS}
+  DEPENDS 03_day_harib00i_ipl
 )
 add_custom_target(03_day_harib00i_img
   COMMAND mformat -f 1440 -C -B ${03_day_harib00i_IPLB} -i ${03_day_harib00i_OS}
   COMMAND mcopy -i ${03_day_harib00i_OS} ${03_day_harib00i_SYS} ::
+  DEPENDS 03_day_harib00i_sys
 )
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00i/asmhead.nas)
