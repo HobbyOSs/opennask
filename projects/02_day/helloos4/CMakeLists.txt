@@ -35,7 +35,7 @@ add_custom_target(02_day_helloos4_ipl_ipl
 add_custom_target(02_day_helloos4_ipl_sys
   COMMAND ${NASK} ${02_day_helloos4_HEADS} ${02_day_helloos4_HEADB}
   COMMAND gcc ${02_day_helloos4_CCS}  -c -o ${02_day_helloos4_CCO}
-  COMMAND ld -o ${02_day_helloos4_BOOTB} -e HariMain -T ${02_day_helloos4_LDS} ${02_day_helloos4_CCO} ${02_day_helloos4_FUNCO}
+  COMMAND ld -o ${02_day_helloos4_BOOTB} -e HariMain -T ${02_day_helloos4_LDS} ${02_day_helloos4_CCO}
   COMMAND cat ${02_day_helloos4_HEADB} ${02_day_helloos4_BOOTB} > ${02_day_helloos4_SYS}
   DEPENDS 02_day_helloos4_ipl
 )

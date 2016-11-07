@@ -88,6 +88,10 @@ do
 	echo "set(${NAS_DIR_TARGET}_CCO	  \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.o)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/bootpack.ld)"		      | tee -a ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"    | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FUNCS \${root_SOURCE_DIR}/projects/${NAS_DIR}/naskfunc.nas)"  | tee -a ${CMAKELISTS}
+	fi
 	echo ""		        							              | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                | tee -a ${CMAKELISTS}
@@ -104,15 +108,25 @@ do
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_HEADB}"                                            | tee -a ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                            | tee -a ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_CCO}"                                              | tee -a ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+	    echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_FUNCO}"                                        | tee -a ${CMAKELISTS}
+	fi
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	              | tee -a ${CMAKELISTS}
 	echo ")"                                                                                      | tee -a ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                | tee -a ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}
+	fi
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
         echo "  COMMAND gcc \${${NAS_DIR_TARGET}_CCS} ${BINOPT} -c -o \${${NAS_DIR_TARGET}_CCO}"      | tee -a ${CMAKELISTS}
-        echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}"  | tee -a ${CMAKELISTS}
-        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}"              | tee -a ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+            echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}" | tee -a ${CMAKELISTS}
+	else
+            echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO}" | tee -a ${CMAKELISTS}
+	fi
+        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}" | tee -a ${CMAKELISTS}
         echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                        | tee -a ${CMAKELISTS}
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_img"                                                | tee -a ${CMAKELISTS}

@@ -12,6 +12,8 @@ set(05_day_harib02a_BOOTB ${root_BINARY_DIR}/projects/05_day/harib02a/boot.bin)
 set(05_day_harib02a_CCO	  ${root_BINARY_DIR}/projects/05_day/harib02a/boot.o)
 set(05_day_harib02a_CCS	  ${root_SOURCE_DIR}/projects/05_day/harib02a/*.c)
 set(05_day_harib02a_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(05_day_harib02a_FUNCO ${root_BINARY_DIR}/projects/05_day/harib02a/naskfunc.o)
+set(05_day_harib02a_FUNCS ${root_SOURCE_DIR}/projects/05_day/harib02a/naskfunc.nas)
 
 add_custom_target(05_day_harib02a_run
   COMMAND ${QEMU} ${QEMUOPT} ${05_day_harib02a_OS}
@@ -28,11 +30,13 @@ add_custom_target(05_day_harib02a_clean
   COMMAND rm -f ${05_day_harib02a_HEADB}
   COMMAND rm -f ${05_day_harib02a_BOOTB}
   COMMAND rm -f ${05_day_harib02a_CCO}
+  COMMAND rm -f ${05_day_harib02a_FUNCO}
 )
 add_custom_target(05_day_harib02a_ipl
   COMMAND ${NASK} ${05_day_harib02a_IPLS} ${05_day_harib02a_IPLB}
 )
 add_custom_target(05_day_harib02a_sys
+  COMMAND ${NASK} ${05_day_harib02a_FUNCS} ${05_day_harib02a_FUNCO}
   COMMAND ${NASK} ${05_day_harib02a_HEADS} ${05_day_harib02a_HEADB}
   COMMAND gcc ${05_day_harib02a_CCS}  -c -o ${05_day_harib02a_CCO}
   COMMAND ld -o ${05_day_harib02a_BOOTB} -e HariMain -T ${05_day_harib02a_LDS} ${05_day_harib02a_CCO} ${05_day_harib02a_FUNCO}
