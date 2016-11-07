@@ -1,6 +1,49 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00f/")
 
+set(NASK ${root_BINARY_DIR}/src/opennask)
+set(03_day_harib00f_OS    ${root_BINARY_DIR}/projects/03_day/harib00f/os.img)
+set(03_day_harib00f_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00f/os.sys)
+set(03_day_harib00f_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.bin)
+set(03_day_harib00f_IPLS  ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl10.nas)
+set(03_day_harib00f_HEADB ${root_BINARY_DIR}/projects/03_day/harib00f/asmhead.bin)
+set(03_day_harib00f_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00f/asmhead.nas)
+set(03_day_harib00f_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00f/boot.bin)
+set(03_day_harib00f_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00f/boot.o)
+set(03_day_harib00f_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00f/*.c)
+set(03_day_harib00f_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+
+add_custom_target(03_day_harib00f_haribote_run
+  COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00f_OS}
+  DEPENDS 03_day_harib00f_img
+)
+add_custom_target(03_day_harib00f_haribote_debug
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00f_OS} -redir tcp:5555:127.0.0.1:1234 &
+  DEPENDS 03_day_harib00f_img
+)
+add_custom_target(03_day_harib00f_haribote_clean
+  COMMAND rm -f ${03_day_harib00f_OS}
+  COMMAND rm -f ${03_day_harib00f_SYS}
+  COMMAND rm -f ${03_day_harib00f_IPLB}
+  COMMAND rm -f ${03_day_harib00f_HEADB}
+  COMMAND rm -f ${03_day_harib00f_BOOTB}
+  COMMAND rm -f ${03_day_harib00f_CCO}
+)
+add_custom_target(03_day_harib00f_haribote_ipl
+  COMMAND ${NASK} ${03_day_harib00f_IPLS} ${03_day_harib00f_IPLB}
+)
+add_custom_target(03_day_harib00f_haribote_sys
+  COMMAND ${NASK} ${03_day_harib00f_HEADS} ${03_day_harib00f_HEADB}
+  COMMAND gcc ${03_day_harib00f_CCS}  -c -o ${03_day_harib00f_CCO}
+  COMMAND ld -o ${03_day_harib00f_BOOTB} -e HariMain -T ${03_day_harib00f_LDS} ${03_day_harib00f_CCO}
+  COMMAND cat ${03_day_harib00f_HEADB} ${03_day_harib00f_BOOTB} > ${03_day_harib00f_SYS}
+  DEPENDS 03_day_harib00f_ipl
+)
+add_custom_target(03_day_harib00f_haribote_img
+  COMMAND mformat -f 1440 -C -B ${03_day_harib00f_IPLB} -i ${03_day_harib00f_OS}
+  COMMAND mcopy -i ${03_day_harib00f_OS} ${03_day_harib00f_SYS} ::
+  DEPENDS 03_day_harib00f_sys
+)
 ########### next target ###############
 set(haribote.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/haribote.nas)
 set(haribote.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote.img)
@@ -21,6 +64,7 @@ add_dependencies(images 03_day_harib00f_haribote)
 add_dependencies(wine 03_day_harib00f_haribote_wine)
 add_dependencies(od 03_day_harib00f_haribote_od)
 
+#----------------------------------------------------------
 ########### next target ###############
 set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl.nas)
 set(ipl.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.img)
@@ -41,3 +85,4 @@ add_dependencies(images 03_day_harib00f_ipl)
 add_dependencies(wine 03_day_harib00f_ipl_wine)
 add_dependencies(od 03_day_harib00f_ipl_od)
 
+#----------------------------------------------------------

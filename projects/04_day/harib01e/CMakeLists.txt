@@ -1,6 +1,53 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/04_day/harib01e/")
 
+set(NASK ${root_BINARY_DIR}/src/opennask)
+set(04_day_harib01e_OS    ${root_BINARY_DIR}/projects/04_day/harib01e/os.img)
+set(04_day_harib01e_SYS	  ${root_BINARY_DIR}/projects/04_day/harib01e/os.sys)
+set(04_day_harib01e_IPLB  ${root_BINARY_DIR}/projects/04_day/harib01e/ipl.bin)
+set(04_day_harib01e_IPLS  ${root_SOURCE_DIR}/projects/04_day/harib01e/ipl10.nas)
+set(04_day_harib01e_HEADB ${root_BINARY_DIR}/projects/04_day/harib01e/asmhead.bin)
+set(04_day_harib01e_HEADS ${root_SOURCE_DIR}/projects/04_day/harib01e/asmhead.nas)
+set(04_day_harib01e_BOOTB ${root_BINARY_DIR}/projects/04_day/harib01e/boot.bin)
+set(04_day_harib01e_CCO	  ${root_BINARY_DIR}/projects/04_day/harib01e/boot.o)
+set(04_day_harib01e_CCS	  ${root_SOURCE_DIR}/projects/04_day/harib01e/*.c)
+set(04_day_harib01e_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(04_day_harib01e_FUNCO ${root_BINARY_DIR}/projects/04_day/harib01e/naskfunc.o)
+set(04_day_harib01e_FUNCS ${root_SOURCE_DIR}/projects/04_day/harib01e/naskfunc.nas)
+
+add_custom_target(04_day_harib01e_run
+  COMMAND ${QEMU} ${QEMUOPT} ${04_day_harib01e_OS}
+  DEPENDS 04_day_harib01e_img
+)
+add_custom_target(04_day_harib01e_debug
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${04_day_harib01e_OS} -redir tcp:5555:127.0.0.1:1234 &
+  DEPENDS 04_day_harib01e_img
+)
+add_custom_target(04_day_harib01e_clean
+  COMMAND rm -f ${04_day_harib01e_OS}
+  COMMAND rm -f ${04_day_harib01e_SYS}
+  COMMAND rm -f ${04_day_harib01e_IPLB}
+  COMMAND rm -f ${04_day_harib01e_HEADB}
+  COMMAND rm -f ${04_day_harib01e_BOOTB}
+  COMMAND rm -f ${04_day_harib01e_CCO}
+  COMMAND rm -f ${04_day_harib01e_FUNCO}
+)
+add_custom_target(04_day_harib01e_ipl
+  COMMAND ${NASK} ${04_day_harib01e_IPLS} ${04_day_harib01e_IPLB}
+)
+add_custom_target(04_day_harib01e_sys
+  COMMAND ${NASK} ${04_day_harib01e_FUNCS} ${04_day_harib01e_FUNCO}
+  COMMAND ${NASK} ${04_day_harib01e_HEADS} ${04_day_harib01e_HEADB}
+  COMMAND gcc ${04_day_harib01e_CCS}  -c -o ${04_day_harib01e_CCO}
+  COMMAND ld -o ${04_day_harib01e_BOOTB} -e HariMain -T ${04_day_harib01e_LDS} ${04_day_harib01e_CCO} ${04_day_harib01e_FUNCO}
+  COMMAND cat ${04_day_harib01e_HEADB} ${04_day_harib01e_BOOTB} > ${04_day_harib01e_SYS}
+  DEPENDS 04_day_harib01e_ipl
+)
+add_custom_target(04_day_harib01e_img
+  COMMAND mformat -f 1440 -C -B ${04_day_harib01e_IPLB} -i ${04_day_harib01e_OS}
+  COMMAND mcopy -i ${04_day_harib01e_OS} ${04_day_harib01e_SYS} ::
+  DEPENDS 04_day_harib01e_sys
+)
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/04_day/harib01e/asmhead.nas)
 set(asmhead.img_OUTS ${root_BINARY_DIR}/projects/04_day/harib01e/asmhead.img)
@@ -21,6 +68,7 @@ add_dependencies(images 04_day_harib01e_asmhead)
 add_dependencies(wine 04_day_harib01e_asmhead_wine)
 add_dependencies(od 04_day_harib01e_asmhead_od)
 
+#----------------------------------------------------------
 ########### next target ###############
 set(ipl10.img_SRCS ${root_SOURCE_DIR}/projects/04_day/harib01e/ipl10.nas)
 set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/04_day/harib01e/ipl10.img)
@@ -41,6 +89,7 @@ add_dependencies(images 04_day_harib01e_ipl10)
 add_dependencies(wine 04_day_harib01e_ipl10_wine)
 add_dependencies(od 04_day_harib01e_ipl10_od)
 
+#----------------------------------------------------------
 ########### next target ###############
 set(naskfunc.img_SRCS ${root_SOURCE_DIR}/projects/04_day/harib01e/naskfunc.nas)
 set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/04_day/harib01e.imgkfunc.img)
@@ -61,3 +110,4 @@ add_dependencies(images 04_day_harib01ekfunc)
 add_dependencies(wine 04_day_harib01ekfunc_wine)
 add_dependencies(od 04_day_harib01ekfunc_od)
 
+#----------------------------------------------------------
