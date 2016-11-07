@@ -77,7 +77,6 @@ do
 	echo "#----------------------------------------------------------"                            | tee    ${CMAKELISTS}
 	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                            | tee -a ${CMAKELISTS}
 	echo ""								                              | tee -a ${CMAKELISTS}
-
         echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                             | tee -a ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"            | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	      | tee -a ${CMAKELISTS}
@@ -88,27 +87,36 @@ do
 	echo "set(${NAS_DIR_TARGET}_BOOTB \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.bin)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_CCO	  \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.o)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		      | tee -a ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/bootpack.ld)"		      | tee -a ${CMAKELISTS}
 	echo ""		        							              | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_run                                           "     | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}				"     | tee -a ${CMAKELISTS}
-        echo ")											"     | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_debug						"     | tee -a ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
+        echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                | tee -a ${CMAKELISTS}
+        echo ")"                                                                                      | tee -a ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_debug"                                              | tee -a ${CMAKELISTS}
         echo "  COMMAND \${QEMU} -s -S \${QEMUOPT} \${${NAS_DIR_TARGET}_OS} -redir tcp:5555:127.0.0.1:1234 &"     | tee -a ${CMAKELISTS}
-        echo ")											"     | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_ipl						"     | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}		"     | tee -a ${CMAKELISTS}
-        echo ")											"     | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_sys						"     | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}		"     | tee -a ${CMAKELISTS}
-        echo "  COMMAND gcc \${${NAS_DIR_TARGET}_CCS} ${BINOPT} -c -o \${${NAS_DIR_TARGET}_CCO}	"     | tee -a ${CMAKELISTS}
-        echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e _HariMain \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}	"     | tee -a ${CMAKELISTS}
-        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}			"     | tee -a ${CMAKELISTS}
-        echo ")											"     | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_img						"     | tee -a ${CMAKELISTS}
+        echo ")"                                                                                      | tee -a ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_clean"                                              | tee -a ${CMAKELISTS}
+        echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                               | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_SYS}"                                              | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_IPLB}"                                             | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_HEADB}"                                            | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                            | tee -a ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_CCO}"                                              | tee -a ${CMAKELISTS}
+        echo ")"                                                                                      | tee -a ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                | tee -a ${CMAKELISTS}
+        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	              | tee -a ${CMAKELISTS}
+	echo ")"                                                                                      | tee -a ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                | tee -a ${CMAKELISTS}
+        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
+        echo "  COMMAND gcc \${${NAS_DIR_TARGET}_CCS} ${BINOPT} -c -o \${${NAS_DIR_TARGET}_CCO}"      | tee -a ${CMAKELISTS}
+        echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}"  | tee -a ${CMAKELISTS}
+        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}"              | tee -a ${CMAKELISTS}
+        echo ")"                                                                                      | tee -a ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_img"                                                | tee -a ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                               | tee -a ${CMAKELISTS}
-        echo "  COMMAND mformat -f 1440 -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS} :: "     | tee -a ${CMAKELISTS}
-        echo "  COMMAND mcopy -n \${${NAS_DIR_TARGET}_SYS} \${${NAS_DIR_TARGET}_OS}			"     | tee -a ${CMAKELISTS}
-        echo ")											"     | tee -a ${CMAKELISTS}
+        echo "  COMMAND mformat -f 1440 -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS} ::"  | tee -a ${CMAKELISTS}
+        echo "  COMMAND mcopy -n \${${NAS_DIR_TARGET}_SYS} \${${NAS_DIR_TARGET}_OS}"                      | tee -a ${CMAKELISTS}
+        echo ")"                                                                                          | tee -a ${CMAKELISTS}
 
 	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
     fi
