@@ -9,19 +9,20 @@ OUTPUT(bootpack.bim)
 
 /*エントリーポイントファイル
 これを設定するとstartupルーチンが.textセクションの先頭にくる
-STARTUP(startup.o)
+STARTUP(boot.o)
 */
 
 /*出力フォーマット
 "binary"でtext,data,bssだけのシンプルな構成になる。*/
 OUTPUT_FORMAT(binary)
 
+
 /*セクション*/
 SECTIONS
 {
   /*textセクションのメモリ上での開始位置*/
   . = 0x280000;
-  .text : 
+  .text :
   {
     /*textセクションを全部*/
     *(.text);
