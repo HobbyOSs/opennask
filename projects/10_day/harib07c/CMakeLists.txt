@@ -92,22 +92,22 @@ add_dependencies(od 10_day_harib07c_ipl10_od)
 #----------------------------------------------------------
 ########### next target ###############
 set(naskfunc.img_SRCS ${root_SOURCE_DIR}/projects/10_day/harib07c/naskfunc.nas)
-set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/10_day/harib07c.imgkfunc.img)
-set(naskfunc_wine.img_OUTS ${root_BINARY_DIR}/projects/10_day/harib07c_wine.imgkfunc_wine.img)
+set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/10_day/harib07c/naskfunc.img)
+set(naskfunc_wine.img_OUTS ${root_BINARY_DIR}/projects/10_day/harib07c/naskfunc_wine.img)
 
-add_custom_target(10_day_harib07ckfunc
+add_custom_target(10_day_harib07c_naskfunc
   COMMAND ${root_BINARY_DIR}/src/opennask ${naskfunc.img_SRCS} ${naskfunc.img_OUTS}
 )
-add_custom_target(10_day_harib07ckfunc_wine
+add_custom_target(10_day_harib07c_naskfunc_wine
   COMMAND ${WINE} ${WINE_NASK} ${naskfunc.img_SRCS} ${naskfunc_wine.img_OUTS}
 )
-add_custom_target(10_day_harib07ckfunc_od
+add_custom_target(10_day_harib07c_naskfunc_od
   COMMAND ${OD} -t x1 ${naskfunc.img_OUTS}      > ${naskfunc.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${naskfunc_wine.img_OUTS} > ${naskfunc_wine.img_OUTS}_t.txt
 )
 
-add_dependencies(images 10_day_harib07ckfunc)
-add_dependencies(wine 10_day_harib07ckfunc_wine)
-add_dependencies(od 10_day_harib07ckfunc_od)
+add_dependencies(images 10_day_harib07c_naskfunc)
+add_dependencies(wine 10_day_harib07c_naskfunc_wine)
+add_dependencies(od 10_day_harib07c_naskfunc_od)
 
 #----------------------------------------------------------

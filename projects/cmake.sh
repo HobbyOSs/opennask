@@ -54,13 +54,13 @@ done
 for NAS_FILE in ${NAS_FILES[@]}
 do
     NAS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||'`
-    BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/.nas/.img/g'`
-    WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/.nas/_wine.img/g'`
-    TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/.nas//g'`
+    BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
+    WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
+    TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
 
-    OS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os.img/g'`
-    SYS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os.sys/g'`
-    IPL_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/ipl.bin/g'`
+    OS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.img/g'`
+    SYS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.sys/g'`
+    IPL_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/ipl\.bin/g'`
     TARGET_OS_NAME=`echo ${TARGET_NAME} | ${SED} -e 's|_asmhead||g'`
 
     NAS_DIR=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||'`)
