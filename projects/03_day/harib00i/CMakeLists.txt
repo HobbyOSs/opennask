@@ -11,7 +11,7 @@ set(03_day_harib00i_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00i/asmhead.na
 set(03_day_harib00i_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00i/boot.bin)
 set(03_day_harib00i_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.o)
 set(03_day_harib00i_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/*.c)
-set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/bootpack.ld)
+set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 
 add_custom_target(03_day_harib00i_run
   COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00i_OS}
@@ -35,7 +35,7 @@ add_custom_target(03_day_harib00i_ipl
 add_custom_target(03_day_harib00i_sys
   COMMAND ${NASK} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
   COMMAND gcc ${03_day_harib00i_CCS}  -c -o ${03_day_harib00i_CCO}
-  COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} -nostdlib ${03_day_harib00i_CCO} ${03_day_harib00i_FUNCO}
+  COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} ${03_day_harib00i_CCO} ${03_day_harib00i_FUNCO}
   COMMAND cat ${03_day_harib00i_HEADB} ${03_day_harib00i_BOOTB} > ${03_day_harib00i_SYS}
   DEPENDS 03_day_harib00i_ipl
 )

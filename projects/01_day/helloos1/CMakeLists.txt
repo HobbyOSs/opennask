@@ -11,27 +11,39 @@ set(01_day_helloos1_HEADS ${root_SOURCE_DIR}/projects/01_day/helloos1/asmhead.na
 set(01_day_helloos1_BOOTB ${root_BINARY_DIR}/projects/01_day/helloos1/boot.bin)
 set(01_day_helloos1_CCO	  ${root_BINARY_DIR}/projects/01_day/helloos1/boot.o)
 set(01_day_helloos1_CCS	  ${root_SOURCE_DIR}/projects/01_day/helloos1/*.c)
+set(01_day_helloos1_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 
-add_custom_target(01_day_helloos1_helloos_run                                           
-  COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos1_OS}				
-)											
-add_custom_target(01_day_helloos1_helloos_debug						
+add_custom_target(01_day_helloos1_helloos_run
+  COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos1_OS}
+  DEPENDS 01_day_helloos1_img
+)
+add_custom_target(01_day_helloos1_helloos_debug
   COMMAND ${QEMU} -s -S ${QEMUOPT} ${01_day_helloos1_OS} -redir tcp:5555:127.0.0.1:1234 &
-)											
-add_custom_target(01_day_helloos1_helloos_ipl						
-  COMMAND ${NASK} ${01_day_helloos1_IPLS} ${01_day_helloos1_IPLB}		
-)											
-add_custom_target(01_day_helloos1_helloos_sys						
-  COMMAND ${NASK} ${01_day_helloos1_HEADS} ${01_day_helloos1_HEADB}		
-  COMMAND gcc ${01_day_helloos1_CCS}  -c -o ${01_day_helloos1_CCO}	
-  COMMAND ld -o ${01_day_helloos1_BOOTB} -e _HariMain ${01_day_helloos1_CCO} ${01_day_helloos1_FUNCO}	
-  COMMAND cat ${01_day_helloos1_HEADB} ${01_day_helloos1_BOOTB} > ${01_day_helloos1_SYS}			
-)											
-add_custom_target(01_day_helloos1_helloos_img						
+  DEPENDS 01_day_helloos1_img
+)
+add_custom_target(01_day_helloos1_helloos_clean
   COMMAND rm -f ${01_day_helloos1_OS}
-  COMMAND mformat -f 1440 -C -B ${01_day_helloos1_IPLB} -i ${01_day_helloos1_OS}	
-  COMMAND mcopy -n ${01_day_helloos1_SYS} ${01_day_helloos1_OS}			
-)											
+  COMMAND rm -f ${01_day_helloos1_SYS}
+  COMMAND rm -f ${01_day_helloos1_IPLB}
+  COMMAND rm -f ${01_day_helloos1_HEADB}
+  COMMAND rm -f ${01_day_helloos1_BOOTB}
+  COMMAND rm -f ${01_day_helloos1_CCO}
+)
+add_custom_target(01_day_helloos1_helloos_ipl
+  COMMAND ${NASK} ${01_day_helloos1_IPLS} ${01_day_helloos1_IPLB}
+)
+add_custom_target(01_day_helloos1_helloos_sys
+  COMMAND ${NASK} ${01_day_helloos1_HEADS} ${01_day_helloos1_HEADB}
+  COMMAND gcc ${01_day_helloos1_CCS}  -c -o ${01_day_helloos1_CCO}
+  COMMAND ld -o ${01_day_helloos1_BOOTB} -e HariMain -T ${01_day_helloos1_LDS} ${01_day_helloos1_CCO} ${01_day_helloos1_FUNCO}
+  COMMAND cat ${01_day_helloos1_HEADB} ${01_day_helloos1_BOOTB} > ${01_day_helloos1_SYS}
+  DEPENDS 01_day_helloos1_ipl
+)
+add_custom_target(01_day_helloos1_helloos_img
+  COMMAND mformat -f 1440 -C -B ${01_day_helloos1_IPLB} -i ${01_day_helloos1_OS}
+  COMMAND mcopy -i ${01_day_helloos1_OS} ${01_day_helloos1_SYS} ::
+  DEPENDS 01_day_helloos1_sys
+)
 ########### next target ###############
 set(helloos.img_SRCS ${root_SOURCE_DIR}/projects/01_day/helloos1/helloos.nas)
 set(helloos.img_OUTS ${root_BINARY_DIR}/projects/01_day/helloos1/helloos.img)

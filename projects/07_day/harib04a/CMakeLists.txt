@@ -11,27 +11,39 @@ set(07_day_harib04a_HEADS ${root_SOURCE_DIR}/projects/07_day/harib04a/asmhead.na
 set(07_day_harib04a_BOOTB ${root_BINARY_DIR}/projects/07_day/harib04a/boot.bin)
 set(07_day_harib04a_CCO	  ${root_BINARY_DIR}/projects/07_day/harib04a/boot.o)
 set(07_day_harib04a_CCS	  ${root_SOURCE_DIR}/projects/07_day/harib04a/*.c)
+set(07_day_harib04a_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 
-add_custom_target(07_day_harib04a_run                                           
-  COMMAND ${QEMU} ${QEMUOPT} ${07_day_harib04a_OS}				
-)											
-add_custom_target(07_day_harib04a_debug						
+add_custom_target(07_day_harib04a_run
+  COMMAND ${QEMU} ${QEMUOPT} ${07_day_harib04a_OS}
+  DEPENDS 07_day_harib04a_img
+)
+add_custom_target(07_day_harib04a_debug
   COMMAND ${QEMU} -s -S ${QEMUOPT} ${07_day_harib04a_OS} -redir tcp:5555:127.0.0.1:1234 &
-)											
-add_custom_target(07_day_harib04a_ipl						
-  COMMAND ${NASK} ${07_day_harib04a_IPLS} ${07_day_harib04a_IPLB}		
-)											
-add_custom_target(07_day_harib04a_sys						
-  COMMAND ${NASK} ${07_day_harib04a_HEADS} ${07_day_harib04a_HEADB}		
-  COMMAND gcc ${07_day_harib04a_CCS}  -c -o ${07_day_harib04a_CCO}	
-  COMMAND ld -o ${07_day_harib04a_BOOTB} -e _HariMain ${07_day_harib04a_CCO} ${07_day_harib04a_FUNCO}	
-  COMMAND cat ${07_day_harib04a_HEADB} ${07_day_harib04a_BOOTB} > ${07_day_harib04a_SYS}			
-)											
-add_custom_target(07_day_harib04a_img						
+  DEPENDS 07_day_harib04a_img
+)
+add_custom_target(07_day_harib04a_clean
   COMMAND rm -f ${07_day_harib04a_OS}
-  COMMAND mformat -f 1440 -C -B ${07_day_harib04a_IPLB} -i ${07_day_harib04a_OS}	
-  COMMAND mcopy -n ${07_day_harib04a_SYS} ${07_day_harib04a_OS}			
-)											
+  COMMAND rm -f ${07_day_harib04a_SYS}
+  COMMAND rm -f ${07_day_harib04a_IPLB}
+  COMMAND rm -f ${07_day_harib04a_HEADB}
+  COMMAND rm -f ${07_day_harib04a_BOOTB}
+  COMMAND rm -f ${07_day_harib04a_CCO}
+)
+add_custom_target(07_day_harib04a_ipl
+  COMMAND ${NASK} ${07_day_harib04a_IPLS} ${07_day_harib04a_IPLB}
+)
+add_custom_target(07_day_harib04a_sys
+  COMMAND ${NASK} ${07_day_harib04a_HEADS} ${07_day_harib04a_HEADB}
+  COMMAND gcc ${07_day_harib04a_CCS}  -c -o ${07_day_harib04a_CCO}
+  COMMAND ld -o ${07_day_harib04a_BOOTB} -e HariMain -T ${07_day_harib04a_LDS} ${07_day_harib04a_CCO} ${07_day_harib04a_FUNCO}
+  COMMAND cat ${07_day_harib04a_HEADB} ${07_day_harib04a_BOOTB} > ${07_day_harib04a_SYS}
+  DEPENDS 07_day_harib04a_ipl
+)
+add_custom_target(07_day_harib04a_img
+  COMMAND mformat -f 1440 -C -B ${07_day_harib04a_IPLB} -i ${07_day_harib04a_OS}
+  COMMAND mcopy -i ${07_day_harib04a_OS} ${07_day_harib04a_SYS} ::
+  DEPENDS 07_day_harib04a_sys
+)
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/07_day/harib04a/asmhead.nas)
 set(asmhead.img_OUTS ${root_BINARY_DIR}/projects/07_day/harib04a/asmhead.img)
