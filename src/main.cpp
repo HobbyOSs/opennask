@@ -64,6 +64,10 @@ int process_each_assembly_line(char** argv,
 //     const auto fp_ ## x = std::bind(&nask_utility::Instructions::process_token_ ## x, inst, _1, _2); \
 //     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
 
+     // 角括弧はそのまま使えないのでここで定義
+     const auto fp_BRACKET = std::bind(&nask_utility::Instructions::process_token_BRACKET, inst, _1, _2);
+     funcs.insert(std::make_pair("\[" , fp_BRACKET));
+
 #define X_TABLE \
   X_INST_ITEM(ADD)    \
   X_INST_ITEM(ALIGNB) \
@@ -166,6 +170,22 @@ int process_each_assembly_line(char** argv,
 	  TParaTokenizer tokenizer(input_stream, &token_table);
 	  TParaToken token;
 
+	  if (nask_utility::starts_with(input, "\[")) {
+	       logger->info("eval bracket");
+	       try {
+		    int r = inst.process_token_BRACKET(tokenizer, binout_container);
+		    if (r != 0) {
+			 // エラーがあった行を表示
+			 logger->info(input);
+			 return r;
+		    }
+	       } catch (TScriptException te) {
+		    std::cerr << te << std::endl;
+	       }
+	       logger->info("eval bracket end");
+	       continue;
+	  }
+
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
 	       if (nask_utility::is_comment_line(token_table, token) ||
 		   nask_utility::is_line_terminated(token_table, token)) {
@@ -198,7 +218,7 @@ int process_each_assembly_line(char** argv,
 			      }
 			      logger->info("eval {} end", token.AsString());
 			 } else {
-			      // What
+			      // オペコードが見つかったけどよくわからなかった場合
 			      logger->info("eval Unknown {} end", token.AsString());
 			 }
 		    }

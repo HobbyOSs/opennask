@@ -120,4 +120,8 @@ namespace nask_utility {
 	       return false;
 	  }
      }
+
+     bool starts_with(std::string const &full_string, std::string const &begining) {
+	  return full_string.substr(0, begining.size()) == begining;
+     }
 };

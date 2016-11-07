@@ -2,6 +2,7 @@
 #include "string_util.hpp"
 #include "mod_rm.hpp"
 #include "tinyexpr.h"
+#include "bracket_impl.hpp"
 
 namespace nask_utility {
 

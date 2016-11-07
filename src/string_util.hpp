@@ -15,6 +15,7 @@ namespace nask_utility {
      const std::string replace(const std::string& in, const std::string& from, const std::string& to);
      bool contains(const std::string& src, const std::string& query);
      bool ends_with(std::string const &full_string, std::string const &ending);
+     bool starts_with(std::string const &full_string, std::string const &begining);
 
      // アセンブラ処理で使う判定系処理
      bool is_hex_notation(const std::string& s);

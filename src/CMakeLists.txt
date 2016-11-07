@@ -14,6 +14,7 @@ set(PACKAGE_BUGREPORT ON CACHE STRING "idiotpanzer@gmail.com" FORCE)
 
 set(opennask_SRCS
     main.cpp
+    bracket_impl.hpp
     mod_rm.cpp
     mod_rm.hpp
     string_util.cpp
@@ -22,7 +23,8 @@ set(opennask_SRCS
     nask_utility.hpp
     nask_defs.hpp
     tinyexpr.c
-    tinyexpr.h)
+    tinyexpr.h
+    coff.h)
 
 include_directories(${root_SOURCE_DIR}/parasol
                     ${root_SOURCE_DIR}/src
