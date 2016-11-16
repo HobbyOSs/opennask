@@ -15,15 +15,7 @@ namespace nask_utility {
 
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
-		    process_format_statement(header, target);
-
-		    auto ptr = reinterpret_cast<uint8_t*>(&header);
-		    auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(header) };
-
-		    for ( uint8_t x : buffer ) {
-			 log()->info("process bracket 0x{:02x}", x);
-		    }
-		    std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
+		    process_format_statement(header, target, binout_container);
 	       }
 	       break;
 	  }
@@ -31,13 +23,36 @@ namespace nask_utility {
 	  return 0;
      }
 
-     void process_format_statement(PIMAGE_FILE_HEADER& header, const std::string& target) {
+     void process_format_statement(PIMAGE_FILE_HEADER& header, const std::string& target, VECTOR_BINOUT& binout_container) {
+
 	  if (target == "\"WCOFF\"") {
 	       log()->info("target: {}, process as Portable Executable", target);
 	       header.machine              = I386MAGIC;
 	       header.numberOfSections     = 0x0003;
 	       header.pointerToSymbolTable = 0x0000008e;
 	       header.numberOfSymbols      = 0x00000009;
+
+	       auto ptr = reinterpret_cast<uint8_t*>(&header);
+	       auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(header) };
+	       std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
+
+	       // section table ".text"
+	       PIMAGE_SECTION_HEADER text = {
+		    0x2e, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00,
+		    0x00000000, // unionの分
+		    0x00000000,
+		    0x00000002,
+		    0x0000008c,
+		    0x0000008e,
+		    0x00000000,
+		    0x0000,
+		    0x0000,
+		    0x60100020
+	       };
+
+	       auto text_ptr = reinterpret_cast<uint8_t*>(&text);
+	       auto text_buffer = std::vector<uint8_t>{ text_ptr, text_ptr + sizeof(text) };
+	       std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
 	  }
      }
 }
