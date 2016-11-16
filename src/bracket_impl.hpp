@@ -53,6 +53,24 @@ namespace nask_utility {
 	       auto text_ptr = reinterpret_cast<uint8_t*>(&text);
 	       auto text_buffer = std::vector<uint8_t>{ text_ptr, text_ptr + sizeof(text) };
 	       std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
+
+	       // section table ".data"
+	       PIMAGE_SECTION_HEADER data = {
+		    0x2e, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00,
+		    0x00000000, // unionの分
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x0000,
+		    0x0000,
+		    0xc0100040
+	       };
+
+	       auto data_ptr = reinterpret_cast<uint8_t*>(&data);
+	       auto data_buffer = std::vector<uint8_t>{ data_ptr, data_ptr + sizeof(data) };
+	       std::copy(data_buffer.begin(), data_buffer.end(), back_inserter(binout_container));
 	  }
      }
 }
