@@ -13,14 +13,13 @@ namespace nask_utility {
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
 		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
 
-		    IMAGE_DOS_HEADER* header = {};
+		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target);
 
-		    std::array<uint8_t, sizeof(IMAGE_DOS_HEADER)> buffer = {};
-		    log()->info("sizeof(IMAGE_DOS_HEADER) {}", sizeof(IMAGE_DOS_HEADER));
+		    auto ptr = reinterpret_cast<uint8_t*>(&header);
+		    auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(header) };
 
-		    memcpy(buffer.data(), &header, sizeof(IMAGE_DOS_HEADER));
 		    for ( uint8_t x : buffer ) {
 			 log()->info("process bracket 0x{:02x}", x);
 		    }
@@ -32,9 +31,13 @@ namespace nask_utility {
 	  return 0;
      }
 
-     void process_format_statement(IMAGE_DOS_HEADER* header, const std::string& target) {
-	  if (target == "WCOFF") {
-	       header->e_magic = 0x9999;
+     void process_format_statement(PIMAGE_FILE_HEADER& header, const std::string& target) {
+	  if (target == "\"WCOFF\"") {
+	       log()->info("target: {}, process as Portable Executable", target);
+	       header.machine              = I386MAGIC;
+	       header.numberOfSections     = 0x0003;
+	       header.pointerToSymbolTable = 0x0000008e;
+	       header.numberOfSymbols      = 0x00000009;
 	  }
      }
 }
