@@ -38,7 +38,7 @@ namespace nask_utility {
 
 	       // section table ".text"
 	       PIMAGE_SECTION_HEADER text = {
-		    0x2e, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00,
+		    { 0x2e, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00 },
 		    0x00000000, // unionの分
 		    0x00000000,
 		    0x00000002,
@@ -56,7 +56,7 @@ namespace nask_utility {
 
 	       // section table ".data"
 	       PIMAGE_SECTION_HEADER data = {
-		    0x2e, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00,
+		    { 0x2e, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00 },
 		    0x00000000, // unionの分
 		    0x00000000,
 		    0x00000000,
@@ -71,6 +71,24 @@ namespace nask_utility {
 	       auto data_ptr = reinterpret_cast<uint8_t*>(&data);
 	       auto data_buffer = std::vector<uint8_t>{ data_ptr, data_ptr + sizeof(data) };
 	       std::copy(data_buffer.begin(), data_buffer.end(), back_inserter(binout_container));
+
+	       // section table ".bss"
+	       PIMAGE_SECTION_HEADER bss = {
+		    { 0x2e, 0x62, 0x73, 0x73, 0x00, 0x00, 0x00, 0x00 },
+		    0x00000000, // unionの分
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x00000000,
+		    0x0000,
+		    0x0000,
+		    0x00000080
+	       };
+
+	       auto bss_ptr = reinterpret_cast<uint8_t*>(&bss);
+	       auto bss_buffer = std::vector<uint8_t>{ bss_ptr, bss_ptr + sizeof(bss) };
+	       std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
 	  }
      }
 }
