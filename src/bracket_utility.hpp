@@ -35,6 +35,22 @@ namespace nask_utility {
 	  uint32_t        characteristics;
      } __attribute__((packed));
 
+     struct PIMAGE_SYMBOL {
+	  union {
+	       uint8_t    shortName[8];
+	       struct {
+		    uint32_t   shortName; // if 0, use LongName
+		    uint32_t   longName;  // offset into string table
+	       } name;
+	       uint8_t    longName[2];    // PBYTE [2] --> unsigned char[2]
+	  } n;
+	  uint32_t   value;
+	  uint16_t   sectionNumber;
+	  uint16_t   type;
+	  uint8_t    storageClass;
+	  uint8_t    numberOfAuxSymbols;
+     } __attribute__((packed));
+
      void process_format_statement(PIMAGE_FILE_HEADER& header,
 				   const std::string& target,
 				   VECTOR_BINOUT& binout_container);

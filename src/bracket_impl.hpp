@@ -16,6 +16,28 @@ namespace nask_utility {
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FILE") {
+		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
+		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
+
+		    std::string file_name = tokenizer.LookAhead(2).AsString();
+		    file_name = file_name.erase(0, 1);
+		    file_name = file_name.erase(file_name.size() - 1);
+
+		    const uint32_t value = std::atoi(file_name.c_str());
+
+		    // auxiliary element ".file"
+		    PIMAGE_SYMBOL file = {
+			 { '.', 'f', 'i', 'l', 'e', 0, 0, 0 /* name */ },
+			 value
+		    };
+
+		    auto ptr = reinterpret_cast<uint8_t*>(&file);
+		    auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(file) };
+		    std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
+
+		    log()->info("Wrote a '.file' auxiliary field for Portable Executable");
 	       }
 	       break;
 	  }
@@ -43,7 +65,7 @@ namespace nask_utility {
 		    0x00000000, // VirtualAddress
 		    0x00000002,	// SizeOfRawData
 		    0x0000008c,	// PointerToRawData
-		    0x0000008e,	// PointerToRelocations
+		    0x0000008e,	// PointerToRelocations <-- 可変
 		    0x00000000,	// PointerToLinenumbers
 		    0x0000,	// NumberOfRelocations
 		    0x0000,	// NumberOfLinenumbers
@@ -89,12 +111,8 @@ namespace nask_utility {
 	       auto bss_ptr = reinterpret_cast<uint8_t*>(&bss);
 	       auto bss_buffer = std::vector<uint8_t>{ bss_ptr, bss_ptr + sizeof(bss) };
 	       std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
+	       log()->info("Wrote '.text', '.data', '.bss' fields for Portable Executable");
 
-	       // FIXME: ここはよくわからないのでとりあえず埋めておく
-	       binout_container.push_back(0x10);
-	       binout_container.push_back(0xc0);
-	       binout_container.push_back(0xf4);
-	       binout_container.push_back(0xc3);
 	  }
      }
 }
