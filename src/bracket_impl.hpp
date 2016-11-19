@@ -18,24 +18,34 @@ namespace nask_utility {
 		    process_format_statement(header, target, binout_container);
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FILE") {
+		    // FIXME: どうやらここのフィールドの書き込みは、
+		    // 通常のオペコードの書き込みが終了したあとに行う必要があるようだ
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
 		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
 
-		    std::string file_name = tokenizer.LookAhead(2).AsString();
-		    file_name = file_name.erase(0, 1);
-		    file_name = file_name.erase(file_name.size() - 1);
-
-		    const uint32_t value = std::atoi(file_name.c_str());
-
 		    // auxiliary element ".file"
 		    PIMAGE_SYMBOL file = {
-			 { '.', 'f', 'i', 'l', 'e', 0, 0, 0 /* name */ },
-			 value
+			 { '.', 'f', 'i', 'l', 'e', 0, 0, 0 /* shortName */ },
+			 0x00000000,
+			 0xfffe,
+			 0x0000,
+			 0x67, 0x01
 		    };
 
 		    auto ptr = reinterpret_cast<uint8_t*>(&file);
 		    auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(file) };
 		    std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
+
+		    std::string file_name = tokenizer.LookAhead(2).AsString();
+		    file_name = file_name.erase(0, 1);
+		    file_name = file_name.erase(file_name.size() - 1);
+		    for ( size_t i = 0; i < 18; i++ ) {
+			 if ( file_name.size() <= i ) {
+			      binout_container.push_back(0x00);
+			 } else {
+			      binout_container.push_back(file_name.at(i));
+			 }
+		    }
 
 		    log()->info("Wrote a '.file' auxiliary field for Portable Executable");
 	       }

@@ -36,14 +36,18 @@ namespace nask_utility {
      } __attribute__((packed));
 
      struct PIMAGE_SYMBOL {
-	  union {
-	       uint8_t    shortName[8];
-	       struct {
-		    uint32_t   shortName; // if 0, use LongName
-		    uint32_t   longName;  // offset into string table
-	       } name;
-	       uint8_t    longName[2];    // PBYTE [2] --> unsigned char[2]
-	  } n;
+	  uint8_t    shortName[8];
+	  //
+	  // 初期化が面倒なのでunion省略しますね
+	  //
+	  //union {
+	  //     uint8_t    shortName[8];
+	  //     struct {
+	  // 	    uint32_t   shortName; // if 0, use LongName
+	  // 	    uint32_t   longName;  // offset into string table
+	  //     } name;
+	  //     uint8_t    longName[2];    // PBYTE [2] --> unsigned char[2]
+	  //} n;
 	  uint32_t   value;
 	  uint16_t   sectionNumber;
 	  uint16_t   type;
