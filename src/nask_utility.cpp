@@ -1962,6 +1962,15 @@ namespace nask_utility {
 		    if (!token.IsEmpty()) {
 			 log()->info("Add new symbol: {}", token.AsString());
 			 symbol_list.push_back(token.AsString());
+
+			 for ( size_t i = 2; ; i+=2) {
+			      if ( !tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i-1).Is(",")) {
+				   log()->info("Add new symbol: {}", tokenizer.LookAhead(i).AsString());
+				   symbol_list.push_back(tokenizer.LookAhead(i).AsString());
+			      } else {
+				   break;
+			      }
+			 }
 		    }
 		    break;
 	       }
