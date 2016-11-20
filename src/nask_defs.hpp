@@ -62,6 +62,10 @@ struct PIMAGE_SECTION_HEADER {
      uint32_t        characteristics;
 } __attribute__((packed));
 
+constexpr uint16_t WCOFF_TEXT_FIELD = 0x0001;
+constexpr uint16_t WCOFF_DATA_FIELD = 0x0002;
+constexpr uint16_t WCOFF_BSS_FIELD  = 0x0003;
+
 struct PIMAGE_SYMBOL {
      uint8_t    shortName[8];
      uint32_t   value;

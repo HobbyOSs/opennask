@@ -136,22 +136,27 @@ namespace nask_utility {
 	  PIMAGE_SYMBOL text = {
 	       { '.', 't', 'e', 'x', 't', 0, 0, 0 /* shortName */ },
 	       0x00000000,
-	       0x0001,
+	       WCOFF_TEXT_FIELD,
 	       0x0000,
 	       0x03, 0x01
 	  };
 
 	  auto text_buffer = create_buffer(text);
 	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
-	  for ( size_t i = 0; i < 18; i++ ) { // FIXME: ここのフィールドも本当は可変
-	       binout_container.push_back(0x00);
+	  for ( size_t i = 0; i < 18; i++ ) {
+	       if (i == 0) {
+		    // FIXME: ここの0x02が意味わからない
+		    binout_container.push_back(0x02);
+	       } else {
+		    binout_container.push_back(0x00);
+	       }
 	  }
 
 	  // element ".data"
 	  PIMAGE_SYMBOL data = {
 	       { '.', 'd', 'a', 't', 'a', 0, 0, 0 /* shortName */ },
 	       0x00000000,
-	       0x0002,
+	       WCOFF_DATA_FIELD,
 	       0x0000,
 	       0x03, 0x01
 	  };
@@ -166,7 +171,7 @@ namespace nask_utility {
 	  PIMAGE_SYMBOL bss = {
 	       { '.', 'b', 's', 's', 0, 0, 0, 0 /* shortName */ },
 	       0x00000000,
-	       0x0003,
+	       WCOFF_BSS_FIELD,
 	       0x0000,
 	       0x03, 0x01
 	  };
@@ -186,7 +191,7 @@ namespace nask_utility {
 		    PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
 			 0x00000000,
-			 0x0001,
+			 WCOFF_TEXT_FIELD, // <-- 関数が実際どこのsectionにあるか
 			 0x0000,
 			 0x02, 0x00
 		    };
