@@ -119,6 +119,7 @@ namespace nask_utility {
 	  static LABEL_DST_STACK label_dst_stack;
 	  static LABEL_SRC_STACK label_src_stack;
 	  static std::map<std::string, std::string> equ_map;
+	  static std::vector<std::string> symbol_list;
 	  static std::string data_type;
 	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
@@ -135,6 +136,7 @@ namespace nask_utility {
 	  int process_token_DD     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DW     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_EQU    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_GLOBAL (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_HLT    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_IMUL   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_IN     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

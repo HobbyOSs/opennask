@@ -475,6 +475,7 @@ namespace nask_utility {
      LABEL_DST_STACK Instructions::label_dst_stack;
      LABEL_SRC_STACK Instructions::label_src_stack;
      std::map<std::string, std::string> Instructions::equ_map;
+     std::vector<std::string> Instructions::symbol_list;
      std::string Instructions::data_type;
      uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
@@ -1948,7 +1949,21 @@ namespace nask_utility {
 			 std::cerr << "NASK : EQU syntax is not correct" << std::endl;
 			 return 17;
 		    }
-		    log()->info("!!! {} !!!", token.AsString());
+	       }
+	  }
+	  return 0;
+     }
+
+     int Instructions::process_token_GLOBAL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (!token.IsEmpty()) {
+			 log()->info("Add new symbol: {}", token.AsString());
+			 symbol_list.push_back(token.AsString());
+		    }
+		    break;
 	       }
 	  }
 	  return 0;

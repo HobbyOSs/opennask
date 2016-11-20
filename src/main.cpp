@@ -79,6 +79,7 @@ int process_each_assembly_line(char** argv,
   X_INST_ITEM(DB)     \
   X_INST_ITEM(DD)     \
   X_INST_ITEM(DW)     \
+  X_INST_ITEM(GLOBAL) \
   X_INST_ITEM(HLT)    \
   X_INST_ITEM(IMUL)   \
   X_INST_ITEM(IN)     \
@@ -229,7 +230,7 @@ int process_each_assembly_line(char** argv,
 
      // sectionテーブルを追加する
      if (inst.exists_section_table) {
-	  nask_utility::process_section_table(binout_container);
+	  nask_utility::process_section_table(inst, binout_container);
      }
 
      logger->info("final size: bin[{}]", binout_container.size());

@@ -124,7 +124,7 @@ namespace nask_utility {
 	  }
      }
 
-     void process_section_table(VECTOR_BINOUT& binout_container) {
+     void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
 
 	  // element ".text"
 	  PIMAGE_SYMBOL text = {
@@ -169,6 +169,30 @@ namespace nask_utility {
 	  std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
 	  for ( size_t i = 0; i < 18; i++ ) {
 	       binout_container.push_back(0x00);
+	  }
+
+	  for ( std::string symbol_name : inst.symbol_list ) {
+	       // 関数などのシンボル情報を書き込む
+	       if (symbol_name.size() <= 8) {
+		    // 8byte以下
+		    log()->info("write short symbol name: {}", symbol_name);
+
+		    PIMAGE_SYMBOL func = {
+			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
+			 0x00000000,
+			 0x0001,
+			 0x0000,
+			 0x02, 0x00
+		    };
+		    std::copy(symbol_name.begin(), symbol_name.end(), func.shortName);
+
+		    auto fn_buffer = create_buffer(func);
+		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+
+	       } else {
+		    // 8byte以上
+		    log()->info("write long symbol name: {}", symbol_name);
+	       }
 	  }
 
 	  binout_container.push_back(0x04);

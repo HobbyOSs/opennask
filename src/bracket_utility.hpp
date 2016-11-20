@@ -48,7 +48,7 @@ namespace nask_utility {
 				   const std::string& target,
 				   VECTOR_BINOUT& binout_container);
 
-     void process_section_table(VECTOR_BINOUT& binout_container);
+     void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container);
 
      std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol);
      std::vector<uint8_t> create_buffer(PIMAGE_SECTION_HEADER& symbol);
