@@ -120,7 +120,7 @@ do
             echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}
 	fi
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
-        echo "  COMMAND gcc \${${NAS_DIR_TARGET}_CCS} ${BINOPT} -c -o \${${NAS_DIR_TARGET}_CCO}"      | tee -a ${CMAKELISTS}
+        echo "  COMMAND gcc \${BINOPT} \${${NAS_DIR_TARGET}_CCS} -c -o \${${NAS_DIR_TARGET}_CCO}"      | tee -a ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
             echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}" | tee -a ${CMAKELISTS}
 	else
