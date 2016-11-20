@@ -122,6 +122,7 @@ namespace nask_utility {
 	  static std::string data_type;
 	  static uint32_t dollar_position; // $
 	  int OPENNASK_MODES = ID_32BIT_MODE;
+	  bool exists_section_table = false;
 
 	  int process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_ADD    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

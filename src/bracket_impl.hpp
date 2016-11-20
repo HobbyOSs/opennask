@@ -10,6 +10,7 @@ namespace nask_utility {
 
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FORMAT") {
+		    this->exists_section_table = true;
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
 		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
 
@@ -82,8 +83,7 @@ namespace nask_utility {
 		    0x60100020  /* +0x38: flags, default_align = 1 */
 	       };
 
-	       auto text_ptr = reinterpret_cast<uint8_t*>(&text);
-	       auto text_buffer = std::vector<uint8_t>{ text_ptr, text_ptr + sizeof(text) };
+	       auto text_buffer = create_buffer(text);
 	       std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
 
 	       // section table ".data"
@@ -100,8 +100,7 @@ namespace nask_utility {
 		    0xc0100040  /* +0x60: flags, default_align = 1 */
 	       };
 
-	       auto data_ptr = reinterpret_cast<uint8_t*>(&data);
-	       auto data_buffer = std::vector<uint8_t>{ data_ptr, data_ptr + sizeof(data) };
+	       auto data_buffer = create_buffer(data);
 	       std::copy(data_buffer.begin(), data_buffer.end(), back_inserter(binout_container));
 
 	       // section table ".bss"
@@ -118,12 +117,76 @@ namespace nask_utility {
 		    0xc0100080  /* +0x88: flags, default_align = 1 */
 	       };
 
-	       auto bss_ptr = reinterpret_cast<uint8_t*>(&bss);
-	       auto bss_buffer = std::vector<uint8_t>{ bss_ptr, bss_ptr + sizeof(bss) };
+	       auto bss_buffer = create_buffer(bss);
 	       std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
 	       log()->info("Wrote '.text', '.data', '.bss' fields for Portable Executable");
 
 	  }
+     }
+
+     void process_section_table(VECTOR_BINOUT& binout_container) {
+
+	  // element ".text"
+	  PIMAGE_SYMBOL text = {
+	       { '.', 't', 'e', 'x', 't', 0, 0, 0 /* shortName */ },
+	       0x00000000,
+	       0x0001,
+	       0x0000,
+	       0x03, 0x01
+	  };
+
+	  auto text_buffer = create_buffer(text);
+	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
+	  for ( size_t i = 0; i < 18; i++ ) {
+	       binout_container.push_back(0x00);
+	  }
+
+	  // element ".data"
+	  PIMAGE_SYMBOL data = {
+	       { '.', 'd', 'a', 't', 'a', 0, 0, 0 /* shortName */ },
+	       0x00000000,
+	       0x0002,
+	       0x0000,
+	       0x03, 0x01
+	  };
+
+	  auto data_buffer = create_buffer(data);
+	  std::copy(data_buffer.begin(), data_buffer.end(), back_inserter(binout_container));
+	  for ( size_t i = 0; i < 18; i++ ) {
+	       binout_container.push_back(0x00);
+	  }
+
+	  // element ".text"
+	  PIMAGE_SYMBOL bss = {
+	       { '.', 'b', 's', 's', 0, 0, 0, 0 /* shortName */ },
+	       0x00000000,
+	       0x0003,
+	       0x0000,
+	       0x03, 0x01
+	  };
+
+	  auto bss_buffer = create_buffer(bss);
+	  std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
+	  for ( size_t i = 0; i < 18; i++ ) {
+	       binout_container.push_back(0x00);
+	  }
+
+	  binout_container.push_back(0x04);
+	  binout_container.push_back(0x00);
+	  binout_container.push_back(0x00);
+	  binout_container.push_back(0x00);
+     }
+
+     std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol) {
+	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
+	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
+	  return buffer;
+     }
+
+     std::vector<uint8_t> create_buffer(PIMAGE_SECTION_HEADER& symbol) {
+	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
+	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
+	  return buffer;
      }
 }
 

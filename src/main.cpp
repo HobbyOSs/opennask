@@ -18,6 +18,7 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include "nask_utility.hpp"
+#include "bracket_utility.hpp"
 #include "string_util.hpp"
 #include "fatlib.h"
 #include "time.h"
@@ -225,6 +226,12 @@ int process_each_assembly_line(char** argv,
 	       }
 	  }
      }
+
+     // sectionテーブルを追加する
+     if (inst.exists_section_table) {
+	  nask_utility::process_section_table(binout_container);
+     }
+
      logger->info("final size: bin[{}]", binout_container.size());
      return 0;
 }

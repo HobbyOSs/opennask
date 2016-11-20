@@ -307,16 +307,6 @@ namespace nask_utility {
 				 { return elem.label == label_src; });
 
       	  if (it != std::end(label_dst_stack)) {
-	       /**
-	       LABEL_DST_ELEMENT elem(*it);
-	       elem.dst_index = binout_container.size();
-	       elem.rel_index = binout_container.size() + 1;
-	       log()->info("update_label_src_offset bin[{}] = {}",
-			   std::to_string(elem.rel_index),
-			   elem.rel_offset());
-
-	       binout_container.push_back(elem.rel_offset());
-	       */
 	       return true;
 	  }
 

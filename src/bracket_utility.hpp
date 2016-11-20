@@ -37,17 +37,6 @@ namespace nask_utility {
 
      struct PIMAGE_SYMBOL {
 	  uint8_t    shortName[8];
-	  //
-	  // 初期化が面倒なのでunion省略しますね
-	  //
-	  //union {
-	  //     uint8_t    shortName[8];
-	  //     struct {
-	  // 	    uint32_t   shortName; // if 0, use LongName
-	  // 	    uint32_t   longName;  // offset into string table
-	  //     } name;
-	  //     uint8_t    longName[2];    // PBYTE [2] --> unsigned char[2]
-	  //} n;
 	  uint32_t   value;
 	  uint16_t   sectionNumber;
 	  uint16_t   type;
@@ -58,6 +47,11 @@ namespace nask_utility {
      void process_format_statement(PIMAGE_FILE_HEADER& header,
 				   const std::string& target,
 				   VECTOR_BINOUT& binout_container);
+
+     void process_section_table(VECTOR_BINOUT& binout_container);
+
+     std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol);
+     std::vector<uint8_t> create_buffer(PIMAGE_SECTION_HEADER& symbol);
 };
 
 #endif /* BRACKET_UTILITY_ */
