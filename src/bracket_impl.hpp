@@ -11,6 +11,7 @@ namespace nask_utility {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FORMAT") {
 		    this->exists_section_table = true;
+
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
 		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
 
@@ -19,36 +20,25 @@ namespace nask_utility {
 		    process_format_statement(header, target, binout_container);
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FILE") {
-		    // FIXME: どうやらここのフィールドの書き込みは、
+		    // ".file"のフィールドの書き込みは、
 		    // 通常のオペコードの書き込みが終了したあとに行う必要があるようだ
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
 		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
 
 		    // auxiliary element ".file"
-		    PIMAGE_SYMBOL file = {
+		    std::string file_name = tokenizer.LookAhead(2).AsString();
+		    file_name = file_name.erase(0, 1);
+		    file_name = file_name.erase(file_name.size() - 1);
+
+		    this->file_auxiliary_name = file_name;
+		    this->exists_file_auxiliary = true;
+		    this->file_auxiliary = {
 			 { '.', 'f', 'i', 'l', 'e', 0, 0, 0 /* shortName */ },
 			 0x00000000,
 			 0xfffe,
 			 0x0000,
 			 0x67, 0x01
 		    };
-
-		    auto ptr = reinterpret_cast<uint8_t*>(&file);
-		    auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(file) };
-		    std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
-
-		    std::string file_name = tokenizer.LookAhead(2).AsString();
-		    file_name = file_name.erase(0, 1);
-		    file_name = file_name.erase(file_name.size() - 1);
-		    for ( size_t i = 0; i < 18; i++ ) {
-			 if ( file_name.size() <= i ) {
-			      binout_container.push_back(0x00);
-			 } else {
-			      binout_container.push_back(file_name.at(i));
-			 }
-		    }
-
-		    log()->info("Wrote a '.file' auxiliary field for Portable Executable");
 	       }
 	       break;
 	  }
@@ -126,6 +116,22 @@ namespace nask_utility {
 
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
 
+	  // auxiliary element ".file"
+	  if (inst.exists_file_auxiliary) {
+	       auto ptr = reinterpret_cast<uint8_t*>(&inst.file_auxiliary);
+	       auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(inst.file_auxiliary) };
+	       std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
+
+	       for ( size_t i = 0; i < 18; i++ ) {
+		    if ( inst.file_auxiliary_name.size() <= i ) {
+			 binout_container.push_back(0x00);
+		    } else {
+			 binout_container.push_back(inst.file_auxiliary_name.at(i));
+		    }
+	       }
+	       log()->info("Wrote a '.file' auxiliary field for Portable Executable");
+	  }
+
 	  // element ".text"
 	  PIMAGE_SYMBOL text = {
 	       { '.', 't', 'e', 'x', 't', 0, 0, 0 /* shortName */ },
@@ -137,7 +143,7 @@ namespace nask_utility {
 
 	  auto text_buffer = create_buffer(text);
 	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
-	  for ( size_t i = 0; i < 18; i++ ) {
+	  for ( size_t i = 0; i < 18; i++ ) { // FIXME: ここのフィールドも本当は可変
 	       binout_container.push_back(0x00);
 	  }
 
