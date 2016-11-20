@@ -38,7 +38,7 @@ add_custom_target(07_day_harib04a_ipl
 add_custom_target(07_day_harib04a_sys
   COMMAND ${NASK} ${07_day_harib04a_FUNCS} ${07_day_harib04a_FUNCO}
   COMMAND ${NASK} ${07_day_harib04a_HEADS} ${07_day_harib04a_HEADB}
-  COMMAND gcc ${07_day_harib04a_CCS}  -c -o ${07_day_harib04a_CCO}
+  COMMAND gcc ${BINOPT} ${07_day_harib04a_CCS} -c -o ${07_day_harib04a_CCO}
   COMMAND ld -o ${07_day_harib04a_BOOTB} -e HariMain -T ${07_day_harib04a_LDS} ${07_day_harib04a_CCO} ${07_day_harib04a_FUNCO}
   COMMAND cat ${07_day_harib04a_HEADB} ${07_day_harib04a_BOOTB} > ${07_day_harib04a_SYS}
   DEPENDS 07_day_harib04a_ipl

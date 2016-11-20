@@ -16,6 +16,8 @@ STARTUP(boot.o)
 "binary"でtext,data,bssだけのシンプルな構成になる。*/
 OUTPUT_FORMAT(binary)
 
+/* 入力オブジェクトファイ ルのバイナリフォーマットを指定する */
+TARGET(binary)
 
 /*セクション*/
 SECTIONS
