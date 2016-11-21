@@ -40,7 +40,7 @@ add_custom_target(01_day_helloos1_helloos_sys
   DEPENDS 01_day_helloos1_ipl
 )
 add_custom_target(01_day_helloos1_helloos_img
-  COMMAND mformat -f 1440 -C -B ${01_day_helloos1_IPLB} -i ${01_day_helloos1_OS}
+  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${01_day_helloos1_IPLB} -i ${01_day_helloos1_OS}
   COMMAND mcopy -i ${01_day_helloos1_OS} ${01_day_helloos1_SYS} ::
   DEPENDS 01_day_helloos1_sys
 )
