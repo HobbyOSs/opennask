@@ -2,6 +2,8 @@
 message(STATUS "Entering directory projects/03_day/harib00i/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
+set(INTEL2GAS ${root_BINARY_DIR}/intel2gas/intel2gas)
+
 set(03_day_harib00i_OS    ${root_BINARY_DIR}/projects/03_day/harib00i/os.img)
 set(03_day_harib00i_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00i/os.sys)
 set(03_day_harib00i_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00i/ipl.bin)
@@ -10,7 +12,9 @@ set(03_day_harib00i_HEADB ${root_BINARY_DIR}/projects/03_day/harib00i/asmhead.bi
 set(03_day_harib00i_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00i/asmhead.nas)
 set(03_day_harib00i_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00i/boot.bin)
 set(03_day_harib00i_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.o)
-set(03_day_harib00i_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/*.c)
+set(03_day_harib00i_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/bootpack.c)
+set(03_day_harib00i_CCGAS ${root_BINARY_DIR}/projects/03_day/harib00i/bootpack.gas)
+set(03_day_harib00i_CCNAS ${root_BINARY_DIR}/projects/03_day/harib00i/bootpack.nas)
 set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 
 add_custom_target(03_day_harib00i_run
@@ -27,6 +31,8 @@ add_custom_target(03_day_harib00i_clean
   COMMAND rm -f ${03_day_harib00i_IPLB}
   COMMAND rm -f ${03_day_harib00i_HEADB}
   COMMAND rm -f ${03_day_harib00i_BOOTB}
+  COMMAND rm -f ${03_day_harib00i_CCGAS}
+  COMMAND rm -f ${03_day_harib00i_CCNAS}
   COMMAND rm -f ${03_day_harib00i_CCO}
 )
 add_custom_target(03_day_harib00i_ipl
@@ -34,7 +40,9 @@ add_custom_target(03_day_harib00i_ipl
 )
 add_custom_target(03_day_harib00i_sys
   COMMAND ${NASK} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
-  COMMAND gcc ${BINOPT} ${03_day_harib00i_CCS} -c -o ${03_day_harib00i_CCO}
+  COMMAND gcc -S ${03_day_harib00i_CCS} -o ${03_day_harib00i_CCGAS}
+  COMMAND ${I2GOPT} ${INTEL2GAS} -g -o ${03_day_harib00i_CCNAS} ${03_day_harib00i_CCGAS}
+  COMMAND ${NASK} ${03_day_harib00i_CCNAS} ${03_day_harib00i_CCO}
   COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} ${03_day_harib00i_CCO}
   COMMAND cat ${03_day_harib00i_HEADB} ${03_day_harib00i_BOOTB} > ${03_day_harib00i_SYS}
   DEPENDS 03_day_harib00i_ipl

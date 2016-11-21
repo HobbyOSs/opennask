@@ -14,6 +14,7 @@ set(QEMUOPT "-m" "32" "-localtime" "-vga" "std" "-fda" CACHE INTERNAL "")
 set(BINOPT "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
 set(ENV{I2G_DATA} "${root_SOURCE_DIR}/intel2gas/")
 set(ENV{G2I_DATA} "${root_SOURCE_DIR}/intel2gas/")
+set(I2GOPT "I2G_DATA=${root_SOURCE_DIR}/intel2gas/" "G2I_DATA=${root_SOURCE_DIR}/intel2gas/")
 
 add_subdirectory(parasol)
 add_subdirectory(intel2gas)
