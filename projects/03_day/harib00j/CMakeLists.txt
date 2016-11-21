@@ -44,7 +44,7 @@ add_custom_target(03_day_harib00j_sys
   DEPENDS 03_day_harib00j_ipl
 )
 add_custom_target(03_day_harib00j_img
-  COMMAND mformat -f 1440 -C -B ${03_day_harib00j_IPLB} -i ${03_day_harib00j_OS}
+  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${03_day_harib00j_IPLB} -i ${03_day_harib00j_OS}
   COMMAND mcopy -i ${03_day_harib00j_OS} ${03_day_harib00j_SYS} ::
   DEPENDS 03_day_harib00j_sys
 )
