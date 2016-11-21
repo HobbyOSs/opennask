@@ -130,7 +130,7 @@ do
         echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                        | tee -a ${CMAKELISTS}
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_img"                                                | tee -a ${CMAKELISTS}
-        echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}" | tee -a ${CMAKELISTS}
+        echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}" | tee -a ${CMAKELISTS}
         echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${NAS_DIR_TARGET}_SYS} ::"               | tee -a ${CMAKELISTS}
         echo "  DEPENDS ${NAS_DIR_TARGET}_sys"                                                        | tee -a ${CMAKELISTS}
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
