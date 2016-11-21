@@ -40,7 +40,7 @@ add_custom_target(03_day_harib00i_ipl
 )
 add_custom_target(03_day_harib00i_sys
   COMMAND ${NASK} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
-  COMMAND gcc -S ${03_day_harib00i_CCS} -o ${03_day_harib00i_CCGAS}
+  COMMAND gcc ${BINOPT} -S ${03_day_harib00i_CCS} -o ${03_day_harib00i_CCGAS}
   COMMAND ${I2GOPT} ${INTEL2GAS} -g -o ${03_day_harib00i_CCNAS} ${03_day_harib00i_CCGAS}
   COMMAND ${NASK} ${03_day_harib00i_CCNAS} ${03_day_harib00i_CCO}
   COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} ${03_day_harib00i_CCO}
