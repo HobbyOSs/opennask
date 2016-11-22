@@ -9,15 +9,21 @@
 
 namespace nask_utility {
      namespace ModRM {
-	  const std::regex rm000("(AL|AX|EAX)");
-	  const std::regex rm001("(CL|CX|ECX)");
-	  const std::regex rm010("(DL|DX|EDX)");
-	  const std::regex rm011("(BL|BX|EBX)");
-	  const std::regex rm101("(CH|BP|EBP)");
 
-	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)");
-	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)");
-	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)");
+	  using namespace std::regex_constants;
+
+	  //
+	  // レジスタ名は大文字/小文字にかかわらず探す
+	  //
+	  const std::regex rm000("(AL|AX|EAX)", ECMAScript | icase);
+	  const std::regex rm001("(CL|CX|ECX)", ECMAScript | icase);
+	  const std::regex rm010("(DL|DX|EDX)", ECMAScript | icase);
+	  const std::regex rm011("(BL|BX|EBX)", ECMAScript | icase);
+	  const std::regex rm101("(CH|BP|EBP)", ECMAScript | icase);
+
+	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)", ECMAScript | icase);
+	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)", ECMAScript | icase);
+	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)", ECMAScript | icase);
 
 	  enum mods {
 	       REG_REG = 0, // mod=00: [レジスター+レジスター]
