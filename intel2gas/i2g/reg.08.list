@@ -1,8 +1,0 @@
-# Segment registers, not used anywhere (yet)
--
-cs
-ds
-es
-fs
-gs
-ss

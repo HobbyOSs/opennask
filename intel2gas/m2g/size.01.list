@@ -1,6 +1,0 @@
-# memory reference size
-@m-1=<m>
-@m=b
--
-byte
-byte ptr

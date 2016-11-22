@@ -1,4 +1,0 @@
-
-#define RESOURCE_PATH     "@prefix@/share/intel2gas/"
-
-#define USE_GLOB 1

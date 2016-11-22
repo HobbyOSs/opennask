@@ -1,5 +1,0 @@
-- Use hashing for tags & lists
-- Empty matches in lists
-- Use string classes to avoid buffer overruns
-- Fix clobber list creation
-- Total rewrite with best matching (currently first match)
