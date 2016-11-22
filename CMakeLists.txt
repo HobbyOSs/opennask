@@ -11,7 +11,7 @@ set(WINE_NASK "~/.wine/drive_c/MinGW/msys/1.0/bin/nask.exe" CACHE INTERNAL "")
 set(OD "od" CACHE INTERNAL "")
 set(QEMU "qemu-system-i386" CACHE INTERNAL "")
 set(QEMUOPT "-m" "32" "-localtime" "-vga" "std" "-fda" CACHE INTERNAL "")
-set(BINOPT "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
+set(BINOPT "-fno-asynchronous-unwind-tables" "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
 add_subdirectory(parasol)
 add_subdirectory(objconv)
