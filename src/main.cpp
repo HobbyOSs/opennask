@@ -198,12 +198,15 @@ int process_each_assembly_line(char** argv,
 		    auto itr = std::find_if(std::begin(instruction),
 					    std::end(instruction),
 					    [&token] (const INST_TABLE& inst) -> bool {
-						 return inst.opecode == token.AsString();
+						 return nask_utility::equals_ignore_case(
+						      inst.opecode, token.AsString()
+						      );
 					    });
 
 		    if( itr != instruction.end() ) {
 			 //
 			 // オペコードを処理する関数を探してきてそのまま実行
+			 // （小文字でもちゃんと対象の処理を探せる）
 			 //
 			 meta::funcs_type::iterator it = funcs.find(token.AsString());
 			 if (it != funcs.end()) {
