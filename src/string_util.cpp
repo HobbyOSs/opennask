@@ -124,4 +124,17 @@ namespace nask_utility {
      bool starts_with(std::string const &full_string, std::string const &begining) {
 	  return full_string.substr(0, begining.size()) == begining;
      }
+
+     bool equals_ignore_case(const std::string& left, const std::string& right) {
+	  const size_t sz = left.size();
+	  if (right.size() != sz) {
+	       return false;
+	  }
+	  for (size_t i = 0; i < sz; ++i) {
+	       if (tolower(left[i]) != tolower(right[i])) {
+		    return false;
+	       }
+	  }
+	  return true;
+     }
 };
