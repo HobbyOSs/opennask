@@ -1,8 +1,0 @@
-# match any comma seperated list of numbers
--
-<num>
-<num>
--
-<num>, <numlist>
-<num>,<numlist>
--

@@ -29,7 +29,7 @@ namespace nask_utility {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(regs), std::end(regs),
 				 [&](const std::string& s)
-				 { return token.AsString() == s; });
+				 { return equals_ignore_case(token.AsString(), s); });
 	  return it != std::end(regs);
      }
 
@@ -38,7 +38,7 @@ namespace nask_utility {
 	  // レジスタ一覧から検索してあれば true
 	  auto it = std::find_if(std::begin(regs), std::end(regs),
 				 [&](const std::string& s)
-				 { return token == s; });
+				 { return equals_ignore_case(token, s); });
 	  return it != std::end(regs);
      }
 
@@ -751,45 +751,7 @@ namespace nask_utility {
 			      const std::string hex = replace(dst_token.AsString(), from, to);
 			      set_hexstring_into_binout(hex, binout_container);
 			 }
-
-		    } /** else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-			 // 0x81 /5 iw | SUB r/m16, imm16 | r/m16からimm16を引きます
-			 // 0x83 /5 ib | SUB r/m16, imm8  | r/m16から符号拡張したimm8を引きます
-
-			 // FIXME: nask side process is strange,
-			 // ex1) imm is "512/4", => 0x83
-			 // ex2) imm is "1",     => 0x81
-			 const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
-			 log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
-			 binout_container.push_back(nim1);
-			 binout_container.push_back(nim2);
-			 if (nim1 == 0x83) {
-			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
-			 } else {
-			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
-			 }
-		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
-			 // 0x81 /5 id | SUB r/m32, imm32 | r/m32からimm32を引きます
-			 // 0x83 /5 ib | SUB r/m32, imm8  | r/m32から符号拡張したimm8を引きます
-
-			 // FIXME: nask side process is strange,
-			 // ex1) imm is "512/4", => 0x83
-			 // ex2) imm is "1",     => 0x81
-			 const uint8_t nim1 = is_imm8(src_imm) ? 0x83 : 0x81;
-			 log()->info("NIM(B): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}", nim1, nim2, tokenizer.LookAhead(2).AsLong());
-			 binout_container.push_back(0x66);
-			 binout_container.push_back(nim1);
-			 binout_container.push_back(nim2);
-			 if (nim1 == 0x83) {
-			      binout_container.push_back(tokenizer.LookAhead(2).AsLong());
-			 } else {
-			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
-			 }
-		    } else {
-			 // memory
-			 std::cerr << "NASK : SUB syntax error, imm from memory is not supported now" << std::endl;
-			 return 17;
-		    } */
+		    }
 
 		    token = tokenizer.Next();
 		    token = tokenizer.Next();
@@ -946,6 +908,43 @@ namespace nask_utility {
 				0x20,
 				static_cast<int>(nim.to_ulong()));
 
+		    // これで終了のはず
+		    break;
+
+	       } else if (is_register(token_table, token) &&
+			  tokenizer.LookAhead(1).Is(",")  &&
+			  is_register(token_table, tokenizer.LookAhead(2))) {
+
+		    // MOV Reg, Reg
+		    //--------------------------------------------------------
+		    // 0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
+		    // 0x8B /r	MOV r16, r/m16		r/m16をr16に転送します
+		    // 0x8B /r	MOV r32, r/m32		r/m32をr32に転送します
+		    TParaToken dst_token = token;
+		    TParaToken src_token = tokenizer.LookAhead(2);
+		    const std::string dst_reg  = dst_token.AsString();
+		    const std::string src_reg  = src_token.AsString();
+
+		    log()->info("{} <= {}", dst_reg, src_reg);
+
+		    std::smatch match;
+
+		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			 const uint8_t modrm = ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_reg, dst_reg);
+			 binout_container.push_back(0x8a);
+			 binout_container.push_back(modrm);
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", 0x8a, modrm);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			 const uint8_t modrm = ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_reg, dst_reg);
+			 binout_container.push_back(0x8b);
+			 binout_container.push_back(modrm);
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", 0x8b, modrm);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			 const uint8_t modrm = ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_reg, dst_reg);
+			 binout_container.push_back(0x8b);
+			 binout_container.push_back(modrm);
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", 0x8b, modrm);
+		    }
 		    // これで終了のはず
 		    break;
 

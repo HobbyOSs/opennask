@@ -188,9 +188,17 @@ namespace nask_utility {
 }
 
 namespace meta {
+
+     // from: http://stackoverflow.com/a/19102250/2565527
+     struct comp {
+	  bool operator() (const std::string& lhs, const std::string& rhs) const {
+	       return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
+	  }
+     };
+
      // from: http://faithandbrave.hateblo.jp/entry/20071026/1193404885
      typedef std::function<int(TParaTokenizer &, nask_utility::VECTOR_BINOUT &)> nim_callback;
-     typedef std::map<std::string, nim_callback> funcs_type;
+     typedef std::map<std::string, nim_callback, comp> funcs_type;
 };
 
 #endif /* NASK_UTILITY_HPP_ */

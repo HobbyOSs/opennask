@@ -2,6 +2,8 @@
 message(STATUS "Entering directory projects/03_day/harib00i/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
+set(OBJCONV ${root_BINARY_DIR}/objconv/objconv)
+
 set(03_day_harib00i_OS    ${root_BINARY_DIR}/projects/03_day/harib00i/os.img)
 set(03_day_harib00i_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00i/os.sys)
 set(03_day_harib00i_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00i/ipl.bin)
@@ -9,8 +11,10 @@ set(03_day_harib00i_IPLS  ${root_SOURCE_DIR}/projects/03_day/harib00i/ipl10.nas)
 set(03_day_harib00i_HEADB ${root_BINARY_DIR}/projects/03_day/harib00i/asmhead.bin)
 set(03_day_harib00i_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00i/asmhead.nas)
 set(03_day_harib00i_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00i/boot.bin)
-set(03_day_harib00i_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.o)
 set(03_day_harib00i_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/*.c)
+set(03_day_harib00i_CCOBJ ${root_BINARY_DIR}/projects/03_day/harib00i/boot.obj)
+set(03_day_harib00i_CCA	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.asm)
+set(03_day_harib00i_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.o)
 set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 
 add_custom_target(03_day_harib00i_run
@@ -27,14 +31,18 @@ add_custom_target(03_day_harib00i_clean
   COMMAND rm -f ${03_day_harib00i_IPLB}
   COMMAND rm -f ${03_day_harib00i_HEADB}
   COMMAND rm -f ${03_day_harib00i_BOOTB}
+  COMMAND rm -f ${03_day_harib00i_CCOBJ}
   COMMAND rm -f ${03_day_harib00i_CCO}
+  COMMAND rm -f ${03_day_harib00i_CCA}
 )
 add_custom_target(03_day_harib00i_ipl
   COMMAND ${NASK} ${03_day_harib00i_IPLS} ${03_day_harib00i_IPLB}
 )
 add_custom_target(03_day_harib00i_sys
   COMMAND ${NASK} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
-  COMMAND gcc ${BINOPT} ${03_day_harib00i_CCS} -c -o ${03_day_harib00i_CCO}
+  COMMAND gcc ${BINOPT} ${03_day_harib00i_CCS} -s -c -o ${03_day_harib00i_CCOBJ}
+  COMMAND ${OBJCONV} -fnasm ${03_day_harib00i_CCOBJ} ${03_day_harib00i_CCA}
+  COMMAND ${NASK} ${03_day_harib00i_CCA} ${03_day_harib00i_CCO}
   COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} ${03_day_harib00i_CCO}
   COMMAND cat ${03_day_harib00i_HEADB} ${03_day_harib00i_BOOTB} > ${03_day_harib00i_SYS}
   DEPENDS 03_day_harib00i_ipl
