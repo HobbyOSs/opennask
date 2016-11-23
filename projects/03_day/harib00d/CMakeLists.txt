@@ -11,7 +11,7 @@ set(03_day_harib00d_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00d/asmhead.na
 set(03_day_harib00d_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00d/boot.bin)
 set(03_day_harib00d_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00d/boot.o)
 set(03_day_harib00d_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00d/*.c)
-set(03_day_harib00d_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(03_day_harib00d_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 
 add_custom_target(03_day_harib00d_ipl_run
   COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00d_OS}

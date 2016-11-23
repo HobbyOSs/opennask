@@ -11,7 +11,7 @@ set(02_day_helloos5_HEADS ${root_SOURCE_DIR}/projects/02_day/helloos5/asmhead.na
 set(02_day_helloos5_BOOTB ${root_BINARY_DIR}/projects/02_day/helloos5/boot.bin)
 set(02_day_helloos5_CCO	  ${root_BINARY_DIR}/projects/02_day/helloos5/boot.o)
 set(02_day_helloos5_CCS	  ${root_SOURCE_DIR}/projects/02_day/helloos5/*.c)
-set(02_day_helloos5_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(02_day_helloos5_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 
 add_custom_target(02_day_helloos5_ipl_run
   COMMAND ${QEMU} ${QEMUOPT} ${02_day_helloos5_OS}

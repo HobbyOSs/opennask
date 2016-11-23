@@ -87,7 +87,7 @@ do
 	echo "set(${NAS_DIR_TARGET}_BOOTB \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.bin)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_CCO	  \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.o)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/bootpack.ld)"		      | tee -a ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/os.lds)"		              | tee -a ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
 	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"    | tee -a ${CMAKELISTS}
 	    echo "set(${NAS_DIR_TARGET}_FUNCS \${root_SOURCE_DIR}/projects/${NAS_DIR}/naskfunc.nas)"  | tee -a ${CMAKELISTS}

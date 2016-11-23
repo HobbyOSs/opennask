@@ -11,7 +11,7 @@ set(10_day_harib07a_HEADS ${root_SOURCE_DIR}/projects/10_day/harib07a/asmhead.na
 set(10_day_harib07a_BOOTB ${root_BINARY_DIR}/projects/10_day/harib07a/boot.bin)
 set(10_day_harib07a_CCO	  ${root_BINARY_DIR}/projects/10_day/harib07a/boot.o)
 set(10_day_harib07a_CCS	  ${root_SOURCE_DIR}/projects/10_day/harib07a/*.c)
-set(10_day_harib07a_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(10_day_harib07a_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(10_day_harib07a_FUNCO ${root_BINARY_DIR}/projects/10_day/harib07a/naskfunc.o)
 set(10_day_harib07a_FUNCS ${root_SOURCE_DIR}/projects/10_day/harib07a/naskfunc.nas)
 

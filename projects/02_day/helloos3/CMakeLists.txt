@@ -11,7 +11,7 @@ set(02_day_helloos3_HEADS ${root_SOURCE_DIR}/projects/02_day/helloos3/asmhead.na
 set(02_day_helloos3_BOOTB ${root_BINARY_DIR}/projects/02_day/helloos3/boot.bin)
 set(02_day_helloos3_CCO	  ${root_BINARY_DIR}/projects/02_day/helloos3/boot.o)
 set(02_day_helloos3_CCS	  ${root_SOURCE_DIR}/projects/02_day/helloos3/*.c)
-set(02_day_helloos3_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(02_day_helloos3_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 
 add_custom_target(02_day_helloos3_helloos_run
   COMMAND ${QEMU} ${QEMUOPT} ${02_day_helloos3_OS}

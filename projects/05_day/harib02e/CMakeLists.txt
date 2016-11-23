@@ -11,7 +11,7 @@ set(05_day_harib02e_HEADS ${root_SOURCE_DIR}/projects/05_day/harib02e/asmhead.na
 set(05_day_harib02e_BOOTB ${root_BINARY_DIR}/projects/05_day/harib02e/boot.bin)
 set(05_day_harib02e_CCO	  ${root_BINARY_DIR}/projects/05_day/harib02e/boot.o)
 set(05_day_harib02e_CCS	  ${root_SOURCE_DIR}/projects/05_day/harib02e/*.c)
-set(05_day_harib02e_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(05_day_harib02e_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(05_day_harib02e_FUNCO ${root_BINARY_DIR}/projects/05_day/harib02e/naskfunc.o)
 set(05_day_harib02e_FUNCS ${root_SOURCE_DIR}/projects/05_day/harib02e/naskfunc.nas)
 
