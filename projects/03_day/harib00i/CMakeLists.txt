@@ -15,7 +15,7 @@ set(03_day_harib00i_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00i/*.c)
 set(03_day_harib00i_CCOBJ ${root_BINARY_DIR}/projects/03_day/harib00i/boot.obj)
 set(03_day_harib00i_CCA	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.asm)
 set(03_day_harib00i_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00i/boot.o)
-set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
+set(03_day_harib00i_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 
 add_custom_target(03_day_harib00i_run
   COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00i_OS}
@@ -40,10 +40,7 @@ add_custom_target(03_day_harib00i_ipl
 )
 add_custom_target(03_day_harib00i_sys
   COMMAND ${NASK} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
-  COMMAND gcc ${BINOPT} ${03_day_harib00i_CCS} -s -c -o ${03_day_harib00i_CCOBJ}
-  COMMAND ${OBJCONV} -fnasm ${03_day_harib00i_CCOBJ} ${03_day_harib00i_CCA}
-  COMMAND ${NASK} ${03_day_harib00i_CCA} ${03_day_harib00i_CCO}
-  COMMAND ld -o ${03_day_harib00i_BOOTB} -e HariMain -T ${03_day_harib00i_LDS} ${03_day_harib00i_CCO}
+  COMMAND gcc -T ${03_day_harib00i_LDS} ${BINOPT} ${03_day_harib00i_CCS} -o ${03_day_harib00i_BOOTB}
   COMMAND cat ${03_day_harib00i_HEADB} ${03_day_harib00i_BOOTB} > ${03_day_harib00i_SYS}
   DEPENDS 03_day_harib00i_ipl
 )
