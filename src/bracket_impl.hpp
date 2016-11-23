@@ -185,8 +185,13 @@ namespace nask_utility {
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
 	       if (symbol_name.size() <= 8) {
-		    // 8byte以下
-		    log()->info("write short symbol name: {}", symbol_name);
+
+		    // 8byte以下の場合の処理しか作ってない
+		    // シンボル名は （アセンブラ）_io_hlt => （イメージファイル）io_hlt で登録する
+		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
+			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
+
+		    log()->info("write short symbol name: {}", real_symbol_name);
 
 		    PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
@@ -195,7 +200,10 @@ namespace nask_utility {
 			 0x0000,
 			 0x02, 0x00
 		    };
-		    std::copy(symbol_name.begin(), symbol_name.end(), func.shortName);
+
+		    std::copy(real_symbol_name.begin(),
+			      real_symbol_name.end(),
+			      func.shortName);
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));

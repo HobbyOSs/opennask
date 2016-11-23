@@ -120,11 +120,11 @@ do
             echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}
 	fi
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
-        echo "  COMMAND gcc \${BINOPT} \${${NAS_DIR_TARGET}_CCS} -c -o \${${NAS_DIR_TARGET}_CCO}"      | tee -a ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO} \${${NAS_DIR_TARGET}_FUNCO}" | tee -a ${CMAKELISTS}
+            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"          | tee -a ${CMAKELISTS}
+	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_FUNCO} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
 	else
-            echo "  COMMAND ld -o \${${NAS_DIR_TARGET}_BOOTB} -e HariMain -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCO}" | tee -a ${CMAKELISTS}
+	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
 	fi
         echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}" | tee -a ${CMAKELISTS}
         echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                        | tee -a ${CMAKELISTS}
