@@ -11,7 +11,7 @@ set(03_day_harib00j_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00j/asmhead.na
 set(03_day_harib00j_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00j/boot.bin)
 set(03_day_harib00j_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00j/boot.o)
 set(03_day_harib00j_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00j/*.c)
-set(03_day_harib00j_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
+set(03_day_harib00j_LDS	  ${root_SOURCE_DIR}/projects/bootpack.ld)
 set(03_day_harib00j_FUNCO ${root_BINARY_DIR}/projects/03_day/harib00j/naskfunc.o)
 set(03_day_harib00j_FUNCS ${root_SOURCE_DIR}/projects/03_day/harib00j/naskfunc.nas)
 
@@ -36,9 +36,10 @@ add_custom_target(03_day_harib00j_ipl
   COMMAND ${NASK} ${03_day_harib00j_IPLS} ${03_day_harib00j_IPLB}
 )
 add_custom_target(03_day_harib00j_sys
+  COMMAND ${NASK} ${03_day_harib00j_FUNCS} ${03_day_harib00j_FUNCO}
   COMMAND ${NASK} ${03_day_harib00j_HEADS} ${03_day_harib00j_HEADB}
   COMMAND ${NASK} ${03_day_harib00j_FUNCS} ${03_day_harib00j_FUNCO}
-  COMMAND gcc ${BINOPT} ${03_day_harib00j_CCS} ${03_day_harib00j_FUNCO} -T ${03_day_harib00j_LDS} -o ${03_day_harib00j_BOOTB}
+  COMMAND gcc ${BINOPT} -T ${03_day_harib00j_LDS} ${03_day_harib00j_CCS} ${03_day_harib00j_FUNCO} -o ${03_day_harib00j_BOOTB}
   COMMAND cat ${03_day_harib00j_HEADB} ${03_day_harib00j_BOOTB} > ${03_day_harib00j_SYS}
   DEPENDS 03_day_harib00j_ipl
 )
