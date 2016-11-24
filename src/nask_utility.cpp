@@ -106,6 +106,21 @@ namespace nask_utility {
 	  return dword;
      }
 
+     // Instructionクラスの定数を初期化
+     Instructions::Instructions() {
+	  // デフォルトのトークンテーブル
+	  TParaCxxTokenTable token_table;
+	  token_table.AddCommentLimiter(";", "\n");
+	  token_table.AddCommentLimiter("#", "\n");
+	  this->token_table = token_table;
+	  this->support_cpus = meta::flip_map(SUPPORT_CPUS);
+
+	  // 基本的なオペレーター登録
+	  for (std::string op : PRE_PROCESS_OPERATORS) {
+	       this->token_table.AddOperator(op);
+	  }
+     }
+
      void Instructions::set_nimonic_with_register(const std::string& reg,
 						  NIMONIC_INFO* nim_info,
 						  TParaTokenizer& tokenizer) {
@@ -545,7 +560,7 @@ namespace nask_utility {
 
 		    // CRn,Reg32
 		    // 00001111 00100000 11sssrrr
-		    // 0x0F     0x22
+		    // 0x0F	0x22
 		    if (tokenizer.LookAhead(1).Is(",") &&
 			!tokenizer.LookAhead(2).IsEmpty() &&
 			is_control_register(token_table, dst_token)) {
@@ -599,9 +614,9 @@ namespace nask_utility {
 		    // --------------------------------
 		    // imm8の場合w=0, imm16,32の場合w=1
 		    //
-                    // 0xC6 /0	MOV r/m8,  imm8	  imm8をr/m8に転送します
-                    // 0xC7 /0	MOV r/m16, imm16  imm16をr/m16に転送します
-                    // 0xC7 /0	MOV r/m32, imm32  imm32をr/m32に転送します
+		    // 0xC6 /0	MOV r/m8,  imm8	  imm8をr/m8に転送します
+		    // 0xC7 /0	MOV r/m16, imm16  imm16をr/m16に転送します
+		    // 0xC7 /0	MOV r/m32, imm32  imm32をr/m32に転送します
 		    //
 		    std::string w = "";
 
@@ -667,12 +682,12 @@ namespace nask_utility {
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
 			  tokenizer.LookAhead(3).Is(",") &&
-		          is_common_register(token_table, tokenizer.LookAhead(4))) {
+			  is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    //
-		    // MOV Mem     , Reg  | 1000100w oorrrmmm
+		    // MOV Mem	   , Reg  | 1000100w oorrrmmm
 		    //
-		    // MOV moffs8* , AL   | 0xA2
-		    // MOV moffs16*, AX   | 0xA3
+		    // MOV moffs8* , AL	  | 0xA2
+		    // MOV moffs16*, AX	  | 0xA3
 		    // MOV moffs32*, EAX  | 0xA3
 		    //
 		    // http://x86.renejeschke.de/html/file_module_x86_id_176.html
@@ -732,11 +747,11 @@ namespace nask_utility {
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
 			  !is_common_register(token_table, get_equ_label_or_asis(tokenizer.LookAhead(1).AsString())) &&
 			  tokenizer.LookAhead(3).Is(",") &&
-		          is_common_register(token_table, tokenizer.LookAhead(4))) {
+			  is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    //
-		    // MOV r/m8, r8       | 0x88 /r
-		    // MOV r/m16, r16     | 0x89 /r
-		    // MOV r/m32, r32     | 0x89 /r
+		    // MOV r/m8, r8	  | 0x88 /r
+		    // MOV r/m16, r16	  | 0x89 /r
+		    // MOV r/m32, r32	  | 0x89 /r
 		    TParaToken dst_token = tokenizer.LookAhead(1);
 		    TParaToken src_token = tokenizer.LookAhead(4);
 		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
@@ -769,7 +784,7 @@ namespace nask_utility {
 			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(4).Is("]")) ||
 			  // MOV XX, [YY+00]
 			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(6).Is("]")) ||
-                          // MOV XX, BYTE [YY]
+			  // MOV XX, BYTE [YY]
 			  (is_datatype(token_table, tokenizer.LookAhead(2)) &&
 			   tokenizer.LookAhead(3).Is("[") &&tokenizer.LookAhead(5).Is("]"))
 		    ) {
@@ -818,7 +833,6 @@ namespace nask_utility {
 			      );
 
 		    } else {
-
 			 std::smatch match;
 			 if (regex_match(dst_reg, match, ModRM::regImm32) &&
 			     regex_match(src_reg, match, ModRM::regImm32) &&
@@ -844,12 +858,6 @@ namespace nask_utility {
 
 		    }
 
-
-		    // コンマを飛ばして次へ
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
 		    // これで終了のはず
 		    break;
 
@@ -860,7 +868,7 @@ namespace nask_utility {
 		    // MOV Reg16,Seg
 		    // 10001100 oosssmmm
 		    //--------------------------------------------------------
-		    // 0x8C /r	MOV r/m16, Sreg	        セグメントレジスタをr/m16に転送します
+		    // 0x8C /r	MOV r/m16, Sreg		セグメントレジスタをr/m16に転送します
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
@@ -891,7 +899,7 @@ namespace nask_utility {
 			  is_control_register(token_table, tokenizer.LookAhead(2))) {
 
 		    // MOV Reg32, CRn
-		    //     00001111 00100010 11sssrrr
+		    //	   00001111 00100010 11sssrrr
 		    //--------------------------------------------------------
 		    // 0x0F 0x20 /r | CRnをr32に転送します
 		    // ここでのsssは常に000にしかならない気がする
@@ -925,7 +933,7 @@ namespace nask_utility {
 
 		    // MOV Reg, Reg
 		    //--------------------------------------------------------
-		    // 0x8A /r	MOV r8, r/m8	        r/m8をr8に転送します
+		    // 0x8A /r	MOV r8, r/m8		r/m8をr8に転送します
 		    // 0x8B /r	MOV r16, r/m16		r/m16をr16に転送します
 		    // 0x8B /r	MOV r32, r/m32		r/m32をr32に転送します
 		    TParaToken dst_token = token;
@@ -964,9 +972,9 @@ namespace nask_utility {
 		    // MOV Reg, Imm | 1011wrrr
 		    // Immがオフセットで示されている場合
 		    //--------------------------------------------------------
-		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
-		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
-		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
+		    // 0xB0+rb	MOV r8, imm8		imm8をr8に転送します
+		    // 0xB8+rw	MOV r16, imm16		imm16をr16に転送します
+		    // 0xB8+rd	MOV r32, imm32		imm32をr32に転送します
 		    //
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
@@ -1009,9 +1017,9 @@ namespace nask_utility {
 		    //
 		    // MOV Reg, Imm | 1011wrrr
 		    //--------------------------------------------------------
-		    // 0xB0+rb	MOV r8, imm8	        imm8をr8に転送します
-		    // 0xB8+rw	MOV r16, imm16	        imm16をr16に転送します
-		    // 0xB8+rd	MOV r32, imm32	        imm32をr32に転送します
+		    // 0xB0+rb	MOV r8, imm8		imm8をr8に転送します
+		    // 0xB8+rw	MOV r16, imm16		imm16をr16に転送します
+		    // 0xB8+rd	MOV r32, imm32		imm32をr32に転送します
 		    //
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);

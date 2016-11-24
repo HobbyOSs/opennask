@@ -46,20 +46,10 @@ int process_each_assembly_line(char** argv,
      // spdlog
      auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
 
-     // デフォルトのトークンテーブル
-     TParaCxxTokenTable token_table;
-     token_table.AddCommentLimiter(";", "\n");
-     token_table.AddCommentLimiter("#", "\n");
 
      static meta::funcs_type funcs;
      static nask_utility::Instructions inst;
-     inst.token_table = token_table;
-     inst.support_cpus = meta::flip_map(SUPPORT_CPUS);
 
-     // 基本的なオペレーター登録
-     for (std::string op : PRE_PROCESS_OPERATORS) {
-	  inst.token_table.AddOperator(op);
-     }
 //
 // 以下のような関数ポインタを生成している
 //#define FUNC_STR(x) \
@@ -142,7 +132,7 @@ int process_each_assembly_line(char** argv,
 	       if (found != std::string::npos && pre_process_word == "EQU") {
 		    logger->info("coming label EQU");
 		    std::istringstream input_stream(input.c_str());
-		    TParaTokenizer tokenizer(input_stream, &token_table);
+		    TParaTokenizer tokenizer(input_stream, &inst.token_table);
 		    inst.process_token_EQU(tokenizer, binout_container);
 		    continue;
 	       }
@@ -169,7 +159,7 @@ int process_each_assembly_line(char** argv,
 
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istringstream input_stream(input.c_str());
-	  TParaTokenizer tokenizer(input_stream, &token_table);
+	  TParaTokenizer tokenizer(input_stream, &inst.token_table);
 	  TParaToken token;
 
 	  if (nask_utility::starts_with(input, "\[")) {
@@ -189,8 +179,8 @@ int process_each_assembly_line(char** argv,
 	  }
 
 	  while (! (token = tokenizer.Next()).IsEmpty()) {
-	       if (nask_utility::is_comment_line(token_table, token) ||
-		   nask_utility::is_line_terminated(token_table, token)) {
+	       if (nask_utility::is_comment_line(inst.token_table, token) ||
+		   nask_utility::is_line_terminated(inst.token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;

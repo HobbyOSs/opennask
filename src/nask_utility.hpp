@@ -115,6 +115,8 @@ namespace nask_utility {
      // アセンブラ命令処理
      class Instructions {
      public:
+	  Instructions();
+
 	  static TParaCxxTokenTable token_table;
 	  static LABEL_DST_STACK label_dst_stack;
 	  static LABEL_SRC_STACK label_src_stack;
