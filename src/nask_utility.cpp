@@ -477,7 +477,6 @@ namespace nask_utility {
      std::map<std::string, std::string> Instructions::equ_map;
      std::vector<std::string> Instructions::symbol_list;
      std::string Instructions::data_type;
-     uint32_t Instructions::dollar_position = 0;
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
           // ------------------------------

@@ -9,17 +9,32 @@ namespace nask_utility {
      int Instructions::process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FORMAT") {
+	       if (token.Is("[") && tokenizer.LookAhead(1).Is("FORMAT")) {
 		    this->exists_section_table = true;
-
-		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
-		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
+		    log()->info("process FORMAT as {}", tokenizer.LookAhead(2).AsString());
 
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
 
-	       } else if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FILE") {
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("INSTRSET")) {
+
+		    std::string cpu = tokenizer.LookAhead(2).AsString();
+		    cpu = cpu.erase(0, 1);
+		    cpu = cpu.erase(cpu.size() - 1);
+
+		    if (SUPPORT_CPUS.count(cpu) == 0) {
+			 std::cerr << "NASK : INSTRSET syntax error, "
+				   << cpu
+				   << " is not supported"
+				   << std::endl;
+			 return 17;
+		    } else {
+			 this->support = SUPPORT_CPUS.at(cpu);
+			 log()->info("process INSTRSET as {}", cpu);
+		    }
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("FILE")) {
 		    // ".file"のフィールドの書き込みは、
 		    // 通常のオペコードの書き込みが終了したあとに行う必要があるようだ
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());

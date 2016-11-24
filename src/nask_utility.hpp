@@ -121,7 +121,9 @@ namespace nask_utility {
 	  static std::map<std::string, std::string> equ_map;
 	  static std::vector<std::string> symbol_list;
 	  static std::string data_type;
-	  static uint32_t dollar_position; // $
+
+	  // Current Position '$', INSTRSET
+	  uint32_t dollar_position, support;
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
 	  // section table defs

@@ -132,18 +132,39 @@ enum OPERAND_KINDS {
      ID_Rel32
 };
 
-constexpr uint8_t SUP_8086      = 0x000000ff; /* bit 0 */
-constexpr uint8_t SUP_80186	= 0x000000fe; /* bit 1 */
-constexpr uint8_t SUP_80286	= 0x000000fc; /* bit 2 */
-constexpr uint8_t SUP_80286P	= 0x000000a8; /* bit 3 */
-constexpr uint8_t SUP_i386	= 0x000000f0; /* bit 4 */
-constexpr uint8_t SUP_i386P	= 0x000000a0; /* bit 5 */
-constexpr uint8_t SUP_i486	= 0x000000c0; /* bit 6 */
-constexpr uint8_t SUP_i486P	= 0x00000080; /* bit 7 */
-constexpr uint8_t SUP_Pentium   = 0;
-constexpr uint8_t SUP_Pentium2	= 0;
-constexpr uint8_t SUP_Pentium3	= 0;
-constexpr uint8_t SUP_Pentium4	= 0;
+constexpr uint32_t SUP_8086	= 0x000000ff; /* bit 0 */
+constexpr uint32_t SUP_80186	= 0x000000fe; /* bit 1 */
+constexpr uint32_t SUP_80286	= 0x000000fc; /* bit 2 */
+constexpr uint32_t SUP_80286P	= 0x000000a8; /* bit 3 */
+constexpr uint32_t SUP_i386	= 0x000000f0; /* bit 4 */
+constexpr uint32_t SUP_i386P	= 0x000000a0; /* bit 5 */
+constexpr uint32_t SUP_i486	= 0x000000c0; /* bit 6 */
+constexpr uint32_t SUP_i486P	= 0x00000080; /* bit 7 */
+constexpr uint32_t SUP_Pentium	= 0;
+constexpr uint32_t SUP_Pentium2	= 0;
+constexpr uint32_t SUP_Pentium3	= 0;
+constexpr uint32_t SUP_Pentium4	= 0;
+
+struct sup_comp {
+     bool operator() (const std::string& lhs, const std::string& rhs) const {
+	  return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
+     }
+};
+
+const std::map<std::string, const uint32_t, sup_comp> SUPPORT_CPUS {
+     { "8086",     SUP_8086    },
+     { "80186",	   SUP_80186   },
+     { "80286",	   SUP_80286   },
+     { "80286P",   SUP_80286P  },
+     { "i386",	   SUP_i386    },
+     { "i386P",	   SUP_i386P   },
+     { "i486",	   SUP_i486    },
+     { "i486P",	   SUP_i486P   },
+     { "Pentium",  SUP_Pentium },
+     { "Pentium2", SUP_Pentium2},
+     { "Pentium3", SUP_Pentium3},
+     { "Pentium4", SUP_Pentium4}
+};
 
 constexpr uint8_t PREFIX        = 0x01;       /* param[1]がプリフィックス番号 */
 constexpr uint8_t NO_PARAM	= 0x02;       /* param[1]の下位4bitがオペコードバイト数 */

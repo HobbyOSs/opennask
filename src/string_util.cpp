@@ -127,13 +127,22 @@ namespace nask_utility {
      }
 
      bool equals_ignore_case(const std::string& left, const std::string& right) {
-	  const size_t sz = left.size();
-	  if (right.size() != sz) {
+	  if (right.length() != left.length()) {
 	       return false;
 	  }
-	  for (size_t i = 0; i < sz; ++i) {
-	       if (tolower(left[i]) != tolower(right[i])) {
-		    return false;
+	  for (size_t i = 0; i < right.length(); ++i) {
+	       if (std::isalpha(left[i]) && std::isalpha(right[i])) {
+		    // if both chars are alphabet, exec compare
+		    log()->debug("compare {} vs {}", left[i], right[i]);
+		    if (tolower(left[i]) != tolower(right[i])) {
+			 return false;
+		    }
+	       } else {
+		    // else simply compare
+		    if (left[i] != right[i]) {
+			 log()->debug("compare {} vs {}", left[i], right[i]);
+			 return false;
+		    }
 	       }
 	  }
 	  return true;
