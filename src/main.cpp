@@ -54,6 +54,7 @@ int process_each_assembly_line(char** argv,
      static meta::funcs_type funcs;
      static nask_utility::Instructions inst;
      inst.token_table = token_table;
+     inst.support_cpus = meta::flip_map(SUPPORT_CPUS);
 
      // 基本的なオペレーター登録
      for (std::string op : PRE_PROCESS_OPERATORS) {
@@ -166,7 +167,6 @@ int process_each_assembly_line(char** argv,
 	       }
 	  }
 
-
 	  /* 入力行を istream にしてトークナイザを生成 */
 	  std::istringstream input_stream(input.c_str());
 	  TParaTokenizer tokenizer(input_stream, &token_table);
@@ -184,7 +184,7 @@ int process_each_assembly_line(char** argv,
 	       } catch (TScriptException te) {
 		    std::cerr << te << std::endl;
 	       }
-	       logger->info("eval bracket end");
+	       logger->info("eval bracket");
 	       continue;
 	  }
 

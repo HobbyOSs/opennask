@@ -6,6 +6,10 @@
 
 namespace nask_utility {
 
+     /**
+      * Osaskのアセンブラに独自にある以下のようなテキストを処理する
+      * [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"]
+      */
      int Instructions::process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
@@ -16,6 +20,7 @@ namespace nask_utility {
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
+		    return 0;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("INSTRSET")) {
 
@@ -30,8 +35,9 @@ namespace nask_utility {
 				   << std::endl;
 			 return 17;
 		    } else {
-			 this->support = SUPPORT_CPUS.at(cpu);
-			 log()->info("process INSTRSET as {}", cpu);
+			 this->support = SUPPORT_CPUS.at(cpu.c_str());
+			 log()->info("process INSTRSET as {}", this->support_cpus[this->support]);
+			 return 0;
 		    }
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("FILE")) {

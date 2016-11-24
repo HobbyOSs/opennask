@@ -151,7 +151,7 @@ struct sup_comp {
      }
 };
 
-const std::map<std::string, const uint32_t, sup_comp> SUPPORT_CPUS {
+const std::map<std::string, uint32_t, sup_comp> SUPPORT_CPUS {
      { "8086",     SUP_8086    },
      { "80186",	   SUP_80186   },
      { "80286",	   SUP_80286   },

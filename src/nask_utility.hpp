@@ -121,9 +121,10 @@ namespace nask_utility {
 	  static std::map<std::string, std::string> equ_map;
 	  static std::vector<std::string> symbol_list;
 	  static std::string data_type;
+	  static std::map<uint32_t, std::string> support_cpus;
 
 	  // Current Position '$', INSTRSET
-	  uint32_t dollar_position, support;
+	  static uint32_t dollar_position, support;
 	  int OPENNASK_MODES = ID_32BIT_MODE;
 
 	  // section table defs
@@ -201,6 +202,20 @@ namespace meta {
      // from: http://faithandbrave.hateblo.jp/entry/20071026/1193404885
      typedef std::function<int(TParaTokenizer &, nask_utility::VECTOR_BINOUT &)> nim_callback;
      typedef std::map<std::string, nim_callback, comp> funcs_type;
+
+     // from: http://stackoverflow.com/a/14807477/2565527
+     // like Ruby's hash#invert
+     template<typename A, typename B>
+     std::pair<B,A> flip_pair(const std::pair<A,B> &p) {
+	  return std::pair<B,A>(p.second, p.first);
+     }
+
+     template<typename A, typename B, typename Comp> // discard Comp
+     std::map<B,A> flip_map(const std::map<A,B,Comp> &src) {
+	  std::map<B,A> dst;
+	  std::transform(src.begin(), src.end(), inserter(dst, dst.begin()), flip_pair<A,B>);
+	  return dst;
+     }
 };
 
 #endif /* NASK_UTILITY_HPP_ */

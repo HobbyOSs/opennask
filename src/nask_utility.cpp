@@ -477,6 +477,12 @@ namespace nask_utility {
      std::map<std::string, std::string> Instructions::equ_map;
      std::vector<std::string> Instructions::symbol_list;
      std::string Instructions::data_type;
+     std::map<uint32_t, std::string> Instructions::support_cpus;
+
+     // These parameters are only one instance each other
+     uint32_t Instructions::dollar_position = 0;
+     uint32_t Instructions::support = SUP_8086;
+
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
           // ------------------------------
@@ -695,7 +701,8 @@ namespace nask_utility {
 			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
 			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(), ModRM::REG_REG, dst_mem, src_reg);
 			 std::smatch match;
-			 if (regex_match(src_reg, match, ModRM::regImm32)) {
+			 log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
+			 if (regex_match(src_reg, match, ModRM::regImm32) && this->support == SUP_8086) {
 			      binout_container.push_back(0x67);
 			      binout_container.push_back(0x66);
 			      binout_container.push_back(bs_src.to_ulong());
@@ -794,9 +801,11 @@ namespace nask_utility {
 
 		    const std::bitset<8> bs_src(mod + std::get<0>(tp_dst) + tp_src);
 		    log()->info("ModR/M byte: {}", mod + std::get<0>(tp_dst) + tp_src);
+		    log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
 
-		    if (mod == "01") {
+		    if (mod == "01" && this->support == SUP_8086) {
 			 // FIXME
+			 log()->info("Why ??????????");
 			 binout_container.push_back(0x67);
 			 binout_container.push_back(0x66);
 			 binout_container.push_back(bs_dst.to_ulong());
