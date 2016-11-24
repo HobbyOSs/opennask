@@ -805,7 +805,6 @@ namespace nask_utility {
 
 		    if (mod == "01" && this->support == SUP_8086) {
 			 // FIXME
-			 log()->info("Why ??????????");
 			 binout_container.push_back(0x67);
 			 binout_container.push_back(0x66);
 			 binout_container.push_back(bs_dst.to_ulong());
@@ -822,7 +821,8 @@ namespace nask_utility {
 
 			 std::smatch match;
 			 if (regex_match(dst_reg, match, ModRM::regImm32) &&
-			     regex_match(src_reg, match, ModRM::regImm32) ) {
+			     regex_match(src_reg, match, ModRM::regImm32) &&
+			     this->support == SUP_8086) {
 			      binout_container.push_back(0x67);
 			      binout_container.push_back(0x66);
 			 }
