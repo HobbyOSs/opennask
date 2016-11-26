@@ -808,8 +808,8 @@ namespace nask_utility {
 		    // 1000101 + w
 		    const std::bitset<8> bs_dst("1000101" + std::get<1>(tp_dst));
 
-		    // mod=00: [レジスター+レジスター]
-		    // mod=01: [レジスター+disp8]
+		    // mod=00: [レジスター + レジスター]
+		    // mod=01: [レジスター + disp8]
 		    const std::string mod = tokenizer.LookAhead(6).Is("]") ? "01" : "00";
 		    const std::string tp_src =
 			 ModRM::get_rm_from_reg(tokenizer.LookAhead(2).Is("[") ? src_mem : src_reg);

@@ -33,7 +33,8 @@ namespace nask_utility {
 		    return REGISTERS_MMM_MAP.at(src_reg);
 	       }
 
-	       return "110";
+	       // [<SIB>], [<SIB>+disp8], [<SIB>+disp32]
+	       return "100";
 	  };
 
 	  const uint8_t get_opecode_from_reg(uint8_t base, const std::string& reg_name) {
