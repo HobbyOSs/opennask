@@ -18,6 +18,10 @@ namespace nask_utility {
      bool starts_with(std::string const &full_string, std::string const &begining);
      bool equals_ignore_case(const std::string& left, const std::string& right);
 
+     // RubyのArray#join
+     const std::string join(std::vector<std::string>& array, const std::string& sep = "");
+     const std::string string_to_hex(const std::string& input);
+
      // アセンブラ処理で使う判定系処理
      bool is_hex_notation(const std::string& s);
      bool is_integer(const std::string& s);
