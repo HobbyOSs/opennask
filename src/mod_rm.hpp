@@ -25,6 +25,8 @@ namespace nask_utility {
 	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)", ECMAScript | icase);
 	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)", ECMAScript | icase);
 
+	  const std::string SIB = "100";
+
 	  enum mods {
 	       REG_REG = 0, // mod=00: [レジスター+レジスター]
 	       REG_DISP8,   // mod=01: [レジスター+disp8]
@@ -135,7 +137,7 @@ namespace nask_utility {
 	  const std::string get_MMMSSS_from_reg(const std::string& reg);
 	  uint8_t generate_modrm(enum mods m, const std::string& dst_reg, enum reg_field reg = SLASH_R);
 	  uint8_t generate_modrm(const uint8_t op, enum mods m, const std::string& src_reg, const std::string& dst_reg);
-	  uint8_t generate_sib(const std::string& base_reg, const std::string& index_reg, int scale = 1);
+	  uint8_t generate_sib(const std::string& base_reg, const std::string& index_reg, int scale = 0);
 	  bool is_accumulator(const std::string& reg);
      };
 };

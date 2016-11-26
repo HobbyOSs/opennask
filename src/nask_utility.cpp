@@ -799,63 +799,54 @@ namespace nask_utility {
 			 tokenizer.LookAhead(4) : tokenizer.LookAhead(3);
 		    const std::string dst_reg  = dst_token.AsString();
 		    const std::string src_reg  = get_equ_label_or_asis(src_token.AsString());
-		    const std::string src_mem  = "[" + get_equ_label_or_asis(src_token.AsString()) + "]";
-
-		    log()->info("{} <= {}", dst_reg, src_mem);
-
-		    // Reg, Immの場合 => 1000101w oorrrmmm
-		    std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
-		    // 1000101 + w
-		    const std::bitset<8> bs_dst("1000101" + std::get<1>(tp_dst));
-
 		    // mod=00: [レジスター + レジスター]
 		    // mod=01: [レジスター + disp8]
-		    const std::string mod = tokenizer.LookAhead(6).Is("]") ? "01" : "00";
-		    const std::string tp_src =
-			 ModRM::get_rm_from_reg(tokenizer.LookAhead(2).Is("[") ? src_mem : src_reg);
+		    bool src_is_mem = tokenizer.LookAhead(6).Is("]") ? true : false;
+		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]"
+			 : "[" +
+			 src_reg +
+			 tokenizer.LookAhead(4).AsString() +
+			 tokenizer.LookAhead(5).AsString() +
+			 "]";
 
-		    const std::bitset<8> bs_src(mod + std::get<0>(tp_dst) + tp_src);
-		    log()->info("ModR/M byte: {}", mod + std::get<0>(tp_dst) + tp_src);
+		    log()->info("{} <= {}", dst_reg, src_mem);
 		    log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
 
-		    if (mod == "01" && this->support == SUP_8086) {
-			 // FIXME
-			 binout_container.push_back(0x67);
-			 binout_container.push_back(0x66);
-			 binout_container.push_back(bs_dst.to_ulong());
-			 binout_container.push_back(bs_src.to_ulong());
-			 binout_container.push_back(tokenizer.LookAhead(5).AsLong());
+		    std::smatch match;
+		    if (this->support == SUP_8086) {
+			 log()->info("Prefix: 0x67, 0x66");
+		    	 binout_container.push_back(0x67);
+		    	 binout_container.push_back(0x66);
+		    }
 
-			 log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
-				     bs_dst.to_ulong(),
-				     bs_src.to_ulong(),
-				     tokenizer.LookAhead(5).AsLong()
-			      );
-
+		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			 // r8
+			 const uint8_t op = 0x8a;
+			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_reg, dst_reg);
+			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
+		    	 binout_container.push_back(op);
+		    	 binout_container.push_back(modrm);
 		    } else {
-			 std::smatch match;
-			 if (regex_match(dst_reg, match, ModRM::regImm32) &&
-			     regex_match(src_reg, match, ModRM::regImm32) &&
-			     this->support == SUP_8086) {
-			      binout_container.push_back(0x67);
-			      binout_container.push_back(0x66);
-			 }
+			 // r16 or r32
+			 const uint8_t op = 0x8b;
+			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_reg, dst_reg);
+			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
+		    	 binout_container.push_back(op);
+		    	 binout_container.push_back(modrm);
+		    }
 
-			 binout_container.push_back(bs_dst.to_ulong());
-			 binout_container.push_back(bs_src.to_ulong());
+		    if (ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(src_is_mem ? src_mem : src_reg, src_reg);
+			 log()->info("SIB: 0x{:02x}", sib);
+		    	 binout_container.push_back(sib);
+		    }
 
-			 if (!ModRM::REGISTERS_MMM_MAP.count(src_reg) && is_hex_notation(src_reg)) {
-			      const std::string from = "0x";
-			      const std::string to = "";
-			      const std::string hex = replace(src_reg, from, to);
-			      set_hexstring_into_binout(hex, binout_container);
-			 }
-
-			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, {}",
-				     bs_dst.to_ulong(),
-				     bs_src.to_ulong(),
-				     !ModRM::REGISTERS_MMM_MAP.count(src_mem) ? src_token.AsString() : "N/A");
-
+		    if (tokenizer.LookAhead(4).Is("+")) {
+			 const uint8_t disp = tokenizer.LookAhead(5).AsLong();
+			 log()->info("Disp: 0x{:02x}", disp);
+		    	 binout_container.push_back(disp);
 		    }
 
 		    // これで終了のはず

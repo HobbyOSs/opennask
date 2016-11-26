@@ -138,8 +138,8 @@ namespace nask_utility {
 	       // [index] 3bit
 	       // [base ] 3bit
 	       //
-	       log()->info("Generate SIB byte: scale:{} index:{}, base:{}", scale, base_reg, index_reg);
-	       const std::string sib = "01" + get_rm_from_reg(index_reg) + get_rm_from_reg(base_reg);
+	       log()->info("Generate SIB byte: scale:{} index:{}, base:{}", scale, index_reg, base_reg);
+	       const std::string sib = "00" + get_rm_from_reg(base_reg) + get_rm_from_reg(base_reg);
 	       std::bitset<8> bsl(sib);
 	       log()->info("SIB byte: {}", sib);
 	       return bsl.to_ulong();
