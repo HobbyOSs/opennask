@@ -700,7 +700,15 @@ namespace nask_utility {
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
 
-		    if (src_reg == "AL" || src_reg == "AX") {
+		    if (!is_legitimate_numeric(dst_addr)) {
+			 log()->info("destination mem is register: {}", dst_addr);
+			 // MOV r/m8, r8       | 0x88 /r
+			 const uint8_t modrm = ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+			 log()->info("NIM(B): 0x88, 0x{:02x}", modrm);
+			 binout_container.push_back(0x88);
+			 binout_container.push_back(modrm);
+
+		    } else if (src_reg == "AL" || src_reg == "AX") {
 			 log()->info("MOV moffs* , AL or AX");
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
@@ -748,7 +756,6 @@ namespace nask_utility {
 			  !is_common_register(token_table, get_equ_label_or_asis(tokenizer.LookAhead(1).AsString())) &&
 			  tokenizer.LookAhead(3).Is(",") &&
 			  is_common_register(token_table, tokenizer.LookAhead(4))) {
-		    //
 		    // MOV r/m8, r8	  | 0x88 /r
 		    // MOV r/m16, r16	  | 0x89 /r
 		    // MOV r/m32, r32	  | 0x89 /r
@@ -773,9 +780,6 @@ namespace nask_utility {
 			      set_hexstring_into_binout(hex, binout_container);
 			 }
 		    }
-
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
 		    break;
 
 	       } else if (is_common_register(token_table, token) &&
