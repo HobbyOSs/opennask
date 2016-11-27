@@ -206,9 +206,9 @@ namespace nask_utility {
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
 	       if (symbol_name.size() <= 8) {
-
 		    // 8byte以下の場合の処理しか作ってない
 		    // シンボル名は （アセンブラ）_io_hlt => （イメージファイル）io_hlt で登録する
+		    // FIXME: 整合性のためにそうしようとしたが、たぶん「_」つきがただしい
 		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
 			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
 
@@ -231,7 +231,24 @@ namespace nask_utility {
 
 	       } else {
 		    // 8byte以上
-		    log()->info("write long symbol name: {}", symbol_name);
+		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
+			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
+
+		    log()->info("write short symbol name: {}", real_symbol_name);
+
+		    // まずテーブルサイズ
+		    set_dword_into_binout(0x10, binout_container);
+		    std::string symbol_name_hex = string_to_hex(real_symbol_name);
+		    symbol_name_hex = symbol_name_hex.substr(2, symbol_name_hex.size());
+		    symbol_name_hex = trim(symbol_name_hex);
+
+		    const std::string from = " 0x";
+		    const std::string to = "";
+		    const std::string symbols = replace(symbol_name_hex, from, to);
+		    log()->info("x: {}", symbols);
+
+		    set_hexstring_into_binout(symbols, binout_container, false);
+		    return;
 	       }
 	  }
 

@@ -148,6 +148,18 @@ namespace nask_utility {
 	  return true;
      }
 
+     std::string trim(const std::string& string, const char* trim_character_list) {
+	  std::string result;
+	  std::string::size_type left = string.find_first_not_of(trim_character_list);
+
+	  if (left != std::string::npos) {
+	       std::string::size_type right = string.find_last_not_of(trim_character_list);
+	       result = string.substr(left, right - left + 1);
+	  }
+
+	  return result;
+     }
+
      const std::string join(std::vector<std::string>& array, const std::string& sep) {
 	  std::stringstream ss;
 	  for(size_t i = 0; i < array.size(); ++i) {

@@ -110,7 +110,9 @@ namespace nask_utility {
      // "0x0A0A"のような文字列をBYTEサイズで順次コンテナに詰め込む
      // @param dword            格納するDWORDサイズのバイナリ
      // @param binout_container 出力先コンテナ
-     void set_hexstring_into_binout(const std::string& in, VECTOR_BINOUT& binout_container);
+     // @param reverse          true: 逆順でバイナリを登録, false: そのまま登録
+     void set_hexstring_into_binout(const std::string& in,
+				    VECTOR_BINOUT& binout_container, bool reverse = true);
 
      // アセンブラ命令処理
      class Instructions {

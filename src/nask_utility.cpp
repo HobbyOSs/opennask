@@ -457,7 +457,8 @@ namespace nask_utility {
      }
 
      void set_hexstring_into_binout(const std::string& in,
-				    VECTOR_BINOUT& binout_container) {
+				    VECTOR_BINOUT& binout_container,
+				    bool reverse) {
 
 	      const size_t len = in.length();
 	      std::vector<uint8_t> c;
@@ -469,10 +470,11 @@ namespace nask_utility {
 		   c.push_back(x);
 	      }
 
-	      // てきとう
-	      std::reverse(c.begin(), c.end());
-	      for( auto it = c.begin(); it != c.end(); ++it )
-	      {
+	      if (reverse) {
+		   std::reverse(c.begin(), c.end());
+	      }
+
+	      for( auto it = c.begin(); it != c.end(); ++it ) {
 		   binout_container.push_back(*it);
 	      }
      }

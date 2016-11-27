@@ -17,6 +17,7 @@ namespace nask_utility {
      bool ends_with(std::string const &full_string, std::string const &ending);
      bool starts_with(std::string const &full_string, std::string const &begining);
      bool equals_ignore_case(const std::string& left, const std::string& right);
+     std::string trim(const std::string& string, const char* trim_character_list = " \t\v\r\n");
 
      // RubyのArray#join
      const std::string join(std::vector<std::string>& array, const std::string& sep = "");
