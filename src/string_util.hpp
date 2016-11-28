@@ -21,7 +21,8 @@ namespace nask_utility {
 
      // RubyのArray#join
      const std::string join(std::vector<std::string>& array, const std::string& sep = "");
-     const std::string string_to_hex(const std::string& input);
+     const std::string string_to_hex(const std::string& input, bool no_notate = false);
+     const std::string string_to_hex_no_notate(const std::string& input);
 
      // アセンブラ処理で使う判定系処理
      bool is_hex_notation(const std::string& s);

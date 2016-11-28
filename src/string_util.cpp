@@ -171,19 +171,29 @@ namespace nask_utility {
 	  return ss.str();
      }
 
-     const std::string string_to_hex(const std::string& input) {
+     const std::string string_to_hex(const std::string& input, bool no_notate) {
 	  static const char* const lut = "0123456789ABCDEF";
-	  size_t len = input.length();
+	  const size_t len = input.length();
+	  const size_t reserv_len = no_notate ? 2 : 5;
 	  std::string output;
-	  output.reserve(5 * len);
+	  output.reserve(reserv_len * len);
 	  for (size_t i = 0; i < len; ++i) {
 	       const unsigned char c = input[i];
-	       output.push_back('0');
-	       output.push_back('x');
-	       output.push_back(lut[c >> 4]);
-	       output.push_back(lut[c & 15]);
-	       output.push_back(' ');
+	       if (no_notate) {
+	            output.push_back('0');
+	            output.push_back('x');
+	            output.push_back(lut[c >> 4]);
+	            output.push_back(lut[c & 15]);
+	            output.push_back(' ');
+	       } else {
+	            output.push_back(lut[c >> 4]);
+	            output.push_back(lut[c & 15]);
+	       }
 	  }
 	  return output;
+     }
+
+     const std::string string_to_hex_no_notate(const std::string& input) {
+          return string_to_hex(input, true);
      }
 };

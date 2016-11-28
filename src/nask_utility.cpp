@@ -282,6 +282,8 @@ namespace nask_utility {
 	       const long abs_size = elem.src_index + dollar_position;
 	       return abs_size;
 	  }
+
+	  return 0;
      }
 
      // OPECODE label (label_srcと呼ぶ)
