@@ -122,20 +122,78 @@ namespace nask_utility {
      }
 
      bool starts_with(std::string const &full_string, std::string const &begining) {
-	  log()->info("starts_with ? {} & {}", begining, full_string.substr(0, begining.size()));
+	  log()->debug("starts_with ? {} & {}", begining, full_string.substr(0, begining.size()));
 	  return full_string.substr(0, begining.size()) == begining;
      }
 
      bool equals_ignore_case(const std::string& left, const std::string& right) {
-	  const size_t sz = left.size();
-	  if (right.size() != sz) {
+	  if (right.length() != left.length()) {
 	       return false;
 	  }
-	  for (size_t i = 0; i < sz; ++i) {
-	       if (tolower(left[i]) != tolower(right[i])) {
-		    return false;
+	  for (size_t i = 0; i < right.length(); ++i) {
+	       if (std::isalpha(left[i]) && std::isalpha(right[i])) {
+		    // if both chars are alphabet, exec compare
+		    log()->debug("compare {} vs {}", left[i], right[i]);
+		    if (tolower(left[i]) != tolower(right[i])) {
+			 return false;
+		    }
+	       } else {
+		    // else simply compare
+		    if (left[i] != right[i]) {
+			 log()->debug("compare {} vs {}", left[i], right[i]);
+			 return false;
+		    }
 	       }
 	  }
 	  return true;
+     }
+
+     std::string trim(const std::string& string, const char* trim_character_list) {
+	  std::string result;
+	  std::string::size_type left = string.find_first_not_of(trim_character_list);
+
+	  if (left != std::string::npos) {
+	       std::string::size_type right = string.find_last_not_of(trim_character_list);
+	       result = string.substr(left, right - left + 1);
+	  }
+
+	  return result;
+     }
+
+     const std::string join(std::vector<std::string>& array, const std::string& sep) {
+	  std::stringstream ss;
+	  for(size_t i = 0; i < array.size(); ++i) {
+	       if(i != 0) {
+		    ss << sep;
+	       }
+	       ss << array[i];
+	  }
+	  return ss.str();
+     }
+
+     const std::string string_to_hex(const std::string& input, bool no_notate) {
+	  static const char* const lut = "0123456789ABCDEF";
+	  const size_t len = input.length();
+	  const size_t reserv_len = no_notate ? 2 : 5;
+	  std::string output;
+	  output.reserve(reserv_len * len);
+	  for (size_t i = 0; i < len; ++i) {
+	       const unsigned char c = input[i];
+	       if (no_notate) {
+	            output.push_back(lut[c >> 4]);
+	            output.push_back(lut[c & 15]);
+	       } else {
+	            output.push_back('0');
+	            output.push_back('x');
+	            output.push_back(lut[c >> 4]);
+	            output.push_back(lut[c & 15]);
+	            output.push_back(' ');
+	       }
+	  }
+	  return output;
+     }
+
+     const std::string string_to_hex_no_notate(const std::string& input) {
+          return string_to_hex(input, true);
      }
 };

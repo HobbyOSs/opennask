@@ -6,20 +6,41 @@
 
 namespace nask_utility {
 
+     /**
+      * Osaskのアセンブラに独自にある以下のようなテキストを処理する
+      * [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"]
+      */
      int Instructions::process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
-	       if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FORMAT") {
+	       if (token.Is("[") && tokenizer.LookAhead(1).Is("FORMAT")) {
 		    this->exists_section_table = true;
-
-		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
-		    log()->info("process bracket {}", tokenizer.LookAhead(2).AsString());
+		    log()->info("process FORMAT as {}", tokenizer.LookAhead(2).AsString());
 
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
+		    return 0;
 
-	       } else if (token.Is("[") && tokenizer.LookAhead(1).AsString() == "FILE") {
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("INSTRSET")) {
+
+		    std::string cpu = tokenizer.LookAhead(2).AsString();
+		    cpu = cpu.erase(0, 1);
+		    cpu = cpu.erase(cpu.size() - 1);
+
+		    if (SUPPORT_CPUS.count(cpu) == 0) {
+			 std::cerr << "NASK : INSTRSET syntax error, "
+				   << cpu
+				   << " is not supported"
+				   << std::endl;
+			 return 17;
+		    } else {
+			 this->support = SUPPORT_CPUS.at(cpu.c_str());
+			 log()->info("process INSTRSET as {}", this->support_cpus[this->support]);
+			 return 0;
+		    }
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("FILE")) {
 		    // ".file"のフィールドの書き込みは、
 		    // 通常のオペコードの書き込みが終了したあとに行う必要があるようだ
 		    log()->info("process {}", tokenizer.LookAhead(1).AsString());
@@ -52,8 +73,8 @@ namespace nask_utility {
 	       log()->info("target: {}, process as Portable Executable", target);
 	       header.machine              = I386MAGIC;
 	       header.numberOfSections     = 0x0003;
-	       header.pointerToSymbolTable = 0x0000008e; /* +0x08: symboltable */
-	       header.numberOfSymbols      = 0x00000009; /* +0x0c: sizeof (symboltable) / 18 */
+	       header.pointerToSymbolTable = 0x00000000; /* symboltable		   */
+	       header.numberOfSymbols	   = 0x00000000; /* number of symbols 8+α */
 
 	       auto ptr = reinterpret_cast<uint8_t*>(&header);
 	       auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(header) };
@@ -66,7 +87,7 @@ namespace nask_utility {
 		    0x00000000, // VirtualAddress
 		    0x00000002,	// SizeOfRawData
 		    0x0000008c,	// PointerToRawData
-		    0x0000008e,	// PointerToRelocations <-- 可変
+		    0x0000008e,	// PointerToRelocations
 		    0x00000000,	// PointerToLinenumbers
 		    0x0000,	// NumberOfRelocations
 		    0x0000,	// NumberOfLinenumbers
@@ -110,11 +131,23 @@ namespace nask_utility {
 	       auto bss_buffer = create_buffer(bss);
 	       std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
 	       log()->info("Wrote '.text', '.data', '.bss' fields for Portable Executable");
-
 	  }
      }
 
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
+
+	  // COFFヘッダのシンボルテーブルへのオフセットが確定
+	  const uint32_t offset = binout_container.size();
+	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(offset, binout_container, false, 8);
+	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(offset, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 24);
+
+	  // セクションデータのサイズが確定(SizeOfRawData)
+	  const uint32_t size_of_raw_data =
+	       binout_container.size() - (sizeof(PIMAGE_FILE_HEADER) + sizeof(PIMAGE_SECTION_HEADER) * 3);
+	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 16);
 
 	  // auxiliary element ".file"
 	  if (inst.exists_file_auxiliary) {
@@ -143,13 +176,10 @@ namespace nask_utility {
 
 	  auto text_buffer = create_buffer(text);
 	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
-	  for ( size_t i = 0; i < 18; i++ ) {
-	       if (i == 0) {
-		    // FIXME: ここの0x02が意味わからない
-		    binout_container.push_back(0x02);
-	       } else {
-		    binout_container.push_back(0x00);
-	       }
+	  // セクションデータのサイズを入れる(SizeOfRawData)
+	  set_dword_into_binout(size_of_raw_data, binout_container);
+	  for ( size_t i = 4; i < 18; i++ ) {
+	       binout_container.push_back(0x00);
 	  }
 
 	  // element ".data"
@@ -182,42 +212,60 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  }
 
+	  // シンボル数を確定させる
+	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
+	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
+	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
+
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
 	       if (symbol_name.size() <= 8) {
-
-		    // 8byte以下の場合の処理しか作ってない
-		    // シンボル名は （アセンブラ）_io_hlt => （イメージファイル）io_hlt で登録する
-		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
-			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
-
+		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
 		    PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
 			 0x00000000,
-			 WCOFF_TEXT_FIELD, // <-- 関数が実際どこのsectionにあるか
+			 WCOFF_TEXT_FIELD,
 			 0x0000,
 			 0x02, 0x00
 		    };
 
-		    std::copy(real_symbol_name.begin(),
-			      real_symbol_name.end(),
-			      func.shortName);
+		    std::copy(real_symbol_name.begin(), real_symbol_name.end(), func.shortName);
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
 
 	       } else {
 		    // 8byte以上
-		    log()->info("write long symbol name: {}", symbol_name);
+		    const std::string real_symbol_name = symbol_name;
+		    log()->info("write short symbol name: {}", real_symbol_name);
+
+		    PIMAGE_SYMBOL long_file = {
+			 { 0x04, 0, 0, 0, 0x02, 0, 0, 0 /* shortName */ },
+			 0x00000001,
+			 WCOFF_DATA_FIELD,
+			 0x0010,
+			 0x00, 0x00
+		    };
+
+		    auto fn_buffer = create_buffer(long_file);
+		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+
+		    std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
+		    const std::string symbols = trim(symbol_name_hex);
+
+		    set_hexstring_into_binout(symbols, binout_container, false);
+		    binout_container.push_back(0x00);
 	       }
 	  }
-
-	  binout_container.push_back(0x04);
-	  binout_container.push_back(0x00);
-	  binout_container.push_back(0x00);
-	  binout_container.push_back(0x00);
      }
 
      std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol) {

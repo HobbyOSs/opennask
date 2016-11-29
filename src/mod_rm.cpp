@@ -33,7 +33,8 @@ namespace nask_utility {
 		    return REGISTERS_MMM_MAP.at(src_reg);
 	       }
 
-	       return "110";
+	       // [<SIB>], [<SIB>+disp8], [<SIB>+disp32]
+	       return "100";
 	  };
 
 	  const uint8_t get_opecode_from_reg(uint8_t base, const std::string& reg_name) {
@@ -61,6 +62,8 @@ namespace nask_utility {
 		    modrm += get_rm_from_reg(dst_reg);
 	       } else {
 		    switch (reg) {
+		    case SLASH_R:
+		      	 break;
 		    case SLASH_0:
 			 modrm += "000";
 			 break;
@@ -127,6 +130,20 @@ namespace nask_utility {
 	       std::bitset<8> bs(modrm);
 	       return bs.to_ulong();
 	  };
+
+	  uint8_t generate_sib(const std::string& base_reg, const std::string& index_reg, int scale) {
+	       //
+	       // Generate SIB byte with arguments
+	       // [scale] 2bit
+	       // [index] 3bit
+	       // [base ] 3bit
+	       //
+	       log()->info("Generate SIB byte: scale:{} index:{}, base:{}", scale, index_reg, base_reg);
+	       const std::string sib = "00" + get_rm_from_reg(base_reg) + get_rm_from_reg(base_reg);
+	       std::bitset<8> bsl(sib);
+	       log()->info("SIB byte: {}", sib);
+	       return bsl.to_ulong();
+	  }
 
 	  bool is_accumulator(const std::string& reg) {
 	       std::smatch match;
