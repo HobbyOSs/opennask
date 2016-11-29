@@ -131,11 +131,17 @@ namespace nask_utility {
 	       auto bss_buffer = create_buffer(bss);
 	       std::copy(bss_buffer.begin(), bss_buffer.end(), back_inserter(binout_container));
 	       log()->info("Wrote '.text', '.data', '.bss' fields for Portable Executable");
-
 	  }
      }
 
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
+
+	  // COFFヘッダのシンボルテーブルへのオフセットが確定
+	  const uint32_t offset = binout_container.size();
+	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(offset, binout_container, false, 8);
+	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(offset, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 24);
 
 	  // auxiliary element ".file"
 	  if (inst.exists_file_auxiliary) {
@@ -203,9 +209,13 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  }
 
+	  // セクションデータのサイズをもっておく
+	  size_t section_data_size = 0;
+
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
 	       if (symbol_name.size() <= 8) {
+		    section_data_size += symbol_name.size();
 		    // 8byte以下の場合の処理しか作ってない
 		    // シンボル名は （アセンブラ）_io_hlt => （イメージファイル）io_hlt で登録する
 		    // FIXME: 整合性のためにそうしようとしたが、たぶん「_」つきがただしい
@@ -231,6 +241,7 @@ namespace nask_utility {
 
 	       } else {
 		    // 8byte以上
+		    section_data_size += symbol_name.size();
 		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
 			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
 
@@ -242,9 +253,12 @@ namespace nask_utility {
 		    const std::string symbols = trim(symbol_name_hex);
 
 		    set_hexstring_into_binout(symbols, binout_container, false);
+		    log()->info("section data size: {}", section_data_size);
 		    return;
 	       }
 	  }
+
+	  log()->info("section data size: {}", section_data_size);
 
 	  binout_container.push_back(0x04);
 	  binout_container.push_back(0x00);
