@@ -87,7 +87,7 @@ namespace nask_utility {
 		    0x00000000, // VirtualAddress
 		    0x00000002,	// SizeOfRawData
 		    0x0000008c,	// PointerToRawData
-		    0x0000008e,	// PointerToRelocations <-- 可変
+		    0x0000008e,	// PointerToRelocations
 		    0x00000000,	// PointerToLinenumbers
 		    0x0000,	// NumberOfRelocations
 		    0x0000,	// NumberOfLinenumbers
@@ -143,6 +143,12 @@ namespace nask_utility {
 	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
 	  set_dword_into_binout(offset, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 24);
 
+	  // セクションデータのサイズが確定(SizeOfRawData)
+	  const uint32_t size_of_raw_data =
+	       binout_container.size() - (sizeof(PIMAGE_FILE_HEADER) + sizeof(PIMAGE_SECTION_HEADER) * 3);
+	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", binout_container.size());
+	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 16);
+
 	  // auxiliary element ".file"
 	  if (inst.exists_file_auxiliary) {
 	       auto ptr = reinterpret_cast<uint8_t*>(&inst.file_auxiliary);
@@ -170,13 +176,10 @@ namespace nask_utility {
 
 	  auto text_buffer = create_buffer(text);
 	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
-	  for ( size_t i = 0; i < 18; i++ ) {
-	       if (i == 0) {
-		    // FIXME: ここの0x02が意味わからない
-		    binout_container.push_back(0x02);
-	       } else {
-		    binout_container.push_back(0x00);
-	       }
+	  // セクションデータのサイズを入れる(SizeOfRawData)
+	  set_dword_into_binout(size_of_raw_data, binout_container);
+	  for ( size_t i = 4; i < 18; i++ ) {
+	       binout_container.push_back(0x00);
 	  }
 
 	  // element ".data"
