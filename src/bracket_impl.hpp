@@ -73,8 +73,8 @@ namespace nask_utility {
 	       log()->info("target: {}, process as Portable Executable", target);
 	       header.machine              = I386MAGIC;
 	       header.numberOfSections     = 0x0003;
-	       header.pointerToSymbolTable = 0x0000008e; /* +0x08: symboltable */
-	       header.numberOfSymbols      = 0x00000009; /* +0x0c: sizeof (symboltable) / 18 */
+	       header.pointerToSymbolTable = 0x00000000; /* symboltable		   */
+	       header.numberOfSymbols	   = 0x00000000; /* number of symbols 8+α */
 
 	       auto ptr = reinterpret_cast<uint8_t*>(&header);
 	       auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(header) };
@@ -211,6 +211,11 @@ namespace nask_utility {
 
 	  // セクションデータのサイズをもっておく
 	  size_t section_data_size = 0;
+
+	  // シンボル数を確定させる
+	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
+	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
+	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
 
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
