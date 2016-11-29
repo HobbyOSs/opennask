@@ -240,7 +240,6 @@ namespace nask_utility {
 		    set_dword_into_binout(0x10, binout_container);
 		    std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
 		    const std::string symbols = trim(symbol_name_hex);
-		    log()->info("x: {}", symbols);
 
 		    set_hexstring_into_binout(symbols, binout_container, false);
 		    return;

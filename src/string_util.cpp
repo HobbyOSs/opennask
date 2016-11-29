@@ -180,14 +180,14 @@ namespace nask_utility {
 	  for (size_t i = 0; i < len; ++i) {
 	       const unsigned char c = input[i];
 	       if (no_notate) {
+	            output.push_back(lut[c >> 4]);
+	            output.push_back(lut[c & 15]);
+	       } else {
 	            output.push_back('0');
 	            output.push_back('x');
 	            output.push_back(lut[c >> 4]);
 	            output.push_back(lut[c & 15]);
 	            output.push_back(' ');
-	       } else {
-	            output.push_back(lut[c >> 4]);
-	            output.push_back(lut[c & 15]);
 	       }
 	  }
 	  return output;
