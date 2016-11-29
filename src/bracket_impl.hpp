@@ -212,9 +212,6 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  }
 
-	  // セクションデータのサイズをもっておく
-	  size_t section_data_size = 0;
-
 	  // シンボル数を確定させる
 	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
 	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
@@ -223,55 +220,52 @@ namespace nask_utility {
 	  for ( std::string symbol_name : inst.symbol_list ) {
 	       // 関数などのシンボル情報を書き込む
 	       if (symbol_name.size() <= 8) {
-		    section_data_size += symbol_name.size();
-		    // 8byte以下の場合の処理しか作ってない
-		    // シンボル名は （アセンブラ）_io_hlt => （イメージファイル）io_hlt で登録する
-		    // FIXME: 整合性のためにそうしようとしたが、たぶん「_」つきがただしい
-		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
-			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
-
+		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
 		    PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
 			 0x00000000,
-			 WCOFF_TEXT_FIELD, // <-- 関数が実際どこのsectionにあるか
+			 WCOFF_TEXT_FIELD,
 			 0x0000,
 			 0x02, 0x00
 		    };
 
-		    std::copy(real_symbol_name.begin(),
-			      real_symbol_name.end(),
-			      func.shortName);
+		    std::copy(real_symbol_name.begin(), real_symbol_name.end(), func.shortName);
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
 
 	       } else {
 		    // 8byte以上
-		    section_data_size += symbol_name.size();
-		    const std::string real_symbol_name = (starts_with(symbol_name, "_")) ?
-			 symbol_name.substr(1, symbol_name.size()) : symbol_name;
-
+		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
-		    // まずテーブルサイズ
-		    set_dword_into_binout(0x10, binout_container);
+		    PIMAGE_SYMBOL long_file = {
+			 { 0x04, 0, 0, 0, 0x02, 0, 0, 0 /* shortName */ },
+			 0x00000001,
+			 WCOFF_DATA_FIELD,
+			 0x0010,
+			 0x00, 0x00
+		    };
+
+		    auto fn_buffer = create_buffer(long_file);
+		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+
 		    std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
 		    const std::string symbols = trim(symbol_name_hex);
 
 		    set_hexstring_into_binout(symbols, binout_container, false);
-		    log()->info("section data size: {}", section_data_size);
-		    return;
+		    binout_container.push_back(0x00);
 	       }
 	  }
-
-	  log()->info("section data size: {}", section_data_size);
-
-	  binout_container.push_back(0x04);
-	  binout_container.push_back(0x00);
-	  binout_container.push_back(0x00);
-	  binout_container.push_back(0x00);
      }
 
      std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol) {
