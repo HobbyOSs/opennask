@@ -501,6 +501,7 @@ namespace nask_utility {
      // These parameters are only one instance each other
      uint32_t Instructions::dollar_position = 0;
      uint32_t Instructions::support = SUP_8086;
+     int Instructions::OPENNASK_MODES = ID_16BIT_MODE;
 
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530

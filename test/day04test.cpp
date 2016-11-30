@@ -60,7 +60,8 @@ TEST(day04test_suite, asmhead_MOV)
      std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
      EXPECT_N_LEAKS(10);
      if (test != answer) {
-	  logger->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+	  logger->error("output bin: {}",
+			nask_utility::string_to_hex(std::string(test.begin(), test.end())));
      }
 
      CHECK(test == answer);

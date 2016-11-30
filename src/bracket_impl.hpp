@@ -8,7 +8,7 @@ namespace nask_utility {
 
      /**
       * Osaskのアセンブラに独自にある以下のようなテキストを処理する
-      * [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"]
+      * [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
       */
      int Instructions::process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
@@ -20,6 +20,29 @@ namespace nask_utility {
 		    PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
+		    return 0;
+	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("BITS")) {
+		    log()->info("process BITS as {}", tokenizer.LookAhead(2).AsString());
+		    if (tokenizer.LookAhead(2).IsInteger()) {
+			 switch (tokenizer.LookAhead(2).AsLong()) {
+			 case 16:
+			      this->OPENNASK_MODES = ID_16BIT_MODE;
+			      break;
+			 case 32:
+			      this->OPENNASK_MODES = ID_32BIT_MODE;
+			      break;
+			 case 64:
+			      this->OPENNASK_MODES = ID_64BIT_MODE;
+			      break;
+			 default:
+			      std::cerr << "NASK : BITS syntax error, "
+					<< tokenizer.LookAhead(2).AsString()
+					<< " is not supported"
+					<< std::endl;
+			      return 17;
+			      break;
+			 }
+		    }
 		    return 0;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(1).Is("INSTRSET")) {
