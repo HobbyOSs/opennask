@@ -19,6 +19,19 @@ TEST_GROUP(day04test_suite)
 TEST(day04test_suite, asmhead_MOV)
 {
      // Found MOV_with_bracket
+     //
+     // MOV CL,BYTE [0x0ff0]
+     //
+     // Opecode: 0x8a
+     // ModR/M : 0x0e => 00001110
+     //
+     // src_reg => [0x0ff0]
+     // dst_reg => CL
+     //
+     // [mod]: 00
+     // [reg]: 001 <-- dst(CL)
+     // [r/m]: 110 <-- src(0x0ff0)
+     //
      nask_utility::Instructions inst;
      std::array<std::string, 2> naskfunc_src = {
 	  "CYLS	EQU 0x0ff0               \r\n", //  0
@@ -45,7 +58,7 @@ TEST(day04test_suite, asmhead_MOV)
      }
 
      std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
-     EXPECT_N_LEAKS(13);
+     EXPECT_N_LEAKS(10);
      if (test != answer) {
 	  logger->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
      }

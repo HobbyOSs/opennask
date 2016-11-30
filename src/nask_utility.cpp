@@ -809,13 +809,15 @@ namespace nask_utility {
 		    const std::string src_reg  = get_equ_label_or_asis(src_token.AsString());
 		    // mod=00: [レジスター + レジスター]
 		    // mod=01: [レジスター + disp8]
+
+		    // FIXME: ここ変化が多すぎる
 		    bool src_is_mem = tokenizer.LookAhead(6).Is("]") ? true : false;
-		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]"
-			 : "[" +
-			 src_reg +
-			 tokenizer.LookAhead(4).AsString() +
-			 tokenizer.LookAhead(5).AsString() +
-			 "]";
+		    bool equ_specified = get_equ_label_or_asis(src_token.AsString()) != src_token.AsString();
+
+		    const std::string disp = equ_specified ?
+			 "" : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
+
+		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]" : "[" + src_reg + disp + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
 		    log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
@@ -845,10 +847,14 @@ namespace nask_utility {
 		    	 binout_container.push_back(modrm);
 		    }
 
-		    if (ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
+		    if (disp != "" && ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
 			 const uint8_t sib = ModRM::generate_sib(src_is_mem ? src_mem : src_reg, src_reg);
 			 log()->info("SIB: 0x{:02x}", sib);
 		    	 binout_container.push_back(sib);
+		    } else if (is_hex_notation(src_reg)) {
+			 // set memory
+			 const std::string hex_imm = src_reg.substr(2);
+			 set_hexstring_into_binout(hex_imm, binout_container);
 		    }
 
 		    if (tokenizer.LookAhead(4).Is("+")) {
