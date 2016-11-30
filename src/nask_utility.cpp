@@ -1947,7 +1947,6 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
-
 		    if (tokenizer.LookAhead(1).Is("EQU")) {
 			 if (token.IsEmpty() || tokenizer.LookAhead(2).IsEmpty()) {
 			      std::cerr << "NASK : EQU syntax is not correct" << std::endl;

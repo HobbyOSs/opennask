@@ -16,6 +16,43 @@ TEST_GROUP(day04test_suite)
 {
 };
 
+TEST(day04test_suite, asmhead_MOV)
+{
+     // Found MOV_with_bracket
+     nask_utility::Instructions inst;
+     std::array<std::string, 2> naskfunc_src = {
+	  "CYLS	EQU 0x0ff0               \r\n", //  0
+	  "MOV  CL,BYTE [CYLS]           \r\n"	//  1
+     };
+
+     std::vector<uint8_t> test; // output
+
+     for (size_t l = 0; l < naskfunc_src.size(); l++) {
+	  std::istringstream input_stream(naskfunc_src.at(l));
+	  TParaTokenizer tokenizer(input_stream, &inst.token_table);
+
+	  switch (l) {
+	  case 0:
+	       inst.process_token_EQU(tokenizer, test);
+	       break;
+	  case 1:
+	       tokenizer.Next();
+	       inst.process_token_MOV(tokenizer, test);
+	       break;
+	  default:
+	       break;
+	  };
+     }
+
+     std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
+     EXPECT_N_LEAKS(13);
+     if (test != answer) {
+	  logger->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+     }
+
+     CHECK(test == answer);
+}
+
 TEST(day04test_suite, day04)
 {
      // Found MOV_with_bracket
@@ -82,7 +119,7 @@ TEST(day04test_suite, day04)
 	  nask_utility::process_section_table(inst, test);
      }
 
-     std::vector<uint8_t> answer = { // 153byte
+     std::vector<uint8_t> answer = {
 	  0x4C, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x99, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00,
 	  0x00, 0x00, 0x00, 0x00, 0x2E, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	  0x00, 0x00, 0x00, 0x00, 0x0D, 0x00, 0x00, 0x00, 0x8C, 0x00, 0x00, 0x00, 0x99, 0x00, 0x00, 0x00,
