@@ -729,18 +729,26 @@ namespace nask_utility {
 			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
 			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(), ModRM::REG_REG, dst_mem, src_reg);
 			 std::smatch match;
-			 log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
-			 if (regex_match(src_reg, match, ModRM::regImm32) && this->support == SUP_8086) {
+			 log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+			 if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			      log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			      binout_container.push_back(0x67);
-			      binout_container.push_back(0x66);
-			      binout_container.push_back(bs_src.to_ulong());
-			      binout_container.push_back(modrm);
-			      log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
-			 } else {
-			      binout_container.push_back(bs_src.to_ulong());
-			      binout_container.push_back(modrm);
-			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 			 }
+			 if (regex_match(dst_mem, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			      log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else if (regex_match(dst_mem, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			      log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else {
+			      log()->info("Register-size prefix is absent");
+			 }
+
+			 // Opcode && MOD-REG-R/M
+			 binout_container.push_back(bs_src.to_ulong());
+			 binout_container.push_back(modrm);
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 
 			 if (!is_common_register(token_table, dst_addr)) {
 			      const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
@@ -749,11 +757,6 @@ namespace nask_utility {
 			 }
 		    }
 
-		    // コンマを飛ばして次へ
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
 		    // これで終了のはず
 		    break;
 
@@ -821,13 +824,25 @@ namespace nask_utility {
 		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]" : "[" + src_reg + disp + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
-		    log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
 
 		    std::smatch match;
-		    if (this->support == SUP_8086) {
-			 log()->info("Prefix: 0x67, 0x66");
-		    	 binout_container.push_back(0x67);
-		    	 binout_container.push_back(0x66);
+		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
+			 binout_container.push_back(0x67);
+		    }
+		    if (regex_match(src_mem, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (src_is_mem && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (regex_match(src_mem, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else {
+			 log()->info("Register-size prefix is absent");
 		    }
 
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
