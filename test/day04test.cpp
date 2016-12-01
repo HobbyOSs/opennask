@@ -67,13 +67,14 @@ TEST(day04test_suite, asmhead_MOV_disp)
      CHECK(test == answer);
 }
 
-TEST(day04test_suite, asmhead_MOV_mem)
+TEST(day04test_suite, asmhead_MOV_mem_former)
 {
      // Found MOV_with_bracket
      //
      // [INSTRSET "i486p"]
      // MOV [EDI],EAX
      //
+     // Prefix : 0x67 0x66
      // Opecode: 0x89
      // ModR/M : 0x07
      //
@@ -102,7 +103,54 @@ TEST(day04test_suite, asmhead_MOV_mem)
 	  };
      }
 
-     std::vector<uint8_t> answer = { 0x89, 0x07 };
+     std::vector<uint8_t> answer = { 0x67, 0x66, 0x89, 0x07 };
+     EXPECT_N_LEAKS(9);
+     if (test != answer) {
+	  logger->error("output bin: {}",
+			nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+     }
+
+     CHECK(test == answer);
+}
+
+TEST(day04test_suite, asmhead_MOV_later)
+{
+     // Found MOV_with_bracket
+     //
+     // [INSTRSET "i486p"]
+     // MOV EAX,[ESI]
+     //
+     // Prefix : 0x67 0x66
+     // Opecode: 0x8b
+     // ModR/M : 0x06
+     //
+     nask_utility::Instructions inst;
+     inst.OPENNASK_MODES = ID_16BIT_MODE;
+     std::array<std::string, 2> naskfunc_src = {
+	  "[INSTRSET \"i486p\"]	  \r\n", // 0
+	  "MOV EAX,[ESI]	  \r\n"	 // 1
+     };
+
+     std::vector<uint8_t> test; // output
+
+     for (size_t l = 0; l < naskfunc_src.size(); l++) {
+	  std::istringstream input_stream(naskfunc_src.at(l));
+	  TParaTokenizer tokenizer(input_stream, &inst.token_table);
+
+	  switch (l) {
+	  case 0:
+	       inst.process_token_BRACKET(tokenizer, test);
+	       break;
+	  case 1:
+	       tokenizer.Next();
+	       inst.process_token_MOV(tokenizer, test);
+	       break;
+	  default:
+	       break;
+	  };
+     }
+
+     std::vector<uint8_t> answer = { 0x67, 0x66, 0x8b, 0x06 };
      EXPECT_N_LEAKS(9);
      if (test != answer) {
 	  logger->error("output bin: {}",
@@ -116,6 +164,7 @@ TEST(day04test_suite, day04)
 {
      // Found MOV_with_bracket
      nask_utility::Instructions inst;
+     inst.OPENNASK_MODES = ID_16BIT_MODE;
      std::array<std::string, 17> naskfunc_src = {
 	  "[FORMAT \"WCOFF\"]            \r\n", //  0
 	  "[INSTRSET \"i486p\"]          \r\n",	//  1
