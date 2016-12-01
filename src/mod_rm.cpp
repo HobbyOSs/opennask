@@ -18,7 +18,7 @@ namespace nask_utility {
 	       log()->info("ModR/M bit detecting... {}", src_reg);
 	       std::smatch match;
 
-	       const size_t imm = get_imm_size(src_reg);
+	       const size_t imm = get_imm_size_evenif_bracket(src_reg);
 	       if (imm == imm16) {
 		    return "110";
 	       } else if (imm == imm32) {

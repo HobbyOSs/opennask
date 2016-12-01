@@ -832,14 +832,15 @@ namespace nask_utility {
 		    // mod=00: [レジスター + レジスター]
 		    // mod=01: [レジスター + disp8]
 
-		    // FIXME: ここ変化が多すぎる
-		    bool src_is_mem = tokenizer.LookAhead(6).Is("]") ? true : false;
+		    bool exists_disp = tokenizer.LookAhead(6).Is("]") ? true : false;
+		    log()->info("exists disp ? => {}", exists_disp);
+
 		    bool equ_specified = get_equ_label_or_asis(src_token.AsString()) != src_token.AsString();
 
-		    const std::string disp = equ_specified ?
+		    const std::string disp = (equ_specified || !exists_disp) ?
 			 "" : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
 
-		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]" : "[" + src_reg + disp + "]";
+		    const std::string src_mem  = exists_disp ? "[" + src_reg + "]" : "[" + src_reg + disp + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
 
@@ -850,13 +851,13 @@ namespace nask_utility {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			 binout_container.push_back(0x67);
 		    }
-		    if (regex_match(src_mem, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
-		    } else if (src_is_mem && this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    } else if (exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
-		    } else if (regex_match(src_mem, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+		    } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
 			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else {
@@ -866,23 +867,23 @@ namespace nask_utility {
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 // r8
 			 const uint8_t op = 0x8a;
-			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_reg, dst_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
 		    	 binout_container.push_back(modrm);
 		    } else {
 			 // r16 or r32
 			 const uint8_t op = 0x8b;
-			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_reg, dst_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
 		    	 binout_container.push_back(modrm);
 		    }
 
 		    if (disp != "" && ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
-			 const uint8_t sib = ModRM::generate_sib(src_is_mem ? src_mem : src_reg, src_reg);
+			 const uint8_t sib = ModRM::generate_sib(exists_disp ? src_mem : src_reg, src_reg);
 			 log()->info("SIB: 0x{:02x}", sib);
 		    	 binout_container.push_back(sib);
 		    } else if (is_hex_notation(src_reg)) {

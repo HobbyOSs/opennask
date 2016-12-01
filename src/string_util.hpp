@@ -34,6 +34,7 @@ namespace nask_utility {
      std::string expr_math_op(const std::string& subject);
 
      size_t get_imm_size(const std::string& hex_string);
+     size_t get_imm_size_evenif_bracket(const std::string& hex_string);
 };
 
 #endif /* STRING_UTIL_HPP_ */
