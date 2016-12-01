@@ -16,7 +16,7 @@ TEST_GROUP(day04test_suite)
 {
 };
 
-TEST(day04test_suite, asmhead_MOV)
+TEST(day04test_suite, asmhead_MOV_disp)
 {
      // Found MOV_with_bracket
      //
@@ -59,6 +59,51 @@ TEST(day04test_suite, asmhead_MOV)
 
      std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
      EXPECT_N_LEAKS(10);
+     if (test != answer) {
+	  logger->error("output bin: {}",
+			nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+     }
+
+     CHECK(test == answer);
+}
+
+TEST(day04test_suite, asmhead_MOV_mem)
+{
+     // Found MOV_with_bracket
+     //
+     // [INSTRSET "i486p"]
+     // MOV [EDI],EAX
+     //
+     // Opecode: 0x89
+     // ModR/M : 0x07
+     //
+     nask_utility::Instructions inst;
+     std::array<std::string, 2> naskfunc_src = {
+	  "[INSTRSET \"i486p\"]	  \r\n", // 0
+	  "MOV [EDI],EAX	  \r\n"	 // 1
+     };
+
+     std::vector<uint8_t> test; // output
+
+     for (size_t l = 0; l < naskfunc_src.size(); l++) {
+	  std::istringstream input_stream(naskfunc_src.at(l));
+	  TParaTokenizer tokenizer(input_stream, &inst.token_table);
+
+	  switch (l) {
+	  case 0:
+	       inst.process_token_BRACKET(tokenizer, test);
+	       break;
+	  case 1:
+	       tokenizer.Next();
+	       inst.process_token_MOV(tokenizer, test);
+	       break;
+	  default:
+	       break;
+	  };
+     }
+
+     std::vector<uint8_t> answer = { 0x89, 0x07 };
+     EXPECT_N_LEAKS(9);
      if (test != answer) {
 	  logger->error("output bin: {}",
 			nask_utility::string_to_hex(std::string(test.begin(), test.end())));

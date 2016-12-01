@@ -779,7 +779,15 @@ namespace nask_utility {
 			      const std::string hex = replace(dst_token.AsString(), from, to);
 			      set_hexstring_into_binout(hex, binout_container);
 			 }
+		    } else {
+			 // MOV r/m16, r16	  | 0x89 /r
+			 // MOV r/m32, r32	  | 0x89 /r
+			 const uint8_t modrm = ModRM::generate_modrm(0x89, ModRM::REG_REG, dst_mem, src_reg);
+			 log()->info("NIM(B): 0x89, 0x{:02x}", modrm, tokenizer.LookAhead(2).AsString());
+			 binout_container.push_back(0x89);
+			 binout_container.push_back(modrm);
 		    }
+
 		    break;
 
 	       } else if (is_common_register(token_table, token) &&
@@ -1501,8 +1509,6 @@ namespace nask_utility {
 			 }
 
 			 // 次へ
-			 tokenizer.Next();
-			 tokenizer.Next();
 			 break;
 
 		    } else if (token.Is("[") &&
@@ -1543,7 +1549,6 @@ namespace nask_utility {
 			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
 			      // debug logs
 			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_token.AsLong());
-
 			      binout_container.push_back(bs_dst.to_ulong());
 
 			      if (imm_size == imm8) {
@@ -1614,6 +1619,7 @@ namespace nask_utility {
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
+				   log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 				   log()->info("r/m32: ", dst_reg);
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
