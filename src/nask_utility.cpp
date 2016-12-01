@@ -840,7 +840,7 @@ namespace nask_utility {
 		    const std::string disp = (equ_specified || !exists_disp) ?
 			 "" : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
 
-		    const std::string src_mem  = exists_disp ? "[" + src_reg + "]" : "[" + src_reg + disp + "]";
+		    const std::string src_mem  = exists_disp ? "[" + src_reg + disp + "]" : "[" + src_reg + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
 

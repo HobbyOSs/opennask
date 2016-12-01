@@ -15,10 +15,10 @@ namespace nask_utility {
 	  //
 	  // レジスタ名は大文字/小文字にかかわらず探す
 	  //
-	  const std::regex rm000("(AL|AX|EAX)", ECMAScript | icase);
-	  const std::regex rm001("(CL|CX|ECX)", ECMAScript | icase);
-	  const std::regex rm010("(DL|DX|EDX)", ECMAScript | icase);
-	  const std::regex rm011("(BL|BX|EBX)", ECMAScript | icase);
+	  const std::regex rm000("(AL|AX|EAX|.EAX.|.EAX\\+[0-9]{2}.)", ECMAScript | icase);
+	  const std::regex rm001("(CL|CX|ECX|.ECX.|.ECX\\+[0-9]{2}.)", ECMAScript | icase);
+	  const std::regex rm010("(DL|DX|EDX|.EDX.|.EDX\\+[0-9]{2}.)", ECMAScript | icase);
+	  const std::regex rm011("(BL|BX|EBX|.EBX.|.EBX\\+[0-9]{2}.)", ECMAScript | icase);
 	  const std::regex rm101("(CH|BP|EBP)", ECMAScript | icase);
 
 	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)", ECMAScript | icase);
