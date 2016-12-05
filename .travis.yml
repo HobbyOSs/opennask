@@ -33,13 +33,9 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - cmake -G Ninja ..
+  - CXX=g++-4.9 CC=gcc-4.9 cmake -G Ninja ..
 
 script:
-  - CXX=g++-4.9
-  - CC=gcc-4.9
-  - $CXX --version
-  - $CC --version
   - ninja
   - ninja images
   - ctest
