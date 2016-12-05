@@ -119,19 +119,31 @@ TEST(day04test_suite, asmhead_MOV_disp_plus)
      //
      // [INSTRSET "i486p"]
      // MOV ESI,[EBX+20]
-     //
+     // MOV EDI,[EBX+12]
+     // ---
+     // 1) MOV ESI,[EBX+20]
      // Prefix : 0x67 0x66
      // Opecode: 0x8b
      // ModR/M : 0x73
      //
      // [mod]: 01
-     // [reg]: 110 <-- 100になってる
+     // [reg]: 110
+     // [r/m]: 011
+     // ---
+     // 2) MOV EDI,[EBX+12]
+     // Prefix : 0x67 0x66
+     // Opecode: 0x8b
+     // ModR/M : 0x7b
+     //
+     // [mod]: 01
+     // [reg]: 111
      // [r/m]: 011
      //
      nask_utility::Instructions inst;
-     std::array<std::string, 2> naskfunc_src = {
+     std::array<std::string, 3> naskfunc_src = {
 	  "[INSTRSET \"i486p\"]	  \r\n", // 0
-	  "MOV ESI,[EBX+20]	  \r\n"	 // 1
+	  "MOV ESI,[EBX+20]	  \r\n", // 1
+	  "MOV EDI,[EBX+12]	  \r\n"	 // 2
      };
 
      std::vector<uint8_t> test; // output
@@ -145,6 +157,7 @@ TEST(day04test_suite, asmhead_MOV_disp_plus)
 	       inst.process_token_BRACKET(tokenizer, test);
 	       break;
 	  case 1:
+	  case 2:
 	       tokenizer.Next();
 	       inst.process_token_MOV(tokenizer, test);
 	       break;
@@ -153,7 +166,11 @@ TEST(day04test_suite, asmhead_MOV_disp_plus)
 	  };
      }
 
-     std::vector<uint8_t> answer = { 0x67, 0x66, 0x8b, 0x73, 0x14 };
+     std::vector<uint8_t> answer = {
+	  0x67, 0x66, 0x8b, 0x73, 0x14,
+	  0x67, 0x66, 0x8b, 0x7b, 0x0c
+     };
+
      EXPECT_N_LEAKS(9);
      if (test != answer) {
 	  logger->error("output bin: {}",
