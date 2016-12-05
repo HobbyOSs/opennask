@@ -501,6 +501,7 @@ namespace nask_utility {
      // These parameters are only one instance each other
      uint32_t Instructions::dollar_position = 0;
      uint32_t Instructions::support = SUP_8086;
+     int Instructions::OPENNASK_MODES = ID_16BIT_MODE;
 
      int Instructions::process_token_MOV(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
           // From: chapter MOV - Move 3-530
@@ -685,8 +686,9 @@ namespace nask_utility {
 		    break;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+			  !is_common_register(token_table, get_equ_label_or_asis(tokenizer.LookAhead(1).AsString())) &&
 			  tokenizer.LookAhead(3).Is(",") &&
-			  is_common_register(token_table, tokenizer.LookAhead(4))) {
+			  ModRM::is_accumulator(tokenizer.LookAhead(4).AsString())) {
 		    //
 		    // MOV Mem	   , Reg  | 1000100w oorrrmmm
 		    //
@@ -704,15 +706,7 @@ namespace nask_utility {
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
 
-		    if (!is_legitimate_numeric(dst_addr)) {
-			 log()->info("destination mem is register: {}", dst_addr);
-			 // MOV r/m8, r8       | 0x88 /r
-			 const uint8_t modrm = ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
-			 log()->info("NIM(B): 0x88, 0x{:02x}", modrm);
-			 binout_container.push_back(0x88);
-			 binout_container.push_back(modrm);
-
-		    } else if (src_reg == "AL" || src_reg == "AX") {
+		    if (src_reg == "AL" || src_reg == "AX") {
 			 log()->info("MOV moffs* , AL or AX");
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
@@ -728,18 +722,26 @@ namespace nask_utility {
 			 // FIXME: ここの部分、ModR/Mの原則にしたがってなさそう
 			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(), ModRM::REG_REG, dst_mem, src_reg);
 			 std::smatch match;
-			 log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
-			 if (regex_match(src_reg, match, ModRM::regImm32) && this->support == SUP_8086) {
+			 log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+			 if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			      log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			      binout_container.push_back(0x67);
-			      binout_container.push_back(0x66);
-			      binout_container.push_back(bs_src.to_ulong());
-			      binout_container.push_back(modrm);
-			      log()->info("NIM(W): 0x67, 0x66, 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
-			 } else {
-			      binout_container.push_back(bs_src.to_ulong());
-			      binout_container.push_back(modrm);
-			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 			 }
+			 if (regex_match(dst_mem, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			      log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else if (regex_match(dst_mem, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			      log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else {
+			      log()->info("Register-size prefix is absent");
+			 }
+
+			 // Opcode && MOD-REG-R/M
+			 binout_container.push_back(bs_src.to_ulong());
+			 binout_container.push_back(modrm);
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_src.to_ulong(), modrm);
 
 			 if (!is_common_register(token_table, dst_addr)) {
 			      const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
@@ -748,16 +750,10 @@ namespace nask_utility {
 			 }
 		    }
 
-		    // コンマを飛ばして次へ
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
 		    // これで終了のはず
 		    break;
 
 	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
-			  !is_common_register(token_table, get_equ_label_or_asis(tokenizer.LookAhead(1).AsString())) &&
 			  tokenizer.LookAhead(3).Is(",") &&
 			  is_common_register(token_table, tokenizer.LookAhead(4))) {
 		    // MOV r/m8, r8	  | 0x88 /r
@@ -765,12 +761,30 @@ namespace nask_utility {
 		    // MOV r/m32, r32	  | 0x89 /r
 		    TParaToken dst_token = tokenizer.LookAhead(1);
 		    TParaToken src_token = tokenizer.LookAhead(4);
+
+		    const std::string dst_reg  = get_equ_label_or_asis(dst_token.AsString());
 		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
 		    const std::string src_reg  = src_token.AsString();
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
 
 		    std::smatch match;
+		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
+			 binout_container.push_back(0x67);
+		    }
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else {
+			 log()->info("Register-size prefix is absent");
+		    }
+
 		    if (regex_match(src_reg, match, ModRM::regImm08)) {
 			 // MOV r/m8, r8       | 0x88 /r
 			 const uint8_t modrm = ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
@@ -783,7 +797,15 @@ namespace nask_utility {
 			      const std::string hex = replace(dst_token.AsString(), from, to);
 			      set_hexstring_into_binout(hex, binout_container);
 			 }
+		    } else {
+			 // MOV r/m16, r16	  | 0x89 /r
+			 // MOV r/m32, r32	  | 0x89 /r
+			 const uint8_t modrm = ModRM::generate_modrm(0x89, ModRM::REG_REG, dst_mem, src_reg);
+			 log()->info("NIM(B): 0x89, 0x{:02x}", modrm, tokenizer.LookAhead(2).AsString());
+			 binout_container.push_back(0x89);
+			 binout_container.push_back(modrm);
 		    }
+
 		    break;
 
 	       } else if (is_common_register(token_table, token) &&
@@ -809,46 +831,65 @@ namespace nask_utility {
 		    const std::string src_reg  = get_equ_label_or_asis(src_token.AsString());
 		    // mod=00: [レジスター + レジスター]
 		    // mod=01: [レジスター + disp8]
-		    bool src_is_mem = tokenizer.LookAhead(6).Is("]") ? true : false;
-		    const std::string src_mem  = src_is_mem ? "[" + src_reg + "]"
-			 : "[" +
-			 src_reg +
-			 tokenizer.LookAhead(4).AsString() +
-			 tokenizer.LookAhead(5).AsString() +
-			 "]";
+
+		    bool exists_disp = tokenizer.LookAhead(6).Is("]") ? true : false;
+		    log()->info("exists disp ? => {}", exists_disp);
+
+		    bool equ_specified = get_equ_label_or_asis(src_token.AsString()) != src_token.AsString();
+
+		    const std::string disp = (equ_specified || !exists_disp) ?
+			 "" : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
+
+		    const std::string src_mem  = exists_disp ? "[" + src_reg + disp + "]" : "[" + src_reg + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
-		    log()->info("SUPPORT CPU: {}", this->support_cpus[this->support]);
 
 		    std::smatch match;
-		    if (this->support == SUP_8086) {
-			 log()->info("Prefix: 0x67, 0x66");
-		    	 binout_container.push_back(0x67);
-		    	 binout_container.push_back(0x66);
+		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
+			 binout_container.push_back(0x67);
+		    }
+		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else {
+			 log()->info("Register-size prefix is absent");
 		    }
 
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 // r8
 			 const uint8_t op = 0x8a;
-			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_reg, dst_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
 		    	 binout_container.push_back(modrm);
 		    } else {
 			 // r16 or r32
 			 const uint8_t op = 0x8b;
-			 const uint8_t modrm = src_is_mem ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_reg, dst_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
+			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
 		    	 binout_container.push_back(modrm);
 		    }
 
-		    if (ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
-			 const uint8_t sib = ModRM::generate_sib(src_is_mem ? src_mem : src_reg, src_reg);
+		    if (disp != "" && ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(exists_disp ? src_mem : src_reg, src_reg);
 			 log()->info("SIB: 0x{:02x}", sib);
 		    	 binout_container.push_back(sib);
+		    } else if (is_hex_notation(src_reg)) {
+			 // set memory
+			 const std::string hex_imm = src_reg.substr(2);
+			 set_hexstring_into_binout(hex_imm, binout_container);
 		    }
 
 		    if (tokenizer.LookAhead(4).Is("+")) {
@@ -1487,8 +1528,6 @@ namespace nask_utility {
 			 }
 
 			 // 次へ
-			 tokenizer.Next();
-			 tokenizer.Next();
 			 break;
 
 		    } else if (token.Is("[") &&
@@ -1529,7 +1568,6 @@ namespace nask_utility {
 			      const std::bitset<8> bs_dst("0000010" + std::get<1>(tp_dst));
 			      // debug logs
 			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_token.AsLong());
-
 			      binout_container.push_back(bs_dst.to_ulong());
 
 			      if (imm_size == imm8) {
@@ -1600,6 +1638,7 @@ namespace nask_utility {
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
+				   log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 				   log()->info("r/m32: ", dst_reg);
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
@@ -1947,7 +1986,6 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
-
 		    if (tokenizer.LookAhead(1).Is("EQU")) {
 			 if (token.IsEmpty() || tokenizer.LookAhead(2).IsEmpty()) {
 			      std::cerr << "NASK : EQU syntax is not correct" << std::endl;
@@ -1972,6 +2010,8 @@ namespace nask_utility {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
+	       } else if (token.Is("GLOBAL")) {
+		    continue;
 	       } else {
 		    if (!token.IsEmpty()) {
 			 log()->info("Add new symbol: {}", token.AsString());

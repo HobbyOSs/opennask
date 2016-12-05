@@ -129,7 +129,7 @@ namespace nask_utility {
 
 	  // Current Position '$', INSTRSET
 	  static uint32_t dollar_position, support;
-	  int OPENNASK_MODES = ID_32BIT_MODE;
+	  static int OPENNASK_MODES;
 
 	  // section table defs
 	  bool exists_section_table = false;

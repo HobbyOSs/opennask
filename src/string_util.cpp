@@ -77,6 +77,17 @@ namespace nask_utility {
 	       && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
      }
 
+     size_t get_imm_size_evenif_bracket(const std::string& hex_string) {
+	  if (starts_with(hex_string, "[") && ends_with(hex_string, "]")) {
+	       std::string reg = hex_string;
+	       reg = reg.erase(0, 1);
+	       reg = reg.erase(reg.size() - 1);
+	       return get_imm_size(reg);
+	  } else {
+	       return get_imm_size(hex_string);
+	  }
+     }
+
      size_t get_imm_size(const std::string& hex_string) {
 	  if (is_hex_notation(hex_string)) {
 	       const size_t s = hex_string.substr(2).size() / 2;

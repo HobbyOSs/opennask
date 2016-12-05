@@ -12,18 +12,26 @@ namespace nask_utility {
 
 	  using namespace std::regex_constants;
 
-	  //
-	  // レジスタ名は大文字/小文字にかかわらず探す
-	  //
-	  const std::regex rm000("(AL|AX|EAX)", ECMAScript | icase);
-	  const std::regex rm001("(CL|CX|ECX)", ECMAScript | icase);
-	  const std::regex rm010("(DL|DX|EDX)", ECMAScript | icase);
-	  const std::regex rm011("(BL|BX|EBX)", ECMAScript | icase);
-	  const std::regex rm101("(CH|BP|EBP)", ECMAScript | icase);
+	  constexpr const char* _000 = "(AL|AX|EAX|\\[EAX]|\\[EAX\\+.*])";
+	  constexpr const char* _001 = "(CL|CX|ECX|\\[ECX]|\\[ECX\\+.*])";
+	  constexpr const char* _010 = "(DL|DX|EDX|\\[EDX]|\\[EDX\\+.*])";
+	  constexpr const char* _011 = "(BL|BX|EBX|\\[EBX]|\\[EBX\\+.*])";
+	  /**                   _100 = これは最後に評価                 */
+	  constexpr const char* _101 = "(CH|BP|EBP)";
+	  constexpr const char* _110 = "(DH|SI|ESI|\\[ESI]|\\[ESI\\+.*])";
+	  constexpr const char* _111 = "(BH|DI|EDI|\\[EDI]|\\[EDI\\+.*])";
 
-	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)", ECMAScript | icase);
-	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)", ECMAScript | icase);
-	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)", ECMAScript | icase);
+	  const std::regex rm000(_000, extended | icase);
+	  const std::regex rm001(_001, extended | icase);
+	  const std::regex rm010(_010, extended | icase);
+	  const std::regex rm011(_011, extended | icase);
+	  const std::regex rm101(_101, extended | icase);
+	  const std::regex rm110(_110, extended | icase);
+	  const std::regex rm111(_111, extended | icase);
+
+	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)", extended | icase);
+	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)", extended | icase);
+	  const std::regex regImm32("(EAX|EBX|ECX|EDX|ESI|EDI|EBP|ESP|EIP|EFLAGS)", extended | icase);
 
 	  const std::string SIB = "100";
 

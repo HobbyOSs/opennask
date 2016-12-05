@@ -1,5 +1,6 @@
 #include "mod_rm.hpp"
 #include "tinyexpr.h"
+#include "string_util.hpp"
 
 namespace nask_utility {
      namespace ModRM {
@@ -14,7 +15,16 @@ namespace nask_utility {
 	  }
 
 	  const std::string get_rm_from_reg(const std::string& src_reg) {
+	       log()->info("ModR/M bit detecting... {}", src_reg);
 	       std::smatch match;
+
+	       const size_t imm = get_imm_size_evenif_bracket(src_reg);
+	       if (imm == imm16) {
+		    return "110";
+	       } else if (imm == imm32) {
+		    return "110";
+	       }
+
 	       if (regex_match(src_reg, match, rm000)) {
 		    return "000";
 	       } else if (regex_match(src_reg, match, rm001)) {
@@ -25,11 +35,13 @@ namespace nask_utility {
 		    return "011";
 	       } else if (regex_match(src_reg, match, rm101)) {
 		    return "101";
+	       } else if (regex_match(src_reg, match, rm110)) {
+		    return "110";
+	       } else if (regex_match(src_reg, match, rm111)) {
+		    return "111";
 	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(src_reg)) {
-		    // ここの順序は変えないように
 		    return SEGMENT_REGISTERS_SSS_MAP.at(src_reg);
 	       } else if (REGISTERS_MMM_MAP.count(src_reg)) {
-		    // ここの順序は変えないように
 		    return REGISTERS_MMM_MAP.at(src_reg);
 	       }
 

@@ -112,7 +112,7 @@ constexpr size_t offs  = 12;
 enum OPENNASK_MODES {
      ID_16BIT_MODE = 0,
      ID_32BIT_MODE,
-     ID_63BIT_MODE
+     ID_64BIT_MODE
 };
 
 // オペランドの種類
