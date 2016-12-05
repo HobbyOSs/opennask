@@ -24,6 +24,7 @@ addons:
       - ninja-build
       - cpputest
       - gcc-4.9
+      - g++-4.9
 
 before_install:
 
@@ -37,8 +38,8 @@ before_script:
 script:
   - CXX=g++-4.9
   - CC=gcc-4.9
-  - $CC --version
   - $CXX --version
+  - $CC --version
   - ninja
   - ninja images
   - ctest
