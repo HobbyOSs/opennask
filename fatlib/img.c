@@ -10,8 +10,8 @@
 #include <fcntl.h>
 #ifndef _WIN32
   #include <unistd.h>
+  #include <sys/file.h>
 #endif
-#include <sys/file.h>
 
 struct img_priv {
 	int fd;

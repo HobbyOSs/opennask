@@ -40,9 +40,15 @@ set(parasol_HEADERS
     ParaMathLibrary.hh)
 
 add_library(parasol STATIC ${parasol_STAT_SRCS})
+
 if (WIN32)
-  add_definitions(-Dpopen=_popen -Dpclose=_pclose)
+  add_definitions(-Dpopen=_popen)
+  add_definitions(-Dpclose=_pclose)
+  add_definitions(-DMAX_RAND=32767)
+  add_definitions(-Dsrand48=srand( (long) time (NULL) ))
+  add_definitions(-Ddrand48=double( rand()) / MAX_RAND )
 endif()
+
 set_property(TARGET parasol PROPERTY CXX_STANDARD 11)
 set_property(TARGET parasol PROPERTY CXX_STANDARD_REQUIRED ON)
 
