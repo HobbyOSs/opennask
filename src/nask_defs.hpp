@@ -44,10 +44,8 @@ struct NAS_PIMAGE_FILE_HEADER {
 } __attribute__((packed));
 
 // PE section header
-constexpr size_t IMAGE_SIZEOF_SHORT_NAME = 8;
-
 struct NAS_PIMAGE_SECTION_HEADER {
-     uint8_t         name[IMAGE_SIZEOF_SHORT_NAME];
+     uint8_t         name[8];
      union {
 	  uint32_t   physicalAddress;
 	  uint32_t   virtualSize;

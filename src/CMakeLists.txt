@@ -32,6 +32,8 @@ if (WIN32)
   add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
+
+
 include_directories(${root_SOURCE_DIR}/parasol
                     ${root_SOURCE_DIR}/src
                     ${root_SOURCE_DIR}/fatlib)
