@@ -23,7 +23,7 @@
 #include "fatlib.h"
 #include "time.h"
 #include <errno.h>
-#include <err.h>
+//#include <err.h>
 #include <utime.h>
 #include <unistd.h>
 #include <sys/types.h>
