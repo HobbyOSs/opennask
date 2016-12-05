@@ -16,13 +16,16 @@ namespace nask_utility {
 	  constexpr const char* _001 = "(CL|CX|ECX|\\[ECX]|\\[ECX\\+.*])";
 	  constexpr const char* _010 = "(DL|DX|EDX|\\[EDX]|\\[EDX\\+.*])";
 	  constexpr const char* _011 = "(BL|BX|EBX|\\[EBX]|\\[EBX\\+.*])";
+	  /**                   _100 = これは最後に評価                 */
 	  constexpr const char* _101 = "(CH|BP|EBP)";
+	  constexpr const char* _110 = "(DH|SI|ESI|\\[ESI]|\\[ESI\\+.*])";
 
 	  const std::regex rm000(_000, extended | icase);
 	  const std::regex rm001(_001, extended | icase);
 	  const std::regex rm010(_010, extended | icase);
 	  const std::regex rm011(_011, extended | icase);
 	  const std::regex rm101(_101, extended | icase);
+	  const std::regex rm110(_110, extended | icase);
 
 	  const std::regex regImm08("(AL|CL|DL|BL|AH|CH|DH|BH)", extended | icase);
 	  const std::regex regImm16("(AX|BX|CX|DX|SI|DI|BP|SP|IP|FLAGS|CS|SS|DS|ES|FS|GS)", extended | icase);

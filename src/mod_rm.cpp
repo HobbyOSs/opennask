@@ -35,6 +35,8 @@ namespace nask_utility {
 		    return "011";
 	       } else if (regex_match(src_reg, match, rm101)) {
 		    return "101";
+	       } else if (regex_match(src_reg, match, rm110)) {
+		    return "110";
 	       } else if (SEGMENT_REGISTERS_SSS_MAP.count(src_reg)) {
 		    return SEGMENT_REGISTERS_SSS_MAP.at(src_reg);
 	       } else if (REGISTERS_MMM_MAP.count(src_reg)) {
