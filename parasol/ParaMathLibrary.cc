@@ -9,6 +9,7 @@
 #include <map>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include "ParaObject.hh"
 #include "ParaMathLibrary.hh"
 

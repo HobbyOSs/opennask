@@ -45,7 +45,7 @@ if (WIN32)
   add_definitions(-Dpopen=_popen)
   add_definitions(-Dpclose=_pclose)
   add_definitions(-DMAX_RAND=32767)
-  add_definitions(-Ddrand48=double\(rand\(\)\)//MAX_RAND)
+  add_definitions(-Ddrand48=\(double\)\(rand\(\)\)//MAX_RAND)
   add_definitions(-Dsrand48=srand\(\(long\)time\(NULL\)\))
 endif()
 
