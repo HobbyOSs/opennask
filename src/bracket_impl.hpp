@@ -17,7 +17,7 @@ namespace nask_utility {
 		    this->exists_section_table = true;
 		    log()->info("process FORMAT as {}", tokenizer.LookAhead(2).AsString());
 
-		    PIMAGE_FILE_HEADER header = {};
+		    NAS_PIMAGE_FILE_HEADER header = {};
 		    const std::string target = tokenizer.LookAhead(2).AsString();
 		    process_format_statement(header, target, binout_container);
 		    return 0;
@@ -90,7 +90,7 @@ namespace nask_utility {
 	  return 0;
      }
 
-     void process_format_statement(PIMAGE_FILE_HEADER& header, const std::string& target, VECTOR_BINOUT& binout_container) {
+     void process_format_statement(NAS_PIMAGE_FILE_HEADER& header, const std::string& target, VECTOR_BINOUT& binout_container) {
 
 	  if (target == "\"WCOFF\"") {
 	       log()->info("target: {}, process as Portable Executable", target);
@@ -104,7 +104,7 @@ namespace nask_utility {
 	       std::copy(buffer.begin(), buffer.end(), back_inserter(binout_container));
 
 	       // section table ".text"
-	       PIMAGE_SECTION_HEADER text = {
+	       NAS_PIMAGE_SECTION_HEADER text = {
 		    { '.', 't', 'e', 'x', 't', 0, 0, 0 /* name */ },
 		    0x00000000, // Misc
 		    0x00000000, // VirtualAddress
@@ -121,7 +121,7 @@ namespace nask_utility {
 	       std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
 
 	       // section table ".data"
-	       PIMAGE_SECTION_HEADER data = {
+	       NAS_PIMAGE_SECTION_HEADER data = {
 		    { '.', 'd', 'a', 't', 'a', 0, 0, 0 /* name */ },
 		    0x00000000, // Misc
 		    0x00000000, // VirtualAddress
@@ -138,7 +138,7 @@ namespace nask_utility {
 	       std::copy(data_buffer.begin(), data_buffer.end(), back_inserter(binout_container));
 
 	       // section table ".bss"
-	       PIMAGE_SECTION_HEADER bss = {
+	       NAS_PIMAGE_SECTION_HEADER bss = {
 		    { '.', 'b', 's', 's', 0, 0, 0, 0 /* name */ },
 		    0x00000000, // Misc
 		    0x00000000, // VirtualAddress
@@ -164,13 +164,13 @@ namespace nask_utility {
 	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
 	  set_dword_into_binout(offset, binout_container, false, 8);
 	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
-	  set_dword_into_binout(offset, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 24);
+	  set_dword_into_binout(offset, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 24);
 
 	  // セクションデータのサイズが確定(SizeOfRawData)
 	  const uint32_t size_of_raw_data =
-	       binout_container.size() - (sizeof(PIMAGE_FILE_HEADER) + sizeof(PIMAGE_SECTION_HEADER) * 3);
+	       binout_container.size() - (sizeof(NAS_PIMAGE_FILE_HEADER) + sizeof(NAS_PIMAGE_SECTION_HEADER) * 3);
 	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", binout_container.size());
-	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(PIMAGE_FILE_HEADER) + 16);
+	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 16);
 
 	  // auxiliary element ".file"
 	  if (inst.exists_file_auxiliary) {
@@ -189,7 +189,7 @@ namespace nask_utility {
 	  }
 
 	  // element ".text"
-	  PIMAGE_SYMBOL text = {
+	  NAS_PIMAGE_SYMBOL text = {
 	       { '.', 't', 'e', 'x', 't', 0, 0, 0 /* shortName */ },
 	       0x00000000,
 	       WCOFF_TEXT_FIELD,
@@ -206,7 +206,7 @@ namespace nask_utility {
 	  }
 
 	  // element ".data"
-	  PIMAGE_SYMBOL data = {
+	  NAS_PIMAGE_SYMBOL data = {
 	       { '.', 'd', 'a', 't', 'a', 0, 0, 0 /* shortName */ },
 	       0x00000000,
 	       WCOFF_DATA_FIELD,
@@ -221,7 +221,7 @@ namespace nask_utility {
 	  }
 
 	  // element ".text"
-	  PIMAGE_SYMBOL bss = {
+	  NAS_PIMAGE_SYMBOL bss = {
 	       { '.', 'b', 's', 's', 0, 0, 0, 0 /* shortName */ },
 	       0x00000000,
 	       WCOFF_BSS_FIELD,
@@ -246,7 +246,7 @@ namespace nask_utility {
 		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
-		    PIMAGE_SYMBOL func = {
+		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
 			 0x00000000,
 			 WCOFF_TEXT_FIELD,
@@ -258,7 +258,7 @@ namespace nask_utility {
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+		    log()->info("wrote {} byte", sizeof(NAS_PIMAGE_SYMBOL));
 
 		    binout_container.push_back(0x00);
 		    binout_container.push_back(0x00);
@@ -270,7 +270,7 @@ namespace nask_utility {
 		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
-		    PIMAGE_SYMBOL long_file = {
+		    NAS_PIMAGE_SYMBOL long_file = {
 			 { 0x04, 0, 0, 0, 0x02, 0, 0, 0 /* shortName */ },
 			 0x00000001,
 			 WCOFF_DATA_FIELD,
@@ -280,7 +280,7 @@ namespace nask_utility {
 
 		    auto fn_buffer = create_buffer(long_file);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-		    log()->info("wrote {} byte", sizeof(PIMAGE_SYMBOL));
+		    log()->info("wrote {} byte", sizeof(NAS_PIMAGE_SYMBOL));
 
 		    std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
 		    const std::string symbols = trim(symbol_name_hex);
@@ -291,13 +291,13 @@ namespace nask_utility {
 	  }
      }
 
-     std::vector<uint8_t> create_buffer(PIMAGE_SYMBOL& symbol) {
+     std::vector<uint8_t> create_buffer(NAS_PIMAGE_SYMBOL& symbol) {
 	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
 	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
 	  return buffer;
      }
 
-     std::vector<uint8_t> create_buffer(PIMAGE_SECTION_HEADER& symbol) {
+     std::vector<uint8_t> create_buffer(NAS_PIMAGE_SECTION_HEADER& symbol) {
 	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
 	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
 	  return buffer;
