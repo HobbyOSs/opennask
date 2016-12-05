@@ -1288,7 +1288,7 @@ int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue
 	Length = ArgumentList[2]->AsLong();
 	if (Length < 0) {
 	    // perl compatible //
-	    Length = max(0, static_cast<int>(Line.size() - Offset + Length));
+	    Length = std::max(0, static_cast<int>(Line.size() - Offset + Length));
 	}
     }
     else {
