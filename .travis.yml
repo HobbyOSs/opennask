@@ -9,7 +9,6 @@ cache: apt
 branches:
   only:
     - master
-    - cmake_ninja
 
 notifications:
   email:
@@ -18,12 +17,13 @@ notifications:
 addons:
   apt:
     sources:
-      - george-edison55-cmake-3.x
+      - ubuntu-toolchain-r-test
     packages:
       - cmake
       - cmake-data
       - ninja-build
       - cpputest
+      - gcc-4.9
 
 before_install:
 
@@ -35,6 +35,10 @@ before_script:
   - cmake -G Ninja ..
 
 script:
+  - CXX=g++-4.9
+  - CC=gcc-4.9
+  - $CC --version
+  - $CXX --version
   - ninja
   - ninja images
   - ctest
