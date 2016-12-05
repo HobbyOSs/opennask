@@ -26,6 +26,13 @@ set(opennask_SRCS
     tinyexpr.c
     tinyexpr.h)
 
+### thanks https://github.com/takamin/win-c ###
+if (WIN32)
+  LIST(APPEND ${opennask_SRCS}
+    getopt.h
+    getopt.c)
+endif()
+
 include_directories(${root_SOURCE_DIR}/parasol
                     ${root_SOURCE_DIR}/src
                     ${root_SOURCE_DIR}/fatlib)
