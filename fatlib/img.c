@@ -8,7 +8,9 @@
 
 #include "lib.h"
 #include <fcntl.h>
-#include <unistd.h>
+#ifndef _WIN32
+  #include <unistd.h>
+#endif
 #include <sys/file.h>
 
 struct img_priv {
@@ -116,7 +118,7 @@ DRIVE *fat_open_image(const char *path, int rw)
 	}
 	im->fd = fd;
 	im->pos = 0;
-	
+
 	dv = fat_open_virt(&img_dops, im, rw);
 	if(!dv)
 		img_close(im);

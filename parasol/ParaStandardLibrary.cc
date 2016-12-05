@@ -3,6 +3,7 @@
 /* Last updated by Enomoto Sanshiro on 24 March 2002. */
 
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
