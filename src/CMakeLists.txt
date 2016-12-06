@@ -30,7 +30,6 @@ set(opennask_SRCS
 if (WIN32)
   LIST(APPEND opennask_SRCS getopt.h getopt.c)
   add_definitions(-Dstrcasecmp=_stricmp)
-  set_property(TARGET opennask APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
 endif()
 
 
@@ -47,3 +46,4 @@ target_link_libraries(opennask parasol Threads::Threads)
 
 set_property(TARGET opennask PROPERTY CXX_STANDARD 11)
 set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET opennask PROPERTY APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
