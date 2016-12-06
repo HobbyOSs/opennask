@@ -240,8 +240,11 @@ namespace nask_utility {
 	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
 	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
 
-	  for ( std::string symbol_name : inst.symbol_list ) {
+	  for ( size_t i = 0; i < inst.symbol_list.size(); i++) {
 	       // 関数などのシンボル情報を書き込む
+	       std::string symbol_name = inst.symbol_list[i];
+	       log()->info("symbol[{}/{}]", i+1, inst.symbol_list.size());
+
 	       if (symbol_name.size() <= 8) {
 		    const std::string real_symbol_name = symbol_name;
 		    log()->info("write short symbol name: {}", real_symbol_name);
@@ -260,7 +263,12 @@ namespace nask_utility {
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
 		    log()->info("wrote {} byte", sizeof(NAS_PIMAGE_SYMBOL));
 
-		    binout_container.push_back(0x00);
+		    // これで最後なら0x04を入れる
+		    if (i+1 == inst.symbol_list.size()) {
+			 binout_container.push_back(0x04);
+		    } else {
+			 binout_container.push_back(0x00);
+		    }
 		    binout_container.push_back(0x00);
 		    binout_container.push_back(0x00);
 		    binout_container.push_back(0x00);
