@@ -175,6 +175,9 @@ namespace nask_utility {
 	  int process_token_STI    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_SUB    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 
+	  // register-size prefix
+	  void store_register_size_prefix(const std::string& src_reg, VECTOR_BINOUT& binout_container);
+
 	  // relX に関する関数
 	  void store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container);
 	  void update_label_dst_offset(std::string label_dst, VECTOR_BINOUT& binout_container);

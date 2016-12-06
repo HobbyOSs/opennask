@@ -173,6 +173,23 @@ namespace nask_utility {
 	  return;
      }
 
+     // 忌々しい 0x66を処理する
+     void Instructions::store_register_size_prefix(const std::string& src_reg, VECTOR_BINOUT& binout_container) {
+
+	  std::smatch match;
+	  log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+	  if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+	       log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+	       binout_container.push_back(0x66);
+	  } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+	       log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+	       binout_container.push_back(0x66);
+	  } else {
+	       log()->info("Register-size prefix is absent");
+	  }
+     }
+
      // label: (label_dstと呼ぶ)
      // 1) label_dstの位置を記録する → label_dst_stack
      void Instructions::store_label_dst(std::string label_dst, VECTOR_BINOUT& binout_container) {
@@ -849,6 +866,7 @@ namespace nask_utility {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			 binout_container.push_back(0x67);
 		    }
+
 		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
@@ -2128,21 +2146,8 @@ namespace nask_utility {
 	       } else {
 		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
 
-			 std::smatch match;
-			 log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
-
 			 const std::string src_reg = token.AsString();
-
-			 if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
-			      log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
-			      binout_container.push_back(0x66);
-			 } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
-			      log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
-			      binout_container.push_back(0x66);
-			 } else {
-			      log()->info("Register-size prefix is absent");
-			 }
-
+			 store_register_size_prefix(src_reg, binout_container);
 			 if (tokenizer.LookAhead(2).Is("DX")) {
 			      const uint8_t nim = token.Is("AL") ? 0xec : 0xed;
 			      log()->info("NIM(B): 0x{:02x}", nim);
@@ -2360,6 +2365,7 @@ namespace nask_utility {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else {
+
 		    if (is_legitimate_numeric(token.AsString()) &&
 			tokenizer.LookAhead(1).Is(",") &&
 			ModRM::is_accumulator(tokenizer.LookAhead(2).AsString())) {
@@ -2372,6 +2378,7 @@ namespace nask_utility {
 			 const std::string src_reg  = src_token.AsString();
 			 log()->info("{} <= {}", dst_imm, src_reg);
 
+			 store_register_size_prefix(src_reg, binout_container);
 			 const uint8_t opecode = (src_reg == "AL") ? 0xe6 : 0xe7;
 			 binout_container.push_back(opecode);
 			 binout_container.push_back(dst_token.AsLong());
@@ -2390,6 +2397,7 @@ namespace nask_utility {
 			 const std::string src_reg  = src_token.AsString();
 			 log()->info("{} <= {}", dst_reg, src_reg);
 
+			 store_register_size_prefix(src_reg, binout_container);
 			 const uint8_t opecode = (src_reg == "AL") ? 0xee : 0xef;
 			 binout_container.push_back(opecode);
 			 log()->info("NIM(B): 0x{:02x}", opecode);
