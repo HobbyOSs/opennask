@@ -135,7 +135,7 @@ namespace nask_utility {
 	  bool exists_section_table = false;
 	  bool exists_file_auxiliary = false;
 	  std::string file_auxiliary_name = "";
-	  PIMAGE_SYMBOL file_auxiliary;
+	  NAS_PIMAGE_SYMBOL file_auxiliary;
 
 	  int process_token_BRACKET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_ADD    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

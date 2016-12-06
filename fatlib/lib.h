@@ -11,6 +11,7 @@
 #ifdef __linux__
 #include <stdint.h>
 #endif
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -135,7 +136,7 @@ struct fat_drive {
 	struct file *root;
 	fat_cp_t cp;
 	clust_t current_cl;
-	
+
 	unsigned totsec;
 	unsigned char sec_sh;
 };

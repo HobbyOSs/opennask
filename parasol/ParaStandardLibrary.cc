@@ -3,6 +3,7 @@
 /* Last updated by Enomoto Sanshiro on 24 March 2002. */
 
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -1288,7 +1289,7 @@ int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue
 	Length = ArgumentList[2]->AsLong();
 	if (Length < 0) {
 	    // perl compatible //
-	    Length = max(0, static_cast<int>(Line.size() - Offset + Length));
+	    Length = std::max(0, static_cast<int>(Line.size() - Offset + Length));
 	}
     }
     else {

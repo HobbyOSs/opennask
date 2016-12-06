@@ -14,9 +14,17 @@ set(QEMUOPT "-m" "32" "-localtime" "-vga" "std" "-fda" CACHE INTERNAL "")
 set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
 add_subdirectory(parasol)
-add_subdirectory(objconv)
-add_subdirectory(fatlib)
 add_subdirectory(src)
+add_subdirectory(projects)
+
+#-----------------------------------------------------------------------
+# Checks for fatlib
+#
+OPTION(USE_FATLIB "Enable feature fatlib (Dev)" OFF)
+if (USE_FATLIB)
+  add_definitions(-DUSE_FATLIB)
+  add_subdirectory(fatlib)
+endif(USE_FATLIB)
 
 #-----------------------------------------------------------------------
 # Checks for CppUTest
@@ -27,5 +35,3 @@ if (USE_CPPUTEST)
   add_subdirectory(test)
   add_subdirectory(data)
 endif(USE_CPPUTEST)
-
-add_subdirectory(projects)

@@ -1,13 +1,6 @@
 message(STATUS "Entering directory parasol/")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
-########### next target ###############
-# FIXME: Those macros should be defined...
-# *-*-mingw*|*-*-cygwin*|*-*-msys*)
-# AC_DEFINE([drand48()], [(rand()*(1./MAX_RAND))], [drand48() not implemented in MinGW])
-# AC_DEFINE([srand48], [srand], [srand48() not implemented in MinGW])
-# AC_DEFINE([MAX_RAND], [32767], [MAX_RAND is at least 32767 on any standard library implementation])
-
 set(parasol_STAT_SRCS
     ParaDefs.cc
     ParaTokenTable.cc
@@ -47,6 +40,15 @@ set(parasol_HEADERS
     ParaMathLibrary.hh)
 
 add_library(parasol STATIC ${parasol_STAT_SRCS})
+
+if (WIN32)
+  add_definitions(-Dpopen=_popen)
+  add_definitions(-Dpclose=_pclose)
+  add_definitions(-DMAX_RAND=32767)
+  add_definitions(-Ddrand48\(\)=\(rand\(\)\)//MAX_RAND)
+  add_definitions(-Dsrand48\(seed\)=srand\(seed\))
+endif()
+
 set_property(TARGET parasol PROPERTY CXX_STANDARD 11)
 set_property(TARGET parasol PROPERTY CXX_STANDARD_REQUIRED ON)
 

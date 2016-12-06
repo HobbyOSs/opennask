@@ -26,6 +26,14 @@ set(opennask_SRCS
     tinyexpr.c
     tinyexpr.h)
 
+### thanks https://github.com/takamin/win-c ###
+if (WIN32)
+  LIST(APPEND opennask_SRCS getopt.h getopt.c)
+  add_definitions(-Dstrcasecmp=_stricmp)
+endif()
+
+
+
 include_directories(${root_SOURCE_DIR}/parasol
                     ${root_SOURCE_DIR}/src
                     ${root_SOURCE_DIR}/fatlib)
@@ -38,3 +46,4 @@ target_link_libraries(opennask parasol Threads::Threads)
 
 set_property(TARGET opennask PROPERTY CXX_STANDARD 11)
 set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET opennask PROPERTY APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
