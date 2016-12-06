@@ -28,7 +28,7 @@ set(opennask_SRCS
 
 ### thanks https://github.com/takamin/win-c ###
 if (WIN32)
-  LIST(APPEND ${opennask_SRCS} getopt.h getopt.c)
+  LIST(APPEND opennask_SRCS getopt.h getopt.c)
   add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
