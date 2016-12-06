@@ -581,9 +581,7 @@ namespace nask_utility {
 			 binout_container.push_back(nim.to_ulong());
 			 // これで終了のはず
 			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-				     0x0f,
-				     0x22,
-				     static_cast<int>(nim.to_ulong()));
+				     0x0f, 0x22, nim.to_ulong());
 			 break;
 		    }
 
@@ -1099,6 +1097,16 @@ namespace nask_utility {
 			 }
 		    }
 
+		    std::smatch match;
+		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+		    if (this->OPENNASK_MODES == ID_16BIT_MODE) {
+			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else {
+			 log()->info("Register-size prefix is absent");
+		    }
+
 		    // 即値(imm)を設定
 		    if (nim_info.imm == imm8) {
 			 log()->info("Imm8");
@@ -1109,12 +1117,11 @@ namespace nask_utility {
 			 set_word_into_binout(token.AsLong(), binout_container, false);
 
 		    } else if (nim_info.imm == imm32) {
-			 binout_container.push_back(0x66);
 			 binout_container.push_back(nim);
 			 const long real_src_imm = is_hex_notation(src_imm) ?
 			      std::stoul(src_imm, nullptr, 16) : src_token.AsLong();
 
-			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x66, nim, real_src_imm);
+			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", nim, real_src_imm);
 			 set_dword_into_binout(real_src_imm, binout_container, false);
 
 		    } else if (nim_info.imm == offs) {
