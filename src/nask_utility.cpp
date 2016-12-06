@@ -2353,9 +2353,23 @@ namespace nask_utility {
 			 binout_container.push_back(opecode);
 			 binout_container.push_back(dst_token.AsLong());
 
-			 log()->info("NIM(W): {}, {}",
-				     static_cast<int>(opecode),
-				     static_cast<int>(dst_token.AsLong()));
+			 log()->info("NIM(W): 0x{:02x}, 0x{:02x}", opecode, dst_token.AsLong());
+			 break;
+
+		    } else if (token.Is("DX") && tokenizer.LookAhead(1).Is(",") &&
+			ModRM::is_accumulator(tokenizer.LookAhead(2).AsString())) {
+			 // 0xEE | OUT DX, AL
+			 // 0xEF | OUT DX, AX
+			 // 0xEF | OUT DX, EAX
+			 TParaToken dst_token = token;
+			 TParaToken src_token = tokenizer.LookAhead(2);
+			 const std::string dst_reg  = dst_token.AsString();
+			 const std::string src_reg  = src_token.AsString();
+			 log()->info("{} <= {}", dst_reg, src_reg);
+
+			 const uint8_t opecode = (src_reg == "AL") ? 0xee : 0xef;
+			 binout_container.push_back(opecode);
+			 log()->info("NIM(B): 0x{:02x}", opecode);
 			 break;
 
 		    } else {
