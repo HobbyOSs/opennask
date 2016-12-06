@@ -57,7 +57,11 @@ add_custom_target(02_day_helloos5_ipl_wine
 add_custom_target(02_day_helloos5_ipl_od
   COMMAND ${OD} -t x1 ${ipl.img_OUTS}      > ${ipl.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${ipl_wine.img_OUTS} > ${ipl_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${ipl.img_OUTS}_f.txt ${ipl_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(02_day_helloos5_ipl_od 02_day_helloos5_ipl)
+add_dependencies(02_day_helloos5_ipl_od 02_day_helloos5_ipl_wine)
 
 add_dependencies(images 02_day_helloos5_ipl)
 add_dependencies(wine 02_day_helloos5_ipl_wine)

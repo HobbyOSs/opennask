@@ -57,7 +57,11 @@ add_custom_target(03_day_harib00g_haribote_wine
 add_custom_target(03_day_harib00g_haribote_od
   COMMAND ${OD} -t x1 ${haribote.img_OUTS}      > ${haribote.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${haribote_wine.img_OUTS} > ${haribote_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${haribote.img_OUTS}_f.txt ${haribote_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(03_day_harib00g_haribote_od 03_day_harib00g_haribote)
+add_dependencies(03_day_harib00g_haribote_od 03_day_harib00g_haribote_wine)
 
 add_dependencies(images 03_day_harib00g_haribote)
 add_dependencies(wine 03_day_harib00g_haribote_wine)
@@ -78,7 +82,11 @@ add_custom_target(03_day_harib00g_ipl10_wine
 add_custom_target(03_day_harib00g_ipl10_od
   COMMAND ${OD} -t x1 ${ipl10.img_OUTS}      > ${ipl10.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${ipl10_wine.img_OUTS} > ${ipl10_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${ipl10.img_OUTS}_f.txt ${ipl10_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(03_day_harib00g_ipl10_od 03_day_harib00g_ipl10)
+add_dependencies(03_day_harib00g_ipl10_od 03_day_harib00g_ipl10_wine)
 
 add_dependencies(images 03_day_harib00g_ipl10)
 add_dependencies(wine 03_day_harib00g_ipl10_wine)

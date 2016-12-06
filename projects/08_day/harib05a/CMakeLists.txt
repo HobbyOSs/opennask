@@ -62,7 +62,11 @@ add_custom_target(08_day_harib05a_asmhead_wine
 add_custom_target(08_day_harib05a_asmhead_od
   COMMAND ${OD} -t x1 ${asmhead.img_OUTS}      > ${asmhead.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${asmhead_wine.img_OUTS} > ${asmhead_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${asmhead.img_OUTS}_f.txt ${asmhead_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(08_day_harib05a_asmhead_od 08_day_harib05a_asmhead)
+add_dependencies(08_day_harib05a_asmhead_od 08_day_harib05a_asmhead_wine)
 
 add_dependencies(images 08_day_harib05a_asmhead)
 add_dependencies(wine 08_day_harib05a_asmhead_wine)
@@ -83,7 +87,11 @@ add_custom_target(08_day_harib05a_ipl10_wine
 add_custom_target(08_day_harib05a_ipl10_od
   COMMAND ${OD} -t x1 ${ipl10.img_OUTS}      > ${ipl10.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${ipl10_wine.img_OUTS} > ${ipl10_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${ipl10.img_OUTS}_f.txt ${ipl10_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(08_day_harib05a_ipl10_od 08_day_harib05a_ipl10)
+add_dependencies(08_day_harib05a_ipl10_od 08_day_harib05a_ipl10_wine)
 
 add_dependencies(images 08_day_harib05a_ipl10)
 add_dependencies(wine 08_day_harib05a_ipl10_wine)
@@ -104,7 +112,11 @@ add_custom_target(08_day_harib05a_naskfunc_wine
 add_custom_target(08_day_harib05a_naskfunc_od
   COMMAND ${OD} -t x1 ${naskfunc.img_OUTS}      > ${naskfunc.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${naskfunc_wine.img_OUTS} > ${naskfunc_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${naskfunc.img_OUTS}_f.txt ${naskfunc_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(08_day_harib05a_naskfunc_od 08_day_harib05a_naskfunc)
+add_dependencies(08_day_harib05a_naskfunc_od 08_day_harib05a_naskfunc_wine)
 
 add_dependencies(images 08_day_harib05a_naskfunc)
 add_dependencies(wine 08_day_harib05a_naskfunc_wine)

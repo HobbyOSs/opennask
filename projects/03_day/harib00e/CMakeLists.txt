@@ -57,7 +57,11 @@ add_custom_target(03_day_harib00e_ipl_wine
 add_custom_target(03_day_harib00e_ipl_od
   COMMAND ${OD} -t x1 ${ipl.img_OUTS}      > ${ipl.img_OUTS}_f.txt
   COMMAND ${OD} -t x1 ${ipl_wine.img_OUTS} > ${ipl_wine.img_OUTS}_t.txt
+  COMMAND diff -s ${ipl.img_OUTS}_f.txt ${ipl_wine.img_OUTS}_t.txt
 )
+
+add_dependencies(03_day_harib00e_ipl_od 03_day_harib00e_ipl)
+add_dependencies(03_day_harib00e_ipl_od 03_day_harib00e_ipl_wine)
 
 add_dependencies(images 03_day_harib00e_ipl)
 add_dependencies(wine 03_day_harib00e_ipl_wine)
