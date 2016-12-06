@@ -2381,6 +2381,88 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // POP命令の実装
+     int Instructions::process_token_POP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+
+		    if (is_register(token_table, token)) {
+			 std::smatch match;
+			 TParaToken dst_token = token;
+			 const std::string dst_reg  = dst_token.AsString();
+
+			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
+
+			      // 0x58+rw | POP r16 <-- AX, BX, CX, DX
+			      log()->info("POP from {}", dst_reg);
+			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(0));
+			      log()->info("NIM(B): 0x{:02x}", opecode);
+			      binout_container.push_back(opecode);
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+
+			      // 0x58+rd | POP r32 <-- EAX, EBX, ECX, EDX
+			      log()->info("POP from {}", dst_reg);
+			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(1));
+			      log()->info("NIM(B): 0x{:02x}", opecode);
+			      binout_container.push_back(opecode);
+
+			 } else {
+			      std::cerr << "NASK : POP specified incorrect register" << std::endl;
+			      return 17;
+			 }
+			 break;
+
+		    } else if (is_segment_register(token_table, token)) {
+			 // 0x1F      | POP DS
+			 // 0x07      | POP ES
+			 // 0x17      | POP SS
+			 // 0x0F 0xA1 | POP FS
+			 // 0x0F 0xA9 | POP GS
+			 // ないよ！  | POP CS
+			 TParaToken dst_token = token;
+			 const std::string dst_reg  = dst_token.AsString();
+			 log()->info("POP from {}", dst_reg);
+
+			 uint8_t opecode_b = 0x00;
+			 uint16_t opecode_w = 0x0000;
+
+			 if (dst_reg == "DS") {
+			      opecode_b = 0x1f;
+			 } else if (dst_reg == "ES") {
+			      opecode_b = 0x07;
+			 } else if (dst_reg == "SS") {
+			      opecode_b = 0x17;
+			 } else if (dst_reg == "FS") {
+			      opecode_w = 0xa10f;
+			 } else if (dst_reg == "GS") {
+			      opecode_w = 0xa90f;
+			 } else {
+			      std::cerr << "NASK : POP specified incorrect register" << std::endl;
+			      return 17;
+			 }
+
+			 if (opecode_b != 0x00) {
+			      binout_container.push_back(opecode_b);
+			      log()->info("NIM(B): 0x{:02x}", opecode_b);
+			 } else {
+			      set_word_into_binout(opecode_w, binout_container);
+			      log()->info("NIM(W): 0x{:02x}", opecode_w);
+			 }
+			 break;
+
+		    } else {
+			 std::cerr << "NASK : POP specified incorrect value" << std::endl;
+			 return 17;
+		    }
+	       }
+	  }
+	  return 0;
+     }
+
      // テキトーなRET命令の実装
      int Instructions::process_token_RET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xC3 を格納
