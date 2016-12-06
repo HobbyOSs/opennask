@@ -2494,6 +2494,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // テキトーなPUSHF命令の実装
+     int Instructions::process_token_PUSHF(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0x9C を格納
+	  binout_container.push_back(0x9c);
+	  return 0;
+     }
+
      // テキトーなRET命令の実装
      int Instructions::process_token_RET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0xC3 を格納
