@@ -2483,6 +2483,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // テキトーなSTI命令の実装
+     int Instructions::process_token_STI(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xFB を格納
+	  binout_container.push_back(0xfb);
+	  return 0;
+     }
+
      // 簡単なSUB命令の実装
      int Instructions::process_token_SUB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 
