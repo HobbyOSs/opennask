@@ -30,6 +30,7 @@ set(opennask_SRCS
 if (WIN32)
   LIST(APPEND opennask_SRCS getopt.h getopt.c)
   add_definitions(-Dstrcasecmp=_stricmp)
+  set_property(TARGET opennask APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
 endif()
 
 
