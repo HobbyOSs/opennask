@@ -1,12 +1,3 @@
-#define XSTR(x) #x
-#define STR(x)  XSTR(x)
-
-#define FUNC_STR(x) \
-     const auto fp_ ## x = std::bind(&nask_utility::Instructions::process_token_ ## x, inst, _1, _2); \
-     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
-
-#define X_INST_ITEM(x) FUNC_STR(x)
-
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -41,57 +32,46 @@ int process_each_assembly_line(char** argv,
      auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
 
 
-     static meta::funcs_type funcs;
+
      static nask_utility::Instructions inst;
+     using InstAlias = nask_utility::Instructions;
 
-//
-// 以下のような関数ポインタを生成している
-//#define FUNC_STR(x) \
-//     const auto fp_ ## x = std::bind(&nask_utility::Instructions::process_token_ ## x, inst, _1, _2); \
-//     funcs.insert(std::make_pair(XSTR(x) , fp_ ## x));
-
-     // 角括弧はそのまま使えないのでここで定義
-     const auto fp_BRACKET = std::bind(&nask_utility::Instructions::process_token_BRACKET, inst, _1, _2);
-     funcs.insert(std::make_pair("\[" , fp_BRACKET));
-
-#define X_TABLE \
-  X_INST_ITEM(ADD)    \
-  X_INST_ITEM(ALIGNB) \
-  X_INST_ITEM(AND)    \
-  X_INST_ITEM(CALL)   \
-  X_INST_ITEM(CLI)    \
-  X_INST_ITEM(CMP)    \
-  X_INST_ITEM(DB)     \
-  X_INST_ITEM(DD)     \
-  X_INST_ITEM(DW)     \
-  X_INST_ITEM(GLOBAL) \
-  X_INST_ITEM(HLT)    \
-  X_INST_ITEM(IMUL)   \
-  X_INST_ITEM(IN)     \
-  X_INST_ITEM(INT)    \
-  X_INST_ITEM(JAE)    \
-  X_INST_ITEM(JBE)    \
-  X_INST_ITEM(JB)     \
-  X_INST_ITEM(JC)     \
-  X_INST_ITEM(JE)     \
-  X_INST_ITEM(JMP)    \
-  X_INST_ITEM(JNC)    \
-  X_INST_ITEM(JNZ)    \
-  X_INST_ITEM(JZ)     \
-  X_INST_ITEM(LGDT)   \
-  X_INST_ITEM(MOV)    \
-  X_INST_ITEM(NOP)    \
-  X_INST_ITEM(OR)     \
-  X_INST_ITEM(ORG)    \
-  X_INST_ITEM(OUT)    \
-  X_INST_ITEM(RET)    \
-  X_INST_ITEM(RESB)   \
-  X_INST_ITEM(SHR)    \
-  X_INST_ITEM(SUB)
-
-#define NASK_INSTRACTIONS
-     X_TABLE
-#undef NASK_INSTRACTIONS
+     static meta::funcs_type funcs {
+	  std::make_pair("\["	  , std::bind(&InstAlias::process_token_BRACKET , inst, _1, _2)),
+	  std::make_pair("ADD"	  , std::bind(&InstAlias::process_token_ADD	, inst, _1, _2)),
+	  std::make_pair("ALIGNB" , std::bind(&InstAlias::process_token_ALIGNB  , inst, _1, _2)),
+	  std::make_pair("AND"	  , std::bind(&InstAlias::process_token_AND	, inst, _1, _2)),
+	  std::make_pair("CALL"	  , std::bind(&InstAlias::process_token_CALL	, inst, _1, _2)),
+	  std::make_pair("CLI"	  , std::bind(&InstAlias::process_token_CLI	, inst, _1, _2)),
+	  std::make_pair("CMP"	  , std::bind(&InstAlias::process_token_CMP	, inst, _1, _2)),
+	  std::make_pair("DB"	  , std::bind(&InstAlias::process_token_DB	, inst, _1, _2)),
+	  std::make_pair("DD"	  , std::bind(&InstAlias::process_token_DD	, inst, _1, _2)),
+	  std::make_pair("DW"	  , std::bind(&InstAlias::process_token_DW	, inst, _1, _2)),
+	  std::make_pair("GLOBAL" , std::bind(&InstAlias::process_token_GLOBAL  , inst, _1, _2)),
+	  std::make_pair("HLT"	  , std::bind(&InstAlias::process_token_HLT	, inst, _1, _2)),
+	  std::make_pair("IMUL"	  , std::bind(&InstAlias::process_token_IMUL	, inst, _1, _2)),
+	  std::make_pair("IN"	  , std::bind(&InstAlias::process_token_IN	, inst, _1, _2)),
+	  std::make_pair("INT"	  , std::bind(&InstAlias::process_token_INT	, inst, _1, _2)),
+	  std::make_pair("JAE"	  , std::bind(&InstAlias::process_token_JAE	, inst, _1, _2)),
+	  std::make_pair("JBE"	  , std::bind(&InstAlias::process_token_JBE	, inst, _1, _2)),
+	  std::make_pair("JB"	  , std::bind(&InstAlias::process_token_JB	, inst, _1, _2)),
+	  std::make_pair("JC"	  , std::bind(&InstAlias::process_token_JC	, inst, _1, _2)),
+	  std::make_pair("JE"	  , std::bind(&InstAlias::process_token_JE	, inst, _1, _2)),
+	  std::make_pair("JMP"	  , std::bind(&InstAlias::process_token_JMP	, inst, _1, _2)),
+	  std::make_pair("JNC"	  , std::bind(&InstAlias::process_token_JNC	, inst, _1, _2)),
+	  std::make_pair("JNZ"	  , std::bind(&InstAlias::process_token_JNZ	, inst, _1, _2)),
+	  std::make_pair("JZ"	  , std::bind(&InstAlias::process_token_JZ	, inst, _1, _2)),
+	  std::make_pair("LGDT"	  , std::bind(&InstAlias::process_token_LGDT	, inst, _1, _2)),
+	  std::make_pair("MOV"	  , std::bind(&InstAlias::process_token_MOV	, inst, _1, _2)),
+	  std::make_pair("NOP"	  , std::bind(&InstAlias::process_token_NOP	, inst, _1, _2)),
+	  std::make_pair("OR"	  , std::bind(&InstAlias::process_token_OR	, inst, _1, _2)),
+	  std::make_pair("ORG"	  , std::bind(&InstAlias::process_token_ORG	, inst, _1, _2)),
+	  std::make_pair("OUT"	  , std::bind(&InstAlias::process_token_OUT	, inst, _1, _2)),
+	  std::make_pair("RET"	  , std::bind(&InstAlias::process_token_RET	, inst, _1, _2)),
+	  std::make_pair("RESB"	  , std::bind(&InstAlias::process_token_RESB	, inst, _1, _2)),
+	  std::make_pair("SHR"	  , std::bind(&InstAlias::process_token_SHR	, inst, _1, _2)),
+	  std::make_pair("SUB"	  , std::bind(&InstAlias::process_token_SUB	, inst, _1, _2))
+     };
 
      if (start_line != 0) {
 	  // 開始位置まで飛ばす
