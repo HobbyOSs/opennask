@@ -2127,6 +2127,22 @@ namespace nask_utility {
 		    break;
 	       } else {
 		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
+
+			 std::smatch match;
+			 log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+			 const std::string src_reg = token.AsString();
+
+			 if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+			      log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			      log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			      binout_container.push_back(0x66);
+			 } else {
+			      log()->info("Register-size prefix is absent");
+			 }
+
 			 if (tokenizer.LookAhead(2).Is("DX")) {
 			      const uint8_t nim = token.Is("AL") ? 0xec : 0xed;
 			      log()->info("NIM(B): 0x{:02x}", nim);
