@@ -170,6 +170,7 @@ namespace nask_utility {
 	  int process_token_OUT    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_POP    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_POPF   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_PUSH   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_PUSHF  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RET    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
