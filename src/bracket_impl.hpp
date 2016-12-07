@@ -238,11 +238,14 @@ namespace nask_utility {
 	  // シンボル数を確定させる
 	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
 	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
-	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
+	  set_dword_into_binout(number_of_symbols, binout_container, false, 8 /** 12 */);
+
+	  // 8byteより大きい
+	  std::vector<std::string> long_symbol_list;
 
 	  for ( size_t i = 0; i < inst.symbol_list.size(); i++) {
-	       // 関数などのシンボル情報を書き込む
-	       std::string symbol_name = inst.symbol_list[i];
+
+	       const std::string symbol_name = inst.symbol_list[i];
 	       log()->info("symbol[{}/{}]", i+1, inst.symbol_list.size());
 
 	       if (symbol_name.size() <= 8) {
@@ -250,7 +253,7 @@ namespace nask_utility {
 		    log()->info("write short symbol name: {}", real_symbol_name);
 
 		    NAS_PIMAGE_SYMBOL func = {
-			 { 0, 0, 0, 0, 0, 0, 0, 0 /* shortName */ },
+			 { 0, 0, 0, 0, 0, 0, 0, 0 },
 			 0x00000000,
 			 WCOFF_TEXT_FIELD,
 			 0x0000,
@@ -258,44 +261,36 @@ namespace nask_utility {
 		    };
 
 		    std::copy(real_symbol_name.begin(), real_symbol_name.end(), func.shortName);
+		    auto fn_buffer = create_buffer(func);
+		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+	       } else {
+		    const std::string real_symbol_name = symbol_name;
+		    log()->info("only record long symbol name: {}", real_symbol_name);
+
+		    NAS_PIMAGE_SYMBOL func = {
+			 { 0, 0, 0, 0, 0, 0, 0, 0 },
+			 0x00000000,
+			 WCOFF_TEXT_FIELD,
+			 0x0000,
+			 0x02, 0x00
+		    };
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-		    log()->info("wrote {} byte", sizeof(NAS_PIMAGE_SYMBOL));
-
-		    // これで最後なら0x04を入れる
-		    if (i+1 == inst.symbol_list.size()) {
-			 binout_container.push_back(0x04);
-		    } else {
-			 binout_container.push_back(0x00);
-		    }
-		    binout_container.push_back(0x00);
-		    binout_container.push_back(0x00);
-		    binout_container.push_back(0x00);
-
-	       } else {
-		    // 8byte以上
-		    const std::string real_symbol_name = symbol_name;
-		    log()->info("write short symbol name: {}", real_symbol_name);
-
-		    NAS_PIMAGE_SYMBOL long_file = {
-			 { 0x04, 0, 0, 0, 0x02, 0, 0, 0 /* shortName */ },
-			 0x00000001,
-			 WCOFF_DATA_FIELD,
-			 0x0010,
-			 0x00, 0x00
-		    };
-
-		    auto fn_buffer = create_buffer(long_file);
-		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-		    log()->info("wrote {} byte", sizeof(NAS_PIMAGE_SYMBOL));
-
-		    std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
-		    const std::string symbols = trim(symbol_name_hex);
-
-		    set_hexstring_into_binout(symbols, binout_container, false);
-		    binout_container.push_back(0x00);
+		    long_symbol_list.push_back(inst.symbol_list.at(i));
 	       }
+	  }
+
+	  // long symbolを書き込む
+	  for ( size_t i = 0; i < long_symbol_list.size(); i++ ) {
+	       log()->info("long symbol[{}/{}]", i+1, long_symbol_list.size());
+	       const std::string real_symbol_name = long_symbol_list.at(i);
+	       std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
+	       const std::string symbols = trim(symbol_name_hex);
+
+	       log()->info("write long symbol name: {}", real_symbol_name);
+	       set_hexstring_into_binout(symbols, binout_container, false);
+	       binout_container.push_back(0x00);
 	  }
      }
 
