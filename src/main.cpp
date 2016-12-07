@@ -93,6 +93,17 @@ int process_each_assembly_line(char** argv,
 	  /* 行数チェック */
 	  logger->info("{}: {}", line_number, input);
 
+	  // シンボルテーブル用にシンボル情報を保持する
+	  if (nask_utility::starts_with(input, "_")) {
+	       std::smatch match;
+	       using namespace std::regex_constants;
+	       const std::regex symbol_reg("^_[a-z0-9_]*:[^:]*$", extended | icase);
+
+	       if (regex_match(input, match, symbol_reg)) {
+		    logger->info("coming another symbol string");
+	       }
+	  }
+
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
 	       std::string label_dst = input.substr(0, input.find(":", 0));

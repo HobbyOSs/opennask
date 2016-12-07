@@ -1835,10 +1835,7 @@ namespace nask_utility {
 			      const std::bitset<8> bs_dst("0011110" + std::get<1>(tp_dst));
 
 			      // debug logs
-			      log()->info("NIM(B): {}, {}",
-					  static_cast<int>(bs_dst.to_ulong()),
-					  static_cast<int>(src_imm));
-
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_imm);
 			      binout_container.push_back(bs_dst.to_ulong());
 			      binout_container.push_back(src_imm);
 
@@ -1869,10 +1866,10 @@ namespace nask_utility {
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): {}, {}, {}",
-					       static_cast<int>(0x80),
-					       static_cast<int>(bs_dst2.to_ulong()),
-					       static_cast<int>(src_imm));
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					       0x80,
+					       bs_dst2.to_ulong(),
+					       src_imm);
 
 				   binout_container.push_back(0x80);
 				   binout_container.push_back(bs_dst2.to_ulong());
