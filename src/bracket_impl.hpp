@@ -254,7 +254,7 @@ namespace nask_utility {
 
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
-			 0x00000000,
+			 0x00000000, // Value
 			 WCOFF_TEXT_FIELD,
 			 0x0000,
 			 0x02, 0x00
@@ -263,6 +263,13 @@ namespace nask_utility {
 		    std::copy(real_symbol_name.begin(), real_symbol_name.end(), func.shortName);
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+
+		    log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
+		    log()->info("[value] 0x{:08}", func.value);
+		    log()->info("[sNumb] 0x{:04}", func.sectionNumber);
+		    log()->info("[_type] 0x{:04}", func.type);
+		    log()->info("[class] 0x{:02}", func.storageClass);
+		    log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
 	       } else {
 		    const std::string real_symbol_name = symbol_name;
 		    log()->info("only record long symbol name: {}", real_symbol_name);
