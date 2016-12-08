@@ -34,6 +34,7 @@ int process_each_assembly_line(char** argv,
 
 
      static nask_utility::Instructions inst;
+     static std::string current_symbol = "";
      using InstAlias = nask_utility::Instructions;
 
      static meta::funcs_type funcs {
@@ -92,6 +93,27 @@ int process_each_assembly_line(char** argv,
 
 	  /* 行数チェック */
 	  logger->info("{}: {}", line_number, input);
+
+	  // シンボルテーブル用にシンボル情報を保持する
+	  if (nask_utility::starts_with(input, "_")) {
+	       using namespace std::regex_constants;
+	       const std::regex symbol_reg("^(_[a-z0-9_]*):[^:]*$", extended | icase);
+	       std::smatch match;
+
+	       if (std::regex_search(input, match, symbol_reg) && match.size() > 1) {
+		    if (current_symbol == "") {
+			 inst.symbol_offsets["_"] = 0; // placeholder
+			 inst.symbol_offsets[match[1].str()] = 0;
+			 current_symbol = match[1].str();
+			 logger->info("[detect] symbol: {}, offs size: {}", current_symbol, 0);
+		    } else {
+			 const size_t already_counted = inst.symbol_offsets["_"];
+			 logger->info("[detect] symbol: {}, offs size: {}", current_symbol, already_counted);
+			 inst.symbol_offsets[match[1].str()] = already_counted;
+			 current_symbol = match[1].str();
+		    }
+	       }
+	  }
 
 	  // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
 	  if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
@@ -182,8 +204,17 @@ int process_each_assembly_line(char** argv,
 			 meta::funcs_type::iterator it = funcs.find(token.AsString());
 			 if (it != funcs.end()) {
 			      logger->info("eval {}", token.AsString());
+
 			      try {
-				   int r = it->second(tokenizer, binout_container);
+				   const size_t before_process_size = binout_container.size();
+				   const int r = it->second(tokenizer, binout_container);
+				   const size_t offs = binout_container.size() - before_process_size;
+				   if (current_symbol != "") {
+					const size_t s = inst.symbol_offsets["_"];
+					inst.symbol_offsets["_"] = s + offs;
+					logger->info("symbol: {}, offs size: {}", current_symbol, s + offs);
+				   }
+
 				   if (r != 0) {
 					// エラーがあった行を表示
 					logger->info(input);

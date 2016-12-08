@@ -512,6 +512,7 @@ namespace nask_utility {
      LABEL_SRC_STACK Instructions::label_src_stack;
      std::map<std::string, std::string> Instructions::equ_map;
      std::vector<std::string> Instructions::symbol_list;
+     std::map<std::string, size_t> Instructions::symbol_offsets;
      std::string Instructions::data_type;
      std::map<uint32_t, std::string> Instructions::support_cpus;
 
@@ -866,7 +867,6 @@ namespace nask_utility {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			 binout_container.push_back(0x67);
 		    }
-
 		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
@@ -1118,7 +1118,7 @@ namespace nask_utility {
 		    std::smatch match;
 		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 
-		    if (this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else {
@@ -1835,10 +1835,7 @@ namespace nask_utility {
 			      const std::bitset<8> bs_dst("0011110" + std::get<1>(tp_dst));
 
 			      // debug logs
-			      log()->info("NIM(B): {}, {}",
-					  static_cast<int>(bs_dst.to_ulong()),
-					  static_cast<int>(src_imm));
-
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_imm);
 			      binout_container.push_back(bs_dst.to_ulong());
 			      binout_container.push_back(src_imm);
 
@@ -1869,10 +1866,10 @@ namespace nask_utility {
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): {}, {}, {}",
-					       static_cast<int>(0x80),
-					       static_cast<int>(bs_dst2.to_ulong()),
-					       static_cast<int>(src_imm));
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					       0x80,
+					       bs_dst2.to_ulong(),
+					       src_imm);
 
 				   binout_container.push_back(0x80);
 				   binout_container.push_back(bs_dst2.to_ulong());
@@ -2039,13 +2036,17 @@ namespace nask_utility {
 		    continue;
 	       } else {
 		    if (!token.IsEmpty()) {
-			 log()->info("Add new symbol: {}", token.AsString());
-			 symbol_list.push_back(token.AsString());
+			 const std::string head_symbol = trim(token.AsString());
+			 log()->info("Add new symbol: {}", head_symbol);
+			 symbol_list.push_back(head_symbol);
+			 symbol_offsets[head_symbol] = 0;
 
 			 for ( size_t i = 2; ; i+=2) {
 			      if ( !tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i-1).Is(",")) {
-				   log()->info("Add new symbol: {}", tokenizer.LookAhead(i).AsString());
-				   symbol_list.push_back(tokenizer.LookAhead(i).AsString());
+				   const std::string tail = trim(tokenizer.LookAhead(i).AsString());
+				   log()->info("Add new symbol: {}", tail);
+				   symbol_list.push_back(tail);
+				   symbol_offsets[tail] = 0;
 			      } else {
 				   break;
 			      }
