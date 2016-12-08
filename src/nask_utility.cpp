@@ -867,7 +867,6 @@ namespace nask_utility {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			 binout_container.push_back(0x67);
 		    }
-
 		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
@@ -1119,7 +1118,7 @@ namespace nask_utility {
 		    std::smatch match;
 		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 
-		    if (this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else {
