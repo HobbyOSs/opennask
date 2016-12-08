@@ -242,6 +242,7 @@ namespace nask_utility {
 
 	  // 8byteより大きい
 	  std::vector<std::string> long_symbol_list;
+	  uint32_t long_symbols_size = 4; // これ自体(4byte)
 
 	  for ( size_t i = 0; i < inst.symbol_list.size(); i++) {
 
@@ -284,18 +285,21 @@ namespace nask_utility {
 			 0x02, 0x00
 		    };
 
+		    func.shortName[7] = (long_symbols_size >> 24) & 0xff;
+		    func.shortName[6] = (long_symbols_size >> 16) & 0xff;
+		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
+		    func.shortName[4] = long_symbols_size & 0xff;
+
+		    // シンボルサイズ + 1 (0x00)
+		    long_symbols_size += real_symbol_name.size() + 1;
+
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
 		    long_symbol_list.push_back(inst.symbol_list.at(i));
 	       }
 	  }
 
-	  // "long symbol" + 終端文字 + DWORDサイズ = をここに書き込む
-	  uint32_t long_symbols_size = 1 + 8; // 0x00 + これ自体(8byte)
-	  std::for_each(long_symbol_list.begin(), long_symbol_list.end(),
-			[&long_symbols_size] (const std::string& long_symbol) -> void {
-			     long_symbols_size += long_symbol.size();
-			});
+	  // ("long symbol" + 終端文字) * "long symbol"の数 + DWORDサイズ = をここに書き込む
 	  set_dword_into_binout(long_symbols_size, binout_container);
 
 	  // long symbolを書き込む
