@@ -2040,12 +2040,14 @@ namespace nask_utility {
 			 const std::string head_symbol = trim(token.AsString());
 			 log()->info("Add new symbol: {}", head_symbol);
 			 symbol_list.push_back(head_symbol);
+			 symbol_offsets[head_symbol] = 0;
 
 			 for ( size_t i = 2; ; i+=2) {
 			      if ( !tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i-1).Is(",")) {
 				   const std::string tail = trim(tokenizer.LookAhead(i).AsString());
 				   log()->info("Add new symbol: {}", tail);
 				   symbol_list.push_back(tail);
+				   symbol_offsets[tail] = 0;
 			      } else {
 				   break;
 			      }

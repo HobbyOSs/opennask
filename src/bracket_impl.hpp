@@ -246,7 +246,9 @@ namespace nask_utility {
 	  for ( size_t i = 0; i < inst.symbol_list.size(); i++) {
 
 	       const std::string symbol_name = inst.symbol_list[i];
+	       const uint32_t value = inst.symbol_offsets[symbol_name];
 	       log()->info("symbol[{}/{}]", i+1, inst.symbol_list.size());
+	       log()->info("symbol: {}, offs size: {}", inst.symbol_list[i], value);
 
 	       if (symbol_name.size() <= 8) {
 		    const std::string real_symbol_name = symbol_name;
@@ -254,7 +256,7 @@ namespace nask_utility {
 
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
-			 0x00000000, // Value
+			 value,
 			 WCOFF_TEXT_FIELD,
 			 0x0000,
 			 0x02, 0x00
@@ -276,7 +278,7 @@ namespace nask_utility {
 
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
-			 0x00000000,
+			 value,
 			 WCOFF_TEXT_FIELD,
 			 0x0000,
 			 0x02, 0x00
