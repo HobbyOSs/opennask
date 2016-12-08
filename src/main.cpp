@@ -110,7 +110,6 @@ int process_each_assembly_line(char** argv,
 			 const size_t already_counted = inst.symbol_offsets["_"];
 			 logger->info("[detect] symbol: {}, offs size: {}", current_symbol, already_counted);
 			 inst.symbol_offsets[match[1].str()] = already_counted;
-			 inst.symbol_offsets["_"] = 0; // placeholder
 			 current_symbol = match[1].str();
 		    }
 	       }
