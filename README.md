@@ -40,3 +40,14 @@ $ ninja 03_day_harib00i_run
 ```
 
 You can use `make` command instead of `ninja`
+
+
+## Screenshots
+
+| day3 harib00j | day4 harib01a |
+|---------------|---------------|
+|![harib00j](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib00j.png)|![harib01a](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib01a.png)|
+
+| day4 harib01d | day5 harib02a |
+|---------------|---------------|
+|![harib01d](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib01d.png)|![harib02a](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02a.png)|
