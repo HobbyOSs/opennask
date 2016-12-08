@@ -290,6 +290,14 @@ namespace nask_utility {
 	       }
 	  }
 
+	  // "long symbol" + 終端文字 + DWORDサイズ = をここに書き込む
+	  uint32_t long_symbols_size = 1 + 8; // 0x00 + これ自体(8byte)
+	  std::for_each(long_symbol_list.begin(), long_symbol_list.end(),
+			[&long_symbols_size] (const std::string& long_symbol) -> void {
+			     long_symbols_size += long_symbol.size();
+			});
+	  set_dword_into_binout(long_symbols_size, binout_container);
+
 	  // long symbolを書き込む
 	  for ( size_t i = 0; i < long_symbol_list.size(); i++ ) {
 	       log()->info("long symbol[{}/{}]", i+1, long_symbol_list.size());
