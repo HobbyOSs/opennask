@@ -163,6 +163,7 @@ namespace nask_utility {
 	  const uint32_t offset = binout_container.size();
 	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
 	  set_dword_into_binout(offset, binout_container, false, 8);
+
 	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
 	  set_dword_into_binout(offset, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 24);
 
@@ -238,7 +239,7 @@ namespace nask_utility {
 	  // シンボル数を確定させる
 	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
 	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
-	  set_dword_into_binout(number_of_symbols, binout_container, false, 8 /** 12 */);
+	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
 
 	  // 8byteより大きい
 	  std::vector<std::string> long_symbol_list;
