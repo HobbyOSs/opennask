@@ -241,26 +241,36 @@ int main(int argc, char** argv) {
      int opt, i, option_index;
 
      struct option long_options[] = {
-	  {"help",       no_argument,        NULL, 'h'},
-	  {0, 0, 0, 0}// 配列の最後はすべて0で埋める
+	  { "version", no_argument, NULL, 'v' },
+	  { "help",    no_argument, NULL, 'h' },
+	  { 0, 0, 0, 0 }// 配列の最後はすべて0で埋める
      };
 
      while((opt = getopt_long(argc, argv, "mes:", long_options, &option_index)) != -1){
 	  switch(opt){
+	  case 'v':
+	       printf("opennask " OPENNASK_VERSION "\n");
+	       printf("Copyright (C) 2016 Hiroyuki Nagata.\n"
+		      "ライセンス GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
+		      "This is free software: you are free to change and redistribute it.\n"
+		      "There is NO WARRANTY, to the extent permitted by law.\n"
+		      "\n"
+		      "Thank you osask project !\n");
+	       return 0;
 	  case 'h':
-	       printf("usage:  [help] source [object/binary] [list]\n");
+	       printf("usage:  [--help | --version] source [object/binary] [list]\n");
 	       return 0;
 	       // 解析できないオプションが見つかった場合は「?」を返す
 	       // オプション引数が不足している場合も「?」を返す
 	  case '?':
 	       printf("unknown or required argument option -%c\n", optopt);
-	       printf("usage:  [help] source [object/binary] [list]\n");
+	       printf("usage:  [--help | --version] source [object/binary] [list]\n");
 	       return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
 	  }
      }
 
      if (argc - optind < 2 || argc - optind > 4) {
-	  std::cerr << "usage:  [--help] source [object/binary] [list]" << std::endl;
+	  std::cerr << "usage:  [--help | --version] source [object/binary] [list]" << std::endl;
 	  return 16;
      }
      const char* assembly_src = argv[optind];
