@@ -2,6 +2,8 @@
 message(STATUS "Entering directory projects/05_day/harib02a/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(05_day_harib02a_OS    ${root_BINARY_DIR}/projects/05_day/harib02a/os.img)
 set(05_day_harib02a_SYS	  ${root_BINARY_DIR}/projects/05_day/harib02a/os.sys)
 set(05_day_harib02a_IPLB  ${root_BINARY_DIR}/projects/05_day/harib02a/ipl.bin)
@@ -12,8 +14,9 @@ set(05_day_harib02a_BOOTB ${root_BINARY_DIR}/projects/05_day/harib02a/boot.bin)
 set(05_day_harib02a_CCO	  ${root_BINARY_DIR}/projects/05_day/harib02a/boot.o)
 set(05_day_harib02a_CCS	  ${root_SOURCE_DIR}/projects/05_day/harib02a/*.c)
 set(05_day_harib02a_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
-set(05_day_harib02a_FUNCO ${root_BINARY_DIR}/projects/05_day/harib02a/naskfunc.o)
 set(05_day_harib02a_FUNCS ${root_SOURCE_DIR}/projects/05_day/harib02a/naskfunc.nas)
+set(05_day_harib02a_FUNCO ${root_BINARY_DIR}/projects/05_day/harib02a/naskfunc.o)
+set(05_day_harib02a_WILDOBJ ${root_BINARY_DIR}/projects/05_day/harib02a/*.o)
 
 add_custom_target(05_day_harib02a_run
   COMMAND ${QEMU} ${QEMUOPT} ${05_day_harib02a_OS}
@@ -29,17 +32,15 @@ add_custom_target(05_day_harib02a_clean
   COMMAND rm -f ${05_day_harib02a_IPLB}
   COMMAND rm -f ${05_day_harib02a_HEADB}
   COMMAND rm -f ${05_day_harib02a_BOOTB}
-  COMMAND rm -f ${05_day_harib02a_CCO}
-  COMMAND rm -f ${05_day_harib02a_FUNCO}
+  COMMAND rm -f ${05_day_harib02a_WILDOBJ}
 )
 add_custom_target(05_day_harib02a_ipl
   COMMAND ${NASK} ${05_day_harib02a_IPLS} ${05_day_harib02a_IPLB}
 )
 add_custom_target(05_day_harib02a_sys
-  COMMAND ${NASK} ${05_day_harib02a_FUNCS} ${05_day_harib02a_FUNCO}
   COMMAND ${NASK} ${05_day_harib02a_HEADS} ${05_day_harib02a_HEADB}
   COMMAND ${NASK} ${05_day_harib02a_FUNCS} ${05_day_harib02a_FUNCO}
-  COMMAND gcc ${BINOPT} -T ${05_day_harib02a_LDS} ${05_day_harib02a_CCS} ${05_day_harib02a_FUNCO} -o ${05_day_harib02a_BOOTB}
+  COMMAND gcc ${BINOPT} -T ${05_day_harib02a_LDS} ${05_day_harib02a_CCS} ${05_day_harib02a_WILDOBJ} -o ${05_day_harib02a_BOOTB}
   COMMAND cat ${05_day_harib02a_HEADB} ${05_day_harib02a_BOOTB} > ${05_day_harib02a_SYS}
   DEPENDS 05_day_harib02a_ipl
 )

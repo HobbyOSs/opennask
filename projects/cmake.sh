@@ -78,6 +78,8 @@ do
 	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                            | tee -a ${CMAKELISTS}
 	echo ""								                              | tee -a ${CMAKELISTS}
         echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                             | tee -a ${CMAKELISTS}
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                             | tee -a ${CMAKELISTS}
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                              | tee -a ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"            | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_IPLB  \${root_BINARY_DIR}/projects/${NAS_DIR}/ipl.bin)"	      | tee -a ${CMAKELISTS}
@@ -89,9 +91,16 @@ do
 	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/os.lds)"		              | tee -a ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"    | tee -a ${CMAKELISTS}
 	    echo "set(${NAS_DIR_TARGET}_FUNCS \${root_SOURCE_DIR}/projects/${NAS_DIR}/naskfunc.nas)"  | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"    | tee -a ${CMAKELISTS}
 	fi
+	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
+	    echo "set(${NAS_DIR_TARGET}_FONTS \${root_SOURCE_DIR}/projects/${NAS_DIR}/hankaku.txt)"   | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FONTB \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.bin)"   | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FONTO \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.o)"     | tee -a ${CMAKELISTS}
+	fi
+	echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"	      | tee -a ${CMAKELISTS}
+
 	echo ""		        							              | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                | tee -a ${CMAKELISTS}
@@ -107,22 +116,20 @@ do
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_IPLB}"                                             | tee -a ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_HEADB}"                                            | tee -a ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                            | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_CCO}"                                              | tee -a ${CMAKELISTS}
-	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-	    echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_FUNCO}"                                        | tee -a ${CMAKELISTS}
-	fi
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                          | tee -a ${CMAKELISTS}
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	              | tee -a ${CMAKELISTS}
 	echo ")"                                                                                      | tee -a ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                | tee -a ${CMAKELISTS}
+        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
+	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"         | tee -a ${CMAKELISTS}
+	    echo "  COMMAND \${B2O} \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku" | tee -a ${CMAKELISTS}
+	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
             echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}
-	fi
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
-	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"          | tee -a ${CMAKELISTS}
-	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_FUNCO} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
+	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
 	else
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
 	fi

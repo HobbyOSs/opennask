@@ -2,6 +2,8 @@
 message(STATUS "Entering directory projects/06_day/harib03b/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(06_day_harib03b_OS    ${root_BINARY_DIR}/projects/06_day/harib03b/os.img)
 set(06_day_harib03b_SYS	  ${root_BINARY_DIR}/projects/06_day/harib03b/os.sys)
 set(06_day_harib03b_IPLB  ${root_BINARY_DIR}/projects/06_day/harib03b/ipl.bin)
@@ -12,8 +14,12 @@ set(06_day_harib03b_BOOTB ${root_BINARY_DIR}/projects/06_day/harib03b/boot.bin)
 set(06_day_harib03b_CCO	  ${root_BINARY_DIR}/projects/06_day/harib03b/boot.o)
 set(06_day_harib03b_CCS	  ${root_SOURCE_DIR}/projects/06_day/harib03b/*.c)
 set(06_day_harib03b_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
-set(06_day_harib03b_FUNCO ${root_BINARY_DIR}/projects/06_day/harib03b/naskfunc.o)
 set(06_day_harib03b_FUNCS ${root_SOURCE_DIR}/projects/06_day/harib03b/naskfunc.nas)
+set(06_day_harib03b_FUNCO ${root_BINARY_DIR}/projects/06_day/harib03b/naskfunc.o)
+set(06_day_harib03b_FONTS ${root_SOURCE_DIR}/projects/06_day/harib03b/hankaku.txt)
+set(06_day_harib03b_FONTB ${root_BINARY_DIR}/projects/06_day/harib03b/hankaku.bin)
+set(06_day_harib03b_FONTO ${root_BINARY_DIR}/projects/06_day/harib03b/hankaku.o)
+set(06_day_harib03b_WILDOBJ ${root_BINARY_DIR}/projects/06_day/harib03b/*.o)
 
 add_custom_target(06_day_harib03b_run
   COMMAND ${QEMU} ${QEMUOPT} ${06_day_harib03b_OS}
@@ -29,17 +35,17 @@ add_custom_target(06_day_harib03b_clean
   COMMAND rm -f ${06_day_harib03b_IPLB}
   COMMAND rm -f ${06_day_harib03b_HEADB}
   COMMAND rm -f ${06_day_harib03b_BOOTB}
-  COMMAND rm -f ${06_day_harib03b_CCO}
-  COMMAND rm -f ${06_day_harib03b_FUNCO}
+  COMMAND rm -f ${06_day_harib03b_WILDOBJ}
 )
 add_custom_target(06_day_harib03b_ipl
   COMMAND ${NASK} ${06_day_harib03b_IPLS} ${06_day_harib03b_IPLB}
 )
 add_custom_target(06_day_harib03b_sys
-  COMMAND ${NASK} ${06_day_harib03b_FUNCS} ${06_day_harib03b_FUNCO}
   COMMAND ${NASK} ${06_day_harib03b_HEADS} ${06_day_harib03b_HEADB}
+  COMMAND ${FONT} ${06_day_harib03b_FONTS} ${06_day_harib03b_FONTB}
+  COMMAND ${B2O} ${06_day_harib03b_FONTB} ${06_day_harib03b_FONTO} _hankaku
   COMMAND ${NASK} ${06_day_harib03b_FUNCS} ${06_day_harib03b_FUNCO}
-  COMMAND gcc ${BINOPT} -T ${06_day_harib03b_LDS} ${06_day_harib03b_CCS} ${06_day_harib03b_FUNCO} -o ${06_day_harib03b_BOOTB}
+  COMMAND gcc ${BINOPT} -T ${06_day_harib03b_LDS} ${06_day_harib03b_CCS} ${06_day_harib03b_WILDOBJ} -o ${06_day_harib03b_BOOTB}
   COMMAND cat ${06_day_harib03b_HEADB} ${06_day_harib03b_BOOTB} > ${06_day_harib03b_SYS}
   DEPENDS 06_day_harib03b_ipl
 )

@@ -2,6 +2,8 @@
 message(STATUS "Entering directory projects/03_day/harib00d/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(03_day_harib00d_OS    ${root_BINARY_DIR}/projects/03_day/harib00d/os.img)
 set(03_day_harib00d_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00d/os.sys)
 set(03_day_harib00d_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00d/ipl.bin)
@@ -12,6 +14,7 @@ set(03_day_harib00d_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00d/boot.bin)
 set(03_day_harib00d_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00d/boot.o)
 set(03_day_harib00d_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00d/*.c)
 set(03_day_harib00d_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
+set(03_day_harib00d_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00d/*.o)
 
 add_custom_target(03_day_harib00d_ipl_run
   COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00d_OS}
@@ -27,7 +30,7 @@ add_custom_target(03_day_harib00d_ipl_clean
   COMMAND rm -f ${03_day_harib00d_IPLB}
   COMMAND rm -f ${03_day_harib00d_HEADB}
   COMMAND rm -f ${03_day_harib00d_BOOTB}
-  COMMAND rm -f ${03_day_harib00d_CCO}
+  COMMAND rm -f ${03_day_harib00d_WILDOBJ}
 )
 add_custom_target(03_day_harib00d_ipl_ipl
   COMMAND ${NASK} ${03_day_harib00d_IPLS} ${03_day_harib00d_IPLB}
