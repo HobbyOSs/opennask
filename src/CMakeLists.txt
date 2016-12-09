@@ -5,6 +5,13 @@ set(opennask_VERSION \"0.0.3\")
 
 ########### next target ###############
 
+set(makefont_SRCS
+    makefont.c)
+
+add_executable(makefont ${makefont_SRCS})
+
+########### next target ###############
+
 set(opennask_SRCS
     main.cpp
     bracket_impl.hpp
