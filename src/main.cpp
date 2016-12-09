@@ -15,10 +15,6 @@
 
 using namespace std::placeholders;
 
-constexpr unsigned long KILOBYTE = 1024;
-constexpr unsigned long MEGABYTE = 1024 * 1024;
-constexpr unsigned long GIGABYTE = 1024 * 1024 * 1024;
-
 int process_each_assembly_line(char** argv,
 			       std::ifstream& nas_file,
 			       std::vector<uint8_t>& binout_container,
@@ -30,8 +26,6 @@ int process_each_assembly_line(char** argv,
 
      // spdlog
      auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
-
-
 
      static nask_utility::Instructions inst;
      static std::string current_symbol = "";
@@ -242,139 +236,31 @@ int process_each_assembly_line(char** argv,
      return 0;
 }
 
-
-//
-// FIXME: Currently, it's not working...
-//
-void nask_fdput(const char* img, std::vector<uint8_t>& binout_container) {
-
-#ifdef BUILD_DOSFSTOOLS
-
-#include "mkdosfs.h"
-
-     // mkdosfs: see http://elm-chan.org/docs/fat.html
-     //sector_size         = 512;  // BPB_BytsPerSec
-     //sectors_per_cluster = 128;  // BPB_SecPerClus
-#ifdef _WIN32
-     static char dev_buf[] = "\\\\.\\X:";
-#else
-     struct stat statbuf;
-#endif
-     int i = 0, pos, ch;
-     int create = 0;
-     unsigned long long cblocks;
-
-     time(&create_time);
-     volume_id = (long)create_time;	/* Default volume ID = creation time */
-     check_atari();
-
-     // C : Create a new file
-     create = TRUE;
-     // F : Choose FAT size
-     size_fat = 12;
-     size_fat_by_user = 1;
-
-     // s : Sectors per cluster
-     sectors_per_cluster = 1;
-
-     // S : Sector size
-     sector_size = 512;
-     sector_size_set = 1;
-     blocks = 2880;
-
-     off_t offset = blocks * BLOCK_SIZE - 1;
-     char null = 0;
-     /* create the file */
-     dev = open( img, O_RDWR|O_CREAT|O_TRUNC, 0666 );
-     if (dev < 0)
-	  die("unable to create %s");
-     /* seek to the intended end-1, and write one byte. this creates a
-      * sparse-as-possible file of appropriate size. */
-     if (llseek( dev, offset, SEEK_SET ) != offset)
-	  die( "seek failed" );
-     if (write( dev, &null, 1 ) < 0)
-	  die( "write failed" );
-     if (llseek( dev, 0, SEEK_SET ) != 0)
-	  die( "seek failed" );
-
-#ifdef _WIN32
-     if (!is_device)
-	  check = 0;
-     establish_params();
-#else
-     if (fstat (dev, &statbuf) < 0)
-	  die ("unable to stat %s");
-     if (!S_ISBLK (statbuf.st_mode)) {
-	  statbuf.st_rdev = 0;
-	  check = 0;
-     }
-     else
-	  /*
-	   * Ignore any 'full' fixed disk devices, if -I is not given.
-	   * On a MO-disk one doesn't need partitions.  The filesytem can go
-	   * directly to the whole disk.  Under other OSes this is known as
-	   * the 'superfloppy' format.  As I don't know how to find out if
-	   * this is a MO disk I introduce a -I (ignore) switch.  -Joey
-	   */
-	  if (!ignore_full_disk && (
-		   (statbuf.st_rdev & 0xff3f) == 0x0300 || /* hda, hdb */
-		   (statbuf.st_rdev & 0xff0f) == 0x0800 || /* sd */
-		   (statbuf.st_rdev & 0xff3f) == 0x0d00 || /* xd */
-		   (statbuf.st_rdev & 0xff3f) == 0x1600 )  /* hdc, hdd */
-	       )
-	       die ("Will not try to make filesystem on full-disk device '%s' (use -I if wanted)");
-
-     establish_params (statbuf.st_rdev,statbuf.st_size);
-     /* Establish the media parameters */
-#endif
-
-     setup_tables (sectors_per_cluster);	/* Establish the file system tables */
-     write_tables ();		/* Write the file system tables away! */
-
-#ifdef _WIN32
-     if (is_device) {
-	  if (fsctl(dev, FSCTL_DISMOUNT_VOLUME) == -1)
-	       die("unable to dismount %s");
-	  if (fsctl(dev, FSCTL_UNLOCK_VOLUME) == -1)
-	       die("unable to unlock %s");
-     }
-#endif
-
-#endif
-
-     return;
-}
-
 int main(int argc, char** argv) {
 
      int opt, i, option_index;
-     bool with_fat12 = false;
 
      struct option long_options[] = {
-	  {"with-fat12", no_argument,        NULL, 'f'},
 	  {"help",       no_argument,        NULL, 'h'},
 	  {0, 0, 0, 0}// 配列の最後はすべて0で埋める
      };
 
      while((opt = getopt_long(argc, argv, "mes:", long_options, &option_index)) != -1){
 	  switch(opt){
-	  case 'f':
-	       with_fat12 = true;
-	       break;
 	  case 'h':
-	       printf("usage:  [with-fat12 | help] source [object/binary] [list]\n");
+	       printf("usage:  [help] source [object/binary] [list]\n");
 	       return 0;
 	       // 解析できないオプションが見つかった場合は「?」を返す
 	       // オプション引数が不足している場合も「?」を返す
 	  case '?':
 	       printf("unknown or required argument option -%c\n", optopt);
-	       printf("usage:  [with-fat12 | help] source [object/binary] [list]\n");
+	       printf("usage:  [help] source [object/binary] [list]\n");
 	       return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
 	  }
      }
 
      if (argc - optind < 2 || argc - optind > 4) {
-	  std::cerr << "usage:  [--with-fat12 | --help] source [object/binary] [list]" << std::endl;
+	  std::cerr << "usage:  [--help] source [object/binary] [list]" << std::endl;
 	  return 16;
      }
      const char* assembly_src = argv[optind];
@@ -405,16 +291,9 @@ int main(int argc, char** argv) {
      // 入力の読み込みと解析，評価のループ
      process_each_assembly_line(argv, nas_file, binout_container);
 
-     if (with_fat12) {
-	  // output binary in FAT12 disk image file
-	  binout.flush();
-	  binout.close();
-	  nask_fdput(assembly_dst, binout_container);
-     } else {
-	  // output binary
-	  binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
-	  binout.close();
-     }
+     // output binary
+     binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
+     binout.close();
 
      return 0;
 }
