@@ -46,3 +46,7 @@ build_script:
   - cd build
   - cmake .. -G"Visual Studio 14 2015" -T"LLVM-vs2014" -DUSE_CPPUTEST=OFF
   - cmake --build .
+  
+artifacts:  
+  - path: 'build\src\Debug\opennask.exe'
+    name: Bin
