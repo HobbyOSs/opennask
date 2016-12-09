@@ -35,8 +35,7 @@ endif()
 
 
 include_directories(${root_SOURCE_DIR}/parasol
-                    ${root_SOURCE_DIR}/src
-                    ${root_SOURCE_DIR}/fatlib)
+                    ${root_SOURCE_DIR}/src)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
