@@ -1,0 +1,6 @@
+{
+  "name": "Opennask",
+  "tagline": "nask clone assembly, it can boot tiny OS with Linux",
+  "body": "# opennask [![Build Status](https://travis-ci.org/HobbyOSs/opennask.svg?branch=master)](https://travis-ci.org/HobbyOSs/opennask) [![Build status](https://ci.appveyor.com/api/projects/status/3y5g0uyrixr7ivgd?svg=true)](https://ci.appveyor.com/project/HobbyOSs/opennask) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)\r\nMASM / NASMっぽい80x86むけアセンブラ\r\n\r\n# ダウンロード\r\n\r\n\r\n\r\n# スクリーンショット\r\n\r\n| day3 harib00j | day4 harib01a |\r\n|---------------|---------------|\r\n|![harib00j](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib00j.png)|![harib01a](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib01a.png)|\r\n\r\n| day4 harib01d | day5 harib02a |\r\n|---------------|---------------|\r\n|![harib01d](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib01d.png)|![harib02a](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02a.png)|\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
