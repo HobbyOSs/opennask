@@ -48,5 +48,5 @@ build_script:
   - cmake --build .
   
 artifacts:  
-  - path: build\src\Release\opennask.exe
+  - path: 'C:\projects\opennask\build\src\Debug\opennask.exe'
     name: Bin
