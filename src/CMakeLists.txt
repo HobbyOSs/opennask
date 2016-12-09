@@ -12,6 +12,13 @@ add_executable(makefont ${makefont_SRCS})
 
 ########### next target ###############
 
+set(bin2obj_SRCS
+    bin2obj.c)
+
+add_executable(bin2obj ${bin2obj_SRCS})
+
+########### next target ###############
+
 set(opennask_SRCS
     main.cpp
     bracket_impl.hpp
