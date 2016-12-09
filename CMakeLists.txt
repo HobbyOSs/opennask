@@ -18,15 +18,6 @@ add_subdirectory(src)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------
-# Checks for fatlib
-#
-OPTION(USE_FATLIB "Enable feature fatlib (Dev)" OFF)
-if (USE_FATLIB)
-  add_definitions(-DUSE_FATLIB)
-  add_subdirectory(fatlib)
-endif(USE_FATLIB)
-
-#-----------------------------------------------------------------------
 # Checks for CppUTest
 #
 OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
