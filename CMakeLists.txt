@@ -15,6 +15,7 @@ set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-Wl,--oformat=binary" CACH
 
 add_subdirectory(parasol)
 add_subdirectory(src)
+add_subdirectory(golibc)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------
