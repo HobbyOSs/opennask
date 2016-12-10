@@ -1,6 +1,6 @@
 /* copyright(C) 2003 H.Kawai (under KL-01). */
 
-#include <errno.h>
+#include "errno.h"
 #include <limits.h>
 
 unsigned long strtoul0(const char **ps, int base, char *errflag);
