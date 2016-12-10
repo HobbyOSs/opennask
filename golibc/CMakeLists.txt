@@ -1,7 +1,7 @@
 message(STATUS "Entering directory golibc/")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 
-set(golibc_STAT_SRCS
+set(go_STAT_SRCS
     strcat.c
     strlen.c
     memmove.c
@@ -34,7 +34,7 @@ set(golibc_STAT_SRCS
     frexp.c
     strtoul0.c)
 
-set(golibc_HEADERS
+set(go_HEADERS
     stdarg.h
     string.h
     stddef.h
@@ -46,4 +46,4 @@ set(golibc_HEADERS
     stdlib.h
     limits.h)
 
-add_library(golibc STATIC ${golibc_STAT_SRCS})
+add_library(go STATIC ${go_STAT_SRCS})
