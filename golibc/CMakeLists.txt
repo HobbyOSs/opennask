@@ -46,4 +46,7 @@ set(go_HEADERS
     stdlib.h
     limits.h)
 
+set(GCC_COVERAGE_COMPILE_FLAGS "-m32" "-nostdlib")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+
 add_library(go STATIC ${go_STAT_SRCS})
