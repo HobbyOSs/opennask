@@ -80,6 +80,7 @@ do
         echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                             | tee -a ${CMAKELISTS}
         echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                             | tee -a ${CMAKELISTS}
         echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                              | tee -a ${CMAKELISTS}
+	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                          | tee -a ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"            | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	      | tee -a ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_IPLB  \${root_BINARY_DIR}/projects/${NAS_DIR}/ipl.bin)"	      | tee -a ${CMAKELISTS}
@@ -98,9 +99,12 @@ do
 	    echo "set(${NAS_DIR_TARGET}_FONTS \${root_SOURCE_DIR}/projects/${NAS_DIR}/hankaku.txt)"   | tee -a ${CMAKELISTS}
 	    echo "set(${NAS_DIR_TARGET}_FONTB \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.bin)"   | tee -a ${CMAKELISTS}
 	    echo "set(${NAS_DIR_TARGET}_FONTO \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.o)"     | tee -a ${CMAKELISTS}
+	    # for golibc
+            echo "set(${NAS_DIR_TARGET}_LIBGE \${root_BINARY_DIR}/golibc/libgo.a)"                    | tee -a ${CMAKELISTS}
+            echo "set(${NAS_DIR_TARGET}_LIBGC \${root_BINARY_DIR}/projects/${NAS_DIR}/libgo.o)"       | tee -a ${CMAKELISTS}
 	fi
 	echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"	      | tee -a ${CMAKELISTS}
-
+	echo ""		        							              | tee -a ${CMAKELISTS}
 	echo ""		        							              | tee -a ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                | tee -a ${CMAKELISTS}
@@ -124,8 +128,9 @@ do
 	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                | tee -a ${CMAKELISTS}
         echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
-	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"         | tee -a ${CMAKELISTS}
-	    echo "  COMMAND \${B2O} \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku" | tee -a ${CMAKELISTS}
+	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"              | tee -a ${CMAKELISTS}
+	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"     | tee -a ${CMAKELISTS}
+	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}" | tee -a ${CMAKELISTS}
 	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
             echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}

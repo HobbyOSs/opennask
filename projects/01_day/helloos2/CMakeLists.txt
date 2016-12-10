@@ -4,6 +4,7 @@ message(STATUS "Entering directory projects/01_day/helloos2/")
 set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(01_day_helloos2_OS    ${root_BINARY_DIR}/projects/01_day/helloos2/os.img)
 set(01_day_helloos2_SYS	  ${root_BINARY_DIR}/projects/01_day/helloos2/os.sys)
 set(01_day_helloos2_IPLB  ${root_BINARY_DIR}/projects/01_day/helloos2/ipl.bin)
@@ -15,6 +16,7 @@ set(01_day_helloos2_CCO	  ${root_BINARY_DIR}/projects/01_day/helloos2/boot.o)
 set(01_day_helloos2_CCS	  ${root_SOURCE_DIR}/projects/01_day/helloos2/*.c)
 set(01_day_helloos2_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(01_day_helloos2_WILDOBJ ${root_BINARY_DIR}/projects/01_day/helloos2/*.o)
+
 
 add_custom_target(01_day_helloos2_helloos_run
   COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos2_OS}

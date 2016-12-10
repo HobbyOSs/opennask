@@ -4,6 +4,7 @@ message(STATUS "Entering directory projects/04_day/harib01e/")
 set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(04_day_harib01e_OS    ${root_BINARY_DIR}/projects/04_day/harib01e/os.img)
 set(04_day_harib01e_SYS	  ${root_BINARY_DIR}/projects/04_day/harib01e/os.sys)
 set(04_day_harib01e_IPLB  ${root_BINARY_DIR}/projects/04_day/harib01e/ipl.bin)
@@ -17,6 +18,7 @@ set(04_day_harib01e_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(04_day_harib01e_FUNCS ${root_SOURCE_DIR}/projects/04_day/harib01e/naskfunc.nas)
 set(04_day_harib01e_FUNCO ${root_BINARY_DIR}/projects/04_day/harib01e/naskfunc.o)
 set(04_day_harib01e_WILDOBJ ${root_BINARY_DIR}/projects/04_day/harib01e/*.o)
+
 
 add_custom_target(04_day_harib01e_run
   COMMAND ${QEMU} ${QEMUOPT} ${04_day_harib01e_OS}
