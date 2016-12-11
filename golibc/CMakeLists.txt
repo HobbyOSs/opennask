@@ -19,7 +19,6 @@ set(go_STAT_SRCS
     atof.c
     strdup.c
     strncpy.c
-    sprintf.c
     memcmp.c
     abs.c
     memcpy.c
@@ -34,7 +33,7 @@ set(go_STAT_SRCS
     strtoul0.c)
 
 if (NOT WIN32)
-  LIST(APPEND go_STAT_SRCS vsprintf.c)
+  LIST(APPEND go_STAT_SRCS sprintf.c vsprintf.c)
 endif()
 
 set(go_HEADERS
