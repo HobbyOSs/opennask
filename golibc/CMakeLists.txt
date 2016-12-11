@@ -9,7 +9,7 @@ set(go_STAT_SRCS
     strchr.c
     qsort.c
     strcmp.c
-    strtol.c
+    #strtol.c
     strncmp.c
     memchr.c
     vsprintf.c
