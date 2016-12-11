@@ -873,7 +873,12 @@ namespace nask_utility {
 		    } else if (exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
+		    } else if (regex_match(dst_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 // MOV AX,[ESP+4]
+			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
 		    } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 // MOV [ESP+4], AX
 			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else {
@@ -1496,6 +1501,29 @@ namespace nask_utility {
 			 }
 			 break;
 		    }
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(4).Is("]")) {
+		    //----------------------------------------------------//
+		    // 0x0F 01 /2  | LGDT m16& 32    mをGDTRにロードします//
+		    //----------------------------------------------------//
+		    // [mod] 00 :
+		    // [reg] 010: /2
+		    // [r/m] 110: 固定値？
+		    const std::string reg    = tokenizer.LookAhead(1).AsString();
+		    const std::string op     = tokenizer.LookAhead(2).AsString();
+		    const std::string disp_s = tokenizer.LookAhead(3).AsString();
+		    const uint8_t disp       = tokenizer.LookAhead(3).AsLong();
+		    const std::string mem    = "[" + reg + op + disp_s + "]";
+		    log()->info("LGDT [{} {} {}]", reg, op, disp);
+
+		    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, mem, ModRM::SLASH_2);
+
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x0f, 0x01, modrm, disp);
+		    binout_container.push_back(0x0f);
+		    binout_container.push_back(0x01);
+		    binout_container.push_back(modrm);
+		    binout_container.push_back(disp);
+		    break;
 
 	       } else {
 		    std::cerr << "NASK : LGDT syntax error " << token.AsString() << std::endl;
