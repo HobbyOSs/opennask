@@ -2335,6 +2335,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // テキトーなIRET命令の実装
+     int Instructions::process_token_IRET(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xCF を格納
+	  binout_container.push_back(0xcf);
+	  return 0;
+     }
+
      // 簡単なDD命令の実装
      int Instructions::process_token_DD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
