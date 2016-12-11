@@ -2638,6 +2638,13 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // テキトーなPOPA命令の実装
+     int Instructions::process_token_POPA(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0x61 を格納
+	  binout_container.push_back(0x61);
+	  return 0;
+     }
+
      // テキトーなPOPF命令の実装
      int Instructions::process_token_POPF(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  // 0x9D を格納
@@ -2726,6 +2733,13 @@ namespace nask_utility {
 		    }
 	       }
 	  }
+	  return 0;
+     }
+
+     // テキトーなPUSHA/PUSHAD命令の実装
+     int Instructions::process_token_PUSHA(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0x60 を格納
+	  binout_container.push_back(0x60);
 	  return 0;
      }
 
