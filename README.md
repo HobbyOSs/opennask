@@ -51,3 +51,7 @@ You can use `make` command instead of `ninja`
 | day4 harib01d | day5 harib02a |
 |---------------|---------------|
 |![harib01d](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib01d.png)|![harib02a](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02a.png)|
+
+| day5 harib02e | day5 harib02h |
+|---------------|---------------|
+|![harib02e](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02e.png)|![harib02h](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02h.png)|
