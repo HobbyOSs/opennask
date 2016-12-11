@@ -769,17 +769,42 @@ namespace nask_utility {
 		    // これで終了のはず
 		    break;
 
-	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
-			  tokenizer.LookAhead(3).Is(",") &&
-			  is_common_register(token_table, tokenizer.LookAhead(4))) {
+	       } else if (
+		    (token.Is("[") && tokenizer.LookAhead(2).Is("]") &&
+		     tokenizer.LookAhead(3).Is(",") &&
+		     is_common_register(token_table, tokenizer.LookAhead(4))) ||
+		    // MOV [ESP],AX
+		    (token.Is("[") && tokenizer.LookAhead(4).Is("]") &&
+		     tokenizer.LookAhead(5).Is(",") &&
+		     is_common_register(token_table, tokenizer.LookAhead(6)))
+		    // MOV [ESP+6],AX
+		    ) {
+
 		    // MOV r/m8, r8	  | 0x88 /r
 		    // MOV r/m16, r16	  | 0x89 /r
 		    // MOV r/m32, r32	  | 0x89 /r
-		    TParaToken dst_token = tokenizer.LookAhead(1);
-		    TParaToken src_token = tokenizer.LookAhead(4);
+		    bool exists_disp = tokenizer.LookAhead(4).Is("]") ? true : false;
 
-		    const std::string dst_reg  = get_equ_label_or_asis(dst_token.AsString());
-		    const std::string dst_mem  = "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+		    TParaToken dst_token = tokenizer.LookAhead(1);
+		    TParaToken src_token = exists_disp ? tokenizer.LookAhead(6)
+			 : tokenizer.LookAhead(4);
+
+		    std::string mem = "";
+		    std::string disp = "";
+		    if (exists_disp) {
+			 mem = "[";
+			 mem += tokenizer.LookAhead(1).AsString();
+			 mem += tokenizer.LookAhead(2).AsString();
+			 mem += tokenizer.LookAhead(3).AsString();
+			 mem += "]";
+			 disp = tokenizer.LookAhead(3).AsString();
+		    }
+		    log()->info("exists disp ? => {}", exists_disp);
+
+		    const std::string dst_reg  = exists_disp ? tokenizer.LookAhead(1).AsString()
+			 : get_equ_label_or_asis(dst_token.AsString());
+		    const std::string dst_mem  = exists_disp ? mem
+			 : "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
 		    const std::string src_reg  = src_token.AsString();
 
 		    log()->info("{} <= {}", dst_mem, src_reg);
@@ -801,9 +826,10 @@ namespace nask_utility {
 			 log()->info("Register-size prefix is absent");
 		    }
 
-		    if (regex_match(src_reg, match, ModRM::regImm08)) {
+		    if (regex_match(src_reg, match, ModRM::regImm08) && !exists_disp) { // +dispの場合だいたい32bitのレジスタ
 			 // MOV r/m8, r8       | 0x88 /r
-			 const uint8_t modrm = ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x88, ModRM::REG_DISP8, dst_mem, src_reg)
+			      : ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
 			 log()->info("NIM(B): 0x88, 0x{:02x}, {}", modrm, tokenizer.LookAhead(2).AsString());
 			 binout_container.push_back(0x88);
 			 binout_container.push_back(modrm);
@@ -816,10 +842,23 @@ namespace nask_utility {
 		    } else {
 			 // MOV r/m16, r16	  | 0x89 /r
 			 // MOV r/m32, r32	  | 0x89 /r
-			 const uint8_t modrm = ModRM::generate_modrm(0x89, ModRM::REG_REG, dst_mem, src_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x89, ModRM::REG_DISP8, dst_mem, src_reg)
+			      : ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+
 			 log()->info("NIM(B): 0x89, 0x{:02x}", modrm, tokenizer.LookAhead(2).AsString());
 			 binout_container.push_back(0x89);
 			 binout_container.push_back(modrm);
+		    }
+
+		    if (disp != "" && ModRM::get_rm_from_reg(dst_reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(exists_disp ? dst_mem : dst_reg, src_reg);
+			 log()->info("SIB: 0x{:02x}", sib);
+		    	 binout_container.push_back(sib);
+		    }
+		    if (tokenizer.LookAhead(2).Is("+")) {
+			 const uint8_t disp = tokenizer.LookAhead(3).AsLong();
+			 log()->info("Disp: 0x{:02x}", disp);
+		    	 binout_container.push_back(disp);
 		    }
 
 		    break;
