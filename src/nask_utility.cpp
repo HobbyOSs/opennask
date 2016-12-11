@@ -1578,6 +1578,76 @@ namespace nask_utility {
 	  return 0;
      }
 
+     // LIDT命令の実装
+     int Instructions::process_token_LIDT(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is("[") && tokenizer.LookAhead(2).Is("]")) {
+		    //----------------------------------------------------//
+		    // 0x0F 01 /2  | LGDT m16& 32    mをGDTRにロードします//
+		    //----------------------------------------------------//
+		    // [mod] 00 :
+		    // [reg] 010: /2
+		    // [r/m] 110: 固定値？
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x0f, 0x01, 0x16);
+		    binout_container.push_back(0x0f);
+		    binout_container.push_back(0x01);
+
+		    const std::string store_label = tokenizer.LookAhead(1).AsString();
+
+		    if (is_hex_notation(store_label)) {
+			 // ラベルではなく即値でジャンプ先を指定された場合
+			 log()->info("** Not implemented **");
+		    } else {
+			 if (dst_is_stored(store_label)) {
+			      update_label_src_offset(store_label, binout_container, 0x16);
+			 } else {
+			      store_label_src(store_label, binout_container, true, imm16);
+			      binout_container.push_back(0x16);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+			 }
+			 break;
+		    }
+
+	       } else if (token.Is("[") && tokenizer.LookAhead(4).Is("]")) {
+		    //----------------------------------------------------//
+		    // 0x0F 01 /2  | LIDT m16& 32    mをGDTRにロードします//
+		    //----------------------------------------------------//
+		    // [mod] 00 :
+		    // [reg] 010: /3
+		    // [r/m] 110: 固定値？
+		    const std::string reg    = tokenizer.LookAhead(1).AsString();
+		    const std::string op     = tokenizer.LookAhead(2).AsString();
+		    const std::string disp_s = tokenizer.LookAhead(3).AsString();
+		    const uint8_t disp       = tokenizer.LookAhead(3).AsLong();
+		    const std::string mem    = "[" + reg + op + disp_s + "]";
+		    log()->info("LIDT [{}{}{}]", reg, op, disp);
+		    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8, mem, ModRM::SLASH_3);
+
+		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x0f, 0x01, modrm, disp);
+		    binout_container.push_back(0x0f);
+		    binout_container.push_back(0x01);
+		    binout_container.push_back(modrm);
+
+		    if (disp_s != "" && ModRM::get_rm_from_reg(reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(mem, reg);
+			 log()->info("SIB: 0x{:02x}", sib);
+		    	 binout_container.push_back(sib);
+		    }
+
+		    binout_container.push_back(disp);
+		    break;
+
+	       } else {
+		    std::cerr << "NASK : LIDT syntax error " << token.AsString() << std::endl;
+		    return 17;
+	       }
+	  }
+	  return 0;
+     }
+
      // 簡単なADD命令の実装
      int Instructions::process_token_ADD(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
