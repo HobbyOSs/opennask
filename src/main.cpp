@@ -221,7 +221,7 @@ int process_each_assembly_line(char** argv,
 			      logger->info("eval {} end", token.AsString());
 			 } else {
 			      // オペコードが見つかったけどよくわからなかった場合
-			      logger->info("eval Unknown {} end", token.AsString());
+			      std::cerr << "opennask ignored unknown instruction " << token.AsString() << std::endl;
 			 }
 		    }
 	       }
