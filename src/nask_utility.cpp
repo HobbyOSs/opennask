@@ -1553,14 +1553,20 @@ namespace nask_utility {
 		    const std::string disp_s = tokenizer.LookAhead(3).AsString();
 		    const uint8_t disp       = tokenizer.LookAhead(3).AsLong();
 		    const std::string mem    = "[" + reg + op + disp_s + "]";
-		    log()->info("LGDT [{} {} {}]", reg, op, disp);
-
-		    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, mem, ModRM::SLASH_2);
+		    log()->info("LGDT [{}{}{}]", reg, op, disp);
+		    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8, mem, ModRM::SLASH_2);
 
 		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}", 0x0f, 0x01, modrm, disp);
 		    binout_container.push_back(0x0f);
 		    binout_container.push_back(0x01);
 		    binout_container.push_back(modrm);
+
+		    if (disp_s != "" && ModRM::get_rm_from_reg(reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(mem, reg);
+			 log()->info("SIB: 0x{:02x}", sib);
+		    	 binout_container.push_back(sib);
+		    }
+
 		    binout_container.push_back(disp);
 		    break;
 
