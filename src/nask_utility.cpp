@@ -822,6 +822,10 @@ namespace nask_utility {
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
 			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
+		    } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
+			 // MOV [ESP+4], AX
+			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
 		    } else {
 			 log()->info("Register-size prefix is absent");
 		    }
@@ -914,10 +918,6 @@ namespace nask_utility {
 			 binout_container.push_back(0x66);
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
 			 // MOV AX,[ESP+4]
-			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
-			 binout_container.push_back(0x66);
-		    } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
-			 // MOV [ESP+4], AX
 			 log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else {
