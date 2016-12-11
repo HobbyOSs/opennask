@@ -16,7 +16,7 @@ set(go_STAT_SRCS
     strcpy.c
     strncat.c
     strstr.c
-    strtoul.c
+    #strtoul.c
     atof.c
     strdup.c
     strncpy.c
