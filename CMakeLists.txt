@@ -14,7 +14,9 @@ set(QEMUOPT "-m" "32" "-localtime" "-vga" "std" "-fda" CACHE INTERNAL "")
 set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
 add_subdirectory(parasol)
+add_subdirectory(objconv)
 add_subdirectory(src)
+add_subdirectory(golibc)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------

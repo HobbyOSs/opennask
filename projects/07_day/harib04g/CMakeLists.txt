@@ -4,6 +4,7 @@ message(STATUS "Entering directory projects/07_day/harib04g/")
 set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(07_day_harib04g_OS    ${root_BINARY_DIR}/projects/07_day/harib04g/os.img)
 set(07_day_harib04g_SYS	  ${root_BINARY_DIR}/projects/07_day/harib04g/os.sys)
 set(07_day_harib04g_IPLB  ${root_BINARY_DIR}/projects/07_day/harib04g/ipl.bin)
@@ -19,7 +20,10 @@ set(07_day_harib04g_FUNCO ${root_BINARY_DIR}/projects/07_day/harib04g/naskfunc.o
 set(07_day_harib04g_FONTS ${root_SOURCE_DIR}/projects/07_day/harib04g/hankaku.txt)
 set(07_day_harib04g_FONTB ${root_BINARY_DIR}/projects/07_day/harib04g/hankaku.bin)
 set(07_day_harib04g_FONTO ${root_BINARY_DIR}/projects/07_day/harib04g/hankaku.o)
+set(07_day_harib04g_LIBGE ${root_BINARY_DIR}/golibc/libgo.a)
+set(07_day_harib04g_LIBGC ${root_BINARY_DIR}/projects/07_day/harib04g/libgo.o)
 set(07_day_harib04g_WILDOBJ ${root_BINARY_DIR}/projects/07_day/harib04g/*.o)
+
 
 add_custom_target(07_day_harib04g_run
   COMMAND ${QEMU} ${QEMUOPT} ${07_day_harib04g_OS}
@@ -43,7 +47,8 @@ add_custom_target(07_day_harib04g_ipl
 add_custom_target(07_day_harib04g_sys
   COMMAND ${NASK} ${07_day_harib04g_HEADS} ${07_day_harib04g_HEADB}
   COMMAND ${FONT} ${07_day_harib04g_FONTS} ${07_day_harib04g_FONTB}
-  COMMAND ${B2O} ${07_day_harib04g_FONTB} ${07_day_harib04g_FONTO} _hankaku
+  COMMAND ${B2O}  ${07_day_harib04g_FONTB} ${07_day_harib04g_FONTO} _hankaku
+  COMMAND ${CONV} -fcoff32 -nu ${07_day_harib04g_LIBGE} ${07_day_harib04g_LIBGC}
   COMMAND ${NASK} ${07_day_harib04g_FUNCS} ${07_day_harib04g_FUNCO}
   COMMAND gcc ${BINOPT} -T ${07_day_harib04g_LDS} ${07_day_harib04g_CCS} ${07_day_harib04g_WILDOBJ} -o ${07_day_harib04g_BOOTB}
   COMMAND cat ${07_day_harib04g_HEADB} ${07_day_harib04g_BOOTB} > ${07_day_harib04g_SYS}

@@ -25,6 +25,8 @@ addons:
       - cpputest
       - gcc-4.9
       - g++-4.9
+      - libc6-dev-i386
+      - linux-headers-generic
 
 before_install:
 
