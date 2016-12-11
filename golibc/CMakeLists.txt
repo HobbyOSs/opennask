@@ -12,7 +12,6 @@ set(go_STAT_SRCS
     #strtol.c
     strncmp.c
     memchr.c
-    vsprintf.c
     strcpy.c
     strncat.c
     strstr.c
@@ -33,6 +32,10 @@ set(go_STAT_SRCS
     strcspn.c
     frexp.c
     strtoul0.c)
+
+if (NOT WIN32)
+  LIST(APPEND go_STAT_SRCS vsprintf.c)
+endif()
 
 set(go_HEADERS
     stdarg.h

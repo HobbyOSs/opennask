@@ -5,7 +5,7 @@ typedef unsigned char UCHAR;
 
 #define MAXSIZ	32 * 1024 * 1024 + 310
 
-int main(int argc, UCHAR **argv)
+int main(int argc, char** argv)
 {
 	FILE *fp;
 	UCHAR *buf = malloc(MAXSIZ), *l;

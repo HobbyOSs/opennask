@@ -2175,7 +2175,7 @@ namespace nask_utility {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
-	       } else if (token.Is("GLOBAL")) {
+	       } else if (token.Is("GLOBAL")||token.Is("EXTERN")) {
 		    continue;
 	       } else {
 		    if (!token.IsEmpty()) {
