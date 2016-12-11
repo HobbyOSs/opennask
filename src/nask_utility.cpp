@@ -2554,7 +2554,7 @@ namespace nask_utility {
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 
 			      // 0x50+rd | PUSH r32 <-- EAX, EBX, ECX, EDX
-			      log()->info("POP from {}", dst_reg);
+			      log()->info("PUSH from {}", dst_reg);
 			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x50, dst_reg.at(1));
 			      log()->info("NIM(B): 0x{:02x}", opecode);
 			      binout_container.push_back(opecode);

@@ -77,3 +77,24 @@ add_test(
 )
 
 set_tests_properties(day04test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
+# `ctest -R day05`
+set(day05test_SRCS
+    day05test.cpp
+    ../src/tinyexpr.c
+    ../src/nask_utility.cpp
+    ../src/mod_rm.cpp
+    ../src/string_util.cpp)
+
+add_executable(day05test ${day05test_SRCS})
+target_link_libraries(day05test parasol Threads::Threads ${CPPUTEST_LIBRARY})
+
+set_property(TARGET day05test PROPERTY CXX_STANDARD 11)
+set_property(TARGET day05test PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(
+  NAME day05test
+  COMMAND $<TARGET_FILE:day05test>
+)
+
+set_tests_properties(day05test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
