@@ -2576,34 +2576,7 @@ namespace nask_utility {
 		    break;
 	       } else {
 
-		    if (is_register(token_table, token)) {
-			 std::smatch match;
-			 TParaToken dst_token = token;
-			 const std::string dst_reg  = dst_token.AsString();
-
-			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
-
-			      // 0x58+rw | POP r16 <-- AX, BX, CX, DX
-			      log()->info("POP from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(0));
-			      log()->info("NIM(B): 0x{:02x}", opecode);
-			      binout_container.push_back(opecode);
-
-			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
-
-			      // 0x58+rd | POP r32 <-- EAX, EBX, ECX, EDX
-			      log()->info("POP from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(1));
-			      log()->info("NIM(B): 0x{:02x}", opecode);
-			      binout_container.push_back(opecode);
-
-			 } else {
-			      std::cerr << "NASK : POP specified incorrect register" << std::endl;
-			      return 17;
-			 }
-			 break;
-
-		    } else if (is_segment_register(token_table, token)) {
+		    if (is_segment_register(token_table, token)) {
 			 // 0x1F      | POP DS
 			 // 0x07      | POP ES
 			 // 0x17      | POP SS
@@ -2638,6 +2611,32 @@ namespace nask_utility {
 			 } else {
 			      set_word_into_binout(opecode_w, binout_container);
 			      log()->info("NIM(W): 0x{:02x}", opecode_w);
+			 }
+			 break;
+
+		    } else if (is_register(token_table, token)) {
+			 std::smatch match;
+			 TParaToken dst_token = token;
+			 const std::string dst_reg  = dst_token.AsString();
+
+			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
+
+			      // 0x58+rw | POP r16 <-- AX, BX, CX, DX
+			      log()->info("POP from {}", dst_reg);
+			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(0));
+			      log()->info("NIM(B): 0x{:02x}", opecode);
+			      binout_container.push_back(opecode);
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+
+			      // 0x58+rd | POP r32 <-- EAX, EBX, ECX, EDX
+			      log()->info("POP from {}", dst_reg);
+			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(1));
+			      log()->info("NIM(B): 0x{:02x}", opecode);
+			      binout_container.push_back(opecode);
+			 } else {
+			      std::cerr << "NASK : POP specified incorrect register" << std::endl;
+			      return 17;
 			 }
 			 break;
 
