@@ -288,7 +288,7 @@ namespace nask_utility {
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
 			 value,
-			 WCOFF_TEXT_FIELD,
+			 0x0000,
 			 0x0000,
 			 0x02, 0x00
 		    };
@@ -310,7 +310,7 @@ namespace nask_utility {
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
 			 value,
-			 WCOFF_TEXT_FIELD,
+			 0x0000,
 			 0x0000,
 			 0x02, 0x00
 		    };
