@@ -321,7 +321,7 @@ namespace nask_utility {
 		    func.shortName[4] = long_symbols_size & 0xff;
 
 		    // シンボルサイズ + 1 (0x00)
-		    long_symbols_size += real_symbol_name.size() + 1;
+		    //long_symbols_size += real_symbol_name.size() + 1;
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
@@ -388,6 +388,7 @@ namespace nask_utility {
 		    func.shortName[6] = (long_symbols_size >> 16) & 0xff;
 		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
 		    func.shortName[4] = long_symbols_size & 0xff;
+		    log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
 
 		    // シンボルサイズ + 1 (0x00)
 		    long_symbols_size += real_symbol_name.size() + 1;
