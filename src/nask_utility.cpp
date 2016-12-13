@@ -982,7 +982,6 @@ namespace nask_utility {
 			  is_segment_register(token_table, tokenizer.LookAhead(2))) {
 
 		    // MOV Reg16,Seg
-		    // 10001100 oosssmmm
 		    //--------------------------------------------------------
 		    // 0x8C /r	MOV r/m16, Sreg		セグメントレジスタをr/m16に転送します
 		    TParaToken dst_token = token;
@@ -991,21 +990,11 @@ namespace nask_utility {
 		    const std::string src_reg  = src_token.AsString();
 
 		    log()->info("{} <= {}", dst_reg, src_reg);
-
-		    // Reg16, Sregの場合 => oosssmmm
-		    const std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
-		    const std::string tp_src = ModRM::get_MMMSSS_from_reg(src_reg);
-
-		    // 10001100
-		    const std::bitset<8> bs_dst("10001100");
-		    // oo + sss + mmm
-		    const std::bitset<8> bs_src("11" + std::get<0>(tp_dst) + tp_src);
-		    binout_container.push_back(bs_dst.to_ulong());
-		    binout_container.push_back(bs_src.to_ulong());
-
-		    log()->info("NIM(W): {}, {}",
-				static_cast<int>(bs_dst.to_ulong()),
-				static_cast<int>(bs_src.to_ulong()));
+		    store_register_size_prefix(src_reg, binout_container);
+		    const uint8_t modrm = ModRM::generate_modrm(0x8c, ModRM::REG, dst_reg, src_reg);
+		    binout_container.push_back(0x8c);
+		    binout_container.push_back(modrm);
+		    log()->info("NIM(B): 0x8c, 0x{:02x}", modrm);
 
 		    // これで終了のはず
 		    break;
