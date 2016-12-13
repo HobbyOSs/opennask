@@ -261,6 +261,12 @@ namespace nask_utility {
 	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
 
 	  // 8byteより大きい
+	  std::vector<std::string> all_symbol_list;
+	  all_symbol_list.resize(inst.gl_symbol_list.size());
+	  std::copy(inst.gl_symbol_list.begin(),
+		    inst.gl_symbol_list.end(),
+		    std::back_inserter(all_symbol_list));
+
 	  std::vector<std::string> gl_long_symbol_list;
 	  std::vector<std::string> ex_long_symbol_list;
 	  uint32_t long_symbols_size = 4; // これ自体(4byte)
@@ -396,25 +402,16 @@ namespace nask_utility {
 	  set_dword_into_binout(long_symbols_size, binout_container);
 
 	  // long symbolを書き込む
-	  for ( size_t i = 0; i < ex_long_symbol_list.size(); i++ ) {
-	       log()->info("EXTERN long symbol[{}/{}]", i+1, ex_long_symbol_list.size());
-	       const std::string real_symbol_name = ex_long_symbol_list.at(i);
-	       std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
-	       const std::string symbols = trim(symbol_name_hex);
-
-	       log()->info("write long symbol name: {}", real_symbol_name);
-	       set_hexstring_into_binout(symbols, binout_container, false);
-	       binout_container.push_back(0x00);
-	  }
-	  for ( size_t i = 0; i < gl_long_symbol_list.size(); i++ ) {
-	       log()->info("GLOBAL long symbol[{}/{}]", i+1, gl_long_symbol_list.size());
-	       const std::string real_symbol_name = gl_long_symbol_list.at(i);
-	       std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
-	       const std::string symbols = trim(symbol_name_hex);
-
-	       log()->info("write long symbol name: {}", real_symbol_name);
-	       set_hexstring_into_binout(symbols, binout_container, false);
-	       binout_container.push_back(0x00);
+	  for ( const std::string symbol : all_symbol_list ) {
+	       if ( std::find( gl_long_symbol_list.begin(), gl_long_symbol_list.end() , symbol ) != gl_long_symbol_list.end() ||
+		    std::find( ex_long_symbol_list.begin(), ex_long_symbol_list.end() , symbol ) != ex_long_symbol_list.end()) {
+		    // GL/EX いずれかの long symbolのリストにあれば書き出す
+		    std::string symbol_name_hex = string_to_hex_no_notate(symbol);
+		    const std::string symbols = trim(symbol_name_hex);
+		    log()->info("write long symbol name: {}", symbol);
+		    set_hexstring_into_binout(symbols, binout_container, false);
+		    binout_container.push_back(0x00);
+	       }
 	  }
      }
 

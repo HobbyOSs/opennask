@@ -1028,7 +1028,7 @@ namespace nask_utility {
 		    log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
 				0x0f,
 				0x20,
-				static_cast<int>(nim.to_ulong()));
+				nim.to_ulong());
 
 		    // これで終了のはず
 		    break;
