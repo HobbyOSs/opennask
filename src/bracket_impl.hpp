@@ -178,7 +178,7 @@ namespace nask_utility {
 
 	       NAS_COFF_RELOCATION reloc = {
 		    0x00000000,
-		    0x00000000,
+		    static_cast<uint32_t>(8+i),
 		    IMAGE_REL_I386_REL32
 	       };
 	       auto reloc_buffer = create_buffer(reloc);
@@ -287,7 +287,7 @@ namespace nask_utility {
 
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
-			 value,
+			 0x0000,
 			 0x0000,
 			 0x0000,
 			 0x02, 0x00
@@ -309,7 +309,7 @@ namespace nask_utility {
 
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
-			 value,
+			 0x0000,
 			 0x0000,
 			 0x0000,
 			 0x02, 0x00
@@ -319,9 +319,6 @@ namespace nask_utility {
 		    func.shortName[6] = (long_symbols_size >> 16) & 0xff;
 		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
 		    func.shortName[4] = long_symbols_size & 0xff;
-
-		    // シンボルサイズ + 1 (0x00)
-		    //long_symbols_size += real_symbol_name.size() + 1;
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
