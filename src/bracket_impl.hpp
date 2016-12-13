@@ -159,31 +159,37 @@ namespace nask_utility {
 
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
 
+	  // COFFヘッダのシンボルテーブルへのオフセットが確定
+	  const uint32_t offset = binout_container.size();
+	  // セクションデータのサイズが確定(SizeOfRawData)
+	  const uint32_t size_of_raw_data =
+	       offset - (sizeof(NAS_PIMAGE_FILE_HEADER) + sizeof(NAS_PIMAGE_SECTION_HEADER) * 3);
+
 	  // EXTERNされたシンボル名の数だけ"COFF Relocation"を書き出す
 	  for ( size_t i = 0; i < inst.ex_symbol_list.size(); i++) {
 	       const std::string symbol_name = inst.ex_symbol_list[i];
 	       log()->info("EXTERN symbol[{}/{}]", i+1, inst.ex_symbol_list.size());
+
+	       // Address of the item to which relocation is applied: this is the offset from the
+	       // beginning of the section, plus the value of the section’s RVA/Offset field
+	       // (see Section 4, “Section Table.”). For example, if the first byte of
+	       // the section has an address of 0x10, the third byte has an address of 0x12.
+	       uint32_t v_addr = 0x00000000;
+
 	       NAS_COFF_RELOCATION reloc = {
-		    0x0000,
-		    0x0000,
+		    0x00000000,
+		    0x00000000,
 		    IMAGE_REL_I386_REL32
 	       };
 	       auto reloc_buffer = create_buffer(reloc);
 	       std::copy(reloc_buffer.begin(), reloc_buffer.end(), back_inserter(binout_container));
 	  }
 
-	  // COFFヘッダのシンボルテーブルへのオフセットが確定
-	  const uint32_t offset = binout_container.size();
-	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", offset);
 	  set_dword_into_binout(offset, binout_container, false, 8);
-
-	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", binout_container.size());
+	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", offset + 4);
 	  set_dword_into_binout(offset, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 24);
-
-	  // セクションデータのサイズが確定(SizeOfRawData)
-	  const uint32_t size_of_raw_data =
-	       binout_container.size() - (sizeof(NAS_PIMAGE_FILE_HEADER) + sizeof(NAS_PIMAGE_SECTION_HEADER) * 3);
-	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", binout_container.size());
+	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", offset);
 	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 16);
 
 	  // auxiliary element ".file"
