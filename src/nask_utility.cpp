@@ -805,13 +805,25 @@ namespace nask_utility {
 		    }
 		    log()->info("exists disp ? => {}", exists_disp);
 
-		    const std::string dst_reg  = exists_disp ? tokenizer.LookAhead(1).AsString()
+		    std::string src_reg = src_token.AsString();
+		    std::string dst_reg = exists_disp ? tokenizer.LookAhead(1).AsString()
 			 : get_equ_label_or_asis(dst_token.AsString());
-		    const std::string dst_mem  = exists_disp ? mem
-			 : "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
-		    const std::string src_reg  = src_token.AsString();
 
-		    log()->info("{} <= {}", dst_mem, src_reg);
+		    std::string dst_mem  = exists_disp ? mem
+			 : "[" + get_equ_label_or_asis(dst_token.AsString()) + "]";
+
+		    const ModRM::mods mod_kind
+			 = (src_token.IsEmpty()) ? ModRM::REG : exists_disp ? ModRM::REG_DISP8 : ModRM::REG_REG;
+
+		    if (src_token.IsEmpty()) {
+			 // 上書き
+			 src_reg = tokenizer.LookAhead(2).AsString();
+			 dst_reg = token.AsString();
+			 dst_mem = dst_reg;
+			 log()->info("{} <= {}", dst_reg, src_reg);
+		    } else {
+			 log()->info("{} <= {}", dst_mem, src_reg);
+		    }
 
 		    std::smatch match;
 		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
@@ -836,8 +848,8 @@ namespace nask_utility {
 
 		    if (regex_match(src_reg, match, ModRM::regImm08) && !exists_disp) { // +dispの場合だいたい32bitのレジスタ
 			 // MOV r/m8, r8       | 0x88 /r
-			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x88, ModRM::REG_DISP8, dst_mem, src_reg)
-			      : ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x88, mod_kind, dst_mem, src_reg)
+			      : ModRM::generate_modrm(0x88, mod_kind, dst_mem, src_reg);
 			 log()->info("NIM(B): 0x88, 0x{:02x}, {}", modrm, tokenizer.LookAhead(2).AsString());
 			 binout_container.push_back(0x88);
 			 binout_container.push_back(modrm);
@@ -850,8 +862,8 @@ namespace nask_utility {
 		    } else {
 			 // MOV r/m16, r16	  | 0x89 /r
 			 // MOV r/m32, r32	  | 0x89 /r
-			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x89, ModRM::REG_DISP8, dst_mem, src_reg)
-			      : ModRM::generate_modrm(0x88, ModRM::REG_REG, dst_mem, src_reg);
+			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x89, mod_kind, dst_mem, src_reg)
+			      : ModRM::generate_modrm(0x88, mod_kind, dst_mem, src_reg);
 
 			 log()->info("NIM(B): 0x89, 0x{:02x}", modrm, tokenizer.LookAhead(2).AsString());
 			 binout_container.push_back(0x89);
