@@ -159,6 +159,19 @@ namespace nask_utility {
 
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
 
+	  // EXTERNされたシンボル名の数だけ"COFF Relocation"を書き出す
+	  for ( size_t i = 0; i < inst.ex_symbol_list.size(); i++) {
+	       const std::string symbol_name = inst.ex_symbol_list[i];
+	       log()->info("EXTERN symbol[{}/{}]", i+1, inst.ex_symbol_list.size());
+	       NAS_COFF_RELOCATION reloc = {
+		    0x0000,
+		    0x0000,
+		    IMAGE_REL_I386_REL32
+	       };
+	       auto reloc_buffer = create_buffer(reloc);
+	       std::copy(reloc_buffer.begin(), reloc_buffer.end(), back_inserter(binout_container));
+	  }
+
 	  // COFFヘッダのシンボルテーブルへのオフセットが確定
 	  const uint32_t offset = binout_container.size();
 	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", binout_container.size());
@@ -237,20 +250,20 @@ namespace nask_utility {
 	  }
 
 	  // シンボル数を確定させる
-	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.symbol_list.size());
-	  const uint32_t number_of_symbols = 8 + inst.symbol_list.size();
+	  log()->info("COFF file header's NumberOfSymbols: 0x{:02x}", 8 + inst.gl_symbol_list.size());
+	  const uint32_t number_of_symbols = 8 + inst.gl_symbol_list.size();
 	  set_dword_into_binout(number_of_symbols, binout_container, false, 12);
 
 	  // 8byteより大きい
-	  std::vector<std::string> long_symbol_list;
+	  std::vector<std::string> long_gl_symbol_list;
 	  uint32_t long_symbols_size = 4; // これ自体(4byte)
 
-	  for ( size_t i = 0; i < inst.symbol_list.size(); i++) {
+	  for ( size_t i = 0; i < inst.gl_symbol_list.size(); i++) {
 
-	       const std::string symbol_name = inst.symbol_list[i];
+	       const std::string symbol_name = inst.gl_symbol_list[i];
 	       const uint32_t value = inst.symbol_offsets[symbol_name];
-	       log()->info("symbol[{}/{}]", i+1, inst.symbol_list.size());
-	       log()->info("symbol: {}, offs size: {}", inst.symbol_list[i], value);
+	       log()->info("symbol[{}/{}]", i+1, inst.gl_symbol_list.size());
+	       log()->info("symbol: {}, offs size: {}", inst.gl_symbol_list[i], value);
 
 	       if (symbol_name.size() <= 8) {
 		    const std::string real_symbol_name = symbol_name;
@@ -296,7 +309,7 @@ namespace nask_utility {
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-		    long_symbol_list.push_back(inst.symbol_list.at(i));
+		    long_gl_symbol_list.push_back(inst.gl_symbol_list.at(i));
 	       }
 	  }
 
@@ -304,9 +317,9 @@ namespace nask_utility {
 	  set_dword_into_binout(long_symbols_size, binout_container);
 
 	  // long symbolを書き込む
-	  for ( size_t i = 0; i < long_symbol_list.size(); i++ ) {
-	       log()->info("long symbol[{}/{}]", i+1, long_symbol_list.size());
-	       const std::string real_symbol_name = long_symbol_list.at(i);
+	  for ( size_t i = 0; i < long_gl_symbol_list.size(); i++ ) {
+	       log()->info("long symbol[{}/{}]", i+1, long_gl_symbol_list.size());
+	       const std::string real_symbol_name = long_gl_symbol_list.at(i);
 	       std::string symbol_name_hex = string_to_hex_no_notate(real_symbol_name);
 	       const std::string symbols = trim(symbol_name_hex);
 
@@ -316,6 +329,9 @@ namespace nask_utility {
 	  }
      }
 
+     //
+     // FIXME: このへんtemplateでなんとかならんのか
+     //
      std::vector<uint8_t> create_buffer(NAS_PIMAGE_SYMBOL& symbol) {
 	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
 	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
@@ -323,6 +339,12 @@ namespace nask_utility {
      }
 
      std::vector<uint8_t> create_buffer(NAS_PIMAGE_SECTION_HEADER& symbol) {
+	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
+	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
+	  return buffer;
+     }
+
+     std::vector<uint8_t> create_buffer(NAS_COFF_RELOCATION& symbol) {
 	  auto ptr = reinterpret_cast<uint8_t*>(&symbol);
 	  auto buffer = std::vector<uint8_t>{ ptr, ptr + sizeof(symbol) };
 	  return buffer;

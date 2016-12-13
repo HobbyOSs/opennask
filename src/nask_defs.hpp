@@ -60,6 +60,22 @@ struct NAS_PIMAGE_SECTION_HEADER {
      uint32_t        characteristics;
 } __attribute__((packed));
 
+// COFF Relocation type indicator
+constexpr uint16_t IMAGE_REL_I386_ABSOLUTE = 0x0000;
+constexpr uint16_t IMAGE_REL_I386_DIR32    = 0x0006;
+constexpr uint16_t IMAGE_REL_I386_DIR32NB  = 0x0007;
+constexpr uint16_t IMAGE_REL_I386_SEG12    = 0x0009;
+constexpr uint16_t IMAGE_REL_I386_SECTION  = 0x000a;
+constexpr uint16_t IMAGE_REL_I386_SECREL   = 0x000b;
+constexpr uint16_t IMAGE_REL_I386_REL32    = 0x0014;
+
+// COFF Relocation
+struct NAS_COFF_RELOCATION {
+     uint32_t virtualAddress;
+     uint32_t symbolTableIndex;
+     uint16_t type;
+} __attribute__((packed));
+
 constexpr uint16_t WCOFF_TEXT_FIELD = 0x0001;
 constexpr uint16_t WCOFF_DATA_FIELD = 0x0002;
 constexpr uint16_t WCOFF_BSS_FIELD  = 0x0003;

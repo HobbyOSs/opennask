@@ -123,7 +123,8 @@ namespace nask_utility {
 	  static LABEL_DST_STACK label_dst_stack;
 	  static LABEL_SRC_STACK label_src_stack;
 	  static std::map<std::string, std::string> equ_map;
-	  static std::vector<std::string> symbol_list;
+	  static std::vector<std::string> gl_symbol_list;
+	  static std::vector<std::string> ex_symbol_list;
 	  static std::map<std::string, size_t> symbol_offsets;
 	  static std::string data_type;
 	  static std::map<uint32_t, std::string> support_cpus;
@@ -149,6 +150,7 @@ namespace nask_utility {
 	  int process_token_DD     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_DW     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_EQU    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_EXTERN (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_GLOBAL (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_HLT    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_IMUL   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

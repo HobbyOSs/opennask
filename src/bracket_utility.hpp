@@ -13,6 +13,7 @@ namespace nask_utility {
 
      std::vector<uint8_t> create_buffer(NAS_PIMAGE_SYMBOL& symbol);
      std::vector<uint8_t> create_buffer(NAS_PIMAGE_SECTION_HEADER& symbol);
+     std::vector<uint8_t> create_buffer(NAS_COFF_RELOCATION& symbol);
 };
 
 #endif /* BRACKET_UTILITY_ */

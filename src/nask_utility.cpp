@@ -511,7 +511,8 @@ namespace nask_utility {
      LABEL_DST_STACK Instructions::label_dst_stack;
      LABEL_SRC_STACK Instructions::label_src_stack;
      std::map<std::string, std::string> Instructions::equ_map;
-     std::vector<std::string> Instructions::symbol_list;
+     std::vector<std::string> Instructions::gl_symbol_list;
+     std::vector<std::string> Instructions::ex_symbol_list;
      std::map<std::string, size_t> Instructions::symbol_offsets;
      std::string Instructions::data_type;
      std::map<uint32_t, std::string> Instructions::support_cpus;
@@ -2187,24 +2188,58 @@ namespace nask_utility {
 	  return 0;
      }
 
-     int Instructions::process_token_GLOBAL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+     int Instructions::process_token_EXTERN(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
-	       } else if (token.Is("GLOBAL")||token.Is("EXTERN")) {
+	       } else if (token.Is("EXTERN")) {
 		    continue;
 	       } else {
 		    if (!token.IsEmpty()) {
 			 const std::string head_symbol = trim(token.AsString());
 			 log()->info("Add new symbol: {}", head_symbol);
-			 symbol_list.push_back(head_symbol);
+			 gl_symbol_list.push_back(head_symbol);
+			 ex_symbol_list.push_back(head_symbol);
 			 symbol_offsets[head_symbol] = 0;
 
 			 for ( size_t i = 2; ; i+=2) {
 			      if ( !tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i-1).Is(",")) {
 				   const std::string tail = trim(tokenizer.LookAhead(i).AsString());
 				   log()->info("Add new symbol: {}", tail);
-				   symbol_list.push_back(tail);
+				   gl_symbol_list.push_back(tail);
+				   ex_symbol_list.push_back(tail);
+				   symbol_offsets[tail] = 0;
+			      } else {
+				   break;
+			      }
+			 }
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
+
+     int Instructions::process_token_GLOBAL(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else if (token.Is("GLOBAL")) {
+		    continue;
+	       } else {
+		    if (!token.IsEmpty()) {
+			 const std::string head_symbol = trim(token.AsString());
+			 log()->info("Add new symbol: {}", head_symbol);
+			 gl_symbol_list.push_back(head_symbol);
+			 symbol_offsets[head_symbol] = 0;
+
+			 for ( size_t i = 2; ; i+=2) {
+			      if ( !tokenizer.LookAhead(i).IsEmpty() && tokenizer.LookAhead(i-1).Is(",")) {
+				   const std::string tail = trim(tokenizer.LookAhead(i).AsString());
+				   log()->info("Add new symbol: {}", tail);
+				   gl_symbol_list.push_back(tail);
 				   symbol_offsets[tail] = 0;
 			      } else {
 				   break;
