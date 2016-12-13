@@ -776,8 +776,12 @@ namespace nask_utility {
 		    // MOV [ESP],AX
 		    (token.Is("[") && tokenizer.LookAhead(4).Is("]") &&
 		     tokenizer.LookAhead(5).Is(",") &&
-		     is_common_register(token_table, tokenizer.LookAhead(6)))
+		     is_common_register(token_table, tokenizer.LookAhead(6))) ||
 		    // MOV [ESP+6],AX
+		    (is_common_register(token_table, token) &&
+		     tokenizer.LookAhead(1).Is(",") &&
+		     is_common_register(token_table, tokenizer.LookAhead(2).AsString()))
+		    // MOV EAX, ESP
 		    ) {
 
 		    // MOV r/m8, r8	  | 0x88 /r
