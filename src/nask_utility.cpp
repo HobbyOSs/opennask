@@ -1907,6 +1907,17 @@ namespace nask_utility {
 	       } else if (is_hex_notation(token.AsString())) {
 		    // ラベルではなく即値でジャンプ先を指定された場合
 		    log()->info("** Not implemented **");
+	       } else if (starts_with(token.AsString(), "_")) {
+		    const std::string store_label = token.AsString();
+		    log()->info("label stored: ", store_label);
+		    log()->info("0xe8, 0x00000000");
+		    // EXTERN symbol
+		    binout_container.push_back(0xe8);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    binout_container.push_back(0x00);
+		    break;
 	       } else {
 		    const std::string store_label = token.AsString();
 		    log()->info("label stored: ", store_label);
