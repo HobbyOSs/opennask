@@ -76,6 +76,7 @@ struct NAS_COFF_RELOCATION {
      uint16_t type;
 } __attribute__((packed));
 
+constexpr uint16_t WCOFF_NONE_FIELD = 0x0000;
 constexpr uint16_t WCOFF_TEXT_FIELD = 0x0001;
 constexpr uint16_t WCOFF_DATA_FIELD = 0x0002;
 constexpr uint16_t WCOFF_BSS_FIELD  = 0x0003;

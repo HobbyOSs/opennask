@@ -261,6 +261,9 @@ namespace nask_utility {
 
 	  // EXTERN symbolのrealocアドレスが確定する
 	  size_t realoc_sum = binout_container.size() + 23 - offset;
+	  log()->info("realoc size: {} - {} => {}",
+		      binout_container.size() + 23, offset, realoc_sum);
+
 	  for (const auto& kv : ex_symbol_realoc_map) {
 	       log()->info("{} has value {}", kv.first, kv.second);
 	       binout_container[kv.second+0] = realoc_sum;
@@ -407,7 +410,13 @@ namespace nask_utility {
 	  for ( size_t i = 0; i < inst.gl_symbol_list.size(); i++) {
 
 	       const std::string symbol_name = inst.gl_symbol_list[i];
+
+	       // シンボル間のオフセットをとる
 	       const uint32_t value = inst.symbol_offsets[symbol_name];
+	       // もしGLOBALで宣言されながらも、アセンブラ上存在しなかったら0x00
+	       // ただし、一番最初のシンボルのオフセットは必ずサイズが0になるので,それは除外
+	       const uint16_t field = (i == 0) ? WCOFF_TEXT_FIELD : inst.symbol_offsets[symbol_name] != 0 ?
+		    WCOFF_TEXT_FIELD : WCOFF_NONE_FIELD;
 	       log()->info("symbol[{}/{}]", i+1, inst.gl_symbol_list.size());
 	       log()->info("symbol: {}, offs size: {}", inst.gl_symbol_list[i], value);
 
@@ -418,7 +427,7 @@ namespace nask_utility {
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
 			 value,
-			 WCOFF_TEXT_FIELD,
+			 field,
 			 0x0000,
 			 0x02, 0x00
 		    };
@@ -440,7 +449,7 @@ namespace nask_utility {
 		    NAS_PIMAGE_SYMBOL func = {
 			 { 0, 0, 0, 0, 0, 0, 0, 0 },
 			 value,
-			 WCOFF_TEXT_FIELD,
+			 field,
 			 0x0000,
 			 0x02, 0x00
 		    };
