@@ -211,8 +211,10 @@ namespace nask_utility {
 	       std::copy(reloc_buffer.begin(), reloc_buffer.end(), back_inserter(binout_container));
 	  }
 
-	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", offset);
-	  set_dword_into_binout(offset, binout_container, false, 8);
+	  // offset + realoc * EXTERN symbols
+	  const size_t pointer_to_symbol_table = offset + sizeof(NAS_COFF_RELOCATION) * inst.ex_symbol_list.size();
+	  log()->info("COFF file header's PointerToSymbolTable: 0x{:02x}", pointer_to_symbol_table);
+	  set_dword_into_binout(pointer_to_symbol_table, binout_container, false, 8);
 	  log()->info("section table '.text' PointerToSymbolTable: 0x{:02x}", offset + 4);
 	  set_dword_into_binout(offset, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 24);
 	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", offset);
