@@ -217,6 +217,8 @@ namespace nask_utility {
 	  set_dword_into_binout(offset, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 24);
 	  log()->info("section table '.text' SizeOfRawData: 0x{:02x}", offset);
 	  set_dword_into_binout(size_of_raw_data, binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 16);
+	  log()->info("section table '.text' NumberOfRelocations: 0x{:02x}", inst.ex_symbol_list.size());
+	  set_word_into_binout(inst.ex_symbol_list.size(), binout_container, false, sizeof(NAS_PIMAGE_FILE_HEADER) + 32);
 
 	  // auxiliary element ".file"
 	  if (inst.exists_file_auxiliary) {
