@@ -245,8 +245,11 @@ namespace nask_utility {
 	  auto text_buffer = create_buffer(text);
 	  std::copy(text_buffer.begin(), text_buffer.end(), back_inserter(binout_container));
 	  // セクションデータのサイズを入れる(SizeOfRawData)
+	  log()->info("COFF .text SizeOfRawData: {}", size_of_raw_data);
 	  set_dword_into_binout(size_of_raw_data, binout_container);
-	  for ( size_t i = 4; i < 18; i++ ) {
+	  log()->info("COFF .text EXTERN symbol size: {}", inst.ex_symbol_list.size());
+	  set_dword_into_binout(inst.ex_symbol_list.size(), binout_container);
+	  for ( size_t i = 8; i < 18; i++ ) {
 	       binout_container.push_back(0x00);
 	  }
 
