@@ -1912,6 +1912,9 @@ namespace nask_utility {
 		    const std::string store_label = token.AsString();
 		    log()->info("label stored: ", store_label);
 		    log()->info("0xe8, 0x00000000");
+
+		    // Count offset
+		    this->symbol_offsets[store_label] = this->symbol_offsets["_"] + 1;
 		    // EXTERN symbol
 		    binout_container.push_back(0xe8);
 		    binout_container.push_back(0x00);
