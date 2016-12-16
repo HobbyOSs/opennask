@@ -452,7 +452,7 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  } else {
 	       uint32_t cp_dword = dword;
-	       uint8_t bytes[4];
+	       uint8_t bytes[4] = {};
 
 	       bytes[0] = (cp_dword >> 24) & 0xff;
 	       bytes[1] = (cp_dword >> 16) & 0xff;

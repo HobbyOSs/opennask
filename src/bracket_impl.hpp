@@ -172,13 +172,12 @@ namespace nask_utility {
 	  const uint32_t size_of_raw_data =
 	       offset - (sizeof(NAS_PIMAGE_FILE_HEADER) + sizeof(NAS_PIMAGE_SECTION_HEADER) * 3);
 
+	  std::map<std::string, int> ex_symbol_realoc_map;
+
 	  // EXTERNされたシンボル名の数だけ"COFF Relocation"を書き出す
 	  for ( size_t i = 0; i < inst.ex_symbol_list.size(); i++) {
 	       const std::string symbol_name = inst.ex_symbol_list[i];
 	       log()->info("EXTERN symbol[{}/{}]", i+1, inst.ex_symbol_list.size());
-
-	       // ???
-	       // ---
 	       // Address of the item to which relocation is applied: this is the offset from the
 	       // beginning of the section, plus the value of the section’s RVA/Offset field
 	       // (see Section 4, “Section Table.”). For example, if the first byte of
@@ -196,15 +195,18 @@ namespace nask_utility {
 	       // ---
 	       // VA(B)  = 320byte __HERE!__
 	       // VA(C)  = ...byte
-	       // v_addr = C - B = (?) - 320 => 125
-	       // (?)    = 445
-	       uint32_t v_addr = 0x00000000;
+	       // v_addr = C - B = 445 - 320 => 125(0x7d)
+	       //      B = __HERE__
+	       //      C = (=.data starts + 23byte)
 
+	       // C - B = offset -
 	       NAS_COFF_RELOCATION reloc = {
 		    0x00000000,
 		    static_cast<uint32_t>(8+i),
 		    IMAGE_REL_I386_REL32
 	       };
+
+	       ex_symbol_realoc_map.insert(std::make_pair(symbol_name, binout_container.size()));
 	       auto reloc_buffer = create_buffer(reloc);
 	       std::copy(reloc_buffer.begin(), reloc_buffer.end(), back_inserter(binout_container));
 	  }
@@ -251,6 +253,17 @@ namespace nask_utility {
 	  set_dword_into_binout(inst.ex_symbol_list.size(), binout_container);
 	  for ( size_t i = 8; i < 18; i++ ) {
 	       binout_container.push_back(0x00);
+	  }
+
+	  // EXTERN symbolのrealocアドレスが確定する
+	  size_t realoc_sum = binout_container.size() + 23 - offset;
+	  for (const auto& kv : ex_symbol_realoc_map) {
+	       log()->info("{} has value {}", kv.first, kv.second);
+	       binout_container[kv.second+0] = realoc_sum;
+	       binout_container[kv.second+1] = 0x00;
+	       binout_container[kv.second+2] = 0x00;
+	       binout_container[kv.second+3] = 0x00;
+	       realoc_sum += 23;
 	  }
 
 	  // element ".data"
@@ -358,9 +371,9 @@ namespace nask_utility {
 		    // 多分仕様的にはそう！
 		    //long_symbols_size += real_symbol_name.size() + 1;
 
+		    log()->info("bin[{}]", binout_container.size());
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
-
 		    log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
 		    log()->info("[value] 0x{:08}", func.value);
 		    log()->info("[sNumb] 0x{:04}", func.sectionNumber);
