@@ -296,6 +296,7 @@ namespace nask_utility {
 
 	  std::vector<std::string> gl_long_symbol_list;
 	  std::vector<std::string> ex_long_symbol_list;
+	  std::map<std::string, int> ex_long_symbol_short_names;
 	  uint32_t long_symbols_size = 4; // これ自体(4byte)
 
 	  /**
@@ -342,10 +343,12 @@ namespace nask_utility {
 			 0x02, 0x00
 		    };
 
-		    func.shortName[7] = (long_symbols_size >> 24) & 0xff;
-		    func.shortName[6] = (long_symbols_size >> 16) & 0xff;
-		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
-		    func.shortName[4] = long_symbols_size & 0xff;
+		    // ここの値が確定するのはすべてのシンボルを書き込んだ後
+		    func.shortName[7] = 0x99; // (long_symbols_size >> 24) & 0xff;
+		    func.shortName[6] = 0x99; // (long_symbols_size >> 16) & 0xff;
+		    func.shortName[5] = 0x99; // (long_symbols_size >> 8)  & 0xff;
+		    func.shortName[4] = 0x99; // long_symbols_size & 0xff;
+		    ex_long_symbol_short_names.insert( std::make_pair(real_symbol_name, binout_container.size() + 4) );
 
 		    // シンボルサイズ + 1 (0x00)
 		    // EXTERNのシンボルについてはここでは合計しない
@@ -354,6 +357,15 @@ namespace nask_utility {
 
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
+
+		    log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
+		    log()->info("[value] 0x{:08}", func.value);
+		    log()->info("[sNumb] 0x{:04}", func.sectionNumber);
+		    log()->info("[_type] 0x{:04}", func.type);
+		    log()->info("[class] 0x{:02}", func.storageClass);
+		    log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
+
+
 		    ex_long_symbol_list.push_back(inst.ex_symbol_list.at(i));
 	       }
 
@@ -427,8 +439,18 @@ namespace nask_utility {
 		    gl_long_symbol_list.push_back(inst.gl_symbol_list.at(i));
 	       }
 	  }
-
+	  //
 	  // ("long symbol" + 終端文字) * "long symbol"の数 + DWORDサイズ = をここに書き込む
+	  //
+
+	  // EXTERNのシンボルのオフセットがやっと設定できる
+	  size_t sum = 0;
+	  for (const auto& kv : ex_long_symbol_short_names) {
+	       log()->info("{} has value {}", kv.first, kv.second);
+	       set_dword_into_binout(long_symbols_size + sum, binout_container, false, kv.second);
+	       sum += kv.first.size() + 1; // symbol + 0x00
+	  }
+
 	  // ここでEXTERNなシンボルのサイズを足す
 	  std::for_each(inst.ex_symbol_list.begin(),
 			inst.ex_symbol_list.end(),
