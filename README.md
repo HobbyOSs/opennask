@@ -56,6 +56,6 @@ You can use `make` command instead of `ninja`
 |---------------|---------------|
 |![harib02e](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02e.png)|![harib02h](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib02h.png)|
 
-| day6 harib03e |               |
+| day6 harib03e | day8 harib05d |
 |---------------|---------------|
-|![harib03e](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib03e.png)||
+|![harib03e](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib03e.png)|![harib05d](https://raw.githubusercontent.com/HobbyOSs/opennask/master/harib05d.png)|
