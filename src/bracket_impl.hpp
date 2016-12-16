@@ -160,6 +160,13 @@ namespace nask_utility {
      void process_section_table(Instructions& inst, VECTOR_BINOUT& binout_container) {
 
 	  // COFFヘッダのシンボルテーブルへのオフセットが確定
+	  log()->info("COFF file section table starts with: bin[{}]", binout_container.size());
+	  log()->info("Previous 4byte for debug 0x{:02x}, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+		      binout_container.at(binout_container.size()-4),
+		      binout_container.at(binout_container.size()-3),
+		      binout_container.at(binout_container.size()-2),
+		      binout_container.at(binout_container.size()-1));
+
 	  const uint32_t offset = binout_container.size();
 	  // セクションデータのサイズが確定(SizeOfRawData)
 	  const uint32_t size_of_raw_data =
@@ -170,10 +177,27 @@ namespace nask_utility {
 	       const std::string symbol_name = inst.ex_symbol_list[i];
 	       log()->info("EXTERN symbol[{}/{}]", i+1, inst.ex_symbol_list.size());
 
+	       // ???
+	       // ---
 	       // Address of the item to which relocation is applied: this is the offset from the
 	       // beginning of the section, plus the value of the section’s RVA/Offset field
 	       // (see Section 4, “Section Table.”). For example, if the first byte of
 	       // the section has an address of 0x10, the third byte has an address of 0x12.
+	       // ---
+	       // Type 20 - IMAGE_REL_I386_REL32 - might sound tricky first, but it is in fact quite simple.
+	       // Take the virtual address B at which this relocation is applied (offset within section A1
+	       // plus virtual address of section A2). Take the virtual address of the target symbol C,
+	       // which is computed the same way (A1+A2 only the values are different).
+	       // The relocation is C-B, this is added to whatever dword value you find at B
+	       // (most of the times it will be zero). This is usually applied to "jmp near" and "call near"
+	       // assembly instructions, and the way the x86 CPU works, it takes the operand of the instruction
+	       // (C-B+some value) and adds it to the address of the instruction (B + some value),
+	       // yielding the correct result C. See?
+	       // ---
+	       // VA(B)  = 320byte __HERE!__
+	       // VA(C)  = ...byte
+	       // v_addr = C - B = (?) - 320 => 125
+	       // (?)    = 445
 	       uint32_t v_addr = 0x00000000;
 
 	       NAS_COFF_RELOCATION reloc = {
@@ -209,6 +233,7 @@ namespace nask_utility {
 	  }
 
 	  // element ".text"
+	  log()->info("COFF .text symbol section table starts with: bin[{}]", binout_container.size());
 	  NAS_PIMAGE_SYMBOL text = {
 	       { '.', 't', 'e', 'x', 't', 0, 0, 0 /* shortName */ },
 	       0x00000000,
@@ -226,6 +251,7 @@ namespace nask_utility {
 	  }
 
 	  // element ".data"
+	  log()->info("COFF .data symbol section table starts with: bin[{}]", binout_container.size());
 	  NAS_PIMAGE_SYMBOL data = {
 	       { '.', 'd', 'a', 't', 'a', 0, 0, 0 /* shortName */ },
 	       0x00000000,
@@ -240,7 +266,8 @@ namespace nask_utility {
 	       binout_container.push_back(0x00);
 	  }
 
-	  // element ".text"
+	  // element ".bss"
+	  log()->info("COFF .bss symbol section table starts with: bin[{}]", binout_container.size());
 	  NAS_PIMAGE_SYMBOL bss = {
 	       { '.', 'b', 's', 's', 0, 0, 0, 0 /* shortName */ },
 	       0x00000000,
@@ -320,6 +347,11 @@ namespace nask_utility {
 		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
 		    func.shortName[4] = long_symbols_size & 0xff;
 
+		    // シンボルサイズ + 1 (0x00)
+		    // EXTERNのシンボルについてはここでは合計しない
+		    // 多分仕様的にはそう！
+		    //long_symbols_size += real_symbol_name.size() + 1;
+
 		    auto fn_buffer = create_buffer(func);
 		    std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
 		    ex_long_symbol_list.push_back(inst.ex_symbol_list.at(i));
@@ -397,6 +429,12 @@ namespace nask_utility {
 	  }
 
 	  // ("long symbol" + 終端文字) * "long symbol"の数 + DWORDサイズ = をここに書き込む
+	  // ここでEXTERNなシンボルのサイズを足す
+	  std::for_each(inst.ex_symbol_list.begin(),
+			inst.ex_symbol_list.end(),
+			[&long_symbols_size](const std::string ex_symbol) -> size_t {
+			     long_symbols_size += (ex_symbol.size() <= 8) ? 0 : ex_symbol.size() + 1;
+			});
 	  set_dword_into_binout(long_symbols_size, binout_container);
 
 	  // long symbolを書き込む
