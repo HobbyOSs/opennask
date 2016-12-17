@@ -3031,4 +3031,122 @@ namespace nask_utility {
 	  }
 	  return 0;
      }
+
+
+     // XOR命令の実装
+     int Instructions::process_token_XOR(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
+	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
+		    break;
+	       } else {
+		    if (ModRM::is_accumulator(token.AsString()) && tokenizer.LookAhead(1).Is(",")) {
+                         // 0x34 ib | XOR AL,  imm8  | ALとimm8の排他的論理和
+			 // 0x35 iw | XOR AX,  imm16 | AXとimm16の排他的論理和
+			 // 0x35 id | XOR EAX, imm32 | EAXとimm32の排他的論理和
+			 const uint8_t nim = token.Is("AL") ? 0x34 : 0x35;
+			 const uint8_t imm = tokenizer.LookAhead(2).AsLong();
+			 log()->info("NIM(B): 0x{:02x}, 0x{:02x}", nim, imm);
+			 binout_container.push_back(nim);
+			 if (token.Is("AL")) {
+			      binout_container.push_back(imm);
+			 } else if (token.Is("AX")) {
+			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 } else if (token.Is("EAX")) {
+			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
+			 }
+			 break; // end
+
+		    } else if (is_legitimate_numeric(tokenizer.LookAhead(2).AsString()) ||
+			       // XOR EBX, 0xffffffff
+			       (is_datatype(token_table, token) && tokenizer.LookAhead(1).Is("["))
+			       // XOR DWORD [EBX],0xffffffff
+			 ) {
+
+                         // 0x80 /6 ib | XOR r/m8,  imm8  | r/m8とimm8との排他的論理和をとります
+                         // 0x81 /6 iw | XOR r/m16, imm16 | r/m16とimm16との排他的論理和をとります
+			 // 0x81 /6 id | XOR r/m32, imm32 | r/m32とimm32との排他的論理和をとります
+			 // 0x83 /6 ib | XOR r/m16, imm8  | r/m16と符号拡張したimm8との排他的論理和をとります
+			 // 0x83 /6 ib | XOR r/m32, imm8  | r/m32と符号拡張したimm8との排他的論理和をとります
+			 const bool using_data_type = is_datatype(token_table, token);
+			 const bool dst_is_mem = (token.Is("[") || tokenizer.LookAhead(1).Is("["));
+
+			 std::smatch match;
+
+			 TParaToken dst_token;
+			 TParaToken src_token;
+
+			 log()->info("using_data_type: {}, dst_is_mem: {}", using_data_type, dst_is_mem);
+			 if (using_data_type && dst_is_mem) {
+			      // XOR DWORD [EBX],0xffffffff
+			      dst_token = tokenizer.LookAhead(2);
+			      src_token = tokenizer.LookAhead(5);
+			 } else if (using_data_type && !dst_is_mem) {
+			      // XOR DWORD EBX,0xffffffff
+			      dst_token = tokenizer.LookAhead(1);
+			      src_token = tokenizer.LookAhead(3);
+			 } else if (!using_data_type && dst_is_mem) {
+			      // XOR [EBX],0xffffffff
+			      dst_token = tokenizer.LookAhead(2);
+			      src_token = tokenizer.LookAhead(5);
+			 } else {
+			      // XOR EBX,0xffffffff
+			      dst_token = token;
+			      src_token = tokenizer.LookAhead(2);
+			 }
+
+			 const std::string dst_reg = dst_token.AsString();
+			 const std::string src_imm = src_token.AsString();
+			 log()->info("dst_reg: {}, src_imm: {}", dst_reg, src_imm);
+
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      // 0x80 /6 ib | XOR r/m8,  imm8  | r/m8とimm8との排他的論理和をとります
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      log()->info("NIM(B): 0x80, 0x{:02x}, 0x{:02x}", modrm, src_token.AsLong());
+			      binout_container.push_back(0x80);
+			      binout_container.push_back(modrm);
+			      binout_container.push_back(src_token.AsLong());
+			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      // 0x81 /6 iw | XOR r/m16, imm16 | r/m16とimm16との排他的論理和をとります
+                              // 0x83 /6 ib | XOR r/m16, imm8  | r/m16と符号拡張したimm8との排他的論理和をとります
+			      const uint8_t op = is_imm8(src_imm) ? 0x83 : 0x81;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", op, modrm, src_token.AsLong());
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			      if (op == 0x83) {
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   set_word_into_binout(src_token.AsLong(), binout_container);
+			      }
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			      // 0x81 /6 id | XOR r/m32, imm32 | r/m32とimm32との排他的論理和をとります
+			      // 0x83 /6 ib | XOR r/m32, imm8  | r/m32と符号拡張したimm8との排他的論理和をとります
+			      const uint8_t op = is_imm8(src_imm) ? 0x83 : 0x81;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", op, modrm, src_token.AsLong());
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			      if (op == 0x83) {
+				   binout_container.push_back(src_token.AsLong());
+			      } else {
+				   set_dword_into_binout(src_token.AsLong(), binout_container);
+			      }
+			 } else {
+			      // memory
+			      std::cerr << "NASK : XOR syntax error" << std::endl;
+			      return 17;
+			 }
+			 break; // end
+
+		    } else {
+			 // not implemented
+			 std::cerr << "NASK : XOR syntax error, not supported now" << std::endl;
+			 return 17;
+		    }
+		    break;
+	       }
+	  }
+	  return 0;
+     }
 }

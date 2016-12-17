@@ -80,8 +80,9 @@ int process_each_assembly_line(char** argv,
 	  std::make_pair("RESB"	  , std::bind(&InstAlias::process_token_RESB	, inst, _1, _2)),
 	  std::make_pair("SHR"	  , std::bind(&InstAlias::process_token_SHR	, inst, _1, _2)),
 	  std::make_pair("STI"	  , std::bind(&InstAlias::process_token_STI	, inst, _1, _2)),
-	  std::make_pair("SUB"	  , std::bind(&InstAlias::process_token_SUB	, inst, _1, _2))
-     };
+	  std::make_pair("SUB"	  , std::bind(&InstAlias::process_token_SUB	, inst, _1, _2)),
+	  std::make_pair("XOR"	  , std::bind(&InstAlias::process_token_XOR	, inst, _1, _2))
+       };
 
      if (start_line != 0) {
 	  // 開始位置まで飛ばす
