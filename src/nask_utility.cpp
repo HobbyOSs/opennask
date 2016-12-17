@@ -1968,9 +1968,58 @@ namespace nask_utility {
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       tokenizer.LookAhead(2).Is("[")  &&
-			       is_common_register(token_table, tokenizer.LookAhead(3)) &&
-			       tokenizer.LookAhead(4).Is("]")) {
+			       is_common_register(token_table, tokenizer.LookAhead(3))) {
 			 // CMP Reg,Mem
+                         // 0x3A /r | CMP r8,  r/m8  r/m8をr8と比較します
+			 // 0x3B /r | CMP r16, r/m16 r/m16をr16と比較します
+			 // 0x3B /r | CMP r32, r/m32 r/m32をr32と比較します
+
+			 // CMP EAX,[ESP+20]
+			 bool exists_disp = tokenizer.LookAhead(6).Is("]") ? true : false;
+			 TParaToken dst_token = token;
+			 const std::string dst_reg = dst_token.AsString();
+
+			 std::string src_mem = "";
+			 std::string disp = "";
+			 if (exists_disp) {
+			      src_mem = "[";
+			      src_mem += tokenizer.LookAhead(3).AsString();
+			      src_mem += tokenizer.LookAhead(4).AsString();
+			      src_mem += tokenizer.LookAhead(5).AsString();
+			      src_mem += "]";
+			      disp = tokenizer.LookAhead(5).AsString();
+			 }
+
+			 log()->info("exists disp ? => {}", exists_disp);
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      const uint8_t op = 0x3a;
+			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, dst_reg, src_mem);
+			      log()->info("NIM(B): 0x3a, 0x{:02x}", modrm);
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			 } else {
+			      const uint8_t op = 0x3b;
+			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, dst_reg, src_mem);
+			      log()->info("NIM(B): 0x3b, 0x{:02x}", modrm);
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			 }
+			 if (disp != "" && ModRM::get_rm_from_reg(dst_reg) == ModRM::SIB) {
+			      const uint8_t sib = ModRM::generate_sib(exists_disp ? src_mem : dst_reg, src_mem);
+			      log()->info("SIB: 0x{:02x}", sib);
+			      binout_container.push_back(sib);
+			 }
+			 if (tokenizer.LookAhead(4).Is("+")) {
+			      const uint8_t disp = tokenizer.LookAhead(5).AsLong();
+			      log()->info("Disp: 0x{:02x}", disp);
+			      binout_container.push_back(disp);
+			 }
+
+			 // 終わり
+			 break;
+
 		    } else if (is_common_register(token_table, token) &&
 			       tokenizer.LookAhead(1).Is(",")  &&
 			       is_legitimate_numeric(get_equ_label_or_asis(tokenizer.LookAhead(2).AsString()))) {
