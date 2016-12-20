@@ -1770,23 +1770,23 @@ namespace nask_utility {
                               // 0x83 /0 ib  ADD r/m32, imm8
                               // 0x81 /0 id  ADD r/m32, imm32
 			      std::smatch match;
+
 			      if (regex_match(dst_reg, match, ModRM::regImm08)) {
 				   // ADD Reg8, Imm
 				   // -------------
 				   // 0x80 /0 ib  ADD r/m8, imm8
 				   // 0x81 /0 ib  ADD r/m8, imm8
 				   log()->info("r/m8: ", dst_reg);
-				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
-				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+				   const uint8_t modrm =
+					ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_0);
 
-				   // debug logs
 				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
 					       0x80,
-					       bs_dst2.to_ulong(),
+					       modrm,
 					       src_token.AsLong());
 
 				   binout_container.push_back(0x80);
-				   binout_container.push_back(bs_dst2.to_ulong());
+				   binout_container.push_back(modrm);
 				   binout_container.push_back(src_token.AsLong());
 
 			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
@@ -1796,15 +1796,19 @@ namespace nask_utility {
 				   // 0x83 /0 ib  ADD r/m16, imm8
 				   // 0x81 /0 iw  ADD r/m16, imm16
 				   log()->info("r/m16: ", dst_reg);
-				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+				   const uint8_t modrm =
+					ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_0);
 
-				   // debug logs
 				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-					       op, bs_dst2.to_ulong(), src_token.AsLong());
+					       op, modrm, src_token.AsLong());
 
 				   binout_container.push_back(op);
-				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_token.AsLong());
+				   binout_container.push_back(modrm);
+				   if (get_imm_size(token.AsString()) == imm8) {
+					binout_container.push_back(src_token.AsLong());
+				   } else {
+					set_word_into_binout(src_token.AsLong(), binout_container);
+				   }
 
 			      } else {
 				   const uint8_t op = is_imm8(src_token.AsString()) ? 0x83 : 0x81;
@@ -1813,17 +1817,20 @@ namespace nask_utility {
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
 				   log()->info("r/m32: ", dst_reg);
-				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
+				   const uint8_t modrm =
+					ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_0);
 
-				   // debug logs
 				   store_register_size_prefix(dst_reg, binout_container);
 				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-					       op, bs_dst2.to_ulong(), src_token.AsLong());
+					       op, modrm, src_token.AsLong());
 
 				   binout_container.push_back(op);
-				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_token.AsLong());
-
+				   binout_container.push_back(modrm);
+				   if (get_imm_size(token.AsString()) == imm8) {
+					binout_container.push_back(src_token.AsLong());
+				   } else {
+					set_dword_into_binout(src_token.AsLong(), binout_container);
+				   }
 			      }
 			      break;
 			 }

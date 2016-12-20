@@ -90,7 +90,10 @@ namespace nask_utility {
 
      size_t get_imm_size(const std::string& hex_string) {
 	  if (is_hex_notation(hex_string)) {
-	       const size_t s = hex_string.substr(2).size() / 2;
+	       // サイズが偶数じゃないような場合の調整 ex) 0xffc => 0x0ffc
+	       const std::string supplied_hex = (hex_string.substr(2).size() % 2 == 0) ?
+		    hex_string.substr(2) : "0" + hex_string.substr(2);
+	       const size_t s = supplied_hex.size() / 2;
 	       log()->info("check imm size: {} => {}", hex_string, s);
 	       return s;
 	  } else {
