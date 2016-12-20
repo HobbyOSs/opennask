@@ -1,7 +1,7 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(opennask CXX)
-set(opennask_VERSION \"0.0.3\")
+set(opennask_VERSION \"1.0.0\")
 
 ########### next target ###############
 
