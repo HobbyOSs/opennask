@@ -2007,7 +2007,9 @@ namespace nask_utility {
 			 // 0x3B /r | CMP r16, r/m16 r/m16をr16と比較します
 			 // 0x3B /r | CMP r32, r/m32 r/m32をr32と比較します
 
-			 // CMP EAX,[ESP+20]
+			 // ex1) CMP EAX,[ESP+20]
+			 // ex2) CMP EDI,[EBX]
+			 // ex3) CMP ESI,[EBX]
 			 bool exists_disp = tokenizer.LookAhead(6).Is("]") ? true : false;
 			 TParaToken dst_token = token;
 			 const std::string dst_reg = dst_token.AsString();
@@ -2021,6 +2023,10 @@ namespace nask_utility {
 			      src_mem += tokenizer.LookAhead(5).AsString();
 			      src_mem += "]";
 			      disp = tokenizer.LookAhead(5).AsString();
+			 } else {
+			      src_mem = "[";
+			      src_mem += tokenizer.LookAhead(3).AsString();
+			      src_mem += "]";
 			 }
 
 			 log()->info("exists disp ? => {}", exists_disp);
@@ -2028,13 +2034,13 @@ namespace nask_utility {
 			 std::smatch match;
 			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			      const uint8_t op = 0x3a;
-			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, dst_reg, src_mem);
+			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, src_mem, dst_reg);
 			      log()->info("NIM(B): 0x3a, 0x{:02x}", modrm);
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
 			 } else {
 			      const uint8_t op = 0x3b;
-			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, dst_reg, src_mem);
+			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, src_mem, dst_reg);
 			      log()->info("NIM(B): 0x3b, 0x{:02x}", modrm);
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
