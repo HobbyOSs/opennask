@@ -164,6 +164,7 @@ namespace nask_utility {
 	  int process_token_JE     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JMP    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JNC    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_JNE    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JNZ    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_JZ     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_LGDT   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
