@@ -26,7 +26,7 @@ namespace nask_utility {
 	  const std::regex rm001(_001, extended | icase);
 	  const std::regex rm010(_010, extended | icase);
 	  const std::regex rm011(_011, extended | icase);
-	  const std::regex rm100(_011, extended | icase);
+	  const std::regex rm100(_100, extended | icase);
 	  const std::regex rm101(_101, extended | icase);
 	  const std::regex rm110(_110, extended | icase);
 	  const std::regex rm111(_111, extended | icase);
