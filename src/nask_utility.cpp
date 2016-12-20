@@ -2047,7 +2047,7 @@ namespace nask_utility {
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
 			 }
-			 if (disp != "" && ModRM::get_rm_from_reg(dst_reg) == ModRM::SIB) {
+			 if (disp != "" && ModRM::get_rm_from_reg(src_mem) == ModRM::SIB) {
 			      const uint8_t sib = ModRM::generate_sib(exists_disp ? src_mem : dst_reg, src_mem);
 			      log()->info("SIB: 0x{:02x}", sib);
 			      binout_container.push_back(sib);
