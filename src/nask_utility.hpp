@@ -77,10 +77,7 @@ namespace nask_utility {
 
      bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
 
-     template <class T> void plus_number_from_code(T& num, char c);
-     uint8_t get_plus_register_code(uint8_t byte, char c);
-     uint16_t get_plus_register_code(uint16_t word, char c);
-     uint32_t get_plus_register_code(uint32_t dword, char c);
+     uint8_t plus_number_from_code(uint8_t byte, const std::string& reg);
 
      // @detail uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
      // nask的には0x00をバイトサイズで格納する傾向があるので、そうじゃない場合はフラグを設定する

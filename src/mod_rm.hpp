@@ -16,6 +16,7 @@ namespace nask_utility {
 	  constexpr const char* _001 = "(CL|CX|ECX|\\[ECX]|\\[ECX\\+.*])";
 	  constexpr const char* _010 = "(DL|DX|EDX|\\[EDX]|\\[EDX\\+.*])";
 	  constexpr const char* _011 = "(BL|BX|EBX|\\[EBX]|\\[EBX\\+.*])";
+	  constexpr const char* _100 = "(AH|SP|ESP|\\[ESP]|\\[ESP\\+.*])";
 	  /**                   _100 = これは最後に評価                 */
 	  constexpr const char* _101 = "(CH|BP|EBP)";
 	  constexpr const char* _110 = "(DH|SI|ESI|\\[ESI]|\\[ESI\\+.*])";
@@ -25,6 +26,7 @@ namespace nask_utility {
 	  const std::regex rm001(_001, extended | icase);
 	  const std::regex rm010(_010, extended | icase);
 	  const std::regex rm011(_011, extended | icase);
+	  const std::regex rm100(_011, extended | icase);
 	  const std::regex rm101(_101, extended | icase);
 	  const std::regex rm110(_110, extended | icase);
 	  const std::regex rm111(_111, extended | icase);

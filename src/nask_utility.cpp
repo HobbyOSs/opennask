@@ -73,37 +73,30 @@ namespace nask_utility {
 	  return it != std::end(DATA_TYPES);
      }
 
-     template <class T> void plus_number_from_code(T& num, char c) {
-	  switch(c) {
-	  case 'A':
-	       num += 0;
-	       break;
-	  case 'C':
-	       num += 1;
-	       break;
-	  case 'D':
-	       num += 2;
-	       break;
-	  case 'B':
-	       num += 3;
-	       break;
-	  }
-     }
+     uint8_t plus_number_from_code(uint8_t byte, const std::string& reg) {
+	  log()->info("Processing +rb, +rw, +rd, +ro ... {}", reg);
+	  std::smatch match;
 
-     // +rb
-     uint8_t get_plus_register_code(uint8_t byte, char c) {
-	  plus_number_from_code(byte, c);
-	  return byte;
-     }
-     // +rw
-     uint16_t get_plus_register_code(uint16_t word, char c) {
-	  plus_number_from_code(word, c);
-	  return word;
-     }
-     // +rd
-     uint32_t get_plus_register_code(uint32_t dword, char c) {
-	  plus_number_from_code(dword, c);
-	  return dword;
+	  if (regex_match(reg, match, ModRM::rm000)) {
+	       return byte + 0;
+	  } else if (regex_match(reg, match, ModRM::rm001)) {
+	       return byte + 1;
+	  } else if (regex_match(reg, match, ModRM::rm010)) {
+	       return byte + 2;
+	  } else if (regex_match(reg, match, ModRM::rm011)) {
+	       return byte + 3;
+	  } else if (regex_match(reg, match, ModRM::rm100)) {
+	       return byte + 4;
+	  } else if (regex_match(reg, match, ModRM::rm101)) {
+	       return byte + 5;
+	  } else if (regex_match(reg, match, ModRM::rm110)) {
+	       return byte + 6;
+	  } else if (regex_match(reg, match, ModRM::rm111)) {
+	       return byte + 7;
+	  } else {
+	       std::cerr << "Unknown register is the argument for +rb, +rw, +rd, +ro" << std::endl;
+	       return 0;
+	  }
      }
 
      // Instructionクラスの定数を初期化
@@ -128,13 +121,13 @@ namespace nask_utility {
 	  if (reg == "AL" || reg == "BL" || reg == "CL" || reg == "DL") {
 	       // prefix = "B0+rb" (AL:+0, CL:+1, DL:+2, BL:+3)
 	       log()->info("reg == AL|BL|CL|DL");
-	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb0, reg.at(0));
+	       nim_info->prefix = plus_number_from_code(0xb0, reg);
 	       nim_info->reg = reg;
 	       nim_info->imm = imm8;
 	  } else if (reg == "EAX" || reg == "EBX" || reg == "ECX" || reg == "EDX") {
 	       // prefix = "B8+rd" (EAX:+0, EBX:+1, ECX:+2, EDX:+3)
 	       log()->info("reg == EAX|EBX|ECX|EDX");
-	       nim_info->prefix = get_plus_register_code((uint8_t) 0xb8, reg.at(1));
+	       nim_info->prefix = plus_number_from_code(0xb8, reg);
 	       nim_info->reg = reg;
 	       nim_info->imm = imm32;
 	  } else {
@@ -2762,7 +2755,7 @@ namespace nask_utility {
 
 			      // 0x58+rw | POP r16 <-- AX, BX, CX, DX
 			      log()->info("POP from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(0));
+			      const uint8_t opecode = plus_number_from_code(0x58, dst_reg);
 			      log()->info("NIM(B): 0x{:02x}", opecode);
 			      binout_container.push_back(opecode);
 
@@ -2770,7 +2763,7 @@ namespace nask_utility {
 
 			      // 0x58+rd | POP r32 <-- EAX, EBX, ECX, EDX
 			      log()->info("POP from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x58, dst_reg.at(1));
+			      const uint8_t opecode = plus_number_from_code(0x58, dst_reg);
 			      log()->info("NIM(B): 0x{:02x}", opecode);
 			      binout_container.push_back(opecode);
 			 } else {
@@ -2859,14 +2852,14 @@ namespace nask_utility {
 			 if (regex_match(dst_reg, match, ModRM::regImm16)) {
 			      // 0x50+rw | PUSH r16 <-- AX, BX, CX, DX
 			      log()->info("PUSH from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x50, dst_reg.at(0));
+			      const uint8_t opecode = plus_number_from_code(0x50, dst_reg);
 			      log()->info("NIM(B): 0x{:02x}", opecode);
 			      binout_container.push_back(opecode);
 
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			      // 0x50+rd | PUSH r32 <-- EAX, EBX, ECX, EDX
 			      log()->info("PUSH from {}", dst_reg);
-			      const uint8_t opecode = get_plus_register_code((uint8_t) 0x50, dst_reg.at(1));
+			      const uint8_t opecode = plus_number_from_code(0x50, dst_reg);
 			      log()->info("NIM(B): 0x{:02x}", opecode);
 			      binout_container.push_back(opecode);
 
