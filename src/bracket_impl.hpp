@@ -448,6 +448,11 @@ namespace nask_utility {
 		    func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
 		    func.shortName[4] = long_symbols_size & 0xff;
 		    log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
+		    log()->info("[value] 0x{:08}", func.value);
+		    log()->info("[sNumb] 0x{:04}", func.sectionNumber);
+		    log()->info("[_type] 0x{:04}", func.type);
+		    log()->info("[class] 0x{:02}", func.storageClass);
+		    log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
 
 		    // シンボルサイズ + 1 (0x00)
 		    long_symbols_size += real_symbol_name.size() + 1;
