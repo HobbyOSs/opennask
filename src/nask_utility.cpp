@@ -175,11 +175,14 @@ namespace nask_utility {
 	  if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 	       log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 	       binout_container.push_back(0x66);
+	       return;
 	  } else if (regex_match(src_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
 	       log()->info("16bit reg using & 32bit-mode: Register-size prefix: 0x66");
 	       binout_container.push_back(0x66);
+	       return;
 	  } else {
 	       log()->info("Register-size prefix is absent");
+	       return;
 	  }
      }
 
@@ -1122,8 +1125,12 @@ namespace nask_utility {
 		    //
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
-		    const std::string dst_reg  = dst_token.AsString();
-		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
+		    const std::string dst_reg     = dst_token.AsString();
+		    const std::string src_imm_str = get_equ_label_or_asis(src_token.AsString());
+
+		    const long src_imm = (src_imm_str != src_token.AsString() && is_hex_notation(src_imm_str)) ?
+			 std::strtol(src_imm_str.c_str(), NULL, 16) : src_token.AsLong();
+
 		    log()->info("{} <= {}, with imm", dst_reg, src_imm);
 
 		    std::smatch match;
@@ -1132,23 +1139,23 @@ namespace nask_utility {
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 // 0xb0+rb
 			 const uint8_t op = plus_number_from_code(0xb0, dst_reg);
-			 log()->info("(B): 0x{:02x}, 0x{:02x}", op, src_token.AsLong());
+			 log()->info("(B): 0x{:02x}, 0x{:02x}", op, src_imm);
 			 binout_container.push_back(op);
-			 binout_container.push_back(src_token.AsLong());
+			 binout_container.push_back(src_imm);
 
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
 			 // 0xb8+rw
 			 const uint8_t op = plus_number_from_code(0xb8, dst_reg);
-			 log()->info("(W): 0x{:02x}, 0x{:02x}", op, src_token.AsLong());
+			 log()->info("(W): 0x{:02x}, 0x{:02x}", op, src_imm);
 			 binout_container.push_back(op);
-			 set_word_into_binout(src_token.AsLong(), binout_container);
+			 set_word_into_binout(src_imm, binout_container);
 
 		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			 // 0xb8+rd
 			 const uint8_t op = plus_number_from_code(0xb8, dst_reg);
-			 log()->info("(D): 0x{:02x}, 0x{:02x}", op, src_token.AsLong());
+			 log()->info("(D): 0x{:02x}, 0x{:02x}", op, src_imm);
 			 binout_container.push_back(op);
-			 set_dword_into_binout(src_token.AsLong(), binout_container);
+			 set_dword_into_binout(src_imm, binout_container);
 		    } else {
 			 update_label_src_offset(src_token.AsString(), binout_container, 0x00);
 			 store_label_src(src_token.AsString(), binout_container, true);
