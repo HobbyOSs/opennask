@@ -1812,15 +1812,14 @@ namespace nask_utility {
 				   // -------------
 				   // 0x83 /0 ib  ADD r/m32, imm8
 				   // 0x81 /0 id  ADD r/m32, imm32
-				   log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 				   log()->info("r/m32: ", dst_reg);
 				   const std::bitset<8> bs_dst2("11000" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): 0x66, 0x{:02x}, 0x{:02x}, 0x{:02x}",
+				   store_register_size_prefix(dst_reg, binout_container);
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
 					       op, bs_dst2.to_ulong(), src_token.AsLong());
 
-				   binout_container.push_back(0x66);
 				   binout_container.push_back(op);
 				   binout_container.push_back(bs_dst2.to_ulong());
 				   binout_container.push_back(src_token.AsLong());
