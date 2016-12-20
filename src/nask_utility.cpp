@@ -1148,7 +1148,7 @@ namespace nask_utility {
 			 const uint8_t op = plus_number_from_code(0xb8, dst_reg);
 			 log()->info("(W): 0x{:02x}, 0x{:02x}", op, src_imm);
 			 binout_container.push_back(op);
-			 set_word_into_binout(src_imm, binout_container);
+			 set_word_into_binout(src_imm, binout_container, false);
 
 		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			 // 0xb8+rd
@@ -1732,11 +1732,14 @@ namespace nask_utility {
 			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_token.AsLong());
 			      binout_container.push_back(bs_dst.to_ulong());
 
-			      if (imm_size == imm8) {
+			      if (dst_reg == "AL") {
 				   log()->info("imm8: {}", src_imm);
 				   binout_container.push_back(src_token.AsLong());
-			      } else {
+			      } else if (dst_reg == "AX") {
 				   log()->info("imm16: {}", src_imm);
+				   set_word_into_binout(src_token.AsLong(), binout_container);
+			      } else {
+				   log()->info("imm32: {}", src_imm);
 				   set_dword_into_binout(src_token.AsLong(), binout_container);
 			      }
 			      break;
