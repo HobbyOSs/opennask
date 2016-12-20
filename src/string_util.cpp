@@ -15,11 +15,14 @@ namespace nask_utility {
 
      bool is_imm8(const std::string& token) {
 	  if (is_hex_notation(token)) {
-	       return imm8 == get_imm_size(token);
+	       bool t = (get_imm_size(token) == imm8) ? true : false;
+	       log()->info("{} is imm8 ? : {}", token, t);
+	       return t;
 	  } else {
 	       if (is_integer(token)) {
-		    log()->info("is imm8 ? {}", token);
-		    return is_between_bytesize(std::stol(token));
+		    bool t = is_between_bytesize(std::stol(token));
+		    log()->info("{} is imm8 ? : {}", token, t);
+		    return t;
 	       }
 	  }
 	  return true;

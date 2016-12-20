@@ -3119,10 +3119,12 @@ namespace nask_utility {
 			 ) {
 
                          // 0x80 /6 ib | XOR r/m8,  imm8  | r/m8とimm8との排他的論理和をとります
-                         // 0x81 /6 iw | XOR r/m16, imm16 | r/m16とimm16との排他的論理和をとります
-			 // 0x81 /6 id | XOR r/m32, imm32 | r/m32とimm32との排他的論理和をとります
 			 // 0x83 /6 ib | XOR r/m16, imm8  | r/m16と符号拡張したimm8との排他的論理和をとります
 			 // 0x83 /6 ib | XOR r/m32, imm8  | r/m32と符号拡張したimm8との排他的論理和をとります
+
+			 // 以下は実装しない
+                         // 0x81 /6 iw | XOR r/m16, imm16 | r/m16とimm16との排他的論理和をとります
+			 // 0x81 /6 id | XOR r/m32, imm32 | r/m32とimm32との排他的論理和をとります
 			 const bool using_data_type = is_datatype(token_table, token);
 			 const bool dst_is_mem = (token.Is("[") || tokenizer.LookAhead(1).Is("["));
 
@@ -3156,37 +3158,27 @@ namespace nask_utility {
 
 			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			      // 0x80 /6 ib | XOR r/m8,  imm8  | r/m8とimm8との排他的論理和をとります
-			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_reg, ModRM::SLASH_6);
 			      log()->info("NIM(B): 0x80, 0x{:02x}, 0x{:02x}", modrm, src_token.AsLong());
 			      binout_container.push_back(0x80);
 			      binout_container.push_back(modrm);
 			      binout_container.push_back(src_token.AsLong());
 			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-			      // 0x81 /6 iw | XOR r/m16, imm16 | r/m16とimm16との排他的論理和をとります
                               // 0x83 /6 ib | XOR r/m16, imm8  | r/m16と符号拡張したimm8との排他的論理和をとります
-			      const uint8_t op = is_imm8(src_imm) ? 0x83 : 0x81;
-			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      const uint8_t op    = 0x83;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_reg, ModRM::SLASH_6);
 			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", op, modrm, src_token.AsLong());
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
-			      if (op == 0x83) {
-				   binout_container.push_back(src_token.AsLong());
-			      } else {
-				   set_word_into_binout(src_token.AsLong(), binout_container);
-			      }
+			      binout_container.push_back(src_token.AsLong());
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
-			      // 0x81 /6 id | XOR r/m32, imm32 | r/m32とimm32との排他的論理和をとります
 			      // 0x83 /6 ib | XOR r/m32, imm8  | r/m32と符号拡張したimm8との排他的論理和をとります
-			      const uint8_t op = is_imm8(src_imm) ? 0x83 : 0x81;
-			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst_reg, ModRM::SLASH_6);
+			      const uint8_t op    = 0x83;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_reg, ModRM::SLASH_6);
 			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}, 0x{:02x}", op, modrm, src_token.AsLong());
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
-			      if (op == 0x83) {
-				   binout_container.push_back(src_token.AsLong());
-			      } else {
-				   set_dword_into_binout(src_token.AsLong(), binout_container);
-			      }
+			      binout_container.push_back(src_token.AsLong());
 			 } else {
 			      // memory
 			      std::cerr << "NASK : XOR syntax error" << std::endl;
