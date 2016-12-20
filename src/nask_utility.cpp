@@ -1761,7 +1761,7 @@ namespace nask_utility {
 			 std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
 			 // Imm8 or Imm16
 			 const size_t imm_size = get_imm_size(src_token.AsString());
-			 log()->info("imm size: ", imm_size);
+			 log()->info("imm size: {}", imm_size);
 
 			 if (ModRM::is_accumulator(dst_reg)) {
 			      // ADD Acc,Imm
@@ -1772,11 +1772,11 @@ namespace nask_utility {
 			      binout_container.push_back(bs_dst.to_ulong());
 
 			      if (imm_size == imm8) {
-				   log()->info("imm8 ! => ", src_token.AsLong());
+				   log()->info("imm8: {}", src_imm);
 				   binout_container.push_back(src_token.AsLong());
 			      } else {
-				   log()->info("imm16 ! => ", src_token.AsLong());
-				   set_word_into_binout(src_token.AsLong(), binout_container, false);
+				   log()->info("imm16: {}", src_imm);
+				   set_dword_into_binout(src_token.AsLong(), binout_container);
 			      }
 			      break;
 
