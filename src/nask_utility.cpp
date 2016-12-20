@@ -1792,7 +1792,7 @@ namespace nask_utility {
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(modrm);
-				   if (get_imm_size(token.AsString()) == imm8) {
+				   if (is_imm8(src_token.AsString())) {
 					binout_container.push_back(src_token.AsLong());
 				   } else {
 					set_word_into_binout(src_token.AsLong(), binout_container);
@@ -1814,7 +1814,7 @@ namespace nask_utility {
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(modrm);
-				   if (get_imm_size(token.AsString()) == imm8) {
+				   if (is_imm8(src_token.AsString())) {
 					binout_container.push_back(src_token.AsLong());
 				   } else {
 					set_dword_into_binout(src_token.AsLong(), binout_container);
