@@ -1116,7 +1116,7 @@ namespace nask_utility {
 		    //
 		    // MOV Reg, Imm | 1011wrrr
 		    //--------------------------------------------------------
-		    // 0xB0+rb	MOV r8, imm8		imm8をr8に転送します
+		    // 0xB0+rb	MOV r8,  imm8		imm8をr8に転送します
 		    // 0xB8+rw	MOV r16, imm16		imm16をr16に転送します
 		    // 0xB8+rd	MOV r32, imm32		imm32をr32に転送します
 		    //
@@ -1126,76 +1126,34 @@ namespace nask_utility {
 		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
 		    log()->info("{} <= {}, with imm", dst_reg, src_imm);
 
-		    NIMONIC_INFO nim_info;
-		    set_nimonic_with_register(token.AsString(), &nim_info, tokenizer);
-
-		    // コンマを飛ばして次へ
-		    token = tokenizer.Next();
-		    token = tokenizer.Next();
-
-		    const uint16_t nim = nim_info.prefix;
-		    if (nim_info.imm != offs && nim_info.imm != imm32 ) {
-			 if (nim > 0x6600) {
-			      const uint8_t first_byte	= nim & 0xff;
-			      const uint8_t second_byte = (nim >> 8);
-			      binout_container.push_back(second_byte);
-			      binout_container.push_back(first_byte);
-			      // debug logs
-			      log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
-					  second_byte,
-					  first_byte,
-					  token.AsLong());
-
-			 } else {
-			      const uint8_t first_byte	= nim & 0xff;
-			      const uint8_t second_byte = (nim >> 8);
-			      binout_container.push_back(first_byte);
-			      // debug logs
-			      log()->info("NIM:(B) 0x{:02x}, 0x{:02x}",
-					  static_cast<int>(first_byte),
-					  (nim_info.imm != offs) ?
-					  static_cast<int>(token.AsLong()) : token.AsLong());
-			 }
-		    }
-
 		    std::smatch match;
-		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+		    store_register_size_prefix(dst_reg, binout_container);
 
-		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
-			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
-			 binout_container.push_back(0x66);
+		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			 // 0xb0+rb
+			 const uint8_t op = plus_number_from_code(0xb0, dst_reg);
+			 binout_container.push_back(op);
+			 binout_container.push_back(src_token.AsLong());
+
+		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			 // 0xb8+rw
+			 const uint8_t op = plus_number_from_code(0xb8, dst_reg);
+			 binout_container.push_back(op);
+			 set_word_into_binout(src_token.AsLong(), binout_container);
+
+		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			 // 0xb8+rd
+			 const uint8_t op = plus_number_from_code(0xb8, dst_reg);
+			 binout_container.push_back(op);
+			 set_dword_into_binout(src_token.AsLong(), binout_container);
 		    } else {
-			 log()->info("Register-size prefix is absent");
-		    }
-
-		    // 即値(imm)を設定
-		    if (nim_info.imm == imm8) {
-			 log()->info("Imm8");
-			 binout_container.push_back(token.AsLong());
-
-		    } else if (nim_info.imm == imm16) {
-			 log()->info("Imm16");
-			 set_word_into_binout(token.AsLong(), binout_container, false);
-
-		    } else if (nim_info.imm == imm32) {
-			 binout_container.push_back(nim);
-			 const long real_src_imm = is_hex_notation(src_imm) ?
-			      std::stoul(src_imm, nullptr, 16) : src_token.AsLong();
-
-			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", nim, real_src_imm);
-			 set_dword_into_binout(real_src_imm, binout_container, false);
-
-		    } else if (nim_info.imm == offs) {
-			 log()->info("Offset processing !");
-			 update_label_src_offset(token.AsString(), binout_container, 0x00);
-			 store_label_src(token.AsString(), binout_container, true);
+			 update_label_src_offset(src_token.AsString(), binout_container, 0x00);
+			 store_label_src(src_token.AsString(), binout_container, true);
 			 // とりあえずoffsetには0x00を入れておき、見つかった時に更新する
 			 binout_container.push_back(0x00);
 			 binout_container.push_back(0x7c);
-		    } else {
-			 std::cerr << "NASK : MOV imm could not set correctly " << std::endl;
-			 return 17;
 		    }
+
 		    // これで終了のはず
 		    break;
 	       } else {
