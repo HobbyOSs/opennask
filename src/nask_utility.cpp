@@ -2032,15 +2032,17 @@ namespace nask_utility {
 			 log()->info("exists disp ? => {}", exists_disp);
 
 			 std::smatch match;
+			 const ModRM::mods mod_kind = exists_disp ? ModRM::REG_DISP8 : ModRM::REG_REG;
+
 			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			      const uint8_t op = 0x3a;
-			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, src_mem, dst_reg);
+			      const uint8_t modrm = ModRM::generate_modrm(op, mod_kind, src_mem, dst_reg);
 			      log()->info("NIM(B): 0x3a, 0x{:02x}", modrm);
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
 			 } else {
 			      const uint8_t op = 0x3b;
-			      const uint8_t modrm = ModRM::generate_modrm(op, ModRM::REG_REG, src_mem, dst_reg);
+			      const uint8_t modrm = ModRM::generate_modrm(op, mod_kind, src_mem, dst_reg);
 			      log()->info("NIM(B): 0x3b, 0x{:02x}", modrm);
 			      binout_container.push_back(op);
 			      binout_container.push_back(modrm);
