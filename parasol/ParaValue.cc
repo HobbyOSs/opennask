@@ -407,11 +407,11 @@ long TParaValue::AsLong(void) const throw(TScriptException)
       case vtObject:
         break;
       case vtPointer:
-        Value = (long) _PrimitiveValue._PointerValue;
+	Value = reinterpret_cast<std::uintptr_t>(_PrimitiveValue._PointerValue);
         IsConversionSuccessful = true;
         break;
       case vtList:
-        Value = (long) _PrimitiveValue._ListValue->ValueList().size();
+        Value = static_cast<long>(_PrimitiveValue._ListValue->ValueList().size());
         IsConversionSuccessful = true;
         break;
       default:
