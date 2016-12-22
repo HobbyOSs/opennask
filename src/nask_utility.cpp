@@ -743,9 +743,10 @@ namespace nask_utility {
 		    const std::string dst_addr = get_equ_label_or_asis(dst_token.AsString());
 		    const std::string src_reg  = src_token.AsString();
 
-		    log()->info("{} <= {}", dst_mem, src_reg);
+		    log()->info("{} <= {}, CPU {}", dst_mem, src_reg, this->support_cpus[this->support]);
 
-		    if (src_reg == "AL" || src_reg == "AX") {
+		    if (src_reg == "AL" || src_reg == "AX" || (src_reg == "EAX" && this->support <= SUP_i386)) {
+			 store_register_size_prefix(src_reg, binout_container);
 			 log()->info("MOV moffs* , AL or AX");
 			 const uint8_t bs_src = (src_reg == "AL") ? 0xa2 : 0xa3;
 			 binout_container.push_back(bs_src);
@@ -762,7 +763,6 @@ namespace nask_utility {
 			 const uint8_t modrm = ModRM::generate_modrm(bs_src.to_ulong(), ModRM::REG_REG, dst_mem, src_reg);
 			 std::smatch match;
 			 log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
-
 			 if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			      log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			      binout_container.push_back(0x67);
