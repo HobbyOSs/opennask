@@ -170,16 +170,22 @@ namespace nask_utility {
      // see: http://wiki.osdev.org/X86-64_Instruction_Encoding
      void Instructions::store_segment_override_prefix(const std::string& src_reg, VECTOR_BINOUT& binout_container) {
 	  if (src_reg == "CS") {
+	       log()->info("CS: Segment override prefix: 0x2e");
 	       binout_container.push_back(0x2e);
 	  } else if (src_reg == "SS") {
+	       log()->info("SS: Segment override prefix: 0x36");
 	       binout_container.push_back(0x36);
 	  } else if (src_reg == "DS") {
+	       log()->info("DS: Segment override prefix: 0x3e");
 	       binout_container.push_back(0x3e);
 	  } else if (src_reg == "ES") {
+	       log()->info("ES: Segment override prefix: 0x26");
 	       binout_container.push_back(0x26);
 	  } else if (src_reg == "FS") {
+	       log()->info("FS: Segment override prefix: 0x64");
 	       binout_container.push_back(0x64);
 	  } else if (src_reg == "GS") {
+	       log()->info("GS: Segment override prefix: 0x65");
 	       binout_container.push_back(0x65);
 	  } else {
 	       std::cerr << "Invalid segment register: " << src_reg << std::endl;
@@ -945,15 +951,18 @@ namespace nask_utility {
 		    std::smatch match;
 		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
 
-		    if (indexes_and_pointers) {
-			 store_segment_override_prefix(tokenizer.LookAhead(3).AsString(), binout_container);
-		    }
-
-		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    // 0x67
+		    if (regex_match(dst_reg, match, ModRM::regImm32) &&
+			this->OPENNASK_MODES == ID_16BIT_MODE && !indexes_and_pointers) {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
 			 binout_container.push_back(0x67);
 		    }
-		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    // 0x66
+		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE
+			 && indexes_and_pointers) {
+			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+		    } else if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else if (!indexes_and_pointers && exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
@@ -966,11 +975,16 @@ namespace nask_utility {
 		    } else {
 			 log()->info("Register-size prefix is absent");
 		    }
+		    // 0x26, etc
+		    if (indexes_and_pointers) {
+			 store_segment_override_prefix(tokenizer.LookAhead(3).AsString(), binout_container);
+		    }
 
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 // r8
 			 const uint8_t op = 0x8a;
-			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
+			 bool mod_is = exists_disp && !indexes_and_pointers;
+			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
 			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
@@ -978,7 +992,8 @@ namespace nask_utility {
 		    } else {
 			 // r16 or r32
 			 const uint8_t op = 0x8b;
-			 const uint8_t modrm = exists_disp ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
+			 bool mod_is = exists_disp && !indexes_and_pointers;
+			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
 			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
 		    	 binout_container.push_back(op);
@@ -996,10 +1011,12 @@ namespace nask_utility {
 		    }
 
 		    if (exists_disp) {
-			 const uint8_t disp = indexes_and_pointers ? tokenizer.LookAhead(7).AsLong()
-			      : tokenizer.LookAhead(5).AsLong();
-			 log()->info("Disp: 0x{:02x}", disp);
-		    	 binout_container.push_back(disp);
+			 const uint8_t disp =
+			      indexes_and_pointers ? tokenizer.LookAhead(7).AsLong() : tokenizer.LookAhead(5).AsLong();
+			 if (disp != 0x00) {
+			      log()->info("Disp: 0x{:02x}", disp);
+			      binout_container.push_back(disp);
+			 }
 		    }
 
 		    // これで終了のはず
@@ -2194,6 +2211,7 @@ namespace nask_utility {
 				     imm);
 
 			 std::smatch match;
+			 store_segment_override_prefix(seg_reg, binout_container);
 			 if (regex_match(dst_reg, match, ModRM::regImm08) || token.Is("BYTE")) {
 			      const uint8_t op = 0x80;
 			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8,
@@ -2215,8 +2233,6 @@ namespace nask_utility {
 			      binout_container.push_back(disp);
 			      binout_container.push_back(imm);
 			 }
-
-
 			 break;
 		    } else {
 			 std::cerr << "NASK : CMP syntax error" << std::endl;
