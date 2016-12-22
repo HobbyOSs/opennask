@@ -2054,7 +2054,12 @@ namespace nask_utility {
 			      // debug logs
 			      log()->info("NIM(B): 0x{:02x}, 0x{:02x}", bs_dst.to_ulong(), src_imm);
 			      binout_container.push_back(bs_dst.to_ulong());
-			      binout_container.push_back(src_imm);
+
+			      if (is_imm8(src_imm_str)) {
+				   binout_container.push_back(src_imm);
+			      } else {
+				   set_word_into_binout(src_imm, binout_container);
+			      }
 
 			 } else {
 			      // 8086 Opecodeの表のほうが間違えてる
@@ -2079,7 +2084,6 @@ namespace nask_utility {
 				   // ------------
 				   // 0x80 /7 ib | CMP r/m8, imm8
 				   log()->info("r/m8: ", dst_reg);
-				   //const std::bitset<8> bs_dst1("1000001" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
@@ -2093,24 +2097,26 @@ namespace nask_utility {
 				   binout_container.push_back(src_imm);
 
 			      } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-				   const uint8_t op = is_between_bytesize(src_imm) ? 0x83 : 0x81;
+
+				   const uint8_t op = is_imm8(src_imm_str) ? 0x83 : 0x81;
 				   // CMP Reg16, Imm
 				   // ------------
 				   // 0x83 /7 ib | CMP r/m16, imm8
 				   // 0x81 /7 iw | CMP r/m16, imm16
 				   log()->info("r/m16: ", dst_reg);
-				   //const std::bitset<8> bs_dst1("1000000" + std::get<1>(tp_dst));
 				   const std::bitset<8> bs_dst2("11111" + std::get<0>(tp_dst));
 
 				   // debug logs
-				   log()->info("NIM(W): {}, {}, {}",
-					       static_cast<int>(op),
-					       static_cast<int>(bs_dst2.to_ulong()),
-					       static_cast<int>(src_imm));
+				   log()->info("NIM(W): 0x{:02x}, 0x{:02x}, 0x{:02x}",
+					       op, bs_dst2.to_ulong(), src_imm);
 
 				   binout_container.push_back(op);
 				   binout_container.push_back(bs_dst2.to_ulong());
-				   binout_container.push_back(src_imm);
+				   if (op == 0x83) {
+					binout_container.push_back(src_imm);
+				   } else {
+					set_word_into_binout(src_imm, binout_container);
+				   }
 			      } else {
 				   // CMP Reg32, Imm
 				   // ------------
