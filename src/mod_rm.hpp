@@ -12,13 +12,16 @@ namespace nask_utility {
 
 	  using namespace std::regex_constants;
 
+	  //
+	  // see http://www.wdic.org/w/SCI/ModR/M
+	  //
 	  constexpr const char* _000 = "(AL|AX|EAX|\\[EAX]|\\[EAX\\+.*])";
 	  constexpr const char* _001 = "(CL|CX|ECX|\\[ECX]|\\[ECX\\+.*])";
 	  constexpr const char* _010 = "(DL|DX|EDX|\\[EDX]|\\[EDX\\+.*])";
 	  constexpr const char* _011 = "(BL|BX|EBX|\\[EBX]|\\[EBX\\+.*])";
 	  constexpr const char* _100 = "(AH|SP|ESP|\\[ESP]|\\[ESP\\+.*])";
 	  /**                   _100 = これは最後に評価                 */
-	  constexpr const char* _101 = "(CH|BP|EBP)";
+	  constexpr const char* _101 = "(CH|BP|EBP|\\[EBP\\+.*]\\[DI]|\\[DI\\+.*])";
 	  constexpr const char* _110 = "(DH|SI|ESI|\\[ESI]|\\[ESI\\+.*])";
 	  constexpr const char* _111 = "(BH|DI|EDI|\\[EDI]|\\[EDI\\+.*])";
 

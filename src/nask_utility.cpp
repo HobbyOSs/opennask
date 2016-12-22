@@ -2128,6 +2128,59 @@ namespace nask_utility {
 			       is_legitimate_numeric(tokenizer.LookAhead(4).AsString())) {
 			 // CMP Mem,Imm8
 			 // CMP Mem,Imm
+
+		    } else if (is_datatype(token_table, token) &&
+			       tokenizer.LookAhead(1).Is("[")) {
+			 // CMP BYTE Mem,Imm
+			 //
+                         // 0x80 /7 ib	CMP r/m8,  imm8	 imm8をr/m8と比較します
+                         // 0x83 /7 ib	CMP r/m16, imm8	 imm8をr/m16と比較します
+                         // 0x83 /7 ib	CMP r/m32, imm8	 imm8をr/m32と比較します
+                         // 0x81 /7 iw	CMP r/m16, imm16 imm16をr/m16と比較します
+                         // 0x80 /7 id	CMP r/m32, imm32 imm32をr/m32と比較します
+			 //
+			 const std::string seg_reg = tokenizer.LookAhead(2).AsString();
+			 const std::string dst_reg = tokenizer.LookAhead(4).AsString();
+			 const std::string op_disp = tokenizer.LookAhead(5).AsString();
+			 const std::string vl_disp = tokenizer.LookAhead(6).AsString();
+			 const std::string src_imm = tokenizer.LookAhead(9).AsString();
+
+			 const uint8_t disp = tokenizer.LookAhead(6).AsLong();
+			 const uint8_t imm  = tokenizer.LookAhead(9).AsLong();
+
+			 log()->info("[{}{}{}{}{}],{}",
+				     seg_reg,
+				     tokenizer.LookAhead(3).AsString(),
+				     dst_reg,
+				     op_disp,
+				     vl_disp,
+				     imm);
+
+			 std::smatch match;
+			 if (regex_match(dst_reg, match, ModRM::regImm08) || token.Is("BYTE")) {
+			      const uint8_t op = 0x80;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8,
+									  "[" + dst_reg + op_disp + vl_disp + "]",
+									  ModRM::SLASH_7);
+			      log()->info("NIM(B): 0x80, 0x{:02x}, 0x{:02x}, 0x{:02x}", modrm, disp, imm);
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			      binout_container.push_back(disp);
+			      binout_container.push_back(imm);
+			 } else {
+			      const uint8_t op = 0x83;
+			      const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8,
+									  "[" + dst_reg + op_disp + vl_disp + "]",
+									  ModRM::SLASH_7);
+			      log()->info("NIM(B): 0x83, 0x{:02x}, 0x{:02x}, 0x{:02x}", modrm, disp, imm);
+			      binout_container.push_back(op);
+			      binout_container.push_back(modrm);
+			      binout_container.push_back(disp);
+			      binout_container.push_back(imm);
+			 }
+
+
+			 break;
 		    } else {
 			 std::cerr << "NASK : CMP syntax error" << std::endl;
 			 return 17;
