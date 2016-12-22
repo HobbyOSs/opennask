@@ -202,7 +202,7 @@ namespace nask_utility {
 	       NAS_COFF_RELOCATION reloc = {
 		    v_addr,
 		    static_cast<uint32_t>(8+i),
-		    IMAGE_REL_I386_REL32
+		    NAS_IMAGE_REL_I386_REL32
 	       };
 
 	       auto reloc_buffer = create_buffer(reloc);

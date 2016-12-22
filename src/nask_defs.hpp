@@ -61,13 +61,13 @@ struct NAS_PIMAGE_SECTION_HEADER {
 } __attribute__((packed));
 
 // COFF Relocation type indicator
-constexpr uint16_t IMAGE_REL_I386_ABSOLUTE = 0x0000;
-constexpr uint16_t IMAGE_REL_I386_DIR32    = 0x0006;
-constexpr uint16_t IMAGE_REL_I386_DIR32NB  = 0x0007;
-constexpr uint16_t IMAGE_REL_I386_SEG12    = 0x0009;
-constexpr uint16_t IMAGE_REL_I386_SECTION  = 0x000a;
-constexpr uint16_t IMAGE_REL_I386_SECREL   = 0x000b;
-constexpr uint16_t IMAGE_REL_I386_REL32    = 0x0014;
+constexpr uint16_t NAS_IMAGE_REL_I386_ABSOLUTE = 0x0000;
+constexpr uint16_t NAS_IMAGE_REL_I386_DIR32    = 0x0006;
+constexpr uint16_t NAS_IMAGE_REL_I386_DIR32NB  = 0x0007;
+constexpr uint16_t NAS_IMAGE_REL_I386_SEG12    = 0x0009;
+constexpr uint16_t NAS_IMAGE_REL_I386_SECTION  = 0x000a;
+constexpr uint16_t NAS_IMAGE_REL_I386_SECREL   = 0x000b;
+constexpr uint16_t NAS_IMAGE_REL_I386_REL32    = 0x0014;
 
 // COFF Relocation
 struct NAS_COFF_RELOCATION {
