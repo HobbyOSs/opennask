@@ -937,6 +937,7 @@ namespace nask_utility {
 
 		    bool equ_specified = get_equ_label_or_asis(src_token.AsString()) != src_token.AsString();
 		    bool indexes_and_pointers = tokenizer.LookAhead(8).Is("]"); // [YY:ZZ+00]
+		    log()->info("indexes_and_pointers ? => {}", indexes_and_pointers);
 
 		    const std::string disp = (equ_specified || !exists_disp) ? ""
 			 : indexes_and_pointers ? tokenizer.LookAhead(6).AsString() + tokenizer.LookAhead(7).AsString()
@@ -983,7 +984,12 @@ namespace nask_utility {
 		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
 			 // r8
 			 const uint8_t op = 0x8a;
-			 bool mod_is = exists_disp && !indexes_and_pointers;
+			 bool mod_is = exists_disp || indexes_and_pointers;
+
+			 if (disp != "" && disp.substr(1) == "0x00") {
+			      mod_is = false; // FIXME
+			 }
+
 			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
 			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
@@ -992,7 +998,12 @@ namespace nask_utility {
 		    } else {
 			 // r16 or r32
 			 const uint8_t op = 0x8b;
-			 bool mod_is = exists_disp && !indexes_and_pointers;
+			 bool mod_is = exists_disp || indexes_and_pointers;
+
+			 if (disp != "" && disp.substr(1) == "0x00") {
+			      mod_is = false; // FIXME
+			 }
+
 			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
 			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
