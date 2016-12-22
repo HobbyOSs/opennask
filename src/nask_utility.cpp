@@ -166,6 +166,26 @@ namespace nask_utility {
 	  return;
      }
 
+     // segment-override prefix
+     // see: http://wiki.osdev.org/X86-64_Instruction_Encoding
+     void Instructions::store_segment_override_prefix(const std::string& src_reg, VECTOR_BINOUT& binout_container) {
+	  if (src_reg == "CS") {
+	       binout_container.push_back(0x2e);
+	  } else if (src_reg == "SS") {
+	       binout_container.push_back(0x36);
+	  } else if (src_reg == "DS") {
+	       binout_container.push_back(0x3e);
+	  } else if (src_reg == "ES") {
+	       binout_container.push_back(0x26);
+	  } else if (src_reg == "FS") {
+	       binout_container.push_back(0x64);
+	  } else if (src_reg == "GS") {
+	       binout_container.push_back(0x65);
+	  } else {
+	       std::cerr << "Invalid segment register: " << src_reg << std::endl;
+	  }
+     }
+
      // 忌々しい 0x66を処理する
      void Instructions::store_register_size_prefix(const std::string& src_reg, VECTOR_BINOUT& binout_container) {
 
@@ -886,6 +906,8 @@ namespace nask_utility {
 			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(4).Is("]")) ||
 			  // MOV XX, [YY+00]
 			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(6).Is("]")) ||
+			  // MOV XX, [YY:ZZ+00]
+			  (tokenizer.LookAhead(2).Is("[") && tokenizer.LookAhead(8).Is("]")) ||
 			  // MOV XX, BYTE [YY]
 			  (is_datatype(token_table, tokenizer.LookAhead(2)) &&
 			   tokenizer.LookAhead(3).Is("[") &&tokenizer.LookAhead(5).Is("]"))
@@ -904,20 +926,28 @@ namespace nask_utility {
 		    // mod=00: [レジスター + レジスター]
 		    // mod=01: [レジスター + disp8]
 
-		    bool exists_disp = tokenizer.LookAhead(6).Is("]") ? true : false;
+		    bool exists_disp = (tokenizer.LookAhead(6).Is("]")||tokenizer.LookAhead(8).Is("]")) ? true : false;
 		    log()->info("exists disp ? => {}", exists_disp);
 
 		    bool equ_specified = get_equ_label_or_asis(src_token.AsString()) != src_token.AsString();
+		    bool indexes_and_pointers = tokenizer.LookAhead(8).Is("]"); // [YY:ZZ+00]
 
-		    const std::string disp = (equ_specified || !exists_disp) ?
-			 "" : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
+		    const std::string disp = (equ_specified || !exists_disp) ? ""
+			 : indexes_and_pointers ? tokenizer.LookAhead(6).AsString() + tokenizer.LookAhead(7).AsString()
+			 : tokenizer.LookAhead(4).AsString() + tokenizer.LookAhead(5).AsString();
 
-		    const std::string src_mem  = exists_disp ? "[" + src_reg + disp + "]" : "[" + src_reg + "]";
+		    const std::string src_mem  = !exists_disp ? "[" + src_reg + "]"
+			 : indexes_and_pointers ? "[" + tokenizer.LookAhead(5).AsString() + disp + "]"
+			 : "[" + src_reg + disp + "]";
 
 		    log()->info("{} <= {}", dst_reg, src_mem);
 
 		    std::smatch match;
 		    log()->info("CPU Mode: {}", this->OPENNASK_MODES == ID_16BIT_MODE ? "16bit" : "32bit");
+
+		    if (indexes_and_pointers) {
+			 store_segment_override_prefix(tokenizer.LookAhead(3).AsString(), binout_container);
+		    }
 
 		    if (regex_match(dst_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Override prefix: 0x67");
@@ -926,7 +956,7 @@ namespace nask_utility {
 		    if (regex_match(src_reg, match, ModRM::regImm32) && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit reg using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
-		    } else if (exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
+		    } else if (!indexes_and_pointers && exists_disp && this->OPENNASK_MODES == ID_16BIT_MODE) {
 			 log()->info("32bit operand using & 16bit-mode: Register-size prefix: 0x66");
 			 binout_container.push_back(0x66);
 		    } else if (regex_match(dst_reg, match, ModRM::regImm16) && this->OPENNASK_MODES == ID_32BIT_MODE) {
@@ -965,8 +995,9 @@ namespace nask_utility {
 			 set_hexstring_into_binout(hex_imm, binout_container);
 		    }
 
-		    if (tokenizer.LookAhead(4).Is("+")) {
-			 const uint8_t disp = tokenizer.LookAhead(5).AsLong();
+		    if (exists_disp) {
+			 const uint8_t disp = indexes_and_pointers ? tokenizer.LookAhead(7).AsLong()
+			      : tokenizer.LookAhead(5).AsLong();
 			 log()->info("Disp: 0x{:02x}", disp);
 		    	 binout_container.push_back(disp);
 		    }
