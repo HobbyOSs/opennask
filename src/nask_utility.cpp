@@ -1385,6 +1385,29 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
+	       } else if (token.Is("FAR") && tokenizer.LookAhead(1).Is("[")) {
+		    // JMP m16:16   | 0xFF /5
+		    // JMP m16:32   | 0xFF /5
+		    const std::string reg    = tokenizer.LookAhead(2).AsString();
+		    const std::string op     = tokenizer.LookAhead(3).AsString();
+		    const std::string disp_s = tokenizer.LookAhead(4).AsString();
+		    const uint8_t disp       = tokenizer.LookAhead(4).AsLong();
+		    const std::string mem    = "[" + reg + op + disp_s + "]";
+		    log()->info("far jmp [{}{}{}]", reg, op, disp);
+		    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_DISP8, mem, ModRM::SLASH_5);
+
+		    log()->info("NIM(W): 0xff, 0x{:02x}, 0x{:02x}", modrm, disp);
+		    binout_container.push_back(0xff);
+		    binout_container.push_back(modrm);
+
+		    if (disp_s != "" && ModRM::get_rm_from_reg(reg) == ModRM::SIB) {
+			 const uint8_t sib = ModRM::generate_sib(mem, reg);
+			 log()->info("SIB: 0x{:02x}", sib);
+		    	 binout_container.push_back(sib);
+		    }
+		    binout_container.push_back(disp);
+		    break;
+
 	       } else if (tokenizer.LookAhead(1).Is(":") || tokenizer.LookAhead(2).Is(":")) {
 		    // JMP ptr16:16 | 0xEA cd
 		    // JMP ptr16:32 | 0xEA cp
