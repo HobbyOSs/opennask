@@ -46,6 +46,14 @@ TEST(nask_suite, testNaskUtilityExprMathOp)
      const std::string line2 = "		MOV		ECX,512*1024/4";
      const std::string b = nask_utility::expr_math_op(line2);
      CHECK_EQUAL("		MOV		ECX,131072", b);
+
+}
+
+TEST(nask_suite, testNaskUtilityReplaceHex2Dec)
+{
+     const std::string line1 = "		MOV		BX,0x105+0x4000";
+     const std::string a = nask_utility::replace_hex2dec(line1);
+     CHECK_EQUAL("		MOV		BX,261+16384", a);
 }
 
 TEST(nask_suite, testNaskUtilityIsImm8)

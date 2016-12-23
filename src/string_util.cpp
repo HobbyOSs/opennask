@@ -47,11 +47,37 @@ namespace nask_utility {
 	  return false;
      }
 
-     std::string expr_math_op(const std::string& subject) {
+     std::string replace_hex2dec(const std::string& subject) {
+
+	  const std::regex reg_hex("(.*)(0x[0-9]*)(.*)");
+
 	  try {
-	       std::regex re("([^0-9]*)([-\\*/+0-9]*)([^0-9]*)");
 	       std::smatch match;
-	       if (std::regex_search(subject, match, re) && match.size() > 1) {
+	       std::string tmp = subject;
+
+	       while (std::regex_search(tmp, match, reg_hex) && match.size() > 1) {
+		    const std::string hex = std::to_string(
+			 std::strtol(match[2].str().c_str(), NULL, 16)
+			 );
+		    tmp = match[1].str();
+		    tmp += hex;
+		    tmp += match[3].str();
+	       }
+	       return tmp;
+
+	  } catch (std::regex_error& e) {
+	       log()->info(e.what());
+	  }
+	  return "";
+     }
+
+     std::string expr_math_op(const std::string& subject) {
+
+	  const std::regex reg_numeric("([^0-9]*)([-\\*/+0-9]*)([^0-9]*)");
+
+	  try {
+	       std::smatch match;
+	       if (std::regex_search(subject, match, reg_numeric) && match.size() > 1) {
 		    int error;
 		    const int process = te_interp(match[2].str().c_str(), &error);
 		    const std::string cat = match[1].str() + match[2].str() + match[3].str();
@@ -60,7 +86,6 @@ namespace nask_utility {
 		    std::string result = replace(subject, cat, empty);
 		    return match[1].str() + std::to_string(process) + match[3].str() + result;
 	       }
-
 	  } catch (std::regex_error& e) {
 	       log()->info(e.what());
 	  }

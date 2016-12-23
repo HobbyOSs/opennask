@@ -159,6 +159,9 @@ int process_each_assembly_line(char** argv,
 	       //
 	       tmp = inst.try_replace_equ(input);
 	       if (nask_utility::is_contains_math_op(tmp)) {
+		    logger->info("{}: {} // *** suspicious line ***", line_number, input);
+		    tmp = nask_utility::replace_hex2dec(tmp);
+		    logger->info("{}: {} // *** replace hex to dec ***", line_number, tmp);
 		    input = nask_utility::expr_math_op(tmp);
 		    logger->info("{}: {} // *** EQU & math op are replaced ***", line_number, input);
 	       }
