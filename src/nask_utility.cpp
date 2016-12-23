@@ -1378,19 +1378,20 @@ namespace nask_utility {
 
      // 簡単なJMP命令の実装
      int Instructions::process_token_JMP(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+
+
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
 	       if (is_comment_line(token_table, token) || is_line_terminated(token_table, token)) {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
-	       } else if (tokenizer.LookAhead(2).AsString() == ":") {
+	       } else if (tokenizer.LookAhead(1).Is(":")) {
 		    // JMP ptr16:16 | 0xEA cd
 		    // JMP ptr16:32 | 0xEA cp
 		    std::string data_type = token.AsString();
-		    const long ptr16 = tokenizer.LookAhead(1).AsLong();
-		    const long addr  = tokenizer.LookAhead(3).AsLong();
-		    log()->info("NIM(W): 0x66, 0xea, 0x{:02x}, 0x{:02x}", addr, ptr16);
-		    binout_container.push_back(0x66);
+		    const long ptr16 = token.AsLong();
+		    const long addr  = tokenizer.LookAhead(2).AsLong();
+		    log()->info("NIM(W): 0xea, 0x{:02x}, 0x{:02x}", addr, ptr16);
 		    binout_container.push_back(0xea);
 		    set_dword_into_binout(addr, binout_container);
 		    set_word_into_binout(ptr16, binout_container);
