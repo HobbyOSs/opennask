@@ -1385,12 +1385,19 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
-	       } else if (tokenizer.LookAhead(1).Is(":")) {
+	       } else if (tokenizer.LookAhead(1).Is(":") || tokenizer.LookAhead(2).Is(":")) {
 		    // JMP ptr16:16 | 0xEA cd
 		    // JMP ptr16:32 | 0xEA cp
-		    std::string data_type = token.AsString();
-		    const long ptr16 = token.AsLong();
-		    const long addr  = tokenizer.LookAhead(2).AsLong();
+		    long ptr16 = 0x00;
+		    long addr  = 0x00;
+		    if (tokenizer.LookAhead(1).Is(":")) {
+			 ptr16 = token.AsLong();
+			 addr  = tokenizer.LookAhead(2).AsLong();
+		    } else if (tokenizer.LookAhead(2).Is(":")) {
+			 ptr16 = tokenizer.LookAhead(1).AsLong();
+			 addr  = tokenizer.LookAhead(3).AsLong();
+		    }
+
 		    log()->info("NIM(W): 0xea, 0x{:02x}, 0x{:02x}", addr, ptr16);
 		    binout_container.push_back(0xea);
 		    set_dword_into_binout(addr, binout_container);
