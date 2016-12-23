@@ -197,7 +197,11 @@ namespace nask_utility {
 	       //      B = __HERE__
 	       //      C = (=.data starts + 23byte)
 	       // C - B = offset -
-	       log()->info("symbol_name: {}, offsets: {}", symbol_name, inst.symbol_offsets[symbol_name]);
+	       log()->info("symbol_name: {}, offsets: 0x{:08x}, symbol table index: 0x{:08x}",
+			   symbol_name,
+			   inst.symbol_offsets[symbol_name],
+			   static_cast<uint32_t>(8+i));
+
 	       const uint16_t v_addr = inst.symbol_offsets[symbol_name];
 	       NAS_COFF_RELOCATION reloc = {
 		    v_addr,
@@ -314,6 +318,12 @@ namespace nask_utility {
 	  /**
 	   * EXTERNで宣言されたシンボルを書き込んでいく
 	   */
+	  std::for_each(
+	       inst.ex_symbol_list.begin(),
+	       inst.ex_symbol_list.end(),
+	       [](const std::string& sym) -> void { log()->info("!! [EXTERNs] {}", sym); }
+	       );
+
 	  for ( size_t i = 0; i < inst.ex_symbol_list.size(); i++) {
 
 	       const std::string symbol_name = inst.ex_symbol_list[i];
@@ -467,11 +477,15 @@ namespace nask_utility {
 	  //
 
 	  // EXTERNのシンボルのオフセットがやっと設定できる
+	  // 順序をちゃんと保持してCOFFのシンボルテーブルに書き込む
 	  size_t sum = 0;
-	  for (const auto& kv : ex_long_symbol_short_names) {
-	       log()->info("{} has value {}", kv.first, kv.second);
-	       set_dword_into_binout(long_symbols_size + sum, binout_container, false, kv.second);
-	       sum += kv.first.size() + 1; // symbol + 0x00
+	  for (std::string ex_symbol : inst.ex_symbol_list) {
+	       if (ex_long_symbol_short_names.count(ex_symbol) > 0) {
+		    const size_t s = ex_long_symbol_short_names[ex_symbol];
+		    log()->info("{} has value {}", ex_symbol, s);
+		    set_dword_into_binout(long_symbols_size + sum, binout_container, false, s);
+		    sum += ex_symbol.size() + 1; // symbol + 0x00
+	       }
 	  }
 
 	  // ここでEXTERNなシンボルのサイズを足す
