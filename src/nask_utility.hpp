@@ -166,6 +166,7 @@ namespace nask_utility {
 	  int process_token_JZ     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_LGDT   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_LIDT   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_LTR    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_MOV    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_NOP    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_OR     (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
