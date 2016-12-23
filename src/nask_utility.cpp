@@ -1394,6 +1394,8 @@ namespace nask_utility {
 			 ptr16 = token.AsLong();
 			 addr  = tokenizer.LookAhead(2).AsLong();
 		    } else if (tokenizer.LookAhead(2).Is(":")) {
+			 log()->info("Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
 			 ptr16 = tokenizer.LookAhead(1).AsLong();
 			 addr  = tokenizer.LookAhead(3).AsLong();
 		    }
