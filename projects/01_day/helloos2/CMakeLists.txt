@@ -56,6 +56,11 @@ set(helloos_wine.img_OUTS ${root_BINARY_DIR}/projects/01_day/helloos2/helloos_wi
 add_custom_target(01_day_helloos2_helloos
   COMMAND ${root_BINARY_DIR}/src/opennask ${helloos.img_SRCS} ${helloos.img_OUTS}
 )
+set(helloos.img_OBJ  ${root_BINARY_DIR}/projects/01_day/helloos2/helloos.o)
+add_custom_target(01_day_helloos2_helloos_obj
+  COMMAND ${root_BINARY_DIR}/src/opennask ${helloos.img_SRCS} ${helloos.img_OBJ}
+)
+
 add_custom_target(01_day_helloos2_helloos_wine
   COMMAND ${WINE} ${WINE_NASK} ${helloos.img_SRCS} ${helloos_wine.img_OUTS}
 )

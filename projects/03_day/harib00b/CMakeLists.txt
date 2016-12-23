@@ -56,6 +56,11 @@ set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00b/ipl_wine.img)
 add_custom_target(03_day_harib00b_ipl
   COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OUTS}
 )
+set(ipl.img_OBJ  ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.o)
+add_custom_target(03_day_harib00b_ipl_obj
+  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OBJ}
+)
+
 add_custom_target(03_day_harib00b_ipl_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl.img_SRCS} ${ipl_wine.img_OUTS}
 )

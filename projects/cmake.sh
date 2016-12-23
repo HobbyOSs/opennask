@@ -55,6 +55,8 @@ for NAS_FILE in ${NAS_FILES[@]}
 do
     NAS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||'`
     BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
+    OBJ_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.o/g'`
+
     WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
     TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
 
@@ -151,11 +153,24 @@ do
     fi
     echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${NAS_FILE})"                          | tee -a ${CMAKELISTS}
     echo "set(${BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                          | tee -a ${CMAKELISTS}
+
     echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                | tee -a ${CMAKELISTS}
     echo ""                                                                                           | tee -a ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}"                                                           | tee -a ${CMAKELISTS}
     echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}" | tee -a ${CMAKELISTS}
     echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    # その他のnaskファイルのオブジェクト化
+    if [[ $NAS_FILE != *naskfunc.nas ]] && [[ $NAS_FILE != *ipl10.nas ]] && [[ $NAS_FILE != *asmhead.nas ]]; then
+	echo "set(${BINARY_NAME}_OBJ  \${root_BINARY_DIR}/projects/${OBJ_FILE})"                          | tee -a ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_NAME}_obj"                                                       | tee -a ${CMAKELISTS}
+	echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OBJ}"  | tee -a ${CMAKELISTS}
+	echo ")"                                                                                          | tee -a ${CMAKELISTS}
+	echo ""                                                                                           | tee -a ${CMAKELISTS}
+	if [[ $NAS_DIR_TARGET != 01_* ]] && [[ $NAS_DIR_TARGET != 02_* ]] && [[ $NAS_DIR_TARGET != 03_* ]]; then
+	    echo "add_dependencies(${NAS_DIR_TARGET}_sys ${TARGET_NAME}_obj)"				  | tee -a ${CMAKELISTS}
+	    echo ""                                                                                       | tee -a ${CMAKELISTS}
+	fi
+    fi
     echo "add_custom_target(${TARGET_NAME}_wine"                                                      | tee -a ${CMAKELISTS}
     echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"      | tee -a ${CMAKELISTS}
     echo ")"                                                                                          | tee -a ${CMAKELISTS}

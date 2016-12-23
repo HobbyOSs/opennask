@@ -92,6 +92,13 @@ set(hlt_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17b/hlt_wine.img)
 add_custom_target(20_day_harib17b_hlt
   COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_OUTS}
 )
+set(hlt.img_OBJ  ${root_BINARY_DIR}/projects/20_day/harib17b/hlt.o)
+add_custom_target(20_day_harib17b_hlt_obj
+  COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_OBJ}
+)
+
+add_dependencies(20_day_harib17b_sys 20_day_harib17b_hlt_obj)
+
 add_custom_target(20_day_harib17b_hlt_wine
   COMMAND ${WINE} ${WINE_NASK} ${hlt.img_SRCS} ${hlt_wine.img_OUTS}
 )

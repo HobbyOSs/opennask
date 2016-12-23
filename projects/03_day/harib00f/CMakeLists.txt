@@ -56,6 +56,11 @@ set(haribote_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote_
 add_custom_target(03_day_harib00f_haribote
   COMMAND ${root_BINARY_DIR}/src/opennask ${haribote.img_SRCS} ${haribote.img_OUTS}
 )
+set(haribote.img_OBJ  ${root_BINARY_DIR}/projects/03_day/harib00f/haribote.o)
+add_custom_target(03_day_harib00f_haribote_obj
+  COMMAND ${root_BINARY_DIR}/src/opennask ${haribote.img_SRCS} ${haribote.img_OBJ}
+)
+
 add_custom_target(03_day_harib00f_haribote_wine
   COMMAND ${WINE} ${WINE_NASK} ${haribote.img_SRCS} ${haribote_wine.img_OUTS}
 )
@@ -81,6 +86,11 @@ set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl_wine.img)
 add_custom_target(03_day_harib00f_ipl
   COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OUTS}
 )
+set(ipl.img_OBJ  ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.o)
+add_custom_target(03_day_harib00f_ipl_obj
+  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OBJ}
+)
+
 add_custom_target(03_day_harib00f_ipl_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl.img_SRCS} ${ipl_wine.img_OUTS}
 )
