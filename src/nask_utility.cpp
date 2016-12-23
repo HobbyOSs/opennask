@@ -2972,12 +2972,32 @@ namespace nask_utility {
 			 const size_t reg_index   = token.Is("[") ? 0 : 1;
 			 const std::string reg    = tokenizer.LookAhead(reg_index+1).AsString();
 			 const std::string mem    = "[" + reg + "]";
-			 log()->info("PUSH [{}]", reg);
-			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, mem, ModRM::SLASH_6);
+			 log()->info("PUSH [{}] as {}", reg, token.AsString());
+
+			 uint8_t modrm = 0x00;
+			 if (is_datatype(token_table, token)) {
+			      modrm = ModRM::generate_modrm_imm(ModRM::REG_REG, token.AsString(), ModRM::SLASH_6);
+			 } else {
+			      modrm = ModRM::generate_modrm(ModRM::REG_REG, mem, ModRM::SLASH_6);
+			 }
 
 			 log()->info("NIM(B): 0xff, 0x{:02x}", modrm);
 			 binout_container.push_back(0xff);
 			 binout_container.push_back(modrm);
+
+			 if (is_hex_notation(reg) && is_datatype(token_table, token)) {
+			      const long addr = tokenizer.LookAhead(reg_index+1).AsLong();
+			      if (token.Is("BYTE")) {
+				   binout_container.push_back(addr);
+			      } else if (token.Is("WORD")) {
+				   set_word_into_binout(addr, binout_container);
+			      } else if (token.Is("DWORD")) {
+				   set_dword_into_binout(addr, binout_container);
+			      } else {
+				   std::cerr << "NASK : PUSH specified incorrect memory address" << std::endl;
+				   return 17;
+			      }
+			 }
 			 break;
 
 		    } else if (is_legitimate_numeric(token.AsString())) {

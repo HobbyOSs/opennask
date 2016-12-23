@@ -59,6 +59,55 @@ namespace nask_utility {
 	       return ret;
 	  }
 
+	  // @param m         : [mod] mods::REG_REG, REG_DISP8, REG_DISP16, REG
+	  // @param data_type : [reg] BYTE, WORD, DWORD
+	  // @param reg       : [r/m] '/x' with Enum
+	  uint8_t generate_modrm_imm(enum mods m, const std::string& data_type, enum reg_field reg) {
+	       //
+	       // Generate ModR/M byte with arguments
+	       // [mod] 2bit
+	       // [reg] 3bit
+	       // [r/m] 3bit
+	       //
+	       std::string modrm = ModRM::MOD_TO_STR.at(m);
+	       switch (reg) {
+	       case SLASH_0:
+		    modrm += "000";
+		    break;
+	       case SLASH_1:
+		    modrm += "001";
+		    break;
+	       case SLASH_2:
+		    modrm += "010";
+		    break;
+	       case SLASH_3:
+		    modrm += "011";
+		    break;
+	       case SLASH_4:
+		    modrm += "100";
+		    break;
+	       case SLASH_5:
+		    modrm += "101";
+		    break;
+	       case SLASH_6:
+		    modrm += "110";
+		    break;
+	       case SLASH_7:
+		    modrm += "111";
+		    break;
+	       }
+
+	       if (data_type == "WORD") {
+		    modrm += "110";
+	       } else if (data_type == "DWORD") {
+		    modrm += "101";
+	       }
+
+	       std::bitset<8> bs(modrm);
+	       log()->info("Generate ModR/M: bitset:{}", modrm);
+	       return bs.to_ulong();
+	  };
+
 	  // @param m       : [mod] mods::REG_REG, REG_DISP8, REG_DISP16, REG
 	  // @param dst_reg : [reg] Register with std::string
 	  // @param reg     : [r/m] '/x' with Enum
@@ -104,6 +153,7 @@ namespace nask_utility {
 	       }
 	       modrm += get_rm_from_reg(dst_reg);
 	       std::bitset<8> bs(modrm);
+	       log()->info("Generate ModR/M: bitset:{}", modrm);
 	       return bs.to_ulong();
 	  };
 
