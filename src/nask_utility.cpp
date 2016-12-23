@@ -2017,8 +2017,8 @@ namespace nask_utility {
 			      binout_container.push_back(0x25);
 			      set_word_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 } else { // EAX
-			      log()->info("0x66 0x25 {}", tokenizer.LookAhead(2).AsString());
-			      binout_container.push_back(0x66);
+			      log()->info("0x25 {}", tokenizer.LookAhead(2).AsString());
+			      store_register_size_prefix(token.AsString(), binout_container);
 			      binout_container.push_back(0x25);
 			      set_dword_into_binout(tokenizer.LookAhead(2).AsLong(), binout_container);
 			 }
@@ -2966,7 +2966,31 @@ namespace nask_utility {
 		    break;
 	       } else {
 
-		    if (is_segment_register(token_table, token)) {
+		    if (token.Is("[") || tokenizer.LookAhead(1).Is("[")) {
+			 // 0xFF /6   | PUSH r/m16
+			 // 0xFF /6   | PUSH r/m32
+			 const size_t reg_index   = token.Is("[") ? 0 : 1;
+			 const std::string reg    = tokenizer.LookAhead(reg_index+1).AsString();
+			 const std::string mem    = "[" + reg + "]";
+			 log()->info("PUSH [{}]", reg);
+			 const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, mem, ModRM::SLASH_6);
+
+			 log()->info("NIM(B): 0xff, 0x{:02x}", modrm);
+			 binout_container.push_back(0xff);
+			 binout_container.push_back(modrm);
+			 break;
+
+		    } else if (is_legitimate_numeric(token.AsString())) {
+			 // 0x6A      | PUSH imm8
+			 // 0x68      | PUSH imm16
+			 // 0x68      | PUSH imm32
+			 const uint8_t op = is_imm8(token.AsString()) ? 0x6a : 0x68;
+			 log()->info("NIM(B): 0x{:02x}", op);
+			 binout_container.push_back(op);
+			 binout_container.push_back(token.AsLong());
+			 break;
+
+		    } else if (is_segment_register(token_table, token)) {
 			 // 0x0E      | PUSH CS
 			 // 0x16      | PUSH SS
 			 // 0x1E      | PUSH DS
