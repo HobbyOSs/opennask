@@ -179,6 +179,7 @@ namespace nask_utility {
 	  int process_token_PUSHA  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_PUSHF  (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RET    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
+	  int process_token_RETF   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_RESB   (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_SHR    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);
 	  int process_token_STI    (TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container);

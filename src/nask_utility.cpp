@@ -3106,6 +3106,12 @@ namespace nask_utility {
 	  return 0;
      }
 
+     int Instructions::process_token_RETF(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
+	  // 0xCB を格納
+	  binout_container.push_back(0xcb);
+	  return 0;
+     }
+
      // 簡単なRESB命令の実装
      int Instructions::process_token_RESB(TParaTokenizer& tokenizer, VECTOR_BINOUT& binout_container) {
 	  for (TParaToken token = tokenizer.Next(); ; token = tokenizer.Next()) {
