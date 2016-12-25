@@ -1,0 +1,11 @@
+#----------------------------------------------------------
+message(STATUS "Entering directory projects/27_day/")
+add_subdirectory(harib24a)
+add_subdirectory(harib24b)
+add_subdirectory(harib24c)
+add_subdirectory(harib24d)
+add_subdirectory(harib24e)
+add_subdirectory(harib24f)
+add_subdirectory(apilib)
+add_subdirectory(haribote)
+add_subdirectory(hello5)

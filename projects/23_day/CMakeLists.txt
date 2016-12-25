@@ -1,0 +1,10 @@
+#----------------------------------------------------------
+message(STATUS "Entering directory projects/23_day/")
+add_subdirectory(harib20a)
+add_subdirectory(harib20b)
+add_subdirectory(harib20c)
+add_subdirectory(harib20d)
+add_subdirectory(harib20e)
+add_subdirectory(harib20f)
+add_subdirectory(harib20g)
+add_subdirectory(harib20h)
