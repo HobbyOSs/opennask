@@ -1140,37 +1140,53 @@ namespace nask_utility {
 		    TParaToken dst_token = token;
 		    TParaToken src_token = tokenizer.LookAhead(2);
 		    const std::string dst_reg  = dst_token.AsString();
-		    const std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
-		    log()->info("{} <= {}, represented with label", dst_reg, src_imm);
-
+		    std::string src_imm  = get_equ_label_or_asis(src_token.AsString());
 		    std::smatch match;
 
-		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
-			 const uint8_t o = ModRM::get_opecode_from_reg(0xb0, dst_reg);
-			 log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", o, 0x00);
-			 binout_container.push_back(o);
-			 store_label_src(src_imm, binout_container, false, imm8);
-			 binout_container.push_back(0x00);
+		    // 直接リテラルを指定された場合
+		    if (starts_with(src_imm, "'") && ends_with(src_imm, "'")) {
+			 src_imm = src_imm.substr(1, src_imm.size() - 2);
+			 const uint8_t base = regex_match(dst_reg, match, ModRM::regImm08) ? 0xb0 : 0xb8;
+			 const uint8_t op = plus_number_from_code(base, dst_reg);
+			 log()->info("NIM:(B) 0x{:02x}", op);
+			 binout_container.push_back(op);
 
-		    } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
-			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
-			 log()->info("NIM:(W) 0x{:02x}, 0x{:02x}, 0x{:02x}", o, 0x00, 0x00);
-			 store_label_src(src_imm, binout_container, true, imm16);
-			 binout_container.push_back(o);
-			 binout_container.push_back(0x00);
-			 binout_container.push_back(0x00);
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      binout_container.push_back(src_imm.at(0));
+			 } else {
+			      std::cerr << "NASK: MOV can't set literal with single quote" << std::endl;
+			      return 17;
+			 }
+		    } else {
+			 if (regex_match(dst_reg, match, ModRM::regImm08)) {
+			      const uint8_t o = ModRM::get_opecode_from_reg(0xb0, dst_reg);
+			      log()->info("NIM:(B) 0x{:02x}, 0x{:02x}", o, 0x00);
+			      binout_container.push_back(o);
+			      store_label_src(src_imm, binout_container, false, imm8);
+			      binout_container.push_back(0x00);
 
-		    } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
-			 const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
-			 log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
-			 binout_container.push_back(0x66);
-			 store_label_src(src_imm, binout_container, true, imm32);
-			 binout_container.push_back(o);
-			 binout_container.push_back(0x00);
-			 binout_container.push_back(0x00);
-			 binout_container.push_back(0x00);
-			 binout_container.push_back(0x00);
+			 } else if (regex_match(dst_reg, match, ModRM::regImm16)) {
+			      const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
+			      log()->info("NIM:(W) 0x{:02x}, 0x{:02x}, 0x{:02x}", o, 0x00, 0x00);
+			      store_label_src(src_imm, binout_container, true, imm16);
+			      binout_container.push_back(o);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+
+			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
+			      const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
+			      log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
+			      binout_container.push_back(0x66);
+			      store_label_src(src_imm, binout_container, true, imm32);
+			      binout_container.push_back(o);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+			      binout_container.push_back(0x00);
+			 }
 		    }
+		    log()->info("{} <= {}, represented with label", dst_reg, src_imm);
+
 		    break;
 
 	       } else if (is_register(token_table, token) &&
@@ -2036,9 +2052,27 @@ namespace nask_utility {
 		    break;
 	       } else if (token.Is(",")) {
 		    continue;
-	       } else if (is_hex_notation(token.AsString())) {
-		    // ラベルではなく即値でジャンプ先を指定された場合
-		    log()->info("** Not implemented **");
+	       } else if (tokenizer.LookAhead(1).Is(":")) {
+		    // 0x9A cd	CALL ptr16:16	絶対ファーコール、オペランドでアドレスを指定
+                    // 0x9A cp	CALL ptr16:32	絶対ファーコール、オペランドでアドレスを指定
+		    long ptr16 = 0x00;
+		    long addr  = 0x00;
+		    if (tokenizer.LookAhead(1).Is(":")) {
+			 ptr16 = token.AsLong();
+			 addr  = tokenizer.LookAhead(2).AsLong();
+		    } else if (tokenizer.LookAhead(2).Is(":")) {
+			 log()->info("Register-size prefix: 0x66");
+			 binout_container.push_back(0x66);
+			 ptr16 = tokenizer.LookAhead(1).AsLong();
+			 addr  = tokenizer.LookAhead(3).AsLong();
+		    }
+
+		    log()->info("NIM(W): 0x9a, 0x{:02x}, 0x{:02x}", addr, ptr16);
+		    binout_container.push_back(0x9a);
+		    set_dword_into_binout(addr, binout_container);
+		    set_word_into_binout(ptr16, binout_container);
+		    break;
+
 	       } else if (token.Is("FAR") && tokenizer.LookAhead(1).Is("[")) {
 		    // CALL m16:16 | 0xFF /3
 		    // CALL m16:32 | 0xFF /3
