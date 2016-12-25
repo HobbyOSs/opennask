@@ -92,13 +92,14 @@ set(hlt_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17a/hlt_wine.img)
 add_custom_target(20_day_harib17a_hlt
   COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_OUTS}
 )
-set(hlt.img_OBJ  ${root_BINARY_DIR}/projects/20_day/harib17a/hlt.o)
-add_custom_target(20_day_harib17a_hlt_obj
-  COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_OBJ}
+set(hlt.img_HRB ${root_BINARY_DIR}/projects/20_day/harib17a/hlt.hrb)
+add_custom_target(20_day_harib17a_hlt_hrb
+  COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_HRB}
+  COMMAND mcopy -i ${20_day_harib17a_OS} ${hlt.img_HRB} ::hlt.hrb
+  DEPENDS 20_day_harib17a_img
 )
 
-add_dependencies(20_day_harib17a_sys 20_day_harib17a_hlt_obj)
-
+add_dependencies(20_day_harib17a_run 20_day_harib17a_hlt_hrb)
 add_custom_target(20_day_harib17a_hlt_wine
   COMMAND ${WINE} ${WINE_NASK} ${hlt.img_SRCS} ${hlt_wine.img_OUTS}
 )

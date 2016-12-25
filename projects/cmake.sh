@@ -55,7 +55,7 @@ for NAS_FILE in ${NAS_FILES[@]}
 do
     NAS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||'`
     BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
-    OBJ_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.o/g'`
+    HRB_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.hrb/g'`
 
     WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
     TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
@@ -69,8 +69,8 @@ do
     NAS_DIR_TARGET=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||' | ${SED} -e 's|\/|_|g'`)
     CMAKELISTS="${NAS_DIR}/CMakeLists.txt"
 
-    SOURCE_NAME=`echo ${NAS_FILE} | xargs basename`
     BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.img/g'`
+    HRB_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.hrb/g'`
     WINE_BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/_wine.img/g'`
 
     if [ -e ${CMAKELISTS} ]; then
@@ -159,16 +159,19 @@ do
     echo "add_custom_target(${TARGET_NAME}"                                                           | tee -a ${CMAKELISTS}
     echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}" | tee -a ${CMAKELISTS}
     echo ")"                                                                                          | tee -a ${CMAKELISTS}
-    # その他のnaskファイルのオブジェクト化
+    # その他のnaskファイルのオブジェクト化, hdファイルのディレクトリに押し込む
+    # mcopy -i ./fat.img ./myfile.bin ::/myfile.bin
+    # This copies the file ./myfile.bin to the root of the filesystem contained in the file ./fat.img.
     if [[ $NAS_FILE != *naskfunc.nas ]] && [[ $NAS_FILE != *ipl10.nas ]] && [[ $NAS_FILE != *asmhead.nas ]]; then
-	echo "set(${BINARY_NAME}_OBJ  \${root_BINARY_DIR}/projects/${OBJ_FILE})"                          | tee -a ${CMAKELISTS}
-	echo "add_custom_target(${TARGET_NAME}_obj"                                                       | tee -a ${CMAKELISTS}
-	echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OBJ}"  | tee -a ${CMAKELISTS}
+	echo "set(${BINARY_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                           | tee -a ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_NAME}_hrb"                                                       | tee -a ${CMAKELISTS}
+	echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"  | tee -a ${CMAKELISTS}
+        echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${BINARY_NAME}_HRB} ::${HRB_NAME}"           | tee -a ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                            | tee -a ${CMAKELISTS}
 	echo ")"                                                                                          | tee -a ${CMAKELISTS}
 	echo ""                                                                                           | tee -a ${CMAKELISTS}
 	if [[ $NAS_DIR_TARGET != 01_* ]] && [[ $NAS_DIR_TARGET != 02_* ]] && [[ $NAS_DIR_TARGET != 03_* ]]; then
-	    echo "add_dependencies(${NAS_DIR_TARGET}_sys ${TARGET_NAME}_obj)"				  | tee -a ${CMAKELISTS}
-	    echo ""                                                                                       | tee -a ${CMAKELISTS}
+	    echo "add_dependencies(${NAS_DIR_TARGET}_run ${TARGET_NAME}_hrb)"				  | tee -a ${CMAKELISTS}
 	fi
     fi
     echo "add_custom_target(${TARGET_NAME}_wine"                                                      | tee -a ${CMAKELISTS}

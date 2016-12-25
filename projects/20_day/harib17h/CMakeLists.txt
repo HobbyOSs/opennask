@@ -92,13 +92,14 @@ set(hello_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17h/hello_wine.i
 add_custom_target(20_day_harib17h_hello
   COMMAND ${root_BINARY_DIR}/src/opennask ${hello.img_SRCS} ${hello.img_OUTS}
 )
-set(hello.img_OBJ  ${root_BINARY_DIR}/projects/20_day/harib17h/hello.o)
-add_custom_target(20_day_harib17h_hello_obj
-  COMMAND ${root_BINARY_DIR}/src/opennask ${hello.img_SRCS} ${hello.img_OBJ}
+set(hello.img_HRB ${root_BINARY_DIR}/projects/20_day/harib17h/hello.hrb)
+add_custom_target(20_day_harib17h_hello_hrb
+  COMMAND ${root_BINARY_DIR}/src/opennask ${hello.img_SRCS} ${hello.img_HRB}
+  COMMAND mcopy -i ${20_day_harib17h_OS} ${hello.img_HRB} ::hello.hrb
+  DEPENDS 20_day_harib17h_img
 )
 
-add_dependencies(20_day_harib17h_sys 20_day_harib17h_hello_obj)
-
+add_dependencies(20_day_harib17h_run 20_day_harib17h_hello_hrb)
 add_custom_target(20_day_harib17h_hello_wine
   COMMAND ${WINE} ${WINE_NASK} ${hello.img_SRCS} ${hello_wine.img_OUTS}
 )
@@ -124,13 +125,14 @@ set(hello2_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17h/hello2_wine
 add_custom_target(20_day_harib17h_hello2
   COMMAND ${root_BINARY_DIR}/src/opennask ${hello2.img_SRCS} ${hello2.img_OUTS}
 )
-set(hello2.img_OBJ  ${root_BINARY_DIR}/projects/20_day/harib17h/hello2.o)
-add_custom_target(20_day_harib17h_hello2_obj
-  COMMAND ${root_BINARY_DIR}/src/opennask ${hello2.img_SRCS} ${hello2.img_OBJ}
+set(hello2.img_HRB ${root_BINARY_DIR}/projects/20_day/harib17h/hello2.hrb)
+add_custom_target(20_day_harib17h_hello2_hrb
+  COMMAND ${root_BINARY_DIR}/src/opennask ${hello2.img_SRCS} ${hello2.img_HRB}
+  COMMAND mcopy -i ${20_day_harib17h_OS} ${hello2.img_HRB} ::hello2.hrb
+  DEPENDS 20_day_harib17h_img
 )
 
-add_dependencies(20_day_harib17h_sys 20_day_harib17h_hello2_obj)
-
+add_dependencies(20_day_harib17h_run 20_day_harib17h_hello2_hrb)
 add_custom_target(20_day_harib17h_hello2_wine
   COMMAND ${WINE} ${WINE_NASK} ${hello2.img_SRCS} ${hello2_wine.img_OUTS}
 )

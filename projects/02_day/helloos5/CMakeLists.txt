@@ -56,9 +56,11 @@ set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/02_day/helloos5/ipl_wine.img)
 add_custom_target(02_day_helloos5_ipl
   COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OUTS}
 )
-set(ipl.img_OBJ  ${root_BINARY_DIR}/projects/02_day/helloos5/ipl.o)
-add_custom_target(02_day_helloos5_ipl_obj
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OBJ}
+set(ipl.img_HRB ${root_BINARY_DIR}/projects/02_day/helloos5/ipl.hrb)
+add_custom_target(02_day_helloos5_ipl_hrb
+  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_HRB}
+  COMMAND mcopy -i ${02_day_helloos5_OS} ${ipl.img_HRB} ::ipl.hrb
+  DEPENDS 02_day_helloos5_img
 )
 
 add_custom_target(02_day_helloos5_ipl_wine
