@@ -53,9 +53,9 @@ do
     rm -f ${CMAKELISTS}
 done
 
-#bash ./cmake_helloos.sh
+bash ./cmake_helloos.sh
 
-exit 1
+exit 0
 
 # まずはasmhead.nasを処理する
 for ASM_HEAD in ${ASM_HEADS[@]}

@@ -10,7 +10,7 @@ add_custom_target(od)
 add_dependencies(wine images)
 add_dependencies(od wine)
 
-#add_subdirectory(01_day)
+add_subdirectory(01_day)
 #add_subdirectory(02_day)
 #add_subdirectory(03_day)
 #add_subdirectory(04_day)

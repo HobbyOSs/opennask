@@ -2,42 +2,22 @@
 message(STATUS "Entering directory projects/01_day/helloos1/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
-set(01_day_helloos1_OS    ${root_BINARY_DIR}/projects/01_day/helloos1/os.img)
-set(01_day_helloos1_SYS	  ${root_BINARY_DIR}/projects/01_day/helloos1/os.sys)
-set(01_day_helloos1_IPLB  ${root_BINARY_DIR}/projects/01_day/helloos1/ipl.bin)
-set(01_day_helloos1_IPLS  ${root_SOURCE_DIR}/projects/01_day/helloos1/ipl10.nas)
-set(01_day_helloos1_HEADB ${root_BINARY_DIR}/projects/01_day/helloos1/asmhead.bin)
-set(01_day_helloos1_HEADS ${root_SOURCE_DIR}/projects/01_day/helloos1/asmhead.nas)
-
+set(01_day_helloos1_SRC ${root_SOURCE_DIR}/projects/01_day/helloos1/helloos.nas)
+set(01_day_helloos1_OS ${root_BINARY_DIR}/projects/01_day/helloos1/os.img)
 
 add_custom_target(01_day_helloos1_helloos_run
   COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos1_OS}
-  DEPENDS 01_day_helloos1_img
+  DEPENDS 01_day_helloos1_helloos_img
 )
 add_custom_target(01_day_helloos1_helloos_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${01_day_helloos1_OS} -redir tcp:5555:127.0.0.1:1234 &
-  DEPENDS 01_day_helloos1_img
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${01_day_helloos1_OS} ${QEMU_DEBUG_OPT}
+  DEPENDS 01_day_helloos1_helloos_img
 )
 add_custom_target(01_day_helloos1_helloos_clean
   COMMAND rm -f ${01_day_helloos1_OS}
-  COMMAND rm -f ${01_day_helloos1_SYS}
-  COMMAND rm -f ${01_day_helloos1_IPLB}
-  COMMAND rm -f ${01_day_helloos1_HEADB}
-  COMMAND rm -f ${01_day_helloos1_BOOTB}
-  COMMAND rm -f ${01_day_helloos1_WILDOBJ}
-)
-add_custom_target(01_day_helloos1_helloos_ipl
-  COMMAND ${NASK} ${01_day_helloos1_IPLS} ${01_day_helloos1_IPLB}
-)
-add_custom_target(01_day_helloos1_helloos_sys
-  COMMAND ${NASK} ${01_day_helloos1_HEADS} ${01_day_helloos1_HEADB}
-  COMMAND cat ${01_day_helloos1_HEADB} ${01_day_helloos1_BOOTB} > ${01_day_helloos1_SYS}
-  DEPENDS 01_day_helloos1_ipl
 )
 add_custom_target(01_day_helloos1_helloos_img
-  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${01_day_helloos1_IPLB} -i ${01_day_helloos1_OS}
-  COMMAND mcopy -i ${01_day_helloos1_OS} ${01_day_helloos1_SYS} ::
-  DEPENDS 01_day_helloos1_sys
+  ${root_BINARY_DIR}/src/opennask ${01_day_helloos1_SRC} ${01_day_helloos1_OS}
 )
 ########### next target ###############
 set(helloos.img_SRCS ${root_SOURCE_DIR}/projects/01_day/helloos1/helloos.nas)
