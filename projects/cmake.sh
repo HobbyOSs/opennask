@@ -53,5 +53,23 @@ done
 
 bash ./cmake_helloos.sh
 bash ./cmake_02day.sh
+bash ./cmake_until_20day.sh 03_day
+bash ./cmake_until_20day.sh 04_day
+bash ./cmake_until_20day.sh 05_day
+bash ./cmake_until_20day.sh 06_day
+bash ./cmake_until_20day.sh 07_day
+bash ./cmake_until_20day.sh 08_day
+bash ./cmake_until_20day.sh 09_day
+bash ./cmake_until_20day.sh 10_day
+bash ./cmake_until_20day.sh 11_day
+bash ./cmake_until_20day.sh 12_day
+bash ./cmake_until_20day.sh 13_day
+bash ./cmake_until_20day.sh 14_day
+bash ./cmake_until_20day.sh 15_day
+bash ./cmake_until_20day.sh 16_day
+bash ./cmake_until_20day.sh 17_day
+bash ./cmake_until_20day.sh 18_day
+bash ./cmake_until_20day.sh 19_day
+bash ./cmake_until_20day.sh 20_day
 
 exit 0
