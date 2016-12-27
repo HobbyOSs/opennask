@@ -30,7 +30,7 @@ add_custom_target(13_day_harib10f_run
   DEPENDS 13_day_harib10f_img
 )
 add_custom_target(13_day_harib10f_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${13_day_harib10f_OS} -redir tcp:5555:127.0.0.1:1234 &
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${13_day_harib10f_OS} ${QEMU_DEBUG_OPT}
   DEPENDS 13_day_harib10f_img
 )
 add_custom_target(13_day_harib10f_clean

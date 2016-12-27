@@ -2,51 +2,22 @@
 message(STATUS "Entering directory projects/02_day/helloos5/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
-set(CONV ${root_BINARY_DIR}/objconv/objconv)
-set(02_day_helloos5_OS    ${root_BINARY_DIR}/projects/02_day/helloos5/os.img)
-set(02_day_helloos5_SYS	  ${root_BINARY_DIR}/projects/02_day/helloos5/os.sys)
-set(02_day_helloos5_IPLB  ${root_BINARY_DIR}/projects/02_day/helloos5/ipl.bin)
-set(02_day_helloos5_IPLS  ${root_SOURCE_DIR}/projects/02_day/helloos5/ipl10.nas)
-set(02_day_helloos5_HEADB ${root_BINARY_DIR}/projects/02_day/helloos5/asmhead.bin)
-set(02_day_helloos5_HEADS ${root_SOURCE_DIR}/projects/02_day/helloos5/asmhead.nas)
-set(02_day_helloos5_BOOTB ${root_BINARY_DIR}/projects/02_day/helloos5/boot.bin)
-set(02_day_helloos5_CCO	  ${root_BINARY_DIR}/projects/02_day/helloos5/boot.o)
-set(02_day_helloos5_CCS	  ${root_SOURCE_DIR}/projects/02_day/helloos5/*.c)
-set(02_day_helloos5_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
-set(02_day_helloos5_WILDOBJ ${root_BINARY_DIR}/projects/02_day/helloos5/*.o)
-
+set(02_day_helloos5_SRC ${root_SOURCE_DIR}/projects/02_day/helloos5/ipl.nas)
+set(02_day_helloos5_OS ${root_BINARY_DIR}/projects/02_day/helloos5/os.img)
 
 add_custom_target(02_day_helloos5_ipl_run
   COMMAND ${QEMU} ${QEMUOPT} ${02_day_helloos5_OS}
-  DEPENDS 02_day_helloos5_img
+  DEPENDS 02_day_helloos5_ipl_img
 )
 add_custom_target(02_day_helloos5_ipl_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${02_day_helloos5_OS} -redir tcp:5555:127.0.0.1:1234 &
-  DEPENDS 02_day_helloos5_img
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${02_day_helloos5_OS} ${QEMU_DEBUG_OPT}
+  DEPENDS 02_day_helloos5_ipl_img
 )
 add_custom_target(02_day_helloos5_ipl_clean
   COMMAND rm -f ${02_day_helloos5_OS}
-  COMMAND rm -f ${02_day_helloos5_SYS}
-  COMMAND rm -f ${02_day_helloos5_IPLB}
-  COMMAND rm -f ${02_day_helloos5_HEADB}
-  COMMAND rm -f ${02_day_helloos5_BOOTB}
-  COMMAND rm -f ${02_day_helloos5_WILDOBJ}
-)
-add_custom_target(02_day_helloos5_ipl_ipl
-  COMMAND ${NASK} ${02_day_helloos5_IPLS} ${02_day_helloos5_IPLB}
-)
-add_custom_target(02_day_helloos5_ipl_sys
-  COMMAND ${NASK} ${02_day_helloos5_HEADS} ${02_day_helloos5_HEADB}
-  COMMAND gcc ${BINOPT} -T ${02_day_helloos5_LDS} ${02_day_helloos5_CCS} -o ${02_day_helloos5_BOOTB}
-  COMMAND cat ${02_day_helloos5_HEADB} ${02_day_helloos5_BOOTB} > ${02_day_helloos5_SYS}
-  DEPENDS 02_day_helloos5_ipl
 )
 add_custom_target(02_day_helloos5_ipl_img
-  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${02_day_helloos5_IPLB} -i ${02_day_helloos5_OS}
-  COMMAND mcopy -i ${02_day_helloos5_OS} ${02_day_helloos5_SYS} ::
-  DEPENDS 02_day_helloos5_sys
+  ${root_BINARY_DIR}/src/opennask ${02_day_helloos5_SRC} ${02_day_helloos5_OS}
 )
 ########### next target ###############
 set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/02_day/helloos5/ipl.nas)
@@ -56,13 +27,6 @@ set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/02_day/helloos5/ipl_wine.img)
 add_custom_target(02_day_helloos5_ipl
   COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OUTS}
 )
-set(ipl.img_HRB ${root_BINARY_DIR}/projects/02_day/helloos5/ipl.hrb)
-add_custom_target(02_day_helloos5_ipl_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_HRB}
-  COMMAND mcopy -i ${02_day_helloos5_OS} ${ipl.img_HRB} ::ipl.hrb
-  DEPENDS 02_day_helloos5_img
-)
-
 add_custom_target(02_day_helloos5_ipl_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl.img_SRCS} ${ipl_wine.img_OUTS}
 )

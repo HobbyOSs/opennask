@@ -23,7 +23,7 @@ add_custom_target(03_day_harib00a_ipl_run
   DEPENDS 03_day_harib00a_img
 )
 add_custom_target(03_day_harib00a_ipl_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00a_OS} -redir tcp:5555:127.0.0.1:1234 &
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00a_OS} ${QEMU_DEBUG_OPT}
   DEPENDS 03_day_harib00a_img
 )
 add_custom_target(03_day_harib00a_ipl_clean
