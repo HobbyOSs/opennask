@@ -42,5 +42,3 @@ add_dependencies(01_day_helloos1_helloos_od 01_day_helloos1_helloos_wine)
 add_dependencies(images 01_day_helloos1_helloos)
 add_dependencies(wine 01_day_helloos1_helloos_wine)
 add_dependencies(od 01_day_helloos1_helloos_od)
-
-#----------------------------------------------------------

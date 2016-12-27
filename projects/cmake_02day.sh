@@ -7,7 +7,7 @@ else
 fi
 
 # 初期のアセンブラのみの構成を処理する
-HELLO_OSS=(`find . -name helloos.nas | sort -u`)
+HELLO_OSS=(`find ./02_day -name \*.nas | sort -u`)
 
 for HELLO_OS in ${HELLO_OSS[@]}
 do
@@ -75,4 +75,6 @@ do
     echo "add_dependencies(images ${TARGET_NAME})"                                                    | tee -a ${CMAKELISTS}
     echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                 | tee -a ${CMAKELISTS}
     echo "add_dependencies(od ${TARGET_NAME}_od)"                                                     | tee -a ${CMAKELISTS}
+    echo ""                                                                                           | tee -a ${CMAKELISTS}
+    echo "#----------------------------------------------------------"                                | tee -a ${CMAKELISTS}
 done
