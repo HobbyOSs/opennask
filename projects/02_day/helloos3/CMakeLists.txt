@@ -2,20 +2,12 @@
 message(STATUS "Entering directory projects/02_day/helloos3/")
 
 set(NASK ${root_BINARY_DIR}/src/opennask)
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
-set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(02_day_helloos3_OS    ${root_BINARY_DIR}/projects/02_day/helloos3/os.img)
 set(02_day_helloos3_SYS	  ${root_BINARY_DIR}/projects/02_day/helloos3/os.sys)
 set(02_day_helloos3_IPLB  ${root_BINARY_DIR}/projects/02_day/helloos3/ipl.bin)
 set(02_day_helloos3_IPLS  ${root_SOURCE_DIR}/projects/02_day/helloos3/ipl10.nas)
 set(02_day_helloos3_HEADB ${root_BINARY_DIR}/projects/02_day/helloos3/asmhead.bin)
 set(02_day_helloos3_HEADS ${root_SOURCE_DIR}/projects/02_day/helloos3/asmhead.nas)
-set(02_day_helloos3_BOOTB ${root_BINARY_DIR}/projects/02_day/helloos3/boot.bin)
-set(02_day_helloos3_CCO	  ${root_BINARY_DIR}/projects/02_day/helloos3/boot.o)
-set(02_day_helloos3_CCS	  ${root_SOURCE_DIR}/projects/02_day/helloos3/*.c)
-set(02_day_helloos3_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
-set(02_day_helloos3_WILDOBJ ${root_BINARY_DIR}/projects/02_day/helloos3/*.o)
 
 
 add_custom_target(02_day_helloos3_helloos_run
@@ -39,7 +31,6 @@ add_custom_target(02_day_helloos3_helloos_ipl
 )
 add_custom_target(02_day_helloos3_helloos_sys
   COMMAND ${NASK} ${02_day_helloos3_HEADS} ${02_day_helloos3_HEADB}
-  COMMAND gcc ${BINOPT} -T ${02_day_helloos3_LDS} ${02_day_helloos3_CCS} -o ${02_day_helloos3_BOOTB}
   COMMAND cat ${02_day_helloos3_HEADB} ${02_day_helloos3_BOOTB} > ${02_day_helloos3_SYS}
   DEPENDS 02_day_helloos3_ipl
 )
@@ -56,13 +47,6 @@ set(helloos_wine.img_OUTS ${root_BINARY_DIR}/projects/02_day/helloos3/helloos_wi
 add_custom_target(02_day_helloos3_helloos
   COMMAND ${root_BINARY_DIR}/src/opennask ${helloos.img_SRCS} ${helloos.img_OUTS}
 )
-set(helloos.img_HRB ${root_BINARY_DIR}/projects/02_day/helloos3/helloos.hrb)
-add_custom_target(02_day_helloos3_helloos_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${helloos.img_SRCS} ${helloos.img_HRB}
-  COMMAND mcopy -i ${02_day_helloos3_OS} ${helloos.img_HRB} ::helloos.hrb
-  DEPENDS 02_day_helloos3_img
-)
-
 add_custom_target(02_day_helloos3_helloos_wine
   COMMAND ${WINE} ${WINE_NASK} ${helloos.img_SRCS} ${helloos_wine.img_OUTS}
 )

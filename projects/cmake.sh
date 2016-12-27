@@ -8,7 +8,6 @@ fi
 
 SUB_DIRS=(`find . -name \*.nas | ${SED} -e 's|\.\/||' -e 's|\/.*||' | sort -u`)
 NAS_DIRS=(`find . -name \*.nas | ${SED} -r 's|/[^/]+$||'| sort -u`)
-NAS_FILES=(`find . -name \*.nas | sort -u`)
 
 echo "Please add following statements in CMakeLists.txt"
 echo "-------------------------------------------------"
@@ -44,6 +43,9 @@ echo "Debugging...creating child CMakeLists.txt"
 echo "-------------------------------------------------"
 echo ""
 
+ASM_HEADS=(`find . -name asmhead.nas | sort -u`)
+NAS_FILES=(`find . -name \*.nas | grep -v asmhead.nas | grep -v helloos.nas | sort -u`)
+
 for NAS_FILE in ${NAS_FILES[@]}
 do
     NAS_DIR=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||'`)
@@ -51,27 +53,32 @@ do
     rm -f ${CMAKELISTS}
 done
 
-for NAS_FILE in ${NAS_FILES[@]}
+#bash ./cmake_helloos.sh
+
+exit 1
+
+# まずはasmhead.nasを処理する
+for ASM_HEAD in ${ASM_HEADS[@]}
 do
-    NAS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||'`
-    BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
-    HRB_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.hrb/g'`
+    ASM_HEAD=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||'`
+    BIN_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
+    HRB_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.hrb/g'`
 
-    WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
-    TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
+    WINE_BIN_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
+    TARGET_NAME=`echo ${ASM_HEAD} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
 
-    OS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.img/g'`
-    SYS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.sys/g'`
-    IPL_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/ipl\.bin/g'`
+    OS_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.img/g'`
+    SYS_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/os\.sys/g'`
+    IPL_FILE=`echo ${ASM_HEAD} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/asmhead.nas/ipl\.bin/g'`
     TARGET_OS_NAME=`echo ${TARGET_NAME} | ${SED} -e 's|_asmhead||g'`
 
-    NAS_DIR=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||'`)
-    NAS_DIR_TARGET=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||' | ${SED} -e 's|\/|_|g'`)
+    NAS_DIR=(`echo ${ASM_HEAD} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||'`)
+    NAS_DIR_TARGET=(`echo ${ASM_HEAD} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||' | ${SED} -e 's|\/|_|g'`)
     CMAKELISTS="${NAS_DIR}/CMakeLists.txt"
 
-    BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.img/g'`
-    HRB_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.hrb/g'`
-    WINE_BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/_wine.img/g'`
+    BINARY_NAME=`echo ${ASM_HEAD} | xargs basename | ${SED} -e 's/.nas/.img/g'`
+    HRB_NAME=`echo ${ASM_HEAD} | xargs basename | ${SED} -e 's/.nas/.hrb/g'`
+    WINE_BINARY_NAME=`echo ${ASM_HEAD} | xargs basename | ${SED} -e 's/.nas/_wine.img/g'`
 
     if [ -e ${CMAKELISTS} ]; then
 	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
@@ -150,6 +157,57 @@ do
         echo ")"                                                                                      | tee -a ${CMAKELISTS}
 
 	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
+    fi
+    echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${ASM_HEAD})"                          | tee -a ${CMAKELISTS}
+    echo "set(${BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                          | tee -a ${CMAKELISTS}
+
+    echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                | tee -a ${CMAKELISTS}
+    echo ""                                                                                           | tee -a ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}"                                                           | tee -a ${CMAKELISTS}
+    echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}" | tee -a ${CMAKELISTS}
+    echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}_wine"                                                      | tee -a ${CMAKELISTS}
+    echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"      | tee -a ${CMAKELISTS}
+    echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}_od"                                                        | tee -a ${CMAKELISTS}
+    echo "  COMMAND \${OD} -t x1 \${${BINARY_NAME}_OUTS}      > \${${BINARY_NAME}_OUTS}_f.txt"        | tee -a ${CMAKELISTS}
+    echo "  COMMAND \${OD} -t x1 \${${WINE_BINARY_NAME}_OUTS} > \${${WINE_BINARY_NAME}_OUTS}_t.txt"   | tee -a ${CMAKELISTS}
+    echo "  COMMAND diff -s \${${BINARY_NAME}_OUTS}_f.txt \${${WINE_BINARY_NAME}_OUTS}_t.txt"         | tee -a ${CMAKELISTS}
+    echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    echo ""                                                                                           | tee -a ${CMAKELISTS}
+    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME})"                                         | tee -a ${CMAKELISTS}
+    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME}_wine)"                                    | tee -a ${CMAKELISTS}
+    echo ""                                                                                           | tee -a ${CMAKELISTS}
+    echo "add_dependencies(images ${TARGET_NAME})"                                                    | tee -a ${CMAKELISTS}
+    echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                 | tee -a ${CMAKELISTS}
+    echo "add_dependencies(od ${TARGET_NAME}_od)"                                                     | tee -a ${CMAKELISTS}
+    echo ""                                                                                           | tee -a ${CMAKELISTS}
+    echo "#----------------------------------------------------------"                                | tee -a ${CMAKELISTS}
+done
+
+# 残りのファイルを処理する
+for NAS_FILE in ${NAS_FILES[@]}
+do
+    NAS_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||'`
+    BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.img/g'`
+    HRB_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/\.hrb/g'`
+
+    WINE_BIN_FILE=`echo ${NAS_FILE} | ${SED} -e 's|^\.\/||' | ${SED} -e 's/\.nas/_wine\.img/g'`
+    TARGET_NAME=`echo ${NAS_FILE} | ${SED} -e 's|\/|_|g' | ${SED} -e 's/\.nas//g'`
+    TARGET_OS_NAME=`echo ${TARGET_NAME} | ${SED} -e 's|_asmhead||g'`
+
+    NAS_DIR=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||'`)
+    NAS_DIR_TARGET=(`echo ${NAS_FILE} | ${SED} -r 's|/[^/]+$||' | ${SED} -e 's|^\.\/||' | ${SED} -e 's|\/|_|g'`)
+    CMAKELISTS="${NAS_DIR}/CMakeLists.txt"
+
+    BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.img/g'`
+    HRB_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/.hrb/g'`
+    WINE_BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/_wine.img/g'`
+
+    if [ -e ${CMAKELISTS} ]; then
+	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
+    else
+	echo "#----------------------------------------------------------"                            | tee    ${CMAKELISTS}
     fi
     echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${NAS_FILE})"                          | tee -a ${CMAKELISTS}
     echo "set(${BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                          | tee -a ${CMAKELISTS}
