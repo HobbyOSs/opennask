@@ -976,40 +976,33 @@ namespace nask_utility {
 		    } else {
 			 log()->info("Register-size prefix is absent");
 		    }
-		    // 0x26, etc
-		    if (indexes_and_pointers) {
-			 store_segment_override_prefix(tokenizer.LookAhead(3).AsString(), binout_container);
+		    // segment-override prefix
+		    if (contains(src_mem, ":")) {
+			 const std::string seg = src_mem.substr(1, 2);
+			 log()->info("it's necessary to store segment-override prefix: {} for {}", src_mem, seg);
+			 store_segment_override_prefix(seg, binout_container);
 		    }
 
-		    if (regex_match(dst_reg, match, ModRM::regImm08)) {
-			 // r8
-			 const uint8_t op = 0x8a;
-			 bool mod_is = exists_disp || indexes_and_pointers;
+		    // 実際のオペコードなどを格納する
+		    const uint8_t op = regex_match(dst_reg, match, ModRM::regImm08) ? 0x8a : 0x8b;
+		    const bool mod_is = (disp != "" && disp.substr(1) == "0x00") ? false : exists_disp || indexes_and_pointers;
+		    const ModRM::mods mod_kind = mod_is ? ModRM::REG_DISP8 : ModRM::REG_REG;
 
-			 if (disp != "" && disp.substr(1) == "0x00") {
-			      mod_is = false; // FIXME
-			 }
-
-			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8a, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8a, ModRM::REG_REG, src_mem, dst_reg);
+		    if (contains(src_mem, ":")) {
+			 const uint8_t modrm = ModRM::generate_modrm(op,
+								     ModRM::REG_REG,
+								     "[" + src_mem.substr(4, 3) + "]",
+								     dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
-		    	 binout_container.push_back(op);
-		    	 binout_container.push_back(modrm);
+			 binout_container.push_back(op);
+			 binout_container.push_back(modrm);
 		    } else {
-			 // r16 or r32
-			 const uint8_t op = 0x8b;
-			 bool mod_is = exists_disp || indexes_and_pointers;
-
-			 if (disp != "" && disp.substr(1) == "0x00") {
-			      mod_is = false; // FIXME
-			 }
-
-			 const uint8_t modrm = mod_is ? ModRM::generate_modrm(0x8b, ModRM::REG_DISP8, src_mem, dst_reg)
-			      : ModRM::generate_modrm(0x8b, ModRM::REG_REG, src_mem, dst_reg);
+			 const uint8_t modrm = ModRM::generate_modrm(op, mod_kind, src_mem, dst_reg);
 			 log()->info("Opecode: 0x{:02x}, 0x{:02x}", op, modrm);
-		    	 binout_container.push_back(op);
-		    	 binout_container.push_back(modrm);
+			 binout_container.push_back(op);
+			 binout_container.push_back(modrm);
 		    }
+
 
 		    if (disp != "" && ModRM::get_rm_from_reg(src_reg) == ModRM::SIB) {
 			 const uint8_t sib = ModRM::generate_sib(exists_disp ? src_mem : src_reg, src_reg);
@@ -1175,8 +1168,8 @@ namespace nask_utility {
 
 			 } else if (regex_match(dst_reg, match, ModRM::regImm32)) {
 			      const uint8_t o = ModRM::get_opecode_from_reg(0xb8, dst_reg);
-			      log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}, 0x{:02x}...", 0x66, o, 0x00);
-			      binout_container.push_back(0x66);
+			      store_register_size_prefix(dst_reg, binout_container);
+			      log()->info("NIM:(DW) 0x{:02x}, 0x{:02x}...", o, 0x00);
 			      store_label_src(src_imm, binout_container, true, imm32);
 			      binout_container.push_back(o);
 			      binout_container.push_back(0x00);
