@@ -981,6 +981,10 @@ namespace nask_utility {
 			 const std::string seg = src_mem.substr(1, 2);
 			 log()->info("it's necessary to store segment-override prefix: {} for {}", src_mem, seg);
 			 store_segment_override_prefix(seg, binout_container);
+		    } else if (tokenizer.LookAhead(4).Is(":")) {
+			 const std::string seg = tokenizer.LookAhead(3).AsString();
+			 log()->info("it's necessary to store segment-override prefix: {} for {}", src_mem, seg);
+			 store_segment_override_prefix(seg, binout_container);
 		    }
 
 		    // 実際のオペコードなどを格納する
