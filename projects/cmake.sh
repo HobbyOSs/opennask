@@ -71,5 +71,6 @@ bash ./cmake_until_20day.sh 17_day
 bash ./cmake_until_20day.sh 18_day
 bash ./cmake_until_20day.sh 19_day
 bash ./cmake_until_20day.sh 20_day
+bash ./cmake_from_21day.sh  21_day
 
 exit 0
