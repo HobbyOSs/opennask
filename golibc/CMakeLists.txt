@@ -32,7 +32,7 @@ set(go_STAT_SRCS
     frexp.c
     strtoul0.c)
 
-if (NOT WIN32)
+if (NOT WIN32 AND NOT APPLE)
   LIST(APPEND go_STAT_SRCS sprintf.c vsprintf.c)
 endif()
 

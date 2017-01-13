@@ -7,17 +7,16 @@ An 80x86 assembler like MASM/NASM for the tiny OS
 $ mkdir build
 $ cd build
 
-# if you use msys2
-$ cmake -G "MSYS Makefiles" ..
-$ make
-
 # if you use Unix environment
 $ cmake -G "Unix Makefiles" ..
 $ make
 
 # if you can use Ninja
-$ cmake -G "Ninja" ..
+$ cmake -G Ninja ..
 $ ninja
+
+# or, you may want to specify compiler
+$ cmake -G Ninja  -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
 ```
 
 # Build osask project files
