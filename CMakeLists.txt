@@ -24,7 +24,7 @@ add_subdirectory(projects)
 #-----------------------------------------------------------------------
 # Checks for CppUTest
 #
-OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" OFF)
+OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
 if (USE_CPPUTEST)
   add_definitions(-DUSE_CPPUTEST)
   add_subdirectory(test)

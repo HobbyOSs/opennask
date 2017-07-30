@@ -2,15 +2,8 @@
 An 80x86 assembler like MASM/NASM for the tiny OS
 
 # Build
-
 * You need to install cmake, and ninja / make
-
 ```
-$ git clone https://github.com/HobbyOSs/opennask.git
-$ cd opennask
-$ git submodule init
-$ git submodule update
-
 $ mkdir build
 $ cd build
 

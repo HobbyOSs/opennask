@@ -236,9 +236,7 @@ int process_each_assembly_line(char** argv,
 			      logger->info("eval {} end", token.AsString());
 			 } else {
 			      // オペコードが見つかったけどよくわからなかった場合
-			      if (!token.Is("EQU") && !nask_utility::is_register(inst.token_table, token)) {
-				   std::cerr << "opennask ignored unknown instruction " << token.AsString() << std::endl;
-			      }			      
+			      std::cerr << "opennask ignored unknown instruction " << token.AsString() << std::endl;
 			 }
 		    }
 	       }
