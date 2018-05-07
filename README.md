@@ -1,9 +1,12 @@
 # opennask [![Build Status](https://travis-ci.org/HobbyOSs/opennask.svg?branch=master)](https://travis-ci.org/HobbyOSs/opennask) [![Build status](https://ci.appveyor.com/api/projects/status/3y5g0uyrixr7ivgd?svg=true)](https://ci.appveyor.com/project/HobbyOSs/opennask) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 An 80x86 assembler like MASM/NASM for the tiny OS
 
-# Build
+# Build (debian)
 * You need to install cmake, and ninja / make
 ```
+// example
+# apt-get install cmake ninja* libc6-dev-i386 cpputest* 
+
 $ mkdir build
 $ cd build
 
@@ -19,19 +22,21 @@ $ ninja
 $ cmake -G Ninja  -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
 ```
 
-# Build osask project files
+# Build osask project files (debian)
 
 * You need to install mtools to build these files
 * You need to install QEMU to test it
 
-'wine' will be very helpful for you to wine debug original nask
+'wine' will be very helpful for you to debug original nask
 
-## Build day 03, harib00i img
+## Build day 03, harib00i img (debian)
 
 * Target names are formatted like `XX_day_haribxxx_{action}`
     * Actions are `sys`, `run`, `clean` and so on
 
 ```
+# apt-get install qemu
+
 $ cd opennask/build
 $ ninja
 $ ninja 03_day_harib00i_img
