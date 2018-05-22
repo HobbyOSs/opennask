@@ -12,7 +12,7 @@ set(OD "od" CACHE INTERNAL "")
 set(QEMU "qemu-system-i386" CACHE INTERNAL "")
 set(QEMUOPT "-m" "32" "-localtime" "-vga" "std" "-fda" CACHE INTERNAL "")
 set(QEMU_DEBUG_OPT "-redir" "tcp:5555:127.0.0.1:1234" "&" CACHE INTERNAL "")
-set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-Wl,--oformat=binary" CACHE INTERNAL "")
+set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-fno-pie" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
 add_subdirectory(parasol)
 add_subdirectory(objconv)
