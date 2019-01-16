@@ -24,7 +24,7 @@ class TParaConsoleObject: public TParaObjectPrototype {
     virtual ~TParaConsoleObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Print = TParaObjectPrototype::_NumberOfMethods,
@@ -34,10 +34,10 @@ class TParaConsoleObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
 };
 
 
@@ -46,9 +46,9 @@ class TParaInputFileObject: public TParaObjectPrototype {
     TParaInputFileObject(void);
     virtual ~TParaInputFileObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_GetLine = TParaObjectPrototype::_NumberOfMethods,
@@ -56,8 +56,8 @@ class TParaInputFileObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    virtual int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    virtual int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    virtual int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    virtual int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   private:
     std::ifstream* _FileStream;
 };
@@ -68,9 +68,9 @@ class TParaOutputFileObject: public TParaObjectPrototype {
     TParaOutputFileObject(void);
     virtual ~TParaOutputFileObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Print = TParaObjectPrototype::_NumberOfMethods,
@@ -78,8 +78,8 @@ class TParaOutputFileObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    virtual int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    virtual int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    virtual int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    virtual int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   private:
     std::ofstream* _FileStream;
 };
@@ -90,10 +90,10 @@ class TParaInputPipeObject: public TParaInputFileObject {
     TParaInputPipeObject(void);
     virtual ~TParaInputPipeObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
   protected:
-    virtual int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    virtual int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    virtual int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    virtual int GetByte(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   private:
     std::FILE* _Pipe;
 };
@@ -104,10 +104,10 @@ class TParaOutputPipeObject: public TParaOutputFileObject {
     TParaOutputPipeObject(void);
     virtual ~TParaOutputPipeObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
   protected:
-    virtual int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    virtual int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    virtual int Print(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    virtual int PrintLine(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   private:
     std::FILE* _Pipe;
 };
@@ -119,7 +119,7 @@ class TParaFormatterObject: public TParaObjectPrototype {
     virtual ~TParaFormatterObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Put = TParaObjectPrototype::_NumberOfMethods,
@@ -135,16 +135,16 @@ class TParaFormatterObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int Put(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Flush(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SetWidth(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SetPrecision(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SetFill(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SetBase(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Hex(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Dec(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Fixed(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Scientific(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    int Put(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Flush(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SetWidth(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SetPrecision(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SetFill(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SetBase(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Hex(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Dec(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Fixed(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Scientific(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   private:
     std::ostringstream* _FormatStream;
 };
@@ -155,9 +155,9 @@ class TParaScannerObject: public TParaObjectPrototype {
     TParaScannerObject(void);
     virtual ~TParaScannerObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Load = TParaObjectPrototype::_NumberOfMethods,
@@ -170,13 +170,13 @@ class TParaScannerObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int Load(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Get(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SkipWhiteSpace(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int SetBase(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int IsGood(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int LastGetCount(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    int Load(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Get(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int GetLine(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SkipWhiteSpace(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int SetBase(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int IsGood(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int LastGetCount(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   private:
     std::istringstream* _SourceStream;
 };
@@ -188,7 +188,7 @@ class TParaArgumentObject: public TParaObjectPrototype {
     virtual ~TParaArgumentObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     virtual void Parse(void);
   protected:
@@ -203,13 +203,13 @@ class TParaArgumentObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int NumberOfArguments(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int GetArgumentOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int NumberOfParameters(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int GetParameterOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int IsOptionSpecified(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int GetOptionValueOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int IsSwitchSpecified(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    int NumberOfArguments(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int GetArgumentOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int NumberOfParameters(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int GetParameterOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int IsOptionSpecified(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int GetOptionValueOf(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int IsSwitchSpecified(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   private:
     int _argc;
     char** _argv;
@@ -227,12 +227,12 @@ class TParaStringObject: public TParaObjectPrototype {
     virtual ~TParaStringObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    int Chop(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int Substr(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int Index(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    int Chop(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int Substr(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int Index(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   protected:
     enum {
 	MethodId_Chop = TParaObjectPrototype::_NumberOfMethods,
@@ -250,10 +250,10 @@ class TParaSystemObject: public TParaObjectPrototype {
     virtual ~TParaSystemObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    int System(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
-    int Shell(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException);
+    int System(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
+    int Shell(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false);
   protected:
     enum {
 	MethodId_System = TParaObjectPrototype::_NumberOfMethods,

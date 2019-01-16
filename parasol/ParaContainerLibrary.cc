@@ -27,7 +27,7 @@ TParaObjectPrototype* TParaVectorObject::Clone(void)
     return new TParaVectorObject();
 }
 
-int TParaVectorObject::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaVectorObject::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (Message == "putAt") {
         ReturnValue = PutAt(ArgumentList);
@@ -48,7 +48,7 @@ int TParaVectorObject::DispatchMessage(const string& Message, vector<TParaValue*
     return 1;
 }
 
-TParaValue TParaVectorObject::PutAt(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TParaVectorObject::PutAt(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 2) {
         throw TScriptException(
@@ -72,7 +72,7 @@ TParaValue TParaVectorObject::PutAt(vector<TParaValue*>& ArgumentList) throw(TSc
     return *Value;
 }
 
-TParaValue TParaVectorObject::GetAt(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TParaVectorObject::GetAt(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
         throw TScriptException(
@@ -89,7 +89,7 @@ TParaValue TParaVectorObject::GetAt(vector<TParaValue*>& ArgumentList) throw(TSc
     return _VectorStorage[Index];
 }
 
-TParaValue TParaVectorObject::PushBack(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TParaVectorObject::PushBack(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
         throw TScriptException(
@@ -102,7 +102,7 @@ TParaValue TParaVectorObject::PushBack(vector<TParaValue*>& ArgumentList) throw(
     return *ArgumentList[0]; 
 }
 
-TParaValue TParaVectorObject::Size(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TParaVectorObject::Size(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     return TParaValue((long) _VectorStorage.size()); 
 }

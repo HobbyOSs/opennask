@@ -21,8 +21,8 @@ class TMathFunction {
   public:
     TMathFunction(const string& FunctionText);
     virtual ~TMathFunction();
-    virtual void Parse(void) throw(TScriptException);
-    virtual double operator() (double x) const throw(TScriptException);
+    virtual void Parse(void) noexcept(false);
+    virtual double operator() (double x) const noexcept(false);
   protected:
     string _FunctionText;
     TParaObjectPrototypeTable* _ObjectPrototypeTable;
@@ -39,7 +39,7 @@ class TEquationSolver {
     TEquationSolver(void);
     virtual ~TEquationSolver();
     virtual int Solve(const TMathFunction& Function, double InitialValue, double& Result, double Precision, int MaxTries = 30);
-    virtual double Diff(const TMathFunction& Functoin, double x, double eps) throw(TScriptException);
+    virtual double Diff(const TMathFunction& Functoin, double x, double eps) noexcept(false);
     string ErrorMessage(void);
   protected:
     string _ErrorMessage;
@@ -71,7 +71,7 @@ TMathFunction::~TMathFunction()
     delete _ObjectPrototypeTable;
 }
 
-void TMathFunction::Parse(void) throw(TScriptException)
+void TMathFunction::Parse(void) noexcept(false)
 {
     _ObjectPrototypeTable = new TParaObjectPrototypeTable();
     _BuiltinFunctionTable = new TParaBuiltinFunctionTable();
@@ -95,7 +95,7 @@ void TMathFunction::Parse(void) throw(TScriptException)
     _Expression = ExpressionParser.Parse(&Tokenizer, _SymbolTable);
 }
 
-double TMathFunction::operator() (double x) const throw(TScriptException)
+double TMathFunction::operator() (double x) const noexcept(false)
 {
     _Variable->Assign(TParaValue(x));
     return _Expression->Evaluate(_SymbolTable).AsDouble();
@@ -111,7 +111,7 @@ TEquationSolver::~TEquationSolver()
 {
 }
 
-double TEquationSolver::Diff(const TMathFunction& Function, double x, double eps) throw(TScriptException)
+double TEquationSolver::Diff(const TMathFunction& Function, double x, double eps) noexcept(false)
 {
     return (Function(x + eps) - Function(x - eps)) / (2 * eps);
 }

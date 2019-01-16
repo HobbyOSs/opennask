@@ -81,7 +81,7 @@ int TParaMathObject::MethodIdOf(const std::string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -135,7 +135,7 @@ int TParaMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Argume
     return Result;
 }
 
-int TParaMathObject::Sin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Sin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("sin(): invalid number of argument[s]");
@@ -157,7 +157,7 @@ int TParaMathObject::Sin(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Cos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Cos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("cos(): invalid number of argument[s]");
@@ -179,7 +179,7 @@ int TParaMathObject::Cos(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Tan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Tan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("tan(): invalid number of argument[s]");
@@ -209,7 +209,7 @@ int TParaMathObject::Tan(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Asin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Asin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("asin(): invalid number of argument[s]");
@@ -238,7 +238,7 @@ int TParaMathObject::Asin(std::vector<TParaValue*>& ArgumentList, TParaValue& Re
     return 1;
 }
 
-int TParaMathObject::Acos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Acos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("acos(): invalid number of argument[s]");
@@ -267,7 +267,7 @@ int TParaMathObject::Acos(std::vector<TParaValue*>& ArgumentList, TParaValue& Re
     return 1;
 }
 
-int TParaMathObject::Atan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Atan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("atan(): invalid number of argument[s]");
@@ -289,7 +289,7 @@ int TParaMathObject::Atan(std::vector<TParaValue*>& ArgumentList, TParaValue& Re
     return 1;
 }
 
-int TParaMathObject::Atan2(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Atan2(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 2) {
         throw TScriptException(
@@ -323,7 +323,7 @@ int TParaMathObject::Atan2(std::vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaMathObject::Exp(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Exp(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("exp(): invalid number of argument[s]");
@@ -345,7 +345,7 @@ int TParaMathObject::Exp(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Log(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Log(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("log(): invalid number of argument[s]");
@@ -374,7 +374,7 @@ int TParaMathObject::Log(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Log10(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Log10(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("log10(): invalid number of argument[s]");
@@ -403,7 +403,7 @@ int TParaMathObject::Log10(std::vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaMathObject::Sqrt(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Sqrt(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("sqrt(): invalid number of argument[s]");
@@ -432,7 +432,7 @@ int TParaMathObject::Sqrt(std::vector<TParaValue*>& ArgumentList, TParaValue& Re
     return 1;
 }
 
-int TParaMathObject::Abs(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Abs(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("abs(): invalid number of argument[s]");
@@ -454,7 +454,7 @@ int TParaMathObject::Abs(std::vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaMathObject::Srand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Srand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || ! (ArgumentList[0]->IsLong())) {
         throw TScriptException("srand(int): invalid number of argument[s]");
@@ -465,7 +465,7 @@ int TParaMathObject::Srand(std::vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaMathObject::Rand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaMathObject::Rand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() == 0) {
 	ReturnValue = TParaValue((double) drand48());
@@ -540,7 +540,7 @@ int TParaListMathObject::MethodIdOf(const std::string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaListMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -585,7 +585,7 @@ int TParaListMathObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Ar
     return Result;
 }
 
-int TParaListMathObject::Length(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Length(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("length(): invalid argument[s]");
@@ -600,7 +600,7 @@ int TParaListMathObject::Length(std::vector<TParaValue*>& ArgumentList, TParaVal
     return 1;
 }
 
-int TParaListMathObject::Min(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Min(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("min(): invalid argument[s]");
@@ -624,7 +624,7 @@ int TParaListMathObject::Min(std::vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaListMathObject::Max(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Max(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("max(): invalid argument[s]");
@@ -648,7 +648,7 @@ int TParaListMathObject::Max(std::vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaListMathObject::Sum(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Sum(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("sum(): invalid argument[s]");
@@ -668,7 +668,7 @@ int TParaListMathObject::Sum(std::vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaListMathObject::Mean(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Mean(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("mean(): invalid argument[s]");
@@ -693,7 +693,7 @@ int TParaListMathObject::Mean(std::vector<TParaValue*>& ArgumentList, TParaValue
     return 1;
 }
 
-int TParaListMathObject::Deviation(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Deviation(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("deviation(): invalid argument[s]");
@@ -721,7 +721,7 @@ int TParaListMathObject::Deviation(std::vector<TParaValue*>& ArgumentList, TPara
     return 1;
 }
 
-int TParaListMathObject::Delta(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Delta(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("delta(): invalid argument[s]");
@@ -751,7 +751,7 @@ int TParaListMathObject::Delta(std::vector<TParaValue*>& ArgumentList, TParaValu
     return 1;
 }
 
-int TParaListMathObject::Sigma(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Sigma(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("sigma(): invalid argument[s]");
@@ -784,7 +784,7 @@ int TParaListMathObject::Sigma(std::vector<TParaValue*>& ArgumentList, TParaValu
     return 1;
 }
 
-int TParaListMathObject::Find(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Find(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("find(): invalid argument[s]");
@@ -803,7 +803,7 @@ int TParaListMathObject::Find(std::vector<TParaValue*>& ArgumentList, TParaValue
     return 1;
 }
 
-int TParaListMathObject::FindKeys(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::FindKeys(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("findkeys(): invalid argument[s]");
@@ -823,7 +823,7 @@ int TParaListMathObject::FindKeys(std::vector<TParaValue*>& ArgumentList, TParaV
     return 1;
 }
 
-int TParaListMathObject::Count(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaListMathObject::Count(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsList())) {
         throw TScriptException("count(): invalid argument[s]");

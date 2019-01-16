@@ -25,11 +25,11 @@ TParaObjectPrototype* TCanvasMessenger::Clone(void)
     return new TCanvasMessenger(_Canvas);
 }
 
-void TCanvasMessenger::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TCanvasMessenger::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
 }
 
-int TCanvasMessenger::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TCanvasMessenger::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (Message == "drawLine") {
         ReturnValue = DrawLine(ArgumentList);
@@ -50,7 +50,7 @@ int TCanvasMessenger::DispatchMessage(const string& Message, vector<TParaValue*>
     return 1;
 }
 
-TParaValue TCanvasMessenger::DrawLine(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TCanvasMessenger::DrawLine(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 4) {
 	throw TScriptException("Canvas::drawLine(): too few arguments");
@@ -66,7 +66,7 @@ TParaValue TCanvasMessenger::DrawLine(vector<TParaValue*>& ArgumentList) throw(T
     return TParaValue((long) 0);
 }
 
-TParaValue TCanvasMessenger::DrawRect(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TCanvasMessenger::DrawRect(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 4) {
 	throw TScriptException("Canvas::drawRect(): too few arguments");
@@ -82,7 +82,7 @@ TParaValue TCanvasMessenger::DrawRect(vector<TParaValue*>& ArgumentList) throw(T
     return TParaValue((long) 0);
 }
 
-TParaValue TCanvasMessenger::DrawCircle(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TCanvasMessenger::DrawCircle(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 3) {
 	throw TScriptException("Canvas::drawCircle(): too few arguments");
@@ -97,7 +97,7 @@ TParaValue TCanvasMessenger::DrawCircle(vector<TParaValue*>& ArgumentList) throw
     return TParaValue((long) 0);
 }
 
-TParaValue TCanvasMessenger::DrawText(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TCanvasMessenger::DrawText(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 3) {
 	throw TScriptException("Canvas::drawText(): too few arguments");

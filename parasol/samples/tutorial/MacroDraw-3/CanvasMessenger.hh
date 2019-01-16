@@ -16,14 +16,14 @@ class TCanvasMessenger: public TParaObjectPrototype {
     TCanvasMessenger(TCanvas* Canvas);
     virtual ~TCanvasMessenger();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    virtual void Destruct(void) throw(TScriptException);
-    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    virtual void Destruct(void) noexcept(false);
+    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    TParaValue DrawLine(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue DrawRect(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue DrawCircle(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue DrawText(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    TParaValue DrawLine(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue DrawRect(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue DrawCircle(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue DrawText(std::vector<TParaValue*>& ArgumentList) noexcept(false);
   private:
     TCanvas* _Canvas;
 };
@@ -34,10 +34,10 @@ class TCanvasFactory: public TParaObjectPrototype {
     TCanvasFactory(TCanvasMessenger* CanvasMessenger);
     virtual ~TCanvasFactory();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    TParaValue GetCanvas(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    TParaValue GetCanvas(std::vector<TParaValue*>& ArgumentList) noexcept(false);
   private:
     TCanvasMessenger* _CanvasMessenger;
     TParaValue* _CanvasPointer;

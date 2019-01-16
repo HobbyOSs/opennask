@@ -102,7 +102,7 @@ TParaStatementParser::~TParaStatementParser()
 {
 }
 
-TParaStatement* TParaStatementParser::Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement* TParaStatementParser::Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaStatement* Statement = 0;
 
@@ -182,7 +182,7 @@ TParaVariableDeclaration::~TParaVariableDeclaration()
     delete _InitialValue;
 }
 
-void TParaVariableDeclaration::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaVariableDeclaration::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaToken Token;
     TParaExpressionParser* ExpressionParser;
@@ -229,7 +229,7 @@ void TParaVariableDeclaration::Parse(TParaTokenizer* Tokenizer, TParaStatementPa
     }
 }
 
-void TParaVariableDeclaration::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaVariableDeclaration::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     // initialization-argument evaluation //
     vector<TParaValue*> ArgumentList;
@@ -357,7 +357,7 @@ string TParaVariableDeclarationStatement::FirstToken(void) const
     return string("");
 }
 
-void TParaVariableDeclarationStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaVariableDeclarationStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaToken Token = Tokenizer->Next();
     _Position = Token.Position();
@@ -389,7 +389,7 @@ void TParaVariableDeclarationStatement::Parse(TParaTokenizer* Tokenizer, TParaSt
     }
 }
 
-TParaStatement::TExecResult TParaVariableDeclarationStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaVariableDeclarationStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     try {
 	for (unsigned i = 0; i < _VariableDeclarationList.size(); i++) {
@@ -425,7 +425,7 @@ string TParaExpressionStatement::FirstToken(void) const
     return string("");
 }
 
-void TParaExpressionStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaExpressionStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -461,18 +461,18 @@ string TParaEmptyStatement::FirstToken(void) const
     return string(";");
 }
 
-void TParaEmptyStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaEmptyStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TParaEmptyStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaEmptyStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return TExecResult();
 }
 
 
-TParaStatement::TExecResult TParaExpressionStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaExpressionStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return TExecResult(_Expression->Evaluate(SymbolTable));
 }
@@ -505,7 +505,7 @@ string TParaComplexStatement::FirstToken(void) const
     return string("{");
 }
 
-void TParaComplexStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaComplexStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("{");
     
@@ -524,7 +524,7 @@ void TParaComplexStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParse
     }
 }
 
-TParaStatement::TExecResult TParaComplexStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaComplexStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     SymbolTable->EnterBlock();
 
@@ -578,7 +578,7 @@ string TParaIfStatement::FirstToken(void) const
     return string("if");
 }
 
-void TParaIfStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaIfStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -600,7 +600,7 @@ void TParaIfStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* St
     }
 }
 
-TParaStatement::TExecResult TParaIfStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaIfStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 
@@ -640,7 +640,7 @@ string TParaWhileStatement::FirstToken(void) const
     return string("while");
 }
 
-void TParaWhileStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaWhileStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -654,7 +654,7 @@ void TParaWhileStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser*
     _Statement = StatementParser->Parse(Tokenizer, SymbolTable);
 }
 
-TParaStatement::TExecResult TParaWhileStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaWhileStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 
@@ -705,7 +705,7 @@ string TParaForStatement::FirstToken(void) const
     return string("for");
 }
 
-void TParaForStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaForStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -722,7 +722,7 @@ void TParaForStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* S
     _Statement = StatementParser->Parse(Tokenizer, SymbolTable);
 }
 
-TParaStatement::TExecResult TParaForStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaForStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 
@@ -787,7 +787,7 @@ string TParaForeachStatement::FirstToken(void) const
     return string("foreach");
 }
 
-void TParaForeachStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaForeachStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -813,7 +813,7 @@ void TParaForeachStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParse
     _Statement = StatementParser->Parse(Tokenizer, SymbolTable);
 }
 
-TParaStatement::TExecResult TParaForeachStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaForeachStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 
@@ -924,13 +924,13 @@ string TParaBreakStatement::FirstToken(void) const
     return string("break");
 }
 
-void TParaBreakStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaBreakStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("break");
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TParaBreakStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaBreakStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
     Result.ExecStatus = TParaStatement::esBreak;
@@ -958,13 +958,13 @@ string TParaContinueStatement::FirstToken(void) const
     return string("continue");
 }
 
-void TParaContinueStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaContinueStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("continue");
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TParaContinueStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaContinueStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
     Result.ExecStatus = TParaStatement::esContinue;
@@ -994,7 +994,7 @@ string TParaReturnStatement::FirstToken(void) const
     return string("return");
 }
 
-void TParaReturnStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaReturnStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -1009,7 +1009,7 @@ void TParaReturnStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser
     }
 }
 
-TParaStatement::TExecResult TParaReturnStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaReturnStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 
@@ -1044,7 +1044,7 @@ string TParaThrowStatement::FirstToken(void) const
     return string("throw");
 }
 
-void TParaThrowStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaThrowStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -1059,7 +1059,7 @@ void TParaThrowStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser*
     }
 }
 
-TParaStatement::TExecResult TParaThrowStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaThrowStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     if (_ExceptionExpression != 0) {        
 	throw TScriptException(
@@ -1096,7 +1096,7 @@ string TParaTryCatchStatement::FirstToken(void) const
     return string("try");
 }
 
-void TParaTryCatchStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaTryCatchStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("try");
     _TryStatement = StatementParser->Parse(Tokenizer, SymbolTable);
@@ -1121,7 +1121,7 @@ void TParaTryCatchStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementPars
     }
 }
 
-TParaStatement::TExecResult TParaTryCatchStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TParaTryCatchStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 

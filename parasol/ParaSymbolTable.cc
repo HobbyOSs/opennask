@@ -178,7 +178,7 @@ void TParaSymbolTable::EnterBlock(void)
     _CurrentBlockDepth++;
 }
 
-void TParaSymbolTable::ExitBlock(void) throw(TScriptException)
+void TParaSymbolTable::ExitBlock(void) noexcept(false)
 {
     for (; _VariableCount > 0; _VariableCount--) {
         TParaValue* Variable = _VariableEntryList.back().second;

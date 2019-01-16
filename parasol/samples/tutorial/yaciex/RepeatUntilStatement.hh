@@ -19,8 +19,8 @@ class TRepeatUntilStatement: public TParaStatement {
     virtual ~TRepeatUntilStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _ConditionExpression;
     TParaStatement* _Statement;

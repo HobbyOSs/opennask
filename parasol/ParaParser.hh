@@ -25,8 +25,8 @@ class TParaParser {
     TParaParser(void);
     virtual ~TParaParser();
     virtual void Merge(TParaParser* Source);
-    virtual void Parse(std::istream& SourceStream) throw(TScriptException);
-    virtual TParaValue Execute(const std::string& EntryName = "") throw(TScriptException);
+    virtual void Parse(std::istream& SourceStream) noexcept(false);
+    virtual TParaValue Execute(const std::string& EntryName = "") noexcept(false);
     virtual bool HasEntryOf(const std::string& EntryName) const;
     virtual TParaSymbolTable* GetSymbolTable(void);
     virtual TParaTokenTable* GetTokenTable(void);

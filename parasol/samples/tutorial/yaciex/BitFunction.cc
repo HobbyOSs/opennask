@@ -27,11 +27,11 @@ TParaObjectPrototype* TBitFunction::Clone(void)
     return new TBitFunction();
 }
 
-void TBitFunction::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TBitFunction::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
 }
 
-int TBitFunction::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TBitFunction::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (Message == "bitStringToInt") {
         ReturnValue = BitStringToInt(ArgumentList);
@@ -46,7 +46,7 @@ int TBitFunction::DispatchMessage(const string& Message, vector<TParaValue*>& Ar
     return 1;
 }
 
-TParaValue TBitFunction::BitStringToInt(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitFunction::BitStringToInt(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if ((ArgumentList.size() < 1) || (! ArgumentList[0]->IsString())) {
 	throw TScriptException(
@@ -60,7 +60,7 @@ TParaValue TBitFunction::BitStringToInt(vector<TParaValue*>& ArgumentList) throw
     return TParaValue(LongValue);
 }
 
-TParaValue TBitFunction::IntToBitString(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitFunction::IntToBitString(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if ((ArgumentList.size() < 1) || (! ArgumentList[0]->IsLong())) {
 	throw TScriptException(

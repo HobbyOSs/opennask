@@ -17,8 +17,8 @@ class TLineStatement: public TParaStatement {
     virtual ~TLineStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   private:
     TCanvas* _Canvas;
     TParaExpression* _X0;
@@ -34,8 +34,8 @@ class TRectStatement: public TParaStatement {
     virtual ~TRectStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   private:
     TCanvas* _Canvas;
     TParaExpression* _X0;
@@ -51,8 +51,8 @@ class TCircleStatement: public TParaStatement {
     virtual ~TCircleStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   private:
     TCanvas* _Canvas;
     TParaExpression* _X;
@@ -67,8 +67,8 @@ class TTextStatement: public TParaStatement {
     virtual ~TTextStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   private:
     TCanvas* _Canvas;
     TParaExpression* _X;

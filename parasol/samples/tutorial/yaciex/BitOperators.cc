@@ -33,7 +33,7 @@ string TOperatorBitGenerate::Name(void) const
     return string("BitGenerate");
 }
 
-TParaValue& TOperatorBitGenerate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) throw(TScriptException) 
+TParaValue& TOperatorBitGenerate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) noexcept(false) 
 {
     long BitPosition = Right.AsLong();
     if (BitPosition < 0) {
@@ -70,7 +70,7 @@ string TOperatorBitFill::Name(void) const
     return string("BitFill");
 }
 
-TParaValue& TOperatorBitFill::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) throw(TScriptException) 
+TParaValue& TOperatorBitFill::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) noexcept(false) 
 {
     unsigned long LongValue;
 

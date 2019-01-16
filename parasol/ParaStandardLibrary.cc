@@ -53,7 +53,7 @@ int TParaConsoleObject::MethodIdOf(const string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaConsoleObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaConsoleObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -77,7 +77,7 @@ int TParaConsoleObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argument
     return Result;
 }
 
-int TParaConsoleObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaConsoleObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     for (unsigned i = 0; i < ArgumentList.size(); i++) {
         cout << ArgumentList[i]->AsString();
@@ -87,7 +87,7 @@ int TParaConsoleObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaConsoleObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaConsoleObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     Print(ArgumentList, ReturnValue);
     cout << endl;
@@ -95,7 +95,7 @@ int TParaConsoleObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaConsoleObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaConsoleObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     char LineTerminator = '\n';
     if (ArgumentList.size() > 0) {
@@ -113,7 +113,7 @@ int TParaConsoleObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaConsoleObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaConsoleObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     long Value = -1;
 
@@ -145,7 +145,7 @@ TParaObjectPrototype* TParaInputFileObject::Clone(void)
     return new TParaInputFileObject();
 }
 
-void TParaInputFileObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaInputFileObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
 	throw TScriptException(
@@ -182,7 +182,7 @@ int TParaInputFileObject::MethodIdOf(const string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaInputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaInputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -200,7 +200,7 @@ int TParaInputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argume
     return Result;
 }
 
-int TParaInputFileObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaInputFileObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     char LineTerminator = '\n';
     if (ArgumentList.size() > 0) {
@@ -218,7 +218,7 @@ int TParaInputFileObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaInputFileObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaInputFileObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     long Value = -1;
 
@@ -250,7 +250,7 @@ TParaObjectPrototype* TParaOutputFileObject::Clone(void)
     return new TParaOutputFileObject();
 }
 
-void TParaOutputFileObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaOutputFileObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
 	throw TScriptException(
@@ -287,7 +287,7 @@ int TParaOutputFileObject::MethodIdOf(const string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaOutputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaOutputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -305,7 +305,7 @@ int TParaOutputFileObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argum
     return Result;
 }
 
-int TParaOutputFileObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaOutputFileObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     for (unsigned i = 0; i < ArgumentList.size(); i++) {
         (*_FileStream) << ArgumentList[i]->AsString();
@@ -315,7 +315,7 @@ int TParaOutputFileObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& 
     return 1;
 }
 
-int TParaOutputFileObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaOutputFileObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     Print(ArgumentList, ReturnValue);
     (*_FileStream) << endl;
@@ -343,7 +343,7 @@ TParaObjectPrototype* TParaInputPipeObject::Clone(void)
     return new TParaInputPipeObject();
 }
 
-void TParaInputPipeObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaInputPipeObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
 	throw TScriptException(
@@ -366,7 +366,7 @@ void TParaInputPipeObject::Construct(const string& ClassName, vector<TParaValue*
     }
 }
 
-int TParaInputPipeObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaInputPipeObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     char LineTerminator = '\n';
     if (ArgumentList.size() > 0) {
@@ -387,7 +387,7 @@ int TParaInputPipeObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaInputPipeObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaInputPipeObject::GetByte(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     long Value = -1;
 
@@ -421,7 +421,7 @@ TParaObjectPrototype* TParaOutputPipeObject::Clone(void)
     return new TParaOutputPipeObject();
 }
 
-void TParaOutputPipeObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaOutputPipeObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
 	throw TScriptException(
@@ -444,7 +444,7 @@ void TParaOutputPipeObject::Construct(const string& ClassName, vector<TParaValue
     }
 }
 
-int TParaOutputPipeObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaOutputPipeObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     for (unsigned i = 0; i < ArgumentList.size(); i++) {
         fputs(ArgumentList[i]->AsString().c_str(), _Pipe);
@@ -454,7 +454,7 @@ int TParaOutputPipeObject::Print(vector<TParaValue*>& ArgumentList, TParaValue& 
     return 1;
 }
 
-int TParaOutputPipeObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaOutputPipeObject::PrintLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     Print(ArgumentList, ReturnValue);
     fputc('\n', _Pipe);
@@ -516,7 +516,7 @@ int TParaFormatterObject::MethodIdOf(const std::string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaFormatterObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -558,7 +558,7 @@ int TParaFormatterObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& A
     return Result;
 }
 
-int TParaFormatterObject::Flush(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Flush(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     string Value = _FormatStream->str();
 
@@ -570,7 +570,7 @@ int TParaFormatterObject::Flush(vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaFormatterObject::Put(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Put(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     for (unsigned i = 0; i < ArgumentList.size(); i++) {
 	if (ArgumentList[i]->IsLong()) {
@@ -589,7 +589,7 @@ int TParaFormatterObject::Put(vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaFormatterObject::SetWidth(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::SetWidth(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("setWidth(): incorrect argument");
@@ -603,7 +603,7 @@ int TParaFormatterObject::SetWidth(vector<TParaValue*>& ArgumentList, TParaValue
     return 1;
 }
 
-int TParaFormatterObject::SetPrecision(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::SetPrecision(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("setPrecision(): incorrect argument");
@@ -617,7 +617,7 @@ int TParaFormatterObject::SetPrecision(vector<TParaValue*>& ArgumentList, TParaV
     return 1;
 }
 
-int TParaFormatterObject::SetFill(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::SetFill(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("setFill(): incorrect argument");
@@ -631,7 +631,7 @@ int TParaFormatterObject::SetFill(vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaFormatterObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("setBase(): incorrect argument");
@@ -653,7 +653,7 @@ int TParaFormatterObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaFormatterObject::Hex(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Hex(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     (*_FormatStream) << hex;
 
@@ -662,7 +662,7 @@ int TParaFormatterObject::Hex(vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaFormatterObject::Dec(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Dec(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     (*_FormatStream) << dec;
 
@@ -671,7 +671,7 @@ int TParaFormatterObject::Dec(vector<TParaValue*>& ArgumentList, TParaValue& Ret
     return 1;
 }
 
-int TParaFormatterObject::Fixed(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Fixed(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     _FormatStream->setf(ios::fixed);
 
@@ -680,7 +680,7 @@ int TParaFormatterObject::Fixed(vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaFormatterObject::Scientific(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaFormatterObject::Scientific(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     _FormatStream->setf(ios::scientific);
 
@@ -707,7 +707,7 @@ TParaObjectPrototype* TParaScannerObject::Clone(void)
     return new TParaScannerObject();
 }
 
-void TParaScannerObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaScannerObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() > 0) {
 	if (! ArgumentList[0]->IsString()) {
@@ -749,7 +749,7 @@ int TParaScannerObject::MethodIdOf(const string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaScannerObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -782,7 +782,7 @@ int TParaScannerObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argument
     return Result;
 }
 
-int TParaScannerObject::Load(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::Load(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() < 1) {
 	throw TScriptException(
@@ -803,7 +803,7 @@ int TParaScannerObject::Load(vector<TParaValue*>& ArgumentList, TParaValue& Retu
     return 1;
 }
 
-int TParaScannerObject::Get(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::Get(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (_SourceStream == 0) {
 	throw TScriptException(
@@ -843,7 +843,7 @@ int TParaScannerObject::Get(vector<TParaValue*>& ArgumentList, TParaValue& Retur
     return 1;
 }
 
-int TParaScannerObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (_SourceStream == 0) {
 	throw TScriptException(
@@ -878,7 +878,7 @@ int TParaScannerObject::GetLine(vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaScannerObject::SkipWhiteSpace(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::SkipWhiteSpace(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     (*_SourceStream) >> ws;
 
@@ -887,7 +887,7 @@ int TParaScannerObject::SkipWhiteSpace(vector<TParaValue*>& ArgumentList, TParaV
     return 1;
 }
 
-int TParaScannerObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("setBase(): incorrect argument");
@@ -909,14 +909,14 @@ int TParaScannerObject::SetBase(vector<TParaValue*>& ArgumentList, TParaValue& R
     return 1;
 }
 
-int TParaScannerObject::IsGood(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::IsGood(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     ReturnValue = TParaValue((long) _SourceStream->good());
 
     return 1;
 }
 
-int TParaScannerObject::LastGetCount(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaScannerObject::LastGetCount(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     ReturnValue = TParaValue((long) _SourceStream->gcount());
 
@@ -970,7 +970,7 @@ int TParaArgumentObject::MethodIdOf(const string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaArgumentObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::InvokeMethod(int MethodId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (! _IsParsed) {
 	Parse();
@@ -1007,14 +1007,14 @@ int TParaArgumentObject::InvokeMethod(int MethodId, vector<TParaValue*>& Argumen
     return Result;
 }
 
-int TParaArgumentObject::NumberOfArguments(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::NumberOfArguments(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     ReturnValue = TParaValue((long) _ArgumentList.size());
 
     return 1;
 }
 
-int TParaArgumentObject::GetArgumentOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::GetArgumentOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("getArgumentOf(int index): incorrect argument");
@@ -1031,7 +1031,7 @@ int TParaArgumentObject::GetArgumentOf(vector<TParaValue*>& ArgumentList, TParaV
     return 1;
 }
 
-int TParaArgumentObject::IsOptionSpecified(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::IsOptionSpecified(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if ((ArgumentList.size() != 1) && (ArgumentList.size() != 2)) {
         throw TScriptException("isOptionSpecified(): incorrect argument");
@@ -1053,7 +1053,7 @@ int TParaArgumentObject::IsOptionSpecified(vector<TParaValue*>& ArgumentList, TP
     return 1;
 }
 
-int TParaArgumentObject::GetOptionValueOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::GetOptionValueOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("getOptionValueOf(): incorrect argument");
@@ -1070,7 +1070,7 @@ int TParaArgumentObject::GetOptionValueOf(vector<TParaValue*>& ArgumentList, TPa
     return 1;
 }
 
-int TParaArgumentObject::IsSwitchSpecified(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::IsSwitchSpecified(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("isSwitchSpecified(): incorrect argument");
@@ -1086,14 +1086,14 @@ int TParaArgumentObject::IsSwitchSpecified(vector<TParaValue*>& ArgumentList, TP
     return 1;
 }
 
-int TParaArgumentObject::NumberOfParameters(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::NumberOfParameters(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     ReturnValue = TParaValue((long) _ParameterList.size());
 
     return 1;
 }
 
-int TParaArgumentObject::GetParameterOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaArgumentObject::GetParameterOf(vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (ArgumentList.size() != 1) {
         throw TScriptException("getParameterOf(int index): incorrect argument");
@@ -1201,7 +1201,7 @@ int TParaStringObject::MethodIdOf(const std::string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaStringObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaStringObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -1225,7 +1225,7 @@ int TParaStringObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Argu
     return Result;
 }
 
-int TParaStringObject::Chop(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaStringObject::Chop(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsString())) {
 	throw TScriptException(
@@ -1245,7 +1245,7 @@ int TParaStringObject::Chop(std::vector<TParaValue*>& ArgumentList, TParaValue& 
     return 1;
 }
 
-int TParaStringObject::Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaStringObject::Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsString())) {
 	throw TScriptException(
@@ -1265,7 +1265,7 @@ int TParaStringObject::Chomp(std::vector<TParaValue*>& ArgumentList, TParaValue&
     return 1;
 }
 
-int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if (
 	(ArgumentList.size() < 2) ||
@@ -1301,7 +1301,7 @@ int TParaStringObject::Substr(std::vector<TParaValue*>& ArgumentList, TParaValue
     return 1;
 }
 
-int TParaStringObject::Index(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaStringObject::Index(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if (
 	(ArgumentList.size() < 2) ||
@@ -1359,7 +1359,7 @@ int TParaSystemObject::MethodIdOf(const std::string& MethodName)
     return TParaObjectPrototype::MethodIdOf(MethodName);
 }
 
-int TParaSystemObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaSystemObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 
@@ -1377,7 +1377,7 @@ int TParaSystemObject::InvokeMethod(int MethodId, std::vector<TParaValue*>& Argu
     return Result;
 }
 
-int TParaSystemObject::System(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaSystemObject::System(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsString())) {
 	throw TScriptException(
@@ -1393,7 +1393,7 @@ int TParaSystemObject::System(std::vector<TParaValue*>& ArgumentList, TParaValue
     return 1;
 }
 
-int TParaSystemObject::Shell(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) throw(TScriptException)
+int TParaSystemObject::Shell(std::vector<TParaValue*>& ArgumentList, TParaValue& Result) noexcept(false)
 {
     if ((ArgumentList.size() != 1) || (! ArgumentList[0]->IsString())) {
 	throw TScriptException(

@@ -65,7 +65,7 @@ TParaPackageEntry* TParaPackage::CreateEntry(TParaTokenizer* Tokenizer)
     return Entry;
 }
 
-void TParaPackage::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaPackage::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     while (! Tokenizer->LookAhead().IsEmpty()) {
 	TParaPackageEntry* Entry = CreateEntry(Tokenizer);
@@ -95,7 +95,7 @@ void TParaPackage::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* Statem
     }
 }
 
-void TParaPackage::ExecuteBareStatements(TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaPackage::ExecuteBareStatements(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaStatement::TExecResult Result;
     for (
@@ -112,20 +112,20 @@ void TParaPackage::ExecuteBareStatements(TParaSymbolTable* SymbolTable) throw(TS
     _NumberOfProcessedBareStatements = _BareStatementList.size();
 }
 
-TParaValue TParaPackage::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaPackage::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     string EntryName;
     vector<TParaValue*> ArgumentList;
     return Execute(EntryName, ArgumentList, SymbolTable);
 }
 
-TParaValue TParaPackage::Execute(const string& EntryName, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaPackage::Execute(const string& EntryName, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     vector<TParaValue*> ArgumentList;
     return Execute(EntryName, ArgumentList, SymbolTable);
 }
 
-TParaValue TParaPackage::Execute(const string& EntryName, const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaPackage::Execute(const string& EntryName, const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     if (_NumberOfProcessedBareStatements < _BareStatementList.size()) {
 	ExecuteBareStatements(SymbolTable);
@@ -196,7 +196,7 @@ void TParaPackageEntry::SetEntryName(const string& EntryName)
     _EntryName = EntryName;
 }
 
-TParaValue TParaPackageEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaPackageEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return TParaValue((long) 0);
 }
@@ -274,7 +274,7 @@ bool TParaFunctionEntry::HasEntryWordsOf(TParaTokenizer* Tokenizer)
     return true;
 }
 
-void TParaFunctionEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaFunctionEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     _Function = new TParaCxxFunction();
     try {
@@ -293,7 +293,7 @@ void TParaFunctionEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* 
     SetEntryName(FunctionName);
 }
 
-TParaValue TParaFunctionEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaFunctionEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return _Function->Execute(ArgumentList, SymbolTable);
 }
@@ -321,7 +321,7 @@ bool TParaIncludeEntry::HasEntryWordsOf(TParaTokenizer* Tokenizer)
     return Tokenizer->LookAhead().Is("include");
 }
 
-void TParaIncludeEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaIncludeEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("include");
     string FilePath = Tokenizer->Next().RemoveQuotation('"').AsString();

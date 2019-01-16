@@ -83,11 +83,11 @@ class TParaOperator {
     virtual TParaOperator* Clone(void) const = 0;
     virtual std::string Symbol(void) const = 0;
     virtual std::string Name(void) const = 0;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) = 0;
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) = 0;
     virtual bool IsLeftAssociative(void) const;
   protected:
-    virtual TParaValue& EvaluateList(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& EvaluateList(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -98,8 +98,8 @@ class TParaOperatorNew: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
   protected:
     std::string _TypeName;
     TParaExpression* _LengthExpression;
@@ -114,8 +114,8 @@ class TParaOperatorDelete: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
   protected:
     bool _IsForArray;
 };
@@ -128,8 +128,8 @@ class TParaOperatorVariableAccess: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
   protected:
     TParaExpression* _VariableNameExpression;
     std::string _VariableName;
@@ -145,8 +145,8 @@ class TParaOperatorListGenerate: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
   protected:
     TParaExpression* _StartValueExpression;
     TParaExpression* _EndValueExpression;
@@ -160,7 +160,7 @@ class TParaOperatorSizeOf: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -169,7 +169,7 @@ class TParaOperatorTypeOf: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -178,7 +178,7 @@ class TParaOperatorKeys: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -187,7 +187,7 @@ class TParaOperatorPointerReference: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -196,7 +196,7 @@ class TParaOperatorAddress: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -205,7 +205,7 @@ class TParaOperatorIncrement: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -214,7 +214,7 @@ class TParaOperatorDecrement: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -223,7 +223,7 @@ class TParaOperatorPostpositionalIncrement: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -232,7 +232,7 @@ class TParaOperatorPostpositionalDecrement: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -241,7 +241,7 @@ class TParaOperatorSignPlus: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -250,7 +250,7 @@ class TParaOperatorSignMinus: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -259,7 +259,7 @@ class TParaOperatorNot: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -268,7 +268,7 @@ class TParaOperatorBitReverse: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -277,7 +277,7 @@ class TParaOperatorMultiple: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -286,7 +286,7 @@ class TParaOperatorDivide: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -295,7 +295,7 @@ class TParaOperatorModulo: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -304,7 +304,7 @@ class TParaOperatorAdd: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -313,7 +313,7 @@ class TParaOperatorSubtract: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -322,7 +322,7 @@ class TParaOperatorConcatenate: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -331,7 +331,7 @@ class TParaOperatorLeftShift: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -340,7 +340,7 @@ class TParaOperatorRightShift: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -349,7 +349,7 @@ class TParaOperatorGreaterThan: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -358,7 +358,7 @@ class TParaOperatorLessThan: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -367,7 +367,7 @@ class TParaOperatorGreaterEqual: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -376,7 +376,7 @@ class TParaOperatorLessEqual: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -385,7 +385,7 @@ class TParaOperatorEqual: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -394,7 +394,7 @@ class TParaOperatorNotEqual: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -403,7 +403,7 @@ class TParaOperatorAnd: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -412,7 +412,7 @@ class TParaOperatorOr: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -421,7 +421,7 @@ class TParaOperatorBitAnd: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -430,7 +430,7 @@ class TParaOperatorBitXor: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -439,7 +439,7 @@ class TParaOperatorBitOr: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -448,7 +448,7 @@ class TParaOperatorListAnd: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -457,7 +457,7 @@ class TParaOperatorAssign: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -467,7 +467,7 @@ class TParaOperatorAssignSum: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -477,7 +477,7 @@ class TParaOperatorAssignDifference: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -487,7 +487,7 @@ class TParaOperatorAssignProduct: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -497,7 +497,7 @@ class TParaOperatorAssignQuotient: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -507,7 +507,7 @@ class TParaOperatorAssignRemainder: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -517,7 +517,7 @@ class TParaOperatorAssignConcatenation: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
     virtual bool IsLeftAssociative(void) const;
 };
 
@@ -527,7 +527,7 @@ class TParaOperatorFactorial: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
 };
 
 
@@ -538,8 +538,8 @@ class TParaOperatorPower: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false);
   protected:
     TParaExpression* _PowerExpression;
 };

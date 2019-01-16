@@ -19,7 +19,7 @@ class TOperatorBitGenerate: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) throw(TScriptException); 
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) noexcept(false); 
 };
 
 
@@ -30,7 +30,7 @@ class TOperatorBitFill: public TParaOperator {
     virtual TParaOperator* Clone(void) const;
     virtual std::string Symbol(void) const;
     virtual std::string Name(void) const;
-    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) throw(TScriptException); 
+    virtual TParaValue& Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& ReturnValue) noexcept(false); 
 };
 
 

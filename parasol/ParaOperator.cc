@@ -386,12 +386,12 @@ bool TParaOperator::IsLeftAssociative() const
     return true;
 }
 
-void TParaOperator::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperator::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next();
 }
 
-TParaValue& TParaOperator::EvaluateList(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperator::EvaluateList(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     if (Left.IsList() && Right.IsList()) {
 	if (Left.AsValueList().size() != Right.AsValueList().size()) {
@@ -462,7 +462,7 @@ string TParaOperatorNew::Name(void) const
     return string("New");
 }
 
-void TParaOperatorNew::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperatorNew::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next();
     _TypeName = Tokenizer->Next().AsString();
@@ -484,7 +484,7 @@ void TParaOperatorNew::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* E
     }
 }
 
-TParaValue& TParaOperatorNew::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorNew::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     int Length = 0;
     if (_LengthExpression != 0) {
@@ -548,7 +548,7 @@ TParaOperatorDelete::~TParaOperatorDelete()
 {
 }
 
-void TParaOperatorDelete::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperatorDelete::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next();
     
@@ -574,7 +574,7 @@ string TParaOperatorDelete::Name(void) const
     return string("Delete");
 }
 
-TParaValue& TParaOperatorDelete::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorDelete::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Right.AsPointer() != 0) {
 	TParaValue* Instance = Right.AsPointer();
@@ -629,7 +629,7 @@ string TParaOperatorVariableAccess::Name(void) const
     return string("VariableAccess");
 }
 
-void TParaOperatorVariableAccess::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperatorVariableAccess::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next();
     if (Tokenizer->LookAhead().Is("{")) {
@@ -643,7 +643,7 @@ void TParaOperatorVariableAccess::Parse(TParaTokenizer* Tokenizer, TParaExpressi
     }
 }
 
-TParaValue& TParaOperatorVariableAccess::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorVariableAccess::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     if (_VariableNameExpression != 0) {
 	_VariableName = _VariableNameExpression->Evaluate(SymbolTable).AsString();
@@ -692,7 +692,7 @@ string TParaOperatorListGenerate::Name(void) const
     return string("ListGenerate");
 }
 
-void TParaOperatorListGenerate::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperatorListGenerate::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("[");
 
@@ -717,7 +717,7 @@ void TParaOperatorListGenerate::Parse(TParaTokenizer* Tokenizer, TParaExpression
     Tokenizer->Next().MustBe("]");
 }
 
-TParaValue& TParaOperatorListGenerate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorListGenerate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     TParaValue StartValue = _StartValueExpression->Evaluate(SymbolTable);
     TParaValue EndValue = _EndValueExpression->Evaluate(SymbolTable);
@@ -807,7 +807,7 @@ string TParaOperatorSizeOf::Name(void) const
     return string("SizeOf");
 }
 
-TParaValue& TParaOperatorSizeOf::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorSizeOf::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Right.IsPointer()) {
 	long Length = Right.AsPointer()->ArrayLength();
@@ -843,7 +843,7 @@ string TParaOperatorTypeOf::Name(void) const
     return string("TypeOf");
 }
 
-TParaValue& TParaOperatorTypeOf::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorTypeOf::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     return Result = TParaValue(Right.TypeName());
 }
@@ -865,7 +865,7 @@ string TParaOperatorKeys::Name(void) const
     return string("Keys");
 }
 
-TParaValue& TParaOperatorKeys::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorKeys::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Right.IsList()) {
 	throw TScriptException("keys: list value is expected");
@@ -899,7 +899,7 @@ string TParaOperatorPointerReference::Name(void) const
     return string("PointerReference");
 }
 
-TParaValue& TParaOperatorPointerReference::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorPointerReference::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Right.IsPointer() /* && ! Right.IsLong() */) {
         throw TScriptException("pointer value is expected");
@@ -928,7 +928,7 @@ string TParaOperatorAddress::Name(void) const
     return string("Address");
 }
 
-TParaValue& TParaOperatorAddress::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAddress::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Right.IsLeftValue()) {
         throw TScriptException("l-value is expected");
@@ -954,7 +954,7 @@ string TParaOperatorIncrement::Name(void) const
     return string("Increment");
 }
 
-TParaValue& TParaOperatorIncrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorIncrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     TParaValue Step((long) 1);
     TParaOperatorAdd().Evaluate(Right, Step, SymbolTable, Result);
@@ -980,7 +980,7 @@ string TParaOperatorDecrement::Name(void) const
     return string("Decrement");
 }
 
-TParaValue& TParaOperatorDecrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorDecrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     TParaValue Step((long) 1);
     TParaOperatorSubtract().Evaluate(Right, Step, SymbolTable, Result);
@@ -1006,7 +1006,7 @@ string TParaOperatorPostpositionalIncrement::Name(void) const
     return string("PostpositionalIncrement");
 }
 
-TParaValue& TParaOperatorPostpositionalIncrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorPostpositionalIncrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     Result = Left;
 
@@ -1035,7 +1035,7 @@ string TParaOperatorPostpositionalDecrement::Name(void) const
     return string("PostpositionalDecrement");
 }
 
-TParaValue& TParaOperatorPostpositionalDecrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorPostpositionalDecrement::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     Result = Left;
 
@@ -1064,7 +1064,7 @@ string TParaOperatorSignPlus::Name(void) const
     return string("SignPlus");
 }
 
-TParaValue& TParaOperatorSignPlus::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorSignPlus::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     Result = Right;
     return Result;
@@ -1087,7 +1087,7 @@ string TParaOperatorSignMinus::Name(void) const
     return string("SignMinus");
 }
 
-TParaValue& TParaOperatorSignMinus::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorSignMinus::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     TParaValue ZeroValue((long) 0);
     TParaOperatorSubtract().Evaluate(ZeroValue, Right, SymbolTable, Result);
@@ -1112,7 +1112,7 @@ string TParaOperatorNot::Name(void) const
     return string("Not");
 }
 
-TParaValue& TParaOperatorNot::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorNot::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1139,7 +1139,7 @@ string TParaOperatorBitReverse::Name(void) const
     return string("BitReverse");
 }
 
-TParaValue& TParaOperatorBitReverse::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorBitReverse::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1166,7 +1166,7 @@ string TParaOperatorMultiple::Name(void) const
     return string("Multiple");
 }
 
-TParaValue& TParaOperatorMultiple::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorMultiple::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1204,7 +1204,7 @@ string TParaOperatorDivide::Name(void) const
     return string("Divide");
 }
 
-TParaValue& TParaOperatorDivide::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorDivide::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1248,7 +1248,7 @@ string TParaOperatorModulo::Name(void) const
     return string("Modulo");
 }
 
-TParaValue& TParaOperatorModulo::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorModulo::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1287,7 +1287,7 @@ string TParaOperatorAdd::Name(void) const
     return string("Add");
 }
 
-TParaValue& TParaOperatorAdd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorAdd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     if (Left.IsVoid()) {
         return Result = TParaValue(Right);
@@ -1343,7 +1343,7 @@ string TParaOperatorSubtract::Name(void) const
     return string("Subtract");
 }
 
-TParaValue& TParaOperatorSubtract::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorSubtract::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1389,7 +1389,7 @@ string TParaOperatorConcatenate::Name(void) const
     return string("Concatenate");
 }
 
-TParaValue& TParaOperatorConcatenate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaOperatorConcatenate::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     Result = TParaValue(TParaListValue());
     TParaListValue& ListValue = Result.AsList();
@@ -1428,7 +1428,7 @@ string TParaOperatorLeftShift::Name(void) const
     return string("LeftShift");
 }
 
-TParaValue& TParaOperatorLeftShift::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorLeftShift::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1455,7 +1455,7 @@ string TParaOperatorRightShift::Name(void) const
     return string("RightShift");
 }
 
-TParaValue& TParaOperatorRightShift::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorRightShift::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1482,7 +1482,7 @@ string TParaOperatorGreaterThan::Name(void) const
     return string("GreaterThan");
 }
 
-TParaValue& TParaOperatorGreaterThan::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorGreaterThan::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1509,7 +1509,7 @@ string TParaOperatorLessThan::Name(void) const
     return string("LessThan");
 }
 
-TParaValue& TParaOperatorLessThan::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorLessThan::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1536,7 +1536,7 @@ string TParaOperatorGreaterEqual::Name(void) const
     return string("GreaterEqual");
 }
 
-TParaValue& TParaOperatorGreaterEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorGreaterEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1563,7 +1563,7 @@ string TParaOperatorLessEqual::Name(void) const
     return string("LessEqual");
 }
 
-TParaValue& TParaOperatorLessEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorLessEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1590,7 +1590,7 @@ string TParaOperatorEqual::Name(void) const
     return string("Equal");
 }
 
-TParaValue& TParaOperatorEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1638,7 +1638,7 @@ string TParaOperatorNotEqual::Name(void) const
     return string("NotEqual");
 }
 
-TParaValue& TParaOperatorNotEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorNotEqual::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     TParaOperatorEqual().Evaluate(Left, Right, SymbolTable, Result);
 
@@ -1662,7 +1662,7 @@ string TParaOperatorBitAnd::Name(void) const
     return string("BitAnd");
 }
 
-TParaValue& TParaOperatorBitAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorBitAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1689,7 +1689,7 @@ string TParaOperatorBitXor::Name(void) const
     return string("BitXor");
 }
 
-TParaValue& TParaOperatorBitXor::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorBitXor::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1716,7 +1716,7 @@ string TParaOperatorBitOr::Name(void) const
     return string("BitOr");
 }
 
-TParaValue& TParaOperatorBitOr::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorBitOr::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1743,7 +1743,7 @@ string TParaOperatorListAnd::Name(void) const
     return string("ListAnd");
 }
 
-TParaValue& TParaOperatorListAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorListAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     int LeftLength = (Left.IsList()) ? Left.AsValueList().size() : 1;
     int RightLength = (Right.IsList()) ? Right.AsValueList().size() : 1;
@@ -1785,7 +1785,7 @@ string TParaOperatorAnd::Name(void) const
     return string("And");
 }
 
-TParaValue& TParaOperatorAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAnd::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1812,7 +1812,7 @@ string TParaOperatorOr::Name(void) const
     return string("Or");
 }
 
-TParaValue& TParaOperatorOr::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorOr::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -1839,7 +1839,7 @@ string TParaOperatorAssign::Name(void) const
     return string("Assign");
 }
 
-TParaValue& TParaOperatorAssign::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssign::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -1872,7 +1872,7 @@ string TParaOperatorAssignSum::Name(void) const
     return string("AssignSum");
 }
 
-TParaValue& TParaOperatorAssignSum::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignSum::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -1906,7 +1906,7 @@ string TParaOperatorAssignDifference::Name(void) const
     return string("AssignDifference");
 }
 
-TParaValue& TParaOperatorAssignDifference::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignDifference::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -1940,7 +1940,7 @@ string TParaOperatorAssignProduct::Name(void) const
     return string("AssignProduct");
 }
 
-TParaValue& TParaOperatorAssignProduct::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignProduct::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -1974,7 +1974,7 @@ string TParaOperatorAssignQuotient::Name(void) const
     return string("AssignQuotient");
 }
 
-TParaValue& TParaOperatorAssignQuotient::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignQuotient::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -2008,7 +2008,7 @@ string TParaOperatorAssignRemainder::Name(void) const
     return string("AssignRemainder");
 }
 
-TParaValue& TParaOperatorAssignRemainder::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignRemainder::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -2042,7 +2042,7 @@ string TParaOperatorAssignConcatenation::Name(void) const
     return string("AssignConcatenation");
 }
 
-TParaValue& TParaOperatorAssignConcatenation::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorAssignConcatenation::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (! Left.IsLeftValue()) {
         throw TScriptException("l-value expected");
@@ -2085,7 +2085,7 @@ string TParaOperatorFactorial::Name(void) const
     return string("Factorial");
 }
 
-TParaValue& TParaOperatorFactorial::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorFactorial::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
     if (Left.IsList() || Right.IsList()) {
 	EvaluateList(Left, Right, SymbolTable, Result);
@@ -2128,7 +2128,7 @@ string TParaOperatorPower::Name(void) const
     return string("Power");
 }
 
-void TParaOperatorPower::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaOperatorPower::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser* ExpressionParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe(Symbol());
 
@@ -2143,7 +2143,7 @@ void TParaOperatorPower::Parse(TParaTokenizer* Tokenizer, TParaExpressionParser*
 #endif
 }
 
-TParaValue& TParaOperatorPower::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException) 
+TParaValue& TParaOperatorPower::Evaluate(TParaValue& Left, TParaValue& Right, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false) 
 {
 #if 1
     // use the power operator as a postpositional unary operator.

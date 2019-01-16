@@ -26,7 +26,7 @@ TParaObjectPrototype* TBitSetObject::Clone(void)
     return new TBitSetObject();
 }
 
-void TBitSetObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TBitSetObject::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if (ArgumentList.size() == 0) {
 	_Value = 0;
@@ -43,7 +43,7 @@ void TBitSetObject::Construct(const string& ClassName, vector<TParaValue*>& Argu
     }
 }
 
-int TBitSetObject::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TBitSetObject::DispatchMessage(const string& Message, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     if (Message == "set") {
         ReturnValue = Set(ArgumentList);
@@ -67,7 +67,7 @@ int TBitSetObject::DispatchMessage(const string& Message, vector<TParaValue*>& A
     return 1;
 }
 
-TParaValue TBitSetObject::Set(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitSetObject::Set(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if ((ArgumentList.size() < 1) || (! ArgumentList[0]->IsLong())) {
 	throw TScriptException(
@@ -87,7 +87,7 @@ TParaValue TBitSetObject::Set(vector<TParaValue*>& ArgumentList) throw(TScriptEx
     return TParaValue((long) 0);
 }
 
-TParaValue TBitSetObject::Unset(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitSetObject::Unset(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if ((ArgumentList.size() < 1) || (! ArgumentList[0]->IsLong())) {
 	throw TScriptException(
@@ -107,7 +107,7 @@ TParaValue TBitSetObject::Unset(vector<TParaValue*>& ArgumentList) throw(TScript
     return TParaValue((long) 0);
 }
 
-TParaValue TBitSetObject::IsSet(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitSetObject::IsSet(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     if ((ArgumentList.size() < 1) || (! ArgumentList[0]->IsLong())) {
 	throw TScriptException(
@@ -127,12 +127,12 @@ TParaValue TBitSetObject::IsSet(vector<TParaValue*>& ArgumentList) throw(TScript
     return TParaValue(Result);
 }
 
-TParaValue TBitSetObject::AsInt(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitSetObject::AsInt(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     return TParaValue(_Value);
 }
 
-TParaValue TBitSetObject::AsString(vector<TParaValue*>& ArgumentList) throw(TScriptException)
+TParaValue TBitSetObject::AsString(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     return TParaValue(IntToString(_Value));
 }

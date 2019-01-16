@@ -43,7 +43,7 @@ class TParaStatementParser {
   public:
     TParaStatementParser(TParaStatementTable* StatementTable, TParaExpressionParser* ExpressionParser);
     virtual ~TParaStatementParser();
-    virtual TParaStatement* Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaStatement* Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
     TParaExpressionParser* ExpressionParser(void) const;
   protected:
     TParaStatementTable* _StatementTable;
@@ -67,8 +67,8 @@ class TParaStatement {
     virtual ~TParaStatement();
     virtual TParaStatement* Clone(void) = 0;
     virtual std::string FirstToken(void) const = 0;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException) = 0;
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException) = 0;
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false) = 0;
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false) = 0;
 };
 
 
@@ -76,8 +76,8 @@ class TParaVariableDeclaration {
   public:
     TParaVariableDeclaration(const std::string& TypeName = "");
     virtual ~TParaVariableDeclaration();
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual void Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual void Execute(TParaSymbolTable* SymbolTable) noexcept(false);
     virtual long VariableId(void) const;
  protected:
     long _VariableId;
@@ -97,8 +97,8 @@ class TParaVariableDeclarationStatement: public TParaStatement {
     virtual ~TParaVariableDeclarationStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     std::string _TypeName;
     std::string _Position;
@@ -112,8 +112,8 @@ class TParaExpressionStatement: public TParaStatement {
     virtual ~TParaExpressionStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _Expression;
 };
@@ -125,8 +125,8 @@ class TParaComplexStatement: public TParaStatement {
     virtual ~TParaComplexStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     std::vector<TParaStatement*> _StatementList;
 };
@@ -138,8 +138,8 @@ class TParaEmptyStatement: public TParaStatement {
     virtual ~TParaEmptyStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
 };
 
 class TParaIfStatement: public TParaStatement {
@@ -148,8 +148,8 @@ class TParaIfStatement: public TParaStatement {
     virtual ~TParaIfStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _ConditionExpression;
     TParaStatement* _TrueStatement;
@@ -163,8 +163,8 @@ class TParaWhileStatement: public TParaStatement {
     virtual ~TParaWhileStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _ConditionExpression;
     TParaStatement* _Statement;
@@ -177,8 +177,8 @@ class TParaForStatement: public TParaStatement {
     virtual ~TParaForStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaStatement* _InitializeStatement;
     TParaExpression* _ConditionExpression;
@@ -193,8 +193,8 @@ class TParaForeachStatement: public TParaStatement {
     virtual ~TParaForeachStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _VariableExpression;
     TParaExpression* _KeyExpression;
@@ -210,8 +210,8 @@ class TParaBreakStatement: public TParaStatement {
     virtual ~TParaBreakStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
 };
 
 
@@ -221,8 +221,8 @@ class TParaContinueStatement: public TParaStatement {
     virtual ~TParaContinueStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
 };
 
 
@@ -232,8 +232,8 @@ class TParaReturnStatement: public TParaStatement {
     virtual ~TParaReturnStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _Expression;
 };
@@ -244,8 +244,8 @@ class TParaThrowStatement: public TParaStatement {
     virtual ~TParaThrowStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaExpression* _ExceptionExpression;
 };
@@ -256,8 +256,8 @@ class TParaTryCatchStatement: public TParaStatement {
     virtual ~TParaTryCatchStatement();
     virtual TParaStatement* Clone(void);
     virtual std::string FirstToken(void) const;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TExecResult Execute(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaStatement* _TryStatement;
     TParaVariableDeclaration* _ArgumentDeclaration;

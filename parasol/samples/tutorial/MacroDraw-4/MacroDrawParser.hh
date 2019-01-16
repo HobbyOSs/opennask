@@ -33,8 +33,8 @@ class TMacroEntry: public TParaPackageEntry {
     virtual ~TMacroEntry();
     virtual TParaPackageEntry* Clone(void);
     virtual bool HasEntryWordsOf(TParaTokenizer* Tokenizer);
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaStatement* _Statement;
 };

@@ -18,7 +18,7 @@ class TMacroDraw {
     virtual ~TMacroDraw();
     virtual void Start(int argc, char** argv);
   protected:
-    virtual void ExecuteMacro(const std::string& FileName, const std::string& MacroName) throw(TScriptException);
+    virtual void ExecuteMacro(const std::string& FileName, const std::string& MacroName) noexcept(false);
   private:
     TCanvas* _Canvas;
 };

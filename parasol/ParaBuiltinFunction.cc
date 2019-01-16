@@ -55,7 +55,7 @@ void TParaBuiltinFunctionTable::RegisterFunctionId(const std::string& FunctionNa
     _MethodNameTable[FunctionId] = FunctionName;
 }
 
-int TParaBuiltinFunctionTable::Execute(long FunctionId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaBuiltinFunctionTable::Execute(long FunctionId, vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     int Result = 0;
 

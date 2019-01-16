@@ -111,7 +111,7 @@ string TParaToken::AsString(void) const
     return _TokenString;
 }
 
-long TParaToken::AsLong(void) const throw(TScriptException)
+long TParaToken::AsLong(void) const noexcept(false)
 {
     if (! IsInteger()) {
         throw TScriptException(Position() + "integer is expected.");
@@ -136,7 +136,7 @@ long TParaToken::AsLong(void) const throw(TScriptException)
     return LongValue;
 }
 
-double TParaToken::AsDouble(void) const throw(TScriptException)
+double TParaToken::AsDouble(void) const noexcept(false)
 {
     if ((! IsInteger()) && (! IsFloating())) {
         throw TScriptException(
@@ -194,7 +194,7 @@ string TParaToken::Position(void) const
     return Stream.str();
 }
 
-TParaToken& TParaToken::MustBe(const string& ExpectedString) throw(TScriptException)
+TParaToken& TParaToken::MustBe(const string& ExpectedString) noexcept(false)
 {
     if (_TokenString != ExpectedString) {
 	string Message = Position();
@@ -207,7 +207,7 @@ TParaToken& TParaToken::MustBe(const string& ExpectedString) throw(TScriptExcept
     return *this;
 }
 
-TParaToken& TParaToken::MustBe(TTokenType ExpectedTokenType) throw(TScriptException)
+TParaToken& TParaToken::MustBe(TTokenType ExpectedTokenType) noexcept(false)
 {
     if (_Type != ExpectedTokenType) {
         string Expected = "\?\?\?";
@@ -247,7 +247,7 @@ TParaToken& TParaToken::MustBe(TTokenType ExpectedTokenType) throw(TScriptExcept
     return *this;
 }
 
-void TParaToken::ThrowUnexpected(const string& Expected) throw(TScriptException)
+void TParaToken::ThrowUnexpected(const string& Expected) noexcept(false)
 {
     string Message = Position();
     

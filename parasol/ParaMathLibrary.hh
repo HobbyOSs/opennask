@@ -19,7 +19,7 @@ class TParaMathObject: public TParaObjectPrototype {
     virtual ~TParaMathObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Sin = TParaObjectPrototype::_NumberOfMethods,
@@ -39,20 +39,20 @@ class TParaMathObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int Sin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Cos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Tan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Asin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Acos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Atan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Atan2(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Exp(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Log(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Log10(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Sqrt(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Abs(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Srand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Rand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    int Sin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Cos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Tan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Asin(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Acos(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Atan(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Atan2(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Exp(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Log(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Log10(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Sqrt(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Abs(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Srand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Rand(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
 };
 
 
@@ -63,7 +63,7 @@ class TParaListMathObject: public TParaObjectPrototype {
     virtual ~TParaListMathObject();
     virtual TParaObjectPrototype* Clone(void);
     virtual int MethodIdOf(const std::string& MethodName);
-    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     enum {
 	MethodId_Length = TParaObjectPrototype::_NumberOfMethods,
@@ -80,17 +80,17 @@ class TParaListMathObject: public TParaObjectPrototype {
 	_NumberOfMethods
     };
   protected:
-    int Length(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Min(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Max(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Sum(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Mean(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Deviation(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Delta(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Sigma(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Find(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int FindKeys(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
-    int Count(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    int Length(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Min(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Max(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Sum(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Mean(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Deviation(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Delta(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Sigma(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Find(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int FindKeys(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
+    int Count(std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
 };
 
 

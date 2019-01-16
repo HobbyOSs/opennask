@@ -26,20 +26,20 @@ class TParaExpressionParser {
   public:
     TParaExpressionParser(TParaOperatorTable* OperatorTable);
     virtual ~TParaExpressionParser();
-    virtual TParaExpression* Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, int PriorityRank = -1) throw(TScriptException);
+    virtual TParaExpression* Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, int PriorityRank = -1) noexcept(false);
   public:
-    virtual std::vector<TParaExpression*> ParseExpressionList(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, const std::string& StartToken, const std::string& StopToken, const std::string& SeparatorToken) throw(TScriptException);
+    virtual std::vector<TParaExpression*> ParseExpressionList(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, const std::string& StartToken, const std::string& StopToken, const std::string& SeparatorToken) noexcept(false);
   public:
-    virtual TParaExpression* ParsePrepositional(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseElement(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParsePostpositional(TParaExpression* Expression, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseTypeCast(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseTemporaryObjectCreation(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaFunctionCallNode* ParseFunctionCall(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseListExpression(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseMethodInvocation(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseArrayReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaExpression* ParseTableReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaExpression* ParsePrepositional(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseElement(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParsePostpositional(TParaExpression* Expression, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseTypeCast(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseTemporaryObjectCreation(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaFunctionCallNode* ParseFunctionCall(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseListExpression(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseMethodInvocation(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseArrayReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaExpression* ParseTableReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:  
     TParaOperatorTable* _OperatorTable;
 };
@@ -49,7 +49,7 @@ class TParaExpression {
   public:
     TParaExpression();
     virtual ~TParaExpression();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException) = 0;
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false) = 0;
     virtual void Dump(std::ostream &os, int IndentLevel = 0) const;
     virtual void SetLineNumber(long LineNumber);
     virtual std::string Position(void) const;
@@ -66,7 +66,7 @@ class TParaOperatorNode: public TParaExpression {
   public:
     TParaOperatorNode(TParaOperator* Operator, TParaExpression* LeftNode, TParaExpression* RightNode);
     virtual ~TParaOperatorNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -79,7 +79,7 @@ class TParaTypeCastNode: public TParaExpression {
   public:
     TParaTypeCastNode(const std::string& TypeName, TParaExpression* RightNode);
     virtual ~TParaTypeCastNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -92,7 +92,7 @@ class TParaLiteralNode: public TParaExpression {
   public:
     TParaLiteralNode(const TParaValue& Value);
     virtual ~TParaLiteralNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -104,7 +104,7 @@ class TParaVariableNode: public TParaExpression {
   public:
     TParaVariableNode(long VariableId);
     virtual ~TParaVariableNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -116,7 +116,7 @@ class TParaListNode: public TParaExpression {
   public:
     TParaListNode(const std::vector<TParaExpression*>& KeyExpressionList, const std::vector<TParaExpression*>& ValueExpressionList);
     virtual ~TParaListNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -130,10 +130,10 @@ class TParaFunctionCallNode: public TParaExpression {
   public:
     TParaFunctionCallNode(long FunctionId, std::vector<TParaExpression*>& ArgumentExpressionList);
     virtual ~TParaFunctionCallNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   public:
-    virtual void EvaluateArguments(TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue& ExecuteFunction(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void EvaluateArguments(TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue& ExecuteFunction(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -149,7 +149,7 @@ class TParaMethodInvocationNode: public TParaFunctionCallNode {
   public:
     TParaMethodInvocationNode(TParaExpression* ObjectExpression, long FunctionId, std::vector<TParaExpression*>& ArgumentExpressionList);
     virtual ~TParaMethodInvocationNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     int _MethodId;
     std::string _MethodName;
@@ -162,7 +162,7 @@ class TParaPropertyAccessNode: public TParaExpression {
   public:
     TParaPropertyAccessNode(TParaExpression* ObjectExpression, const std::string& PropertyName);
     virtual ~TParaPropertyAccessNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
@@ -176,7 +176,7 @@ class TParaTemporaryObjectCreationNode: public TParaFunctionCallNode {
   public:
     TParaTemporaryObjectCreationNode(const std::string& TypeName, std::vector<TParaExpression*>& ArgumentExpressionList);
     virtual ~TParaTemporaryObjectCreationNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     std::string _TypeName;
     std::vector<TParaExpression*> _ArgumentExpressionList;
@@ -187,13 +187,13 @@ class TParaArrayReferenceNode: public TParaExpression {
   public:
     TParaArrayReferenceNode(TParaExpression* ObjectExpression, TParaExpression* IndexExpression);
     virtual ~TParaArrayReferenceNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void DumpThis(std::ostream &os) const;
   protected:
-    virtual TParaValue& ListItemOf(TParaValue& ListValue, int Index) throw(TScriptException);
-    virtual TParaValue& PartialListOf(TParaValue& ListValue, TParaValue& IndexListValue) throw(TScriptException);
-    virtual TParaValue& StringItemOf(TParaValue& StringValue, int Index) throw(TScriptException);
+    virtual TParaValue& ListItemOf(TParaValue& ListValue, int Index) noexcept(false);
+    virtual TParaValue& PartialListOf(TParaValue& ListValue, TParaValue& IndexListValue) noexcept(false);
+    virtual TParaValue& StringItemOf(TParaValue& StringValue, int Index) noexcept(false);
   protected:
     TParaExpression* _ObjectExpression;
     TParaExpression* _IndexExpression;
@@ -205,9 +205,9 @@ class TParaTableReferenceNode: public TParaExpression {
   public:
     TParaTableReferenceNode(TParaExpression* ObjectExpression, TParaExpression* IndexExpression);
     virtual ~TParaTableReferenceNode();
-    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual TParaValue& Evaluate(TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
-    virtual TParaValue& PartialListOf(TParaValue& ListValue, TParaValue& IndexListValue) throw(TScriptException);
+    virtual TParaValue& PartialListOf(TParaValue& ListValue, TParaValue& IndexListValue) noexcept(false);
     virtual void DumpThis(std::ostream &os) const;
   protected:
     TParaExpression* _ObjectExpression;

@@ -33,7 +33,7 @@ string TRepeatUntilStatement::FirstToken(void) const
     return string("repeat");
 }
 
-void TRepeatUntilStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TRepeatUntilStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -49,7 +49,7 @@ void TRepeatUntilStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParse
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TRepeatUntilStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TRepeatUntilStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TExecResult Result;
 

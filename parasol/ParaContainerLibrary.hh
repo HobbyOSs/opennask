@@ -19,12 +19,12 @@ class TParaVectorObject: public TParaObjectPrototype {
     TParaVectorObject(void);
     virtual ~TParaVectorObject();
     virtual TParaObjectPrototype* Clone(void);
-    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    TParaValue PutAt(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue GetAt(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue PushBack(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue Size(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    TParaValue PutAt(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue GetAt(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue PushBack(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue Size(std::vector<TParaValue*>& ArgumentList) noexcept(false);
   protected:
     std::vector<TParaValue> _VectorStorage;
 };

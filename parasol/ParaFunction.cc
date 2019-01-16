@@ -30,7 +30,7 @@ TParaFunction::~TParaFunction()
     delete _Statement;
 }
 
-TParaValue TParaFunction::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TParaFunction::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     SymbolTable->EnterBlock();
     
@@ -58,7 +58,7 @@ TParaValue TParaFunction::Execute(const vector<TParaValue*>& ArgumentList, TPara
     return *_ReturnValue;
 }
 
-void TParaFunction::ProcessArguments(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaFunction::ProcessArguments(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     if (ArgumentList.size() > _ArgumentDeclarationList.size()) {
         throw TScriptException(_Name + "(): too many aguments");
@@ -111,7 +111,7 @@ TParaCxxFunction::~TParaCxxFunction()
 {
 }
 
-void TParaCxxFunction::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaCxxFunction::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaToken Token = Tokenizer->Next();    
     TParaValue* ReturnValue = SymbolTable->CreateObject(Token.AsString());
@@ -136,7 +136,7 @@ void TParaCxxFunction::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* St
     SetStatement(Statement);
 }
 
-void TParaCxxFunction::ParseArgumentDeclaration(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaCxxFunction::ParseArgumentDeclaration(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("(");
 

@@ -219,7 +219,7 @@ void TParaValue::SetName(string Name)
      }
 }
 
-void TParaValue::Assign(const TParaValue& Value) throw(TScriptException)
+void TParaValue::Assign(const TParaValue& Value) noexcept(false)
 {
     if (_IsVariant) {
 	bool IsLeftValue = _IsLeftValue;
@@ -324,7 +324,7 @@ bool TParaValue::IsObject(const string& InternalClassName) const
     );
 }
 
-bool TParaValue::AsBool(void) const throw(TScriptException)
+bool TParaValue::AsBool(void) const noexcept(false)
 {
     bool Result;
 
@@ -360,7 +360,7 @@ bool TParaValue::AsBool(void) const throw(TScriptException)
     return Result;
 }
 
-long TParaValue::AsLong(void) const throw(TScriptException)
+long TParaValue::AsLong(void) const noexcept(false)
 {
     long Value;
     string Remaining;
@@ -427,7 +427,7 @@ long TParaValue::AsLong(void) const throw(TScriptException)
     return Value;
 }
 
-double TParaValue::AsDouble(void) const throw(TScriptException)
+double TParaValue::AsDouble(void) const noexcept(false)
 {
     double Value;
     string Remaining;
@@ -478,7 +478,7 @@ double TParaValue::AsDouble(void) const throw(TScriptException)
     return Value;
 }
 
-string TParaValue::AsString(void) const throw(TScriptException)
+string TParaValue::AsString(void) const noexcept(false)
 {
     ostringstream BufferStream;    
     string Value;
@@ -520,7 +520,7 @@ string TParaValue::AsString(void) const throw(TScriptException)
     return Value;
 }
 
-string& TParaValue::AsStringReference(void) const throw(TScriptException)
+string& TParaValue::AsStringReference(void) const noexcept(false)
 {
     if (_Type != vtString) {
         throw TScriptException("string value is expected");
@@ -529,7 +529,7 @@ string& TParaValue::AsStringReference(void) const throw(TScriptException)
     return *_PrimitiveValue._StringValue;
 }
 
-TParaObjectPrototype* TParaValue::AsObject(void) const throw(TScriptException)
+TParaObjectPrototype* TParaValue::AsObject(void) const noexcept(false)
 {
     if (_Type != vtObject) {
         throw TScriptException("object value is expected");
@@ -538,7 +538,7 @@ TParaObjectPrototype* TParaValue::AsObject(void) const throw(TScriptException)
     return _PrimitiveValue._ObjectValue;
 }
 
-TParaValue* TParaValue::AsPointer(void) const throw(TScriptException)
+TParaValue* TParaValue::AsPointer(void) const noexcept(false)
 {
     if ((_Type == vtLong) && (AsLong() == 0)) {
         return (TParaValue*) _PrimitiveValue._LongValue;
@@ -550,7 +550,7 @@ TParaValue* TParaValue::AsPointer(void) const throw(TScriptException)
     return _PrimitiveValue._PointerValue;
 }
 
-TParaListValue& TParaValue::AsList(void) throw(TScriptException)
+TParaListValue& TParaValue::AsList(void) noexcept(false)
 {
     if (_Type != vtList) {
         throw TScriptException("list value is expected");
@@ -559,7 +559,7 @@ TParaListValue& TParaValue::AsList(void) throw(TScriptException)
     return *_PrimitiveValue._ListValue;
 }
 
-const TParaListValue& TParaValue::AsConstList(void) const throw(TScriptException)
+const TParaListValue& TParaValue::AsConstList(void) const noexcept(false)
 {
     if (_Type != vtList) {
         throw TScriptException("list value is expected");
@@ -568,7 +568,7 @@ const TParaListValue& TParaValue::AsConstList(void) const throw(TScriptException
     return *_PrimitiveValue._ListValue;
 }
 
-vector<TParaValue>& TParaValue::AsValueList(void) throw(TScriptException)
+vector<TParaValue>& TParaValue::AsValueList(void) noexcept(false)
 {
     if (_Type != vtList) {
         throw TScriptException("list value is expected");

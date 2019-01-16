@@ -26,7 +26,7 @@ class TPaxParser {
   public:
     TPaxParser(TPaxHandler* Handler);
     virtual ~TPaxParser();
-    virtual void Parse(istream& InputStream) throw(TScriptException);
+    virtual void Parse(istream& InputStream) noexcept(false);
   protected:
     TPaxHandler* _Handler;
 };
@@ -70,7 +70,7 @@ TPaxParser::~TPaxParser()
 {
 }
 
-void TPaxParser::Parse(istream& InputStream) throw(TScriptException)
+void TPaxParser::Parse(istream& InputStream) noexcept(false)
 {
     TParaTokenTable TokenTable;
     TokenTable.AddOperator("<");

@@ -39,7 +39,7 @@ string TLineStatement::FirstToken(void) const
     return string("line");
 }
 
-void TLineStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TLineStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -63,7 +63,7 @@ void TLineStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* Stat
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TLineStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TLineStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     float X0 = _X0->Evaluate(SymbolTable).AsDouble();
     float Y0 = _Y0->Evaluate(SymbolTable).AsDouble();
@@ -105,7 +105,7 @@ string TRectStatement::FirstToken(void) const
     return string("rect");
 }
 
-void TRectStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TRectStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -129,7 +129,7 @@ void TRectStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* Stat
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TRectStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TRectStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     float X0 = _X0->Evaluate(SymbolTable).AsDouble();
     float Y0 = _Y0->Evaluate(SymbolTable).AsDouble();
@@ -169,7 +169,7 @@ string TCircleStatement::FirstToken(void) const
     return string("circle");
 }
 
-void TCircleStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TCircleStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -189,7 +189,7 @@ void TCircleStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* St
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TCircleStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TCircleStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     float X = _X->Evaluate(SymbolTable).AsDouble();
     float Y = _Y->Evaluate(SymbolTable).AsDouble();
@@ -228,7 +228,7 @@ string TTextStatement::FirstToken(void) const
     return string("text");
 }
 
-void TTextStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TTextStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpressionParser* ExpressionParser;
     ExpressionParser = StatementParser->ExpressionParser();
@@ -248,7 +248,7 @@ void TTextStatement::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* Stat
     Tokenizer->Next().MustBe(";");
 }
 
-TParaStatement::TExecResult TTextStatement::Execute(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaStatement::TExecResult TTextStatement::Execute(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     float X = _X->Evaluate(SymbolTable).AsDouble();
     float Y = _Y->Evaluate(SymbolTable).AsDouble();

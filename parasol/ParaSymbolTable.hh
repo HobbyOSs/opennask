@@ -43,7 +43,7 @@ class TParaSymbolTable {
     virtual bool IsTypeName(const std::string& Symbol) const;
     virtual TParaValue* CreateObject(const std::string& TypeName, int Length = 0);
     virtual void EnterBlock(void);
-    virtual void ExitBlock(void) throw(TScriptException);
+    virtual void ExitBlock(void) noexcept(false);
     virtual long NameToId(const std::string& Name);
     virtual std::string IdToName(long Id);
     virtual long RegisterVariable(const std::string& Name, const TParaValue& InitialValue);

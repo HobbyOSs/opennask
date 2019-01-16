@@ -63,7 +63,7 @@ void TParaParser::Merge(TParaParser* Source)
     _Package->Merge(Source->_Package);
 }
 
-void TParaParser::Parse(istream& SourceStream) throw(TScriptException)
+void TParaParser::Parse(istream& SourceStream) noexcept(false)
 {
     if (! _IsConstructed) {
 	Construct();
@@ -73,7 +73,7 @@ void TParaParser::Parse(istream& SourceStream) throw(TScriptException)
     _Package->Parse(&Tokenizer, _StatementParser, _SymbolTable);
 }
 
-TParaValue TParaParser::Execute(const string& EntryName) throw(TScriptException)
+TParaValue TParaParser::Execute(const string& EntryName) noexcept(false)
 {
     return _Package->Execute(EntryName, _SymbolTable);
 }

@@ -28,7 +28,7 @@ TParaExpressionParser::~TParaExpressionParser()
 {
 }
 
-TParaExpression* TParaExpressionParser::Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, int PriorityRank) throw(TScriptException)
+TParaExpression* TParaExpressionParser::Parse(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, int PriorityRank) noexcept(false)
 {
     TParaExpression* ThisNode = 0;
 
@@ -85,7 +85,7 @@ TParaExpression* TParaExpressionParser::Parse(TParaTokenizer* Tokenizer, TParaSy
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParsePrepositional(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParsePrepositional(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpression* ThisNode = 0;
     long LineNumber = Tokenizer->LineNumber();
@@ -127,7 +127,7 @@ TParaExpression* TParaExpressionParser::ParsePrepositional(TParaTokenizer* Token
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParseElement(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseElement(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpression* ThisNode = 0;
     TParaToken Token = Tokenizer->Next();
@@ -196,7 +196,7 @@ TParaExpression* TParaExpressionParser::ParseElement(TParaTokenizer* Tokenizer, 
     return ParsePostpositional(ThisNode, Tokenizer, SymbolTable);
 }
 
-TParaExpression* TParaExpressionParser::ParseTypeCast(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseTypeCast(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -216,7 +216,7 @@ TParaExpression* TParaExpressionParser::ParseTypeCast(TParaTokenizer* Tokenizer,
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParseTemporaryObjectCreation(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseTemporaryObjectCreation(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -240,7 +240,7 @@ TParaExpression* TParaExpressionParser::ParseTemporaryObjectCreation(TParaTokeni
     return ThisNode;
 }
 
-TParaFunctionCallNode* TParaExpressionParser::ParseFunctionCall(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaFunctionCallNode* TParaExpressionParser::ParseFunctionCall(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -263,7 +263,7 @@ TParaFunctionCallNode* TParaExpressionParser::ParseFunctionCall(TParaTokenizer* 
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParseListExpression(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseListExpression(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     vector<TParaExpression*> KeyExpressionList;
     vector<TParaExpression*> ValueExpressionList;
@@ -302,7 +302,7 @@ TParaExpression* TParaExpressionParser::ParseListExpression(TParaTokenizer* Toke
     return new TParaListNode(KeyExpressionList, ValueExpressionList);
 }
 
-TParaExpression* TParaExpressionParser::ParsePostpositional(TParaExpression* Expression, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParsePostpositional(TParaExpression* Expression, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaExpression* ThisNode = Expression;
     TParaOperator* Operator;
@@ -331,7 +331,7 @@ TParaExpression* TParaExpressionParser::ParsePostpositional(TParaExpression* Exp
     return ParsePostpositional(ThisNode, Tokenizer, SymbolTable);
 }
 
-TParaExpression* TParaExpressionParser::ParseMethodInvocation(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseMethodInvocation(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -368,7 +368,7 @@ TParaExpression* TParaExpressionParser::ParseMethodInvocation(TParaExpression* O
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParseArrayReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseArrayReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -385,7 +385,7 @@ TParaExpression* TParaExpressionParser::ParseArrayReference(TParaExpression* Obj
     return ThisNode;
 }
 
-TParaExpression* TParaExpressionParser::ParseTableReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaExpression* TParaExpressionParser::ParseTableReference(TParaExpression* ObjectNode, TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     long LineNumber = Tokenizer->LineNumber();
 
@@ -407,7 +407,7 @@ TParaExpression* TParaExpressionParser::ParseTableReference(TParaExpression* Obj
     return ThisNode;
 }
 
-vector<TParaExpression*> TParaExpressionParser::ParseExpressionList(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, const string& StartToken, const string& StopToken, const string& SeparatorToken) throw(TScriptException)
+vector<TParaExpression*> TParaExpressionParser::ParseExpressionList(TParaTokenizer* Tokenizer, TParaSymbolTable* SymbolTable, const string& StartToken, const string& StopToken, const string& SeparatorToken) noexcept(false)
 {
     vector<TParaExpression*> ArgumentExpressionList;
 
@@ -496,7 +496,7 @@ TParaOperatorNode::~TParaOperatorNode()
     delete _Operator;
 }
 
-TParaValue& TParaOperatorNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaOperatorNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& LeftValue = _LeftNode->Evaluate(SymbolTable);
     TParaValue& RightValue = _RightNode->Evaluate(SymbolTable);
@@ -549,7 +549,7 @@ TParaTypeCastNode::~TParaTypeCastNode()
 {
 }
 
-TParaValue& TParaTypeCastNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaTypeCastNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& Right = _RightNode->Evaluate(SymbolTable);
 
@@ -601,7 +601,7 @@ TParaLiteralNode::~TParaLiteralNode()
 {
 }
 
-TParaValue& TParaLiteralNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaLiteralNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return _Value;
 }
@@ -622,7 +622,7 @@ TParaVariableNode::~TParaVariableNode()
 {
 }
 
-TParaValue& TParaVariableNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaVariableNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue* Variable = SymbolTable->GetVariable(_VariableId);
     if (Variable == 0) {
@@ -655,7 +655,7 @@ TParaListNode::~TParaListNode()
     }
 }
 
-TParaValue& TParaListNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaListNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     _Value = TParaValue(TParaListValue());
     TParaListValue& ListValue = _Value.AsList();
@@ -698,7 +698,7 @@ TParaFunctionCallNode::~TParaFunctionCallNode()
     }
 }
 
-TParaValue& TParaFunctionCallNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaFunctionCallNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     // EvaluateArgument() and ExecuteFunction() are separated
     // for delayed execution
@@ -709,7 +709,7 @@ TParaValue& TParaFunctionCallNode::Evaluate(TParaSymbolTable* SymbolTable) throw
     return Result;
 }
 
-void TParaFunctionCallNode::EvaluateArguments(TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TParaFunctionCallNode::EvaluateArguments(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     _ArgumentList.erase(
         _ArgumentList.begin(), _ArgumentList.end()
@@ -726,7 +726,7 @@ void TParaFunctionCallNode::EvaluateArguments(TParaSymbolTable* SymbolTable) thr
     }
 }
 
-TParaValue& TParaFunctionCallNode::ExecuteFunction(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaFunctionCallNode::ExecuteFunction(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     int Result = 0;
 
@@ -797,7 +797,7 @@ TParaMethodInvocationNode::~TParaMethodInvocationNode()
     delete _ObjectExpression;
 }
 
-TParaValue& TParaMethodInvocationNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaMethodInvocationNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& ObjectValue = _ObjectExpression->Evaluate(SymbolTable);
     TParaObjectPrototype* Object;
@@ -852,7 +852,7 @@ TParaPropertyAccessNode::~TParaPropertyAccessNode()
     delete _ObjectExpression;
 }
 
-TParaValue& TParaPropertyAccessNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaPropertyAccessNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& ObjectValue = _ObjectExpression->Evaluate(SymbolTable);
     TParaObjectPrototype* Object;
@@ -894,7 +894,7 @@ TParaTemporaryObjectCreationNode::~TParaTemporaryObjectCreationNode()
 {
 }
 
-TParaValue& TParaTemporaryObjectCreationNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaTemporaryObjectCreationNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     EvaluateArguments(SymbolTable);
 
@@ -936,7 +936,7 @@ TParaArrayReferenceNode::~TParaArrayReferenceNode()
     delete _ObjectExpression;
 }
 
-TParaValue& TParaArrayReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaArrayReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& ObjectValue = _ObjectExpression->Evaluate(SymbolTable);
     TParaValue& IndexValue = _IndexExpression->Evaluate(SymbolTable);
@@ -980,7 +980,7 @@ TParaValue& TParaArrayReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) thr
     );
 }
 
-TParaValue& TParaArrayReferenceNode::ListItemOf(TParaValue& ListValue, int Index) throw(TScriptException)
+TParaValue& TParaArrayReferenceNode::ListItemOf(TParaValue& ListValue, int Index) noexcept(false)
 {
     vector<TParaValue>& List = ListValue.AsValueList();
     int ListSize = List.size();
@@ -1000,7 +1000,7 @@ TParaValue& TParaArrayReferenceNode::ListItemOf(TParaValue& ListValue, int Index
     return List[Index];
 }
 
-TParaValue& TParaArrayReferenceNode::PartialListOf(TParaValue& ObjectListValue, TParaValue& IndexListValue) throw(TScriptException)
+TParaValue& TParaArrayReferenceNode::PartialListOf(TParaValue& ObjectListValue, TParaValue& IndexListValue) noexcept(false)
 {
     _Value = TParaValue(TParaListValue());
 
@@ -1018,7 +1018,7 @@ TParaValue& TParaArrayReferenceNode::PartialListOf(TParaValue& ObjectListValue, 
     return _Value;
 }
 
-TParaValue& TParaArrayReferenceNode::StringItemOf(TParaValue& StringValue, int Index) throw(TScriptException)
+TParaValue& TParaArrayReferenceNode::StringItemOf(TParaValue& StringValue, int Index) noexcept(false)
 {
     string& String = StringValue.AsStringReference();
     int StringSize = (int) String.size();
@@ -1056,7 +1056,7 @@ TParaTableReferenceNode::~TParaTableReferenceNode()
     delete _IndexExpression;
 }
 
-TParaValue& TParaTableReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue& TParaTableReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) noexcept(false)
 {
     TParaValue& ObjectValue = _ObjectExpression->Evaluate(SymbolTable);
     TParaValue& IndexValue = _IndexExpression->Evaluate(SymbolTable);
@@ -1081,7 +1081,7 @@ TParaValue& TParaTableReferenceNode::Evaluate(TParaSymbolTable* SymbolTable) thr
     }
 }
 
-TParaValue& TParaTableReferenceNode::PartialListOf(TParaValue& ObjectListValue, TParaValue& IndexListValue) throw(TScriptException)
+TParaValue& TParaTableReferenceNode::PartialListOf(TParaValue& ObjectListValue, TParaValue& IndexListValue) noexcept(false)
 {
     _Value = TParaValue(TParaListValue());
 

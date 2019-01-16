@@ -45,12 +45,12 @@ class TParaToken {
     virtual bool Is(const std::string& String) const;
     virtual bool IsNot(const std::string& String) const;
     virtual std::string AsString(void) const;
-    virtual long AsLong(void) const throw(TScriptException);
-    virtual double AsDouble(void) const throw(TScriptException);
+    virtual long AsLong(void) const noexcept(false);
+    virtual double AsDouble(void) const noexcept(false);
     virtual TParaToken& RemoveQuotation(char Quoter = '\0');
-    virtual TParaToken& MustBe(const std::string& ExpectedString) throw(TScriptException);
-    virtual TParaToken& MustBe(TTokenType ExpectedTokenType) throw(TScriptException);
-    virtual void ThrowUnexpected(const std::string& Expected = "") throw(TScriptException);
+    virtual TParaToken& MustBe(const std::string& ExpectedString) noexcept(false);
+    virtual TParaToken& MustBe(TTokenType ExpectedTokenType) noexcept(false);
+    virtual void ThrowUnexpected(const std::string& Expected = "") noexcept(false);
     virtual std::string Position(void) const;
   protected:
     std::string _TokenString;

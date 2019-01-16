@@ -20,10 +20,10 @@ class TParaFunction {
     TParaFunction(void);
     virtual ~TParaFunction();
     virtual std::string Name(void);
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException) = 0;
-    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false) = 0;
+    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
-    virtual void ProcessArguments(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void ProcessArguments(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     virtual void SetName(const std::string& Name);
     virtual void SetReturnValue(TParaValue* ReturnValue);
@@ -42,9 +42,9 @@ class TParaCxxFunction: public TParaFunction {
   public:
     TParaCxxFunction(void);
     virtual ~TParaCxxFunction();
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
-    virtual void ParseArgumentDeclaration(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void ParseArgumentDeclaration(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
 };
 
 

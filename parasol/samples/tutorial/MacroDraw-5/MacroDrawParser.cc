@@ -80,7 +80,7 @@ bool TMacroEntry::HasEntryWordsOf(TParaTokenizer* Tokenizer)
     return Tokenizer->LookAhead().Is("macro");
 }
 
-void TMacroEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException)
+void TMacroEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     Tokenizer->Next().MustBe("macro");
     string MacroName = Tokenizer->Next().RemoveQuotation('"').AsString();
@@ -90,7 +90,7 @@ void TMacroEntry::Parse(TParaTokenizer* Tokenizer, TParaStatementParser* Stateme
     SetEntryName(MacroName);
 }
 
-TParaValue TMacroEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException)
+TParaValue TMacroEntry::Execute(const vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false)
 {
     return _Statement->Execute(SymbolTable).ReturnValue;
 }

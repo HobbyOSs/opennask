@@ -27,11 +27,11 @@ class TParaPackage {
     virtual void Merge(TParaPackage* Source);
     virtual void AddEntry(TParaPackageEntry* EntryPrototype);
     virtual TParaPackageEntry* CreateEntry(TParaTokenizer* Tokenizer);
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue Execute(TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue Execute(const std::string& EntryName, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue Execute(const std::string& EntryName, const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual void ExecuteBareStatements(TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue Execute(TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue Execute(const std::string& EntryName, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue Execute(const std::string& EntryName, const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual void ExecuteBareStatements(TParaSymbolTable* SymbolTable) noexcept(false);
     virtual TParaPackageEntry* GetEntry(const std::string& EntryName);
     virtual const std::vector<TParaPackageEntry*>& EntryList(void) const;
     virtual const std::vector<std::string>& EntryNameList(void) const;
@@ -59,8 +59,8 @@ class TParaPackageEntry {
     virtual ~TParaPackageEntry();
     virtual TParaPackageEntry* Clone(void) = 0;
     virtual bool HasEntryWordsOf(TParaTokenizer* Tokenizer) = 0;
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException) = 0;
-    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false) = 0;
+    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
     virtual const std::string& EntryTypeName(void) const;
     virtual const std::string& EntryName(void) const;
   protected:
@@ -77,8 +77,8 @@ class TParaFunctionEntry: public TParaPackageEntry {
     virtual ~TParaFunctionEntry();
     virtual TParaPackageEntry* Clone(void);
     virtual bool HasEntryWordsOf(TParaTokenizer* Tokenizer);
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
-    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
+    virtual TParaValue Execute(const std::vector<TParaValue*>& ArgumentList, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     TParaFunction* _Function;
 };
@@ -90,7 +90,7 @@ class TParaIncludeEntry: public TParaPackageEntry {
     virtual ~TParaIncludeEntry();
     virtual TParaPackageEntry* Clone(void);
     virtual bool HasEntryWordsOf(TParaTokenizer* Tokenizer);
-    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) throw(TScriptException);
+    virtual void Parse(TParaTokenizer* Tokenizer, TParaStatementParser* StatementParser, TParaSymbolTable* SymbolTable) noexcept(false);
   protected:
     std::ifstream* _InputFile;
 };

@@ -40,7 +40,7 @@ void TMacroDraw::Start(int argc, char** argv)
     }
 }
 
-void TMacroDraw::ExecuteMacro(const string& FileName, const string& MacroName) throw(TScriptException)
+void TMacroDraw::ExecuteMacro(const string& FileName, const string& MacroName) noexcept(false)
 {
     ifstream MacroFile(FileName.c_str());
     if (! MacroFile) {

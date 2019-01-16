@@ -17,11 +17,11 @@ class TBitFunction: public TParaObjectPrototype {
     TBitFunction(void);
     virtual ~TBitFunction();
     virtual TParaObjectPrototype* Clone(void);
-    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual void Construct(const std::string& ClassName, std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    virtual int DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
-    TParaValue IntToBitString(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
-    TParaValue BitStringToInt(std::vector<TParaValue*>& ArgumentList) throw(TScriptException);
+    TParaValue IntToBitString(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue BitStringToInt(std::vector<TParaValue*>& ArgumentList) noexcept(false);
 };
 
 

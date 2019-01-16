@@ -22,7 +22,7 @@ class TParaBuiltinFunctionTable {
     virtual void Merge(TParaBuiltinFunctionTable* Source);
     virtual void RegisterAnonymousClass(TParaObjectPrototype* Prototype);
     virtual void RegisterFunctionId(const std::string& FunctionName, long FunctionId);
-    virtual int Execute(long FunctionId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException);
+    virtual int Execute(long FunctionId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false);
   protected:
     std::vector<TParaObjectPrototype*> _PrototypeList;
     std::map<long, int> _ClassIdTable;

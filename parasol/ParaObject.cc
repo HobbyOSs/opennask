@@ -121,11 +121,11 @@ void TParaObjectPrototype::SetObjectName(const string& ObjectName)
     _ObjectName = ObjectName;
 }
 
-void TParaObjectPrototype::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) throw(TScriptException)
+void TParaObjectPrototype::Construct(const string& ClassName, vector<TParaValue*>& ArgumentList) noexcept(false)
 {
 }
 
-void TParaObjectPrototype::Destruct(void) throw(TScriptException)
+void TParaObjectPrototype::Destruct(void) noexcept(false)
 {
 }
 
@@ -134,22 +134,22 @@ int TParaObjectPrototype::MethodIdOf(const std::string& MethodName)
     return MethodId_Undefined;
 }
 
-int TParaObjectPrototype::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaObjectPrototype::InvokeMethod(int MethodId, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     return 0;    
 }
 
-int TParaObjectPrototype::DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) throw(TScriptException)
+int TParaObjectPrototype::DispatchMessage(const std::string& Message, std::vector<TParaValue*>& ArgumentList, TParaValue& ReturnValue) noexcept(false)
 {
     return 0;
 }
 
-int TParaObjectPrototype::GetPropertyOf(const std::string& PropertyName, TParaValue& ReturnValue) throw(TScriptException)
+int TParaObjectPrototype::GetPropertyOf(const std::string& PropertyName, TParaValue& ReturnValue) noexcept(false)
 {
     return 0;
 }
 
-TParaValue& TParaObjectPrototype::EvaluateOperator(TParaOperator* Operator, TParaValue& LeftValue, TParaValue& RightValue, TParaSymbolTable* SymbolTable, TParaValue& Result) throw(TScriptException)
+TParaValue& TParaObjectPrototype::EvaluateOperator(TParaOperator* Operator, TParaValue& LeftValue, TParaValue& RightValue, TParaSymbolTable* SymbolTable, TParaValue& Result) noexcept(false)
 {
     return Operator->Evaluate(LeftValue, RightValue, SymbolTable, Result);
 }
