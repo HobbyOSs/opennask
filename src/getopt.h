@@ -14,7 +14,7 @@ extern "C" {
 #endif // __cplusplus
 
     int getopt(int argc, char* const argv[],
-            const char* optstring);
+            const char* optstring) throw();
 
     extern char *optarg;
     extern int optind, opterr, optopt;
