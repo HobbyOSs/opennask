@@ -101,16 +101,17 @@ TEST(day05test_suite, asmhead_MOV_mem_former_disp)
 
 void setup()
 {
-     MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
+
 }
 
 void teardown()
 {
-     MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
+
 }
 
 int main(int argc, char** argv)
 {
+     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
      std::vector<const char*> args(argv, argv + argc); // Insert all arguments
      args.push_back("-v"); // Set verbose mode
      args.push_back("-c"); // Set color output (OPTIONAL)

@@ -346,16 +346,18 @@ TEST(day04test_suite, day04)
 
 void setup()
 {
-     MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
+
 }
 
 void teardown()
 {
-     MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
+
 }
+
 
 int main(int argc, char** argv)
 {
+     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
      std::vector<const char*> args(argv, argv + argc); // Insert all arguments
      args.push_back("-v"); // Set verbose mode
      args.push_back("-c"); // Set color output (OPTIONAL)
