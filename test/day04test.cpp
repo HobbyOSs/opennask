@@ -346,12 +346,12 @@ TEST(day04test_suite, day04)
 
 void setup()
 {
-     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+     MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
 }
 
 void teardown()
 {
-     MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
+     MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
 }
 
 int main(int argc, char** argv)

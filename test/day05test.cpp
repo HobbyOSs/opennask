@@ -101,12 +101,12 @@ TEST(day05test_suite, asmhead_MOV_mem_former_disp)
 
 void setup()
 {
-     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
+     MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
 }
 
 void teardown()
 {
-     MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
+     MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
 }
 
 int main(int argc, char** argv)

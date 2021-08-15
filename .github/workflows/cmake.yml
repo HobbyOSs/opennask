@@ -6,26 +6,22 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  CXX: g++-4.9
-  CC: gcc-4.9
-
 jobs:
   build:
-    runs-on: ubuntu-latest # =focalb
+    runs-on: ubuntu-latest # =focal
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Install build tools
-        run: sudo apt-get install ninja-build cpputest gcc-4.9 g++4.9 libc6-dev-i386 linux-headers-generic
+        run: sudo apt-get install ninja-build cpputest gcc g++ libc6-dev-i386 linux-headers-generic
 
       - name: Configure cmake
         run: cmake -B ${{github.workspace}}/build
 
       - name: Generate ninja script
         working-directory: ${{github.workspace}}/build
-        run: CXX=g++-4.9 CC=gcc-4.9 cmake -G Ninja ..
+        run: cmake -G Ninja ..
 
       - name: Build and Test
         working-directory: ${{github.workspace}}/build
