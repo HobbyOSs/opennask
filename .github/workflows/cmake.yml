@@ -17,7 +17,7 @@ jobs:
         run: sudo apt-get install ninja-build cpputest gcc g++ libc6-dev-i386 linux-headers-generic
 
       - name: Configure cmake
-        run: cmake -B ${{github.workspace}}/build -G Ninja ..
+        run: cmake -B ${{github.workspace}}/build -G Ninja
 
       - name: Build and Test
         working-directory: ${{github.workspace}}/build
