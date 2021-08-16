@@ -233,7 +233,7 @@ int process_each_assembly_line(char** argv,
                         log()->debug("eval {} end", token.AsString());
                     } else {
                         // オペコードが見つかったけどよくわからなかった場合
-                        std::cerr << "opennask ignored unknown instruction " << token.AsString() << std::endl;
+                        log()->debug("opennask ignored unknown instruction {}", token.AsString());
                     }
                 }
             }
