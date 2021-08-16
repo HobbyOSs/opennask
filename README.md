@@ -1,11 +1,11 @@
-# opennask [![Build Status](https://travis-ci.org/HobbyOSs/opennask.svg?branch=master)](https://travis-ci.org/HobbyOSs/opennask) [![Build status](https://ci.appveyor.com/api/projects/status/3y5g0uyrixr7ivgd?svg=true)](https://ci.appveyor.com/project/HobbyOSs/opennask) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+# opennask [![Build Status](https://travis-ci.com/HobbyOSs/opennask.svg?branch=master)](https://travis-ci.com/HobbyOSs/opennask) (https://travis-ci.org/HobbyOSs/opennask) [![Build status](https://ci.appveyor.com/api/projects/status/3y5g0uyrixr7ivgd?svg=true)](https://ci.appveyor.com/project/HobbyOSs/opennask) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 An 80x86 assembler like MASM/NASM for the tiny OS
 
 # Build (debian)
 * You need to install cmake, and ninja / make
 ```
 // example
-# apt-get install cmake ninja* libc6-dev-i386 cpputest* 
+# apt-get install cmake ninja* libc6-dev-i386 cpputest*
 
 $ mkdir build
 $ cd build
