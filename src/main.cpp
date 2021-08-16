@@ -24,9 +24,6 @@ int process_each_assembly_line(char** argv,
     long line_number = 1;
     std::string input;
 
-    // spdlog
-    auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
-
     static nask_utility::Instructions inst;
     static std::string current_symbol = "";
     using InstAlias = nask_utility::Instructions;
@@ -99,7 +96,7 @@ int process_each_assembly_line(char** argv,
     for (; std::getline(nas_file, input); line_number++) {
 
         /* 行数チェック */
-        logger->info("{}: {}", line_number, input);
+        log()->debug("{}: {}", line_number, input);
 
         // シンボルテーブル用にシンボル情報を保持する
         if (nask_utility::starts_with(input, "_")) {
@@ -112,10 +109,10 @@ int process_each_assembly_line(char** argv,
                     inst.symbol_offsets["_"] = 0; // placeholder
                     inst.symbol_offsets[match[1].str()] = 0;
                     current_symbol = match[1].str();
-                    logger->info("[detect] symbol: {}, offs size: {}", current_symbol, 0);
+                    log()->debug("[detect] symbol: {}, offs size: {}", current_symbol, 0);
                 } else {
                     const size_t already_counted = inst.symbol_offsets["_"];
-                    logger->info("[detect] symbol: {}, offs size: {}", current_symbol, already_counted);
+                    log()->debug("[detect] symbol: {}, offs size: {}", current_symbol, already_counted);
                     inst.symbol_offsets[match[1].str()] = already_counted;
                     current_symbol = match[1].str();
                 }
@@ -125,7 +122,7 @@ int process_each_assembly_line(char** argv,
         // オペコードではなくラベルの可能性を探る(CRLF終わりの時が例外的なのでどうしたもんだか)
         if (nask_utility::ends_with(input, ":") || nask_utility::ends_with(input, ":\r")) {
             std::string label_dst = input.substr(0, input.find(":", 0));
-            logger->info("coming another label: {} bin[{}]",
+            log()->debug("coming another label: {} bin[{}]",
                          label_dst, std::to_string(binout_container.size()));
 
             // label: (label_dstと呼ぶ)
@@ -140,7 +137,7 @@ int process_each_assembly_line(char** argv,
         for (const std::string pre_process_word : PRE_PROCESS_WORDS) {
             std::size_t found = input.find(pre_process_word);
             if (found != std::string::npos && pre_process_word == "EQU") {
-                logger->info("coming label EQU");
+                log()->debug("coming label EQU");
                 std::istringstream input_stream(input.c_str());
                 TParaTokenizer tokenizer(input_stream, &inst.token_table);
                 inst.process_token_EQU(tokenizer, binout_container);
@@ -155,18 +152,18 @@ int process_each_assembly_line(char** argv,
             // EQUで定義されている文字列があれば変換しておく
             tmp = inst.try_replace_equ(input);
             input = nask_utility::expr_math_op(tmp);
-            logger->info("{}: {} // *** math op replaced ***", line_number, input);
+            log()->debug("{}: {} // *** math op replaced ***", line_number, input);
         } else {
             //
             // 上で処理しきれなかったものを何とかする
             //
             tmp = inst.try_replace_equ(input);
             if (nask_utility::is_contains_math_op(tmp)) {
-                logger->info("{}: {} // *** suspicious line ***", line_number, input);
+                log()->debug("{}: {} // *** suspicious line ***", line_number, input);
                 tmp = nask_utility::replace_hex2dec(tmp);
-                logger->info("{}: {} // *** replace hex to dec ***", line_number, tmp);
+                log()->debug("{}: {} // *** replace hex to dec ***", line_number, tmp);
                 input = nask_utility::expr_math_op(tmp);
-                logger->info("{}: {} // *** EQU & math op are replaced ***", line_number, input);
+                log()->debug("{}: {} // *** EQU & math op are replaced ***", line_number, input);
             }
         }
 
@@ -176,18 +173,18 @@ int process_each_assembly_line(char** argv,
         TParaToken token;
 
         if (nask_utility::starts_with(input, "\[")) {
-            logger->info("eval bracket");
+            log()->debug("eval bracket");
             try {
                 int r = inst.process_token_BRACKET(tokenizer, binout_container);
                 if (r != 0) {
                     // エラーがあった行を表示
-                    logger->info(input);
+                    log()->debug(input);
                     return r;
                 }
             } catch (TScriptException te) {
                 std::cerr << te << std::endl;
             }
-            logger->info("eval bracket");
+            log()->debug("eval bracket");
             continue;
         }
 
@@ -213,7 +210,7 @@ int process_each_assembly_line(char** argv,
                     //
                     meta::funcs_type::iterator it = funcs.find(token.AsString());
                     if (it != funcs.end()) {
-                        logger->info("eval {}", token.AsString());
+                        log()->debug("eval {}", token.AsString());
 
                         try {
                             const size_t before_process_size = binout_container.size();
@@ -222,18 +219,18 @@ int process_each_assembly_line(char** argv,
                             if (current_symbol != "") {
                                 const size_t s = inst.symbol_offsets["_"];
                                 inst.symbol_offsets["_"] = s + offs;
-                                logger->info("symbol: {}, offs size: {}", current_symbol, s + offs);
+                                log()->debug("symbol: {}, offs size: {}", current_symbol, s + offs);
                             }
 
                             if (r != 0) {
                                 // エラーがあった行を表示
-                                logger->info(input);
+                                log()->debug(input);
                                 return r;
                             }
                         } catch (TScriptException te) {
                             std::cerr << te << std::endl;
                         }
-                        logger->info("eval {} end", token.AsString());
+                        log()->debug("eval {} end", token.AsString());
                     } else {
                         // オペコードが見つかったけどよくわからなかった場合
                         std::cerr << "opennask ignored unknown instruction " << token.AsString() << std::endl;
@@ -248,7 +245,7 @@ int process_each_assembly_line(char** argv,
         nask_utility::process_section_table(inst, binout_container);
     }
 
-    logger->info("final size: bin[{}]", binout_container.size());
+    log()->debug("final size: bin[{}]", binout_container.size());
     return 0;
 }
 
@@ -257,14 +254,15 @@ int main(int argc, char** argv) {
     int opt, i, option_index;
 
     struct option long_options[] = {
-        { "version", no_argument, NULL, 'v' },
+        { "version", no_argument, NULL, 'V' },
+        { "verbose", no_argument, NULL, 'v' },
         { "help",    no_argument, NULL, 'h' },
         { 0, 0, 0, 0 }// 配列の最後はすべて0で埋める
     };
 
     while((opt = getopt_long(argc, argv, "mes:", long_options, &option_index)) != -1){
         switch(opt){
-        case 'v':
+        case 'V':
             printf("opennask " OPENNASK_VERSION "\n");
             printf("Copyright (C) 2021 Hiroyuki Nagata.\n"
                    "ライセンス GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
@@ -273,22 +271,26 @@ int main(int argc, char** argv) {
                    "\n"
                    "Thank you osask project !\n");
             return 0;
+        case 'v':
+            spdlog::set_level(spdlog::level::debug);
         case 'h':
-            printf("usage:  [--help | --version] source [object/binary] [list]\n");
+            printf("Usage:  [--help | --version] source [object/binary] [list]\n");
             return 0;
             // 解析できないオプションが見つかった場合は「?」を返す
             // オプション引数が不足している場合も「?」を返す
         case '?':
             printf("unknown or required argument option -%c\n", optopt);
-            printf("usage:  [--help | --version] source [object/binary] [list]\n");
+            printf("Usage:  [--help | --version] source [object/binary] [list]\n");
             return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
         }
     }
 
     if (argc - optind < 2 || argc - optind > 4) {
-        std::cerr << "usage:  [--help | --version] source [object/binary] [list]" << std::endl;
+        std::cerr << "Usage:  [--help | --version] source [object/binary] [list]" << std::endl;
         return 16;
     }
+
+    // argv[optind] がオプションでない最初のコマンドラインパラメータ
     const char* assembly_src = argv[optind];
     const char* assembly_dst = argv[optind + 1];
 
@@ -313,6 +315,9 @@ int main(int argc, char** argv) {
         std::cerr << "NASK : can't open " << assembly_dst << std::endl;
         return 17;
     }
+
+    // spdlog
+    auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
 
     // 入力の読み込みと解析，評価のループ
     process_each_assembly_line(argv, nas_file, binout_container);
