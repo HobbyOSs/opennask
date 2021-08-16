@@ -1,8 +1,6 @@
 #!/bin/bash
 
 rm -rf ./build
-mkdir build
-cd build
-cmake -G "Ninja" ..
-ninja
-ctest
+cmake -H. -Bbuild -G "Ninja"
+cmake --build build
+cd build && ctest && cd ..

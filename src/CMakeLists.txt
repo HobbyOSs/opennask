@@ -19,6 +19,25 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 ########### next target ###############
 
+set(calc++_SRCS
+  calc++.cc
+  driver.cc
+  driver.hh
+  parser.cc
+  parser.hh
+  location.hh)
+
+add_executable(calc++ ${calc++_SRCS})
+
+add_custom_command(
+  OUTPUT parser.cc
+  COMMAND bison ${root_SOURCE_DIR}/src/parser.yy)
+add_custom_target(
+  OUTPUT location.hh
+  COMMAND flex ${root_SOURCE_DIR}/src/scanner.ll)
+
+########### next target ###############
+
 set(opennask_SRCS
     main.cpp
     bracket_impl.hpp
