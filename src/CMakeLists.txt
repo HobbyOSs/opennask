@@ -19,8 +19,8 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 ########### next target ###############
 
-include(FindBISON)
-include(FindFLEX)
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 
 flex_target(lexer
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.ll ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc)
@@ -29,8 +29,9 @@ bison_target(parser
 add_flex_bison_dependency(lexer parser)
 
 set(calc++_SRCS
+  calc++.cc
   driver.cc
-  #driver.hh
+  driver.hh
   ${FLEX_lexer_OUTPUTS}
   ${BISON_parser_OUTPUTS})
 
