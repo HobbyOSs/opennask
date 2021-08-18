@@ -3,3 +3,4 @@ services:
   ci:
     build: .
     tty: true
+    command: bash -c "bash rebuild.sh && /bin/bash"

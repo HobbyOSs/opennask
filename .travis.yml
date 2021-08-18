@@ -36,4 +36,4 @@ install:
 before_script:
 
 script:
-  - bash ./rebuid.sh
+  - bash ./rebuild.sh
