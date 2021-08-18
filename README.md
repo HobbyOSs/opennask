@@ -46,6 +46,21 @@ $ ninja 03_day_harib00i_run
 You can use `make` command instead of `ninja`
 
 
+## Development
+
+Create docker container environment
+
+- Build container
+```sh
+$ docker-compose up -d --build
+```
+
+- Attach container
+```sh
+$ docker exec -it opennask_ci_1 bash
+```
+
+
 ## Screenshots
 
 | day3 harib00j | day4 harib01a |

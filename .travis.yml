@@ -1,6 +1,6 @@
 sudo: required
 
-dist: trusty
+dist: focal
 
 language: cpp
 
@@ -17,28 +17,23 @@ notifications:
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
       - cmake
       - cmake-data
       - ninja-build
       - cpputest
-      - gcc-4.9
-      - g++-4.9
       - libc6-dev-i386
       - linux-headers-generic
+      - bison
+      - flex
+      - libfl-dev
+      - libbison-dev
 
 before_install:
 
 install:
 
 before_script:
-  - mkdir build
-  - cd build
-  - CXX=g++-4.9 CC=gcc-4.9 cmake -G Ninja ..
 
 script:
-  - ninja
-  - ninja images
-  - ctest
+  - bash ./rebuid.sh
