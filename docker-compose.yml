@@ -1,0 +1,6 @@
+version: "3.9"
+services:
+  ci:
+    build: .
+    tty: true
+    command: bash -c "bash rebuild.sh && /bin/bash"
