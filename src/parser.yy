@@ -7,9 +7,9 @@
 %define parse.assert
 
 %code requires {
-  # include <string>
-  class driver;
-}
+# include <string>
+    class driver;
+ }
 
 // The parsing context.
 %param { driver& drv }
@@ -25,14 +25,29 @@
 
 %define api.token.prefix {TOK_}
 %token
-  END  0  "end of file"
-  ASSIGN  ":="
-  MINUS   "-"
-  PLUS    "+"
-  STAR    "*"
-  SLASH   "/"
-  LPAREN  "("
-  RPAREN  ")"
+END  0    "end of file"
+ASSIGN    "="
+PLUS      "+"
+MINUS     "-"
+BANG      "!"
+STAR      "*"
+SLASH     "/"
+COMMA     ","
+COLON     ":"
+SEMICOLON ";"
+SHARP     "#"
+LTE       "<="
+GTE       ">="
+LT        "<"
+GT        ">"
+LPAREN    "("
+RPAREN    ")"
+LBRACE    "{"
+RBRACE    "}"
+LBRACKET  "["
+RBRACKET  "]"
+STR_LIT   "\""
+DOLLAR    "$"
 ;
 
 %token <std::string> IDENTIFIER "identifier"
@@ -46,26 +61,24 @@
 unit: assignments exp  { drv.result = $2; };
 
 assignments:
-  %empty                 {}
+%empty                 {}
 | assignments assignment {};
 
 assignment:
-  "identifier" ":=" exp { drv.variables[$1] = $3; };
+"identifier" ":=" exp { drv.variables[$1] = $3; };
 
 %left "+" "-";
 %left "*" "/";
 exp:
-  "number"
+"number"
 | "identifier"  { $$ = drv.variables[$1]; }
 | exp "+" exp   { $$ = $1 + $3; }
 | exp "-" exp   { $$ = $1 - $3; }
 | exp "*" exp   { $$ = $1 * $3; }
 | exp "/" exp   { $$ = $1 / $3; }
-| "(" exp ")"   { $$ = $2; }
+| "("   exp ")"   { $$ = $2; }
 %%
 
-void
-yy::parser::error (const location_type& l, const std::string& m)
-{
-  std::cerr << l << ": " << m << '\n';
+void yy::parser::error (const location_type& l, const std::string& m) {
+    std::cerr << l << ": " << m << '\n';
 }
