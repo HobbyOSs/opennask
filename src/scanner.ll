@@ -1,144 +1,85 @@
+/** 定義、初期Cコード */
 %{ /* -*- C++ -*- */
-# include <cerrno>
-# include <climits>
-# include <cstdlib>
-# include <cstring> // strerror
-# include <string>
-# include "driver.hh"
-# include "parser.hh"
-%}
-
-%{
-#if defined __clang__
-# define CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
-#endif
-
-// Clang and ICC like to pretend they are GCC.
-#if defined __GNUC__ && !defined __clang__ && !defined __ICC
-# define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-#endif
-
-// Pacify warnings in yy_init_buffer (observed with Flex 2.6.4)
-// and GCC 6.4.0, 7.3.0 with -O3.
-#if defined GCC_VERSION && 600 <= GCC_VERSION
-# pragma GCC diagnostic ignored "-Wnull-dereference"
-#endif
-
-// This example uses Flex's C backend, yet compiles it as C++.
-// So expect warnings about C style casts and NULL.
-#if defined CLANG_VERSION && 500 <= CLANG_VERSION
-# pragma clang diagnostic ignored "-Wold-style-cast"
-# pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#elif defined GCC_VERSION && 407 <= GCC_VERSION
-# pragma GCC diagnostic ignored "-Wold-style-cast"
-# pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
-
-#define FLEX_VERSION (YY_FLEX_MAJOR_VERSION * 100 + YY_FLEX_MINOR_VERSION)
-
-// Old versions of Flex (2.5.35) generate an incomplete documentation comment.
-//
-//  In file included from src/scan-code-c.c:3:
-//  src/scan-code.c:2198:21: error: empty paragraph passed to '@param' command
-//        [-Werror,-Wdocumentation]
-//   * @param line_number
-//     ~~~~~~~~~~~~~~~~~^
-//  1 error generated.
-#if FLEX_VERSION < 206 && defined CLANG_VERSION
-# pragma clang diagnostic ignored "-Wdocumentation"
-#endif
-
-// Old versions of Flex (2.5.35) use 'register'.  Warnings introduced in
-// GCC 7 and Clang 6.
-#if FLEX_VERSION < 206
-# if defined CLANG_VERSION && 600 <= CLANG_VERSION
-#  pragma clang diagnostic ignored "-Wdeprecated-register"
-# elif defined GCC_VERSION && 700 <= GCC_VERSION
-#  pragma GCC diagnostic ignored "-Wregister"
-# endif
-#endif
-
-#if FLEX_VERSION < 206
-# if defined CLANG_VERSION
-#  pragma clang diagnostic ignored "-Wconversion"
-#  pragma clang diagnostic ignored "-Wdocumentation"
-#  pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#  pragma clang diagnostic ignored "-Wsign-conversion"
-# elif defined GCC_VERSION
-#  pragma GCC diagnostic ignored "-Wconversion"
-#  pragma GCC diagnostic ignored "-Wsign-conversion"
-# endif
-#endif
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+#include <cstring> // strerror
+#include <string>
+#include "driver.hh"
+#include "parser.hh"
 %}
 
 %option noyywrap nounput noinput batch debug
 
-%{
-  // A number symbol corresponding to the value in S.
-  yy::parser::symbol_type
-  make_NUMBER (const std::string &s, const yy::parser::location_type& loc);
-%}
-
-id    [a-zA-Z][a-zA-Z_0-9]*
-int   [0-9]+
-blank [ \t\r]
+opcode     AAA|AAD|AAS|AAM|ADC|ADD|AND|ALIGN|ALIGNB|ARPL|BOUND|BSF|BSR|BSWAP|BT|BTC|BTR|BTS|CALL|CBW|CDQ|CLC|CLD|CLI|CLTS|CMC|CMP|CMPSB|CMPSD|CMPSW|CMPXCHG|CPUID|CWD|CWDE|DAA|DAS|DB|DD|DEC|DIV|DQ|DT|DW|END|ENTER|EXTERN|F2XM1|FABS|FADD|FADDP|FBLD|FBSTP|FCHS|FCLEX|FCOM|FCOMP|FCOMPP|FCOS|FDECSTP|FDISI|FDIV|FDIVP|FDIVR|FDIVRP|FENI|FFREE|FIADD|FICOM|FICOMP|FIDIV|FIDIVR|FILD|FIMUL|FINCSTP|FINIT|FIST|FISTP|FISUB|FISUBR|FLD|FLD1|FLDCW|FLDENV|FLDL2E|FLDL2T|FLDLG2|FLDLN2|FLDPI|FLDZ|FMUL|FMULP|FNCLEX|FNDISI|FNENI|FNINIT|FNOP|FNSAVE|FNSTCW|FNSTENV|FNSTSW|FPATAN|FPTAN|FPREM|FPREM1|FRNDINT|FRSTOR|FSAVE|FSCALE|FSETPM|FSIN|FSINCOS|FSQRT|FST|FSTCW|FSTENV|FSTP|FSTSW|FSUB|FSUBP|FSUBR|FSUBRP|FTST|FUCOM|FUCOMP|FUCOMPP|FXAM|FXCH|FXTRACT|FYL2X|FYL2XP1|HLT|IDIV|IMUL|IN|INC|INCO|INSB|INSD|INSW|INT|INT3|INTO|INVD|INVLPG|IRET|IRETD|IRETW|JA|JAE|JB|JBE|JC|JCXZ|JE|JECXZ|JG|JGE|JL|JLE|JMP|JNA|JNAE|JNB|JNBE|JNC|JNE|JNG|JNGE|JNL|JNLE|JNO|JNP|JNS|JNZ|JO|JP|JPE|JPO|JS|JZ|LAHF|LAR|LDS|LEA|LEAVE|LES|LFS|LGDT|LGS|LIDT|LLDT|LMSW|LOCK|LODSB|LODSD|LODSW|LOOP|LOOPE|LOOPNE|LOOPNZ|LOOPZ|LSL|LSS|LTR|MOV|MOVSB|MOVSD|MOVSW|MOVSX|MOVZX|MUL|NEG|NOP|NOT|OR|ORG|OUT|OUTSB|OUTSD|OUTSW|POP|POPA|POPAD|POPAW|POPF|POPFD|POPFW|PUSH|PUSHA|PUSHD|PUSHAD|PUSHAW|PUSHF|PUSHFD|PUSHFW|RCL|RCR|RDMSR|RDPMC|REP|REPE|REPNE|REPNZ|REPZ|RESB|RESD|RESQ|REST|RESW|RET|RETF|RETN|ROL|ROR|RSM|SAHF|SAL|SAR|SBB|SCASB|SCASD|SCASW|SETA|SETAE|SETB|SETBE|SETC|SETE|SETG|SETGE|SETL|SETLE|SETNA|SETNAE|SETNB|SETNBE|SETNC|SETNE|SETNG|SETNGE|SETNL|SETNLE|SETNO|SETNP|SETNS|SETNZ|SETO|SETP|SETPE|SETPO|SETS|SETZ|SGDT|SHL|SHLD|SHR|SHRD|SIDT|SLDT|SMSW|STC|STD|STI|STOSB|STOSD|STOSW|STR|SUB|TEST|TIMES|UD2|VERR|VERW|WAIT|WBINVD|WRMSR|XADD|XCHG|XLATB|XOR
+id         [a-zA-Z][a-zA-Z_0-9$]*
+hex        0[xX][0-9a-fA-F]+-{0,1}${0,1}
+int        [0-9]+
+blank      [ \t]
+cmp        [==|!=|>|<|>=|<=]
+str        [\"(([^\"]|\\\")*[^\\])?\"]
+config     BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE
 
 %{
   // Code run each time a pattern is matched.
   # define YY_USER_ACTION  loc.columns (yyleng);
 %}
+
+/** 定義、初期Cコード */
 %%
+ /* ルール */
+
 %{
   // A handy shortcut to the location held by the driver.
   yy::location& loc = drv.location;
   // Code run each time yylex is called.
   loc.step ();
 %}
-{blank}+   loc.step ();
-\n+        loc.lines (yyleng); loc.step ();
 
-"-"        return yy::parser::make_MINUS  (loc);
-"+"        return yy::parser::make_PLUS   (loc);
-"*"        return yy::parser::make_STAR   (loc);
-"/"        return yy::parser::make_SLASH  (loc);
-"("        return yy::parser::make_LPAREN (loc);
-")"        return yy::parser::make_RPAREN (loc);
-":="       return yy::parser::make_ASSIGN (loc);
-
-{int}      return make_NUMBER (yytext, loc);
-{id}       return yy::parser::make_IDENTIFIER (yytext, loc);
-.          {
-             throw yy::parser::syntax_error
-               (loc, "invalid character: " + std::string(yytext));
+{blank}*                  loc.step();
+(\n|\r\n)                 { loc.lines(yyleng); loc.step(); }
+";"[^\n]*?\n              { loc.lines(yyleng); loc.step(); } /* ignore one line comment */
+"#"[^\n]*?\n              { loc.lines(yyleng); loc.step(); } /* ignore one line comment */
+\"(([^\"]|\\\")*[^\\])?\" return yy::parser::make_CONST_STRING(yytext, loc);
+{config}                  return yy::parser::make_CONFIG(yytext, loc);
+{opcode}                  return yy::parser::make_OPCODE(yytext, loc);
+{id}                      return yy::parser::make_IDENT(yytext, loc);
+{hex}                     return yy::parser::make_NUMBER(yytext, loc);
+{int}                     return yy::parser::make_NUMBER(yytext, loc);
+{cmp}                     return yy::parser::make_CMP(yytext, loc);
+"+"                       return yy::parser::make_PLUS(loc);
+"-"                       return yy::parser::make_MINUS(loc);
+"!"                       return yy::parser::make_BANG(loc);
+"*"                       return yy::parser::make_STAR(loc);
+"/"                       return yy::parser::make_SLASH(loc);
+","                       return yy::parser::make_COMMA(loc);
+":"                       return yy::parser::make_COLON(loc);
+"("                       return yy::parser::make_LPAREN(loc);
+")"                       return yy::parser::make_RPAREN(loc);
+"{"                       return yy::parser::make_LBRACE(loc);
+"}"                       return yy::parser::make_RBRACE(loc);
+"["                       return yy::parser::make_LBRACKET(loc);
+"]"                       return yy::parser::make_RBRACKET(loc);
+"$"                       return yy::parser::make_DOLLAR(loc);
+. {
+    throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
 }
 <<EOF>>    return yy::parser::make_END (loc);
+
+ /* ルール */
 %%
 
-yy::parser::symbol_type
-make_NUMBER (const std::string &s, const yy::parser::location_type& loc)
-{
-  errno = 0;
-  long n = strtol (s.c_str(), NULL, 10);
-  if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
-    throw yy::parser::syntax_error (loc, "integer is out of range: " + s);
-  return yy::parser::make_NUMBER ((int) n, loc);
-}
 
-void
-driver::scan_begin ()
-{
-  yy_flex_debug = trace_scanning;
-  if (file.empty () || file == "-")
-    yyin = stdin;
-  else if (!(yyin = fopen (file.c_str (), "r")))
-    {
-      std::cerr << "cannot open " << file << ": " << strerror(errno) << '\n';
-      exit (EXIT_FAILURE);
+void driver::scan_begin() {
+    yy_flex_debug = trace_scanning;
+    if (file.empty () || file == "-") {
+        yyin = stdin;
+    } else if (!(yyin = fopen (file.c_str (), "r"))) {
+        std::cerr << "cannot open " << file << ": " << strerror(errno) << '\n';
+        exit (EXIT_FAILURE);
     }
 }
 
-void
-driver::scan_end ()
-{
-  fclose (yyin);
+void driver::scan_end() {
+    fclose (yyin);
 }

@@ -28,20 +28,25 @@ bison_target(parser
   ${CMAKE_CURRENT_SOURCE_DIR}/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
 add_flex_bison_dependency(lexer parser)
 
-set(calc++_SRCS
-  calc++.cc
+set(nask_parse_SRCS
+  nask_parse.cpp
   driver.cc
   driver.hh
   ${FLEX_lexer_OUTPUTS}
   ${BISON_parser_OUTPUTS})
 
-add_executable(calc++ ${calc++_SRCS})
-target_include_directories(calc++
+if (WIN32)
+  LIST(APPEND nask_parse_SRCS getopt.h getopt.c)
+  add_definitions(-Dstrcasecmp=_stricmp)
+endif()
+
+add_executable(nask_parse ${nask_parse_SRCS})
+target_include_directories(nask_parse
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${FLEX_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET calc++
+set_property(TARGET nask_parse
   PROPERTY CXX_STANDARD 14)
 
 ########### next target ###############
