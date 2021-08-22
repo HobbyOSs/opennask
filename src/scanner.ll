@@ -1,5 +1,4 @@
 /** 定義、初期Cコード */
-
 %{ /* -*- C++ -*- */
 # include <cerrno>
 # include <climits>
@@ -12,12 +11,14 @@
 
 %option noyywrap nounput noinput batch debug
 
-id        [a-zA-Z][a-zA-Z_0-9]*
-int       [0-9]+
-blank     [ \t\r]
-cmp       [==|!=|>|<|>=|<=]
-str       [\"(([^\"]|\\\")*[^\\])?\"]
-config    [BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE]
+opcode     DB|DW|DD|RESB
+id         [a-zA-Z][a-zA-Z_0-9$]*
+hex        0[xX][0-9a-fA-F]+-{0,1}${0,1}
+int        [0-9]+
+blank      [ \t]
+cmp        [==|!=|>|<|>=|<=]
+str        [\"(([^\"]|\\\")*[^\\])?\"]
+config     [BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE]
 
 %{
   // Code run each time a pattern is matched.
@@ -35,11 +36,15 @@ config    [BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE]
   loc.step ();
 %}
 
-{blank}+                  loc.step ();
-[\n|\r\n]+                { loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc); }
+{blank}*                  loc.step();
+(\n|\r\n)                 { loc.lines(yyleng); loc.step(); }
+";"[^\n]*?\n              { loc.lines(yyleng); loc.step(); } /* ignore one line comment */
+"#"[^\n]*?\n              { loc.lines(yyleng); loc.step(); } /* ignore one line comment */
 \"(([^\"]|\\\")*[^\\])?\" return yy::parser::make_CONST_STRING(yytext, loc);
 {config}                  return yy::parser::make_CONFIG(yytext, loc);
+{opcode}                  return yy::parser::make_OPCODE(yytext, loc);
 {id}                      return yy::parser::make_IDENT(yytext, loc);
+{hex}                     return yy::parser::make_NUMBER(yytext, loc);
 {int}                     return yy::parser::make_NUMBER(yytext, loc);
 {cmp}                     return yy::parser::make_CMP(yytext, loc);
 "+"                       return yy::parser::make_PLUS(loc);
@@ -49,8 +54,6 @@ config    [BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE]
 "/"                       return yy::parser::make_SLASH(loc);
 ","                       return yy::parser::make_COMMA(loc);
 ":"                       return yy::parser::make_COLON(loc);
-";"[^\n]*\n               /* ignore one line comment */
-"#"[^\n]*\n               /* ignore one line comment */
 "("                       return yy::parser::make_LPAREN(loc);
 ")"                       return yy::parser::make_RPAREN(loc);
 "{"                       return yy::parser::make_LBRACE(loc);

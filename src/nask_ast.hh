@@ -1,6 +1,7 @@
 #ifndef NASK_AST_HH_
 #define NASK_AST_HH_
 
+#include <iostream>
 #include <string>
 #include <list>
 
@@ -24,6 +25,13 @@ namespace ast {
     class CalcNode : public ExpNode {
     public:
         CalcNode(std::string left, std::string op, std::string right) {};
+        void print(){};
+        void evaluate(){};
+    };
+
+    class ImmediateNode : public ExpNode {
+    public:
+        ImmediateNode(std::string imm) {};
         void print(){};
         void evaluate(){};
     };
@@ -69,13 +77,26 @@ namespace ast {
         void evaluate(){};
     };
 
+    class MnemonicStmt : public Statement {
+    protected:
+        std::string opcode;
+        std::list<ExpNode> args;
+    public:
+        MnemonicStmt(){};
+        MnemonicStmt(std::string opcode) {};
+        MnemonicStmt(std::string opcode, ExpNode arg) {};
+        MnemonicStmt(std::string opcode, std::list<ExpNode> args) {};
+        void print(){};
+        void evaluate(){};
+    };
 
     class Program {
     protected:
         std::list<Statement> stmts;
     public:
         Program(){};
-        Program(std::list<Statement> stmtlist){};
+        Program(std::list<Statement> stmtlist){
+        };
         void evaluate();
     };
 }
