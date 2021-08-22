@@ -2,57 +2,66 @@
 #define NASK_AST_HH_
 
 #include <iostream>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <list>
-
-// FIXME: どこまで抽象クラスにしていいかわからないので作りながら修正
 
 namespace ast {
 
     class ExpNode {
     public:
-        virtual void print(){};
+        virtual std::string string(){ return "";};
         virtual void evaluate(){};
-    };
-
-    class CmpNode : public ExpNode {
-    public:
-        CmpNode(std::string left, std::string cmp, std::string right) {};
-        void print(){};
-        void evaluate(){};
-    };
-
-    class CalcNode : public ExpNode {
-    public:
-        CalcNode(std::string left, std::string op, std::string right) {};
-        void print(){};
-        void evaluate(){};
-    };
-
-    class ImmediateNode : public ExpNode {
-    public:
-        ImmediateNode(std::string imm) {};
-        void print(){};
-        void evaluate(){};
     };
 
     class Statement {
     public:
-        void print(){}
-        void evaluate(){};
+        virtual std::string string(){ return "";};
+        virtual void evaluate(){};
     };
+
+    class CmpNode : public ExpNode {
+    protected:
+        const std::string m_left;
+        const std::string m_cmp;
+        const std::string m_right;
+    public:
+        CmpNode(std::string left, std::string cmp, std::string right);
+        std::string string();
+        void evaluate();
+    };
+
+    class CalcNode : public ExpNode {
+    protected:
+        std::string m_left;
+        std::string m_op;
+        std::string m_right;
+    public:
+        CalcNode(std::string left, std::string op, std::string right);
+        std::string string();
+        void evaluate();
+    };
+
+    class ImmediateNode : public ExpNode {
+    protected:
+        std::string m_imm;
+    public:
+        ImmediateNode(std::string imm);
+        std::string string();
+        void evaluate();
+    };
+
 
     class DeclareStmt : public Statement {
     protected:
-        std::string id;
-        ExpNode *exp;
+        const std::string m_name;
+        const ExpNode *m_exp;
     public:
-        DeclareStmt() {
-        };
-        DeclareStmt(std::string name, ExpNode exp) {
-        };
-        void print(){};
-        void evaluate(){};
+        DeclareStmt();
+        DeclareStmt(std::string name, ExpNode exp);
+        std::string string();
+        void evaluate();
     };
 
     class ConfigStmt : public Statement {
@@ -60,10 +69,10 @@ namespace ast {
         std::string key;
         std::string value;
     public:
-        ConfigStmt(){};
-        ConfigStmt(std::string key, std::string value) {};
-        void print(){};
-        void evaluate(){};
+        ConfigStmt();
+        ConfigStmt(std::string key, std::string value);
+        std::string string();
+        void evaluate();
     };
 
     class LabelStmt : public Statement {
@@ -71,10 +80,10 @@ namespace ast {
         std::string key;
         std::string value;
     public:
-        LabelStmt(){};
-        LabelStmt(std::string label) {};
-        void print(){};
-        void evaluate(){};
+        LabelStmt();
+        LabelStmt(std::string label);
+        std::string string();
+        void evaluate();
     };
 
     class MnemonicStmt : public Statement {
@@ -82,21 +91,20 @@ namespace ast {
         std::string opcode;
         std::list<ExpNode> args;
     public:
-        MnemonicStmt(){};
-        MnemonicStmt(std::string opcode) {};
-        MnemonicStmt(std::string opcode, ExpNode arg) {};
-        MnemonicStmt(std::string opcode, std::list<ExpNode> args) {};
-        void print(){};
-        void evaluate(){};
+        MnemonicStmt();
+        MnemonicStmt(std::string opcode);
+        MnemonicStmt(std::string opcode, ExpNode arg);
+        MnemonicStmt(std::string opcode, std::list<ExpNode> args);
+        std::string string();
+        void evaluate();
     };
 
     class Program {
     protected:
         std::list<Statement> stmts;
     public:
-        Program(){};
-        Program(std::list<Statement> stmtlist){
-        };
+        Program();
+        Program(std::list<Statement> stmtlist);
         void evaluate();
     };
 }

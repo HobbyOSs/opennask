@@ -52,8 +52,6 @@ STR_LIT   "\""
 DOLLAR    "$"
 ;
 
-//%printer { yyo << $$; } <*>;
-
 /* 終端記号 */
 %token NEWLINE
 %token <std::string> OPCODE       "opcode"

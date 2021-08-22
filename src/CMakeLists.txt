@@ -30,6 +30,8 @@ add_flex_bison_dependency(lexer parser)
 
 set(nask_parse_SRCS
   nask_parse.cpp
+  nask_ast.cpp
+  nask_ast.hh
   driver.cc
   driver.hh
   ${FLEX_lexer_OUTPUTS}
@@ -41,6 +43,7 @@ if (WIN32)
 endif()
 
 add_executable(nask_parse ${nask_parse_SRCS})
+target_link_libraries(nask_parse Threads::Threads)
 target_include_directories(nask_parse
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}
