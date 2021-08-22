@@ -12,9 +12,12 @@
 
 %option noyywrap nounput noinput batch debug
 
-id    [a-zA-Z][a-zA-Z_0-9]*
-int   [0-9]+
-blank [ \t\r]
+id        [a-zA-Z][a-zA-Z_0-9]*
+int       [0-9]+
+blank     [ \t\r]
+cmp       [==|!=|>|<|>=|<=]
+str       [\"(([^\"]|\\\")*[^\\])?\"]
+config    [BITS|INSTRSET|OPTIMIZE|FORMAT|PADDING|PADSET|SECTION|ABSOLUTE|FILE]
 
 %{
   // Code run each time a pattern is matched.
@@ -32,41 +35,29 @@ blank [ \t\r]
   loc.step ();
 %}
 
-{blank}+              loc.step ();
-\n+                   loc.lines (yyleng); loc.step ();
-"EQU"                 { return yylval.str = yytext; return ASSIGN; }
-"BITS"                |
-"INSTRSET"            |
-"OPTIMIZE"            |
-"FORMAT"              |
-"PADDING"             |
-"PADSET"              |
-"OPTION"              |
-"SECTION"             |
-"ABSOLUTE"            |
-"FILE"                { return yylval.str = yytext; return CONFIG; }
-[a-zA-Z][a-zA-Z0-9_]* { yylval.sym = lookup(yytext); return IDENT; }
-\"(\\\\.|[^\"])*\"    { yylval.str = yytext; return STRING; }
-"+"                   return yy::parser::make_PLUS(loc);
-"-"                   return yy::parser::make_MINUS(loc);
-"!"                   return yy::parser::make_BANG(loc);
-"*"                   return yy::parser::make_STAR(loc);
-"/"                   return yy::parser::make_SLASH(loc);
-","                   return yy::parser::make_COMMA(loc);
-":"                   return yy::parser::make_COLON(loc);
-";".*                 /* Ignore comments */ ;
-"#".*                 /* Ignore comments */ ;
-"<="                  return yy::parser::make_LTE(loc);
-">="                  return yy::parser::make_GTE(loc);
-"<"                   return yy::parser::make_LT(loc);
-">"                   return yy::parser::make_GT(loc);
-"("                   return yy::parser::make_LPAREN(loc);
-")"                   return yy::parser::make_RPAREN(loc);
-"{"                   return yy::parser::make_LBRACE(loc);
-"}"                   return yy::parser::make_RBRACE(loc);
-"["                   return yy::parser::make_LBRACKET(loc);
-"]"                   return yy::parser::make_RBRACKET(loc);
-"$"                   return yy::parser::make_DOLLAR(loc);
+{blank}+                  loc.step ();
+[\n|\r\n]+                { loc.lines(yyleng); loc.step(); return yy::parser::make_NEWLINE(loc); }
+\"(([^\"]|\\\")*[^\\])?\" return yy::parser::make_CONST_STRING(yytext, loc);
+{config}                  return yy::parser::make_CONFIG(yytext, loc);
+{id}                      return yy::parser::make_IDENT(yytext, loc);
+{int}                     return yy::parser::make_NUMBER(yytext, loc);
+{cmp}                     return yy::parser::make_CMP(yytext, loc);
+"+"                       return yy::parser::make_PLUS(loc);
+"-"                       return yy::parser::make_MINUS(loc);
+"!"                       return yy::parser::make_BANG(loc);
+"*"                       return yy::parser::make_STAR(loc);
+"/"                       return yy::parser::make_SLASH(loc);
+","                       return yy::parser::make_COMMA(loc);
+":"                       return yy::parser::make_COLON(loc);
+";"[^\n]*\n               /* ignore one line comment */
+"#"[^\n]*\n               /* ignore one line comment */
+"("                       return yy::parser::make_LPAREN(loc);
+")"                       return yy::parser::make_RPAREN(loc);
+"{"                       return yy::parser::make_LBRACE(loc);
+"}"                       return yy::parser::make_RBRACE(loc);
+"["                       return yy::parser::make_LBRACKET(loc);
+"]"                       return yy::parser::make_RBRACKET(loc);
+"$"                       return yy::parser::make_DOLLAR(loc);
 . {
     throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));
 }

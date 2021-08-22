@@ -3,6 +3,7 @@
 %require "3.5.1"
 %defines
 
+// unionを使わない設定
 %define api.token.constructor
 %define api.value.type variant
 %define parse.assert
@@ -53,68 +54,46 @@ DOLLAR    "$"
 
 //%printer { yyo << $$; } <*>;
 
-%union {
-    std::string* str;
-    struct ast *a;
-    struct symbol *sym;
-}
-
 /* 終端記号 */
-%token <str> STRING
-%token <str> ASSIGN
-%token <str> CONFIG
-%token <sym> IDENT
+%token NEWLINE
+%token <std::string> IDENT  "ident"
+%token <std::string> NUMBER "number"
+%token <std::string> CMP    "cmp"
+%token <std::string> CONST_STRING "const_string"
+%token <std::string> ASSIGN
+%token <std::string> CONFIG
 /* 非終端記号 */
-%type <a> exp
-%type <a> stmt stmts
-%type <a> program
+%type <ast::ExpNode> exp
+%type <std::list<ast::Statement>> stmts
+%type <ast::Statement> stmt
+%type <ast::Program> program
 
 %%
 /* 文法規則部 */
 program
-: stmts { $$ = newprogram($1); root = $$; }
+: stmts { $$ = ast::Program($1); }
 ;
 stmts
-: stmt
-| stmt stmts { $$ = newast(NODE_STMTS, NULL,  $1, $2); }
+: stmts stmt NEWLINE { $$ = $1; $1.push_back($2); }
+| { $$ = std::list<ast::Statement>(); }
 ;
 stmt
-: declare
-| config
-| label
-| mnemonic
+: IDENT COLON { $$ = ast::LabelStmt($1); }
+| IDENT ASSIGN exp { $$ = ast::DeclareStmt($<std::string>1, $3); }
+| LBRACKET CONFIG CONST_STRING RBRACKET { $$ = ast::ConfigStmt($<std::string>2, $<std::string>3); }
 ;
-//declare
-//: IDENT ASSIGN exp { $$ = newassign($1, $3); }
-//;
-//config
-//: LBRACKET CONFIG STRING RBRACKET { $$ = newconfig($2, $3); }
-//;
-//label
-//: IDENT COLON { $$ = newlabel($1); }
-//;
-//mnemonic
-//:
-//;
-// unit: assignments exp  { drv.result = $2; };
-//
-// assignments:
-// %empty                 {}
-// | assignments assignment {};
-//
-// assignment:
-// "identifier" ":=" exp { drv.variables[$1] = $3; };
-//
-// %left "+" "-";
-// %left "*" "/";
-exp:
-"number"
-// | "identifier"  { $$ = drv.variables[$1]; }
-// | exp "+" exp   { $$ = $1 + $3; }
-// | exp "-" exp   { $$ = $1 - $3; }
-// | exp "*" exp   { $$ = $1 * $3; }
-// | exp "/" exp   { $$ = $1 / $3; }
-// | "("   exp ")"   { $$ = $2; }
+exp: factor CMP factor { $$ = ast::CmpNode( $<std::string>1, $2,  $<std::string>3); }
+| factor '+' factor { $$ = ast::CalcNode($<std::string>1, "+", $<std::string>3); }
+| factor '-' factor { $$ = ast::CalcNode($<std::string>1, "-", $<std::string>3); }
+| factor '*' factor { $$ = ast::CalcNode($<std::string>1, "*", $<std::string>3); }
+| factor '/' factor { $$ = ast::CalcNode($<std::string>1, "/", $<std::string>3); }
+| factor '%' factor { $$ = ast::CalcNode($<std::string>1, "%", $<std::string>3); }
+;
+factor:
+| "number"
+| "ident"
+| "const_string"
+;
 %%
 
 void yy::parser::error (const location_type& l, const std::string& m) {

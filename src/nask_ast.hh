@@ -1,10 +1,83 @@
+#ifndef NASK_AST_HH_
+#define NASK_AST_HH_
+
+#include <string>
+#include <list>
+
 // FIXME: どこまで抽象クラスにしていいかわからないので作りながら修正
 
-class program {
-};
+namespace ast {
 
-class statement {
-};
+    class ExpNode {
+    public:
+        virtual void print(){};
+        virtual void evaluate(){};
+    };
 
-class exp_node {
-};
+    class CmpNode : public ExpNode {
+    public:
+        CmpNode(std::string left, std::string cmp, std::string right) {};
+        void print(){};
+        void evaluate(){};
+    };
+
+    class CalcNode : public ExpNode {
+    public:
+        CalcNode(std::string left, std::string op, std::string right) {};
+        void print(){};
+        void evaluate(){};
+    };
+
+    class Statement {
+    public:
+        void print(){}
+        void evaluate(){};
+    };
+
+    class DeclareStmt : public Statement {
+    protected:
+        std::string id;
+        ExpNode *exp;
+    public:
+        DeclareStmt() {
+        };
+        DeclareStmt(std::string name, ExpNode exp) {
+        };
+        void print(){};
+        void evaluate(){};
+    };
+
+    class ConfigStmt : public Statement {
+    protected:
+        std::string key;
+        std::string value;
+    public:
+        ConfigStmt(){};
+        ConfigStmt(std::string key, std::string value) {};
+        void print(){};
+        void evaluate(){};
+    };
+
+    class LabelStmt : public Statement {
+    protected:
+        std::string key;
+        std::string value;
+    public:
+        LabelStmt(){};
+        LabelStmt(std::string label) {};
+        void print(){};
+        void evaluate(){};
+    };
+
+
+    class Program {
+    protected:
+        std::list<Statement> stmts;
+    public:
+        Program(){};
+        Program(std::list<Statement> stmtlist){};
+        void evaluate();
+    };
+}
+
+#endif /* NASK_AST_HH_ */
