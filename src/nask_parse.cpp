@@ -1,13 +1,23 @@
 #include <iostream>
 #include <getopt.h>
-#include "driver.hh"
 #include "spdlog/spdlog.h"
+#include "parser.hh"
+#include "printer.hh"
+#include "absyn.hh"
+#include "parsererror.hh"
+
+void usage() {
+    printf("Usage:  [--help | --parse | --scan] source \n");
+}
 
 int main (int argc, char *argv[]) {
     int res = 0;
-    driver drv;
 
     int opt, i, option_index;
+    bool trace_parsing = false;
+    bool trace_scanning = false;
+    FILE *input;
+    char *filename = NULL;
 
     struct option long_options[] = {
         { "parse",   no_argument, NULL, 'p' },
@@ -33,25 +43,54 @@ int main (int argc, char *argv[]) {
             spdlog::set_level(spdlog::level::debug);
             break;
         case 'p':
-            drv.trace_parsing = true;
+            trace_parsing = true;
             break;
         case 's':
-            drv.trace_scanning = true;
+            trace_scanning = true;
             break;
         case 'h':
-            printf("Usage:  [--help | --parse | --scan] source \n");
+            usage();
             return 0;
             // 解析できないオプションが見つかった場合は「?」を返す
             // オプション引数が不足している場合も「?」を返す
         case '?':
             printf("unknown or required argument option -%c\n", optopt);
-            printf("Usage:  [--help | --parse | --scan | --verbose] source \n");
-            return 1;   // exit(EXIT_FAILURE);と同等 http://okwave.jp/qa/q794746.html
+            usage();
+            return 1;
         }
     }
 
-    if (!drv.parse(argv[optind]))
-        std::cout << drv.result << '\n';
-    else
-        return 1;
+    filename = argv[optind];
+    if (filename) {
+        input = fopen(filename, "r");
+        if (!input) {
+            usage();
+            return 1;
+        }
+    } else input = stdin;
+
+    /* The default entry point is used. For other options see Parser.H */
+    Program *parse_tree = NULL;
+    try {
+        parse_tree = pProgram(input);
+    } catch( parse_error &e) {
+        std::cerr << "Parse error on line " << e.getLine() << "\n";
+    }
+    if (parse_tree) {
+        printf("\nParse Successful!\n");
+
+        if (trace_scanning) {
+            printf("\n[Abstract Syntax]\n");
+            ShowAbsyn *s = new ShowAbsyn();
+            printf("%s\n\n", s->show(parse_tree));
+        }
+        if (trace_parsing) {
+            printf("[Linearized Tree]\n");
+            PrintAbsyn *p = new PrintAbsyn();
+            printf("%s\n\n", p->print(parse_tree));
+        }
+        delete(parse_tree);
+        return 0;
+    }
+    return 1;
 }

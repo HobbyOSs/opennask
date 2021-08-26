@@ -123,7 +123,7 @@ extern yyscan_t nask__initialize_lexer(FILE * inp);
 #  endif
 # endif
 
-#include "Bison.H"
+#include "bison.hh"
 /* Symbol kind.  */
 enum yysymbol_kind_t
 {
