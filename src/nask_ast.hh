@@ -9,6 +9,38 @@
 
 namespace ast {
 
+    // 先行class宣言
+    class Program;
+    class MnemonicStmt;
+    class LabelStmt;
+    class ConfigStmt;
+    class DeclareStmt;
+    class ImmediateNode;
+    class CalcNode;
+    class CmpNode;
+
+
+    class Visitor {
+        // 文や式の要素をを訪れる訪問者を表す抽象クラス
+    public:
+        virtual ~Visitor(){}
+        virtual void visit(Program *p) = 0;
+        virtual void visit(MnemonicStmt *p) = 0;
+        virtual void visit(LabelStmt *p) = 0;
+        virtual void visit(ConfigStmt *p) = 0;
+        virtual void visit(DeclareStmt *p) = 0;
+        virtual void visit(ImmediateNode *p) = 0;
+        virtual void visit(CalcNode *p) = 0;
+        virtual void visit(CmpNode *p) = 0;
+    };
+
+    class Visitable {
+        // Visitorクラスのインスタンスを受け入れるデータ構造を表すインターフェース
+    public:
+        virtual ~Visitable() {}
+        virtual void accept(Visitor *v) = 0;
+    };
+
     class ExpNode {
     public:
         virtual std::string string(){ return "";};
@@ -21,7 +53,7 @@ namespace ast {
         virtual void evaluate(){};
     };
 
-    class CmpNode : public ExpNode {
+    class CmpNode : public ExpNode, public Visitable {
     protected:
         const std::string m_left;
         const std::string m_cmp;
@@ -30,9 +62,10 @@ namespace ast {
         CmpNode(std::string left, std::string cmp, std::string right);
         std::string string();
         void evaluate();
+        virtual CmpNode *clone() const = 0;
     };
 
-    class CalcNode : public ExpNode {
+    class CalcNode : public ExpNode, public Visitable {
     protected:
         std::string m_left;
         std::string m_op;
@@ -41,19 +74,21 @@ namespace ast {
         CalcNode(std::string left, std::string op, std::string right);
         std::string string();
         void evaluate();
+        virtual CalcNode *clone() const = 0;
     };
 
-    class ImmediateNode : public ExpNode {
+    class ImmediateNode : public ExpNode, public Visitable {
     protected:
         std::string m_imm;
     public:
         ImmediateNode(std::string imm);
         std::string string();
         void evaluate();
+        virtual ImmediateNode *clone() const = 0;
     };
 
 
-    class DeclareStmt : public Statement {
+    class DeclareStmt : public Statement, public Visitable {
     protected:
         const std::string m_name;
         const ExpNode *m_exp;
@@ -62,9 +97,10 @@ namespace ast {
         DeclareStmt(std::string name, ExpNode exp);
         std::string string();
         void evaluate();
+        virtual DeclareStmt *clone() const = 0;
     };
 
-    class ConfigStmt : public Statement {
+    class ConfigStmt : public Statement, public Visitable {
     protected:
         std::string key;
         std::string value;
@@ -73,9 +109,10 @@ namespace ast {
         ConfigStmt(std::string key, std::string value);
         std::string string();
         void evaluate();
+        virtual ConfigStmt *clone() const = 0;
     };
 
-    class LabelStmt : public Statement {
+    class LabelStmt : public Statement, public Visitable {
     protected:
         std::string key;
         std::string value;
@@ -84,9 +121,10 @@ namespace ast {
         LabelStmt(std::string label);
         std::string string();
         void evaluate();
+        virtual LabelStmt *clone() const = 0;
     };
 
-    class MnemonicStmt : public Statement {
+    class MnemonicStmt : public Statement, public Visitable {
     protected:
         std::string opcode;
         std::list<ExpNode> args;
@@ -97,16 +135,20 @@ namespace ast {
         MnemonicStmt(std::string opcode, std::list<ExpNode> args);
         std::string string();
         void evaluate();
+        virtual MnemonicStmt *clone() const = 0;
     };
 
-    class Program {
+    class Program: public Visitable {
     protected:
         std::list<Statement> stmts;
     public:
         Program();
         Program(std::list<Statement> stmtlist);
         void evaluate();
+        Program *clone() const = 0;
     };
+
+
 }
 
 #endif /* NASK_AST_HH_ */
