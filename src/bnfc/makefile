@@ -7,45 +7,45 @@ FLEX_OPTS=-Pnask_
 BISON=bison
 BISON_OPTS=-t -pnask_
 
-OBJS=Absyn.o Buffer.o Lexer.o Parser.o Printer.o
+OBJS=absyn.o buffer.o lexer.o parser.o printer.o
 
 .PHONY : clean distclean
 
-all : TestNask
+all : testnask
 
 clean :
-	rm -f *.o TestNask Nask.aux Nask.log Nask.pdf Nask.dvi Nask.ps Nask
+	rm -f *.o testnask nask.aux nask.log nask.pdf nask.dvi nask.ps nask
 
 distclean : clean
-	rm -f Absyn.C Absyn.H Buffer.C Buffer.H Test.C Bison.H Parser.C Parser.H ParserError.H Nask.y Lexer.C Nask.l Skeleton.C Skeleton.H Printer.C Printer.H Makefile Nask.tex
+	rm -f absyn.cc absyn.hh buffer.cc buffer.hh test.cc bison.hh parser.cc parser.hh parserError.hh nask.y lexer.cc nask.l skeleton.cc skeleton.hh printer.cc printer.hh Makefile nask.tex
 
-TestNask : ${OBJS} Test.o
-	@echo "Linking TestNask..."
-	${CC} ${OBJS} Test.o -o TestNask
+testnask : ${OBJS} test.o
+	@echo "Linking testnask..."
+	${CC} ${OBJS} test.o -o testnask
 
-Absyn.o : Absyn.C Absyn.H
-	${CC} ${CCFLAGS} -c Absyn.C
+absyn.o : absyn.cc absyn.hh
+	${CC} ${CCFLAGS} -c absyn.cc
 
-Buffer.o : Buffer.C Buffer.H
-	${CC} ${CCFLAGS} -c Buffer.C
+buffer.o : buffer.cc buffer.hh
+	${CC} ${CCFLAGS} -c buffer.cc
 
-Lexer.C : Nask.l
-	${FLEX} ${FLEX_OPTS} -oLexer.C Nask.l
+lexer.cc : nask.l
+	${FLEX} ${FLEX_OPTS} -olexer.cc nask.l
 
-Parser.C Bison.H : Nask.y
-	${BISON} ${BISON_OPTS} Nask.y -o Parser.C
+parser.cc bison.hh : nask.y
+	${BISON} ${BISON_OPTS} nask.y -o parser.cc
 
-Lexer.o : Lexer.C Bison.H
-	${CC} ${CCFLAGS} -c Lexer.C
+lexer.o : lexer.cc bison.hh
+	${CC} ${CCFLAGS} -c lexer.cc
 
-Parser.o : Parser.C Absyn.H Bison.H
-	${CC} ${CCFLAGS} -c Parser.C
+parser.o : parser.cc absyn.hh bison.hh
+	${CC} ${CCFLAGS} -c parser.cc
 
-Printer.o : Printer.C Printer.H Absyn.H
-	${CC} ${CCFLAGS} -c Printer.C
+printer.o : printer.cc printer.hh absyn.hh
+	${CC} ${CCFLAGS} -c printer.cc
 
-Skeleton.o : Skeleton.C Skeleton.H Absyn.H
-	${CC} ${CCFLAGS} -Wno-unused-parameter -c Skeleton.C
+skeleton.o : skeleton.cc skeleton.hh absyn.hh
+	${CC} ${CCFLAGS} -Wno-unused-parameter -c skeleton.cc
 
-Test.o : Test.C Parser.H Printer.H Absyn.H
-	${CC} ${CCFLAGS} -c Test.C
+test.o : test.cc parser.hh printer.hh absyn.hh
+	${CC} ${CCFLAGS} -c test.cc

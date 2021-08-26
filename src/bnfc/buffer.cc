@@ -6,7 +6,7 @@
 #include <stdlib.h>  /* free, malloc */
 #include <stdio.h>   /* fprintf */
 #include <string.h>  /* size_t, strncpy */
-#include "Buffer.H"
+#include "buffer.hh"
 
 /* Internal functions. */
 /************************************************************************/

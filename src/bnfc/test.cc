@@ -7,10 +7,10 @@
 #include <cstdio>
 #include <string>
 #include <iostream>
-#include "Parser.H"
-#include "Printer.H"
-#include "Absyn.H"
-#include "ParserError.H"
+#include "parser.hh"
+#include "printer.hh"
+#include "absyn.hh"
+#include "parsererror.hh"
 
 void usage() {
   printf("usage: Call with one of the following argument combinations:\n");
@@ -69,4 +69,3 @@ int main(int argc, char ** argv)
   }
   return 1;
 }
-

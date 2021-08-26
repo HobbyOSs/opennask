@@ -4,7 +4,7 @@
 %defines "Bison.H"
 
 /* Reentrant parser */
-%pure_parser
+%define api.pure
   /* From Bison 2.3b (2008): %define api.pure full */
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner }
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Absyn.H"
+#include "absyn.hh"
 
 #define YYMAXDEPTH 10000000
 
@@ -1204,6 +1204,3 @@ Opcode* psOpcode(const char *str)
     return result.opcode_;
   }
 }
-
-
-

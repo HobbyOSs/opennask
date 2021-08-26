@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include "Absyn.H"
+#include "absyn.hh"
 
 /********************   Prog    ********************/
 Prog::Prog(ListStatement *p1)
@@ -14216,8 +14216,3 @@ ListMnemonicArgs* consListMnemonicArgs(MnemonicArgs* x, ListMnemonicArgs* xs) {
   xs->insert(xs->begin(), x);
   return xs;
 }
-
-
-
-
-

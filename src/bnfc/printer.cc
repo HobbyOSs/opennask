@@ -1,7 +1,7 @@
 /*** BNFC-Generated Pretty Printer and Abstract Syntax Viewer ***/
 
 #include <string>
-#include "Printer.H"
+#include "printer.hh"
 #define INDENT_WIDTH 2
 
 
@@ -5734,6 +5734,3 @@ void ShowAbsyn::visitHex(String s)
   bufAppend(s);
   bufAppend('\"');
 }
-
-
-

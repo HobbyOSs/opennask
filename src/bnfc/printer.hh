@@ -1,7 +1,7 @@
 #ifndef PRINTER_HEADER
 #define PRINTER_HEADER
 
-#include "Absyn.H"
+#include "absyn.hh"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -907,4 +907,3 @@ class ShowAbsyn : public Visitor
 
 
 #endif
-
