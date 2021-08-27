@@ -59,6 +59,14 @@ void Skeleton::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt)
 
 }
 
+void Skeleton::visitOpcodeStmt(OpcodeStmt *opcode_stmt)
+{
+  /* Code For OpcodeStmt Goes Here */
+
+  if (opcode_stmt->opcode_) opcode_stmt->opcode_->accept(this);
+
+}
+
 void Skeleton::visitMnemoArgs(MnemoArgs *mnemo_args)
 {
   /* Code For MnemoArgs Goes Here */
@@ -163,6 +171,14 @@ void Skeleton::visitModExp(ModExp *mod_exp)
 
   if (mod_exp->factor_1) mod_exp->factor_1->accept(this);
   if (mod_exp->factor_2) mod_exp->factor_2->accept(this);
+
+}
+
+void Skeleton::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp)
+{
+  /* Code For IndirectAddrExp Goes Here */
+
+  if (indirect_addr_exp->factor_) indirect_addr_exp->factor_->accept(this);
 
 }
 

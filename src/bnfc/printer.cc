@@ -216,6 +216,17 @@ void PrintAbsyn::visitMnemonicStmt(MnemonicStmt *p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitOpcodeStmt(OpcodeStmt *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->opcode_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitListMnemonicArgs(ListMnemonicArgs *listmnemonicargs)
 {
   iterListMnemonicArgs(listmnemonicargs->begin(), listmnemonicargs->end());
@@ -387,6 +398,19 @@ void PrintAbsyn::visitModExp(ModExp *p)
   _i_ = 0; p->factor_1->accept(this);
   render('%');
   _i_ = 0; p->factor_2->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitIndirectAddrExp(IndirectAddrExp *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  _i_ = 0; p->factor_->accept(this);
+  render(']');
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4200,6 +4224,16 @@ void ShowAbsyn::visitMnemonicStmt(MnemonicStmt *p)
   bufAppend(']');
   bufAppend(')');
 }
+void ShowAbsyn::visitOpcodeStmt(OpcodeStmt *p)
+{
+  bufAppend('(');
+  bufAppend("OpcodeStmt");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->opcode_)  p->opcode_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
 void ShowAbsyn::visitListMnemonicArgs(ListMnemonicArgs *listmnemonicargs)
 {
   for (ListMnemonicArgs::const_iterator i = listmnemonicargs->begin() ; i != listmnemonicargs->end() ; ++i)
@@ -4331,6 +4365,17 @@ void ShowAbsyn::visitModExp(ModExp *p)
   p->factor_1->accept(this);
   bufAppend(' ');
   p->factor_2->accept(this);
+  bufAppend(')');
+}
+void ShowAbsyn::visitIndirectAddrExp(IndirectAddrExp *p)
+{
+  bufAppend('(');
+  bufAppend("IndirectAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
   bufAppend(')');
 }
 void ShowAbsyn::visitImmExp(ImmExp *p)

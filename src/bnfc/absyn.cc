@@ -233,6 +233,50 @@ MnemonicStmt *MnemonicStmt::clone() const
 
 
 
+/********************   OpcodeStmt    ********************/
+OpcodeStmt::OpcodeStmt(Opcode *p1)
+{
+  opcode_ = p1;
+
+}
+
+OpcodeStmt::OpcodeStmt(const OpcodeStmt & other)
+{
+  opcode_ = other.opcode_->clone();
+
+}
+
+OpcodeStmt &OpcodeStmt::operator=(const OpcodeStmt & other)
+{
+  OpcodeStmt tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void OpcodeStmt::swap(OpcodeStmt & other)
+{
+  std::swap(opcode_, other.opcode_);
+
+}
+
+OpcodeStmt::~OpcodeStmt()
+{
+  delete(opcode_);
+
+}
+
+void OpcodeStmt::accept(Visitor *v)
+{
+  v->visitOpcodeStmt(this);
+}
+
+OpcodeStmt *OpcodeStmt::clone() const
+{
+  return new OpcodeStmt(*this);
+}
+
+
+
 /********************   MnemoArgs    ********************/
 MnemoArgs::MnemoArgs(Exp *p1)
 {
@@ -801,6 +845,50 @@ void ModExp::accept(Visitor *v)
 ModExp *ModExp::clone() const
 {
   return new ModExp(*this);
+}
+
+
+
+/********************   IndirectAddrExp    ********************/
+IndirectAddrExp::IndirectAddrExp(Factor *p1)
+{
+  factor_ = p1;
+
+}
+
+IndirectAddrExp::IndirectAddrExp(const IndirectAddrExp & other)
+{
+  factor_ = other.factor_->clone();
+
+}
+
+IndirectAddrExp &IndirectAddrExp::operator=(const IndirectAddrExp & other)
+{
+  IndirectAddrExp tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void IndirectAddrExp::swap(IndirectAddrExp & other)
+{
+  std::swap(factor_, other.factor_);
+
+}
+
+IndirectAddrExp::~IndirectAddrExp()
+{
+  delete(factor_);
+
+}
+
+void IndirectAddrExp::accept(Visitor *v)
+{
+  v->visitIndirectAddrExp(this);
+}
+
+IndirectAddrExp *IndirectAddrExp::clone() const
+{
+  return new IndirectAddrExp(*this);
 }
 
 

@@ -41,6 +41,7 @@ class PrintAbsyn : public Visitor
   void visitDeclareStmt(DeclareStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitOpcodeStmt(OpcodeStmt *p);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -57,6 +58,7 @@ class PrintAbsyn : public Visitor
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
+  void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
@@ -481,6 +483,7 @@ class ShowAbsyn : public Visitor
   void visitDeclareStmt(DeclareStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitOpcodeStmt(OpcodeStmt *p);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -497,6 +500,7 @@ class ShowAbsyn : public Visitor
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
+  void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);

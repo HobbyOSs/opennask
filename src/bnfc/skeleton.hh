@@ -20,6 +20,7 @@ public:
   void visitDeclareStmt(DeclareStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitOpcodeStmt(OpcodeStmt *p);
   void visitMnemoArgs(MnemoArgs *p);
   void visitEqExp(EqExp *p);
   void visitNeqExp(NeqExp *p);
@@ -32,6 +33,7 @@ public:
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
+  void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitImmExp(ImmExp *p);
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);

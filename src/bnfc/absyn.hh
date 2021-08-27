@@ -33,6 +33,7 @@ class LabelStmt;
 class DeclareStmt;
 class ConfigStmt;
 class MnemonicStmt;
+class OpcodeStmt;
 class MnemoArgs;
 class EqExp;
 class NeqExp;
@@ -45,6 +46,7 @@ class MinusExp;
 class MulExp;
 class DivExp;
 class ModExp;
+class IndirectAddrExp;
 class ImmExp;
 class NumberFactor;
 class HexFactor;
@@ -400,6 +402,7 @@ public:
   virtual void visitDeclareStmt(DeclareStmt *p) = 0;
   virtual void visitConfigStmt(ConfigStmt *p) = 0;
   virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
+  virtual void visitOpcodeStmt(OpcodeStmt *p) = 0;
   virtual void visitMnemoArgs(MnemoArgs *p) = 0;
   virtual void visitEqExp(EqExp *p) = 0;
   virtual void visitNeqExp(NeqExp *p) = 0;
@@ -412,6 +415,7 @@ public:
   virtual void visitMulExp(MulExp *p) = 0;
   virtual void visitDivExp(DivExp *p) = 0;
   virtual void visitModExp(ModExp *p) = 0;
+  virtual void visitIndirectAddrExp(IndirectAddrExp *p) = 0;
   virtual void visitImmExp(ImmExp *p) = 0;
   virtual void visitNumberFactor(NumberFactor *p) = 0;
   virtual void visitHexFactor(HexFactor *p) = 0;
@@ -894,6 +898,20 @@ public:
   void swap(MnemonicStmt &);
 };
 
+class OpcodeStmt : public Statement
+{
+public:
+  Opcode *opcode_;
+
+  OpcodeStmt(const OpcodeStmt &);
+  OpcodeStmt &operator=(const OpcodeStmt &);
+  OpcodeStmt(Opcode *p1);
+  ~OpcodeStmt();
+  virtual void accept(Visitor *v);
+  virtual OpcodeStmt *clone() const;
+  void swap(OpcodeStmt &);
+};
+
 class MnemoArgs : public MnemonicArgs
 {
 public:
@@ -1071,6 +1089,20 @@ public:
   virtual void accept(Visitor *v);
   virtual ModExp *clone() const;
   void swap(ModExp &);
+};
+
+class IndirectAddrExp : public Exp
+{
+public:
+  Factor *factor_;
+
+  IndirectAddrExp(const IndirectAddrExp &);
+  IndirectAddrExp &operator=(const IndirectAddrExp &);
+  IndirectAddrExp(Factor *p1);
+  ~IndirectAddrExp();
+  virtual void accept(Visitor *v);
+  virtual IndirectAddrExp *clone() const;
+  void swap(IndirectAddrExp &);
 };
 
 class ImmExp : public Exp

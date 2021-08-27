@@ -1,33 +1,35 @@
 --
 -- Nask.cf
--- $ bnfc -m -cpp_stl Nask.cf
+-- $ bnfc -m -cpp_stl nask.cf
 --
 comment ";" ;
 comment "#" ;
 
-Prog.         Program        ::= [Statement] ;
-(:[]).        [Statement]    ::= Statement ;
-(:).          [Statement]    ::= Statement [Statement] ;
-LabelStmt.    Statement      ::= Ident ":" ;
-DeclareStmt.  Statement      ::= Ident "EQU" Exp ;
-ConfigStmt.   Statement      ::= "[" ConfigType String "]" ;
-MnemonicStmt. Statement      ::= Opcode [MnemonicArgs] ;
-(:[]).        [MnemonicArgs] ::= MnemonicArgs ;
-(:).          [MnemonicArgs] ::= MnemonicArgs "," [MnemonicArgs] ;
-MnemoArgs.    MnemonicArgs   ::= Exp ;
+Prog.           Program        ::= [Statement] ;
+(:[]).          [Statement]    ::= Statement ;
+(:).            [Statement]    ::= Statement [Statement] ;
+LabelStmt.      Statement      ::= Ident ":" ;
+DeclareStmt.    Statement      ::= Ident "EQU" Exp ;
+ConfigStmt.     Statement      ::= "[" ConfigType String "]" ;
+MnemonicStmt.   Statement      ::= Opcode [MnemonicArgs] ;
+OpcodeStmt.     Statement      ::= Opcode ;
+(:[]).          [MnemonicArgs] ::= MnemonicArgs ;
+(:).            [MnemonicArgs] ::= MnemonicArgs "," [MnemonicArgs] ;
+MnemoArgs.      MnemonicArgs   ::= Exp ;
 
-EqExp.        Exp            ::= Factor "==" Factor ;
-NeqExp.       Exp            ::= Factor "!=" Factor ;
-LtExp.        Exp            ::= Factor "<"  Factor ;
-GtExp.        Exp            ::= Factor ">"  Factor ;
-LteExp.       Exp            ::= Factor "<=" Factor ;
-GteExp.       Exp            ::= Factor ">=" Factor ;
-PlusExp.      Exp            ::= Factor "+" Factor ;
-MinusExp.     Exp            ::= Factor "-" Factor ;
-MulExp.       Exp            ::= Factor "*" Factor ;
-DivExp.       Exp            ::= Factor "/" Factor ;
-ModExp.       Exp            ::= Factor "%" Factor ;
-ImmExp.       Exp            ::= Factor ;
+EqExp.            Exp        ::= Factor "==" Factor ;
+NeqExp.           Exp        ::= Factor "!=" Factor ;
+LtExp.            Exp        ::= Factor "<"  Factor ;
+GtExp.            Exp        ::= Factor ">"  Factor ;
+LteExp.           Exp        ::= Factor "<=" Factor ;
+GteExp.           Exp        ::= Factor ">=" Factor ;
+PlusExp.          Exp        ::= Factor "+" Factor ;
+MinusExp.         Exp        ::= Factor "-" Factor ;
+MulExp.           Exp        ::= Factor "*" Factor ;
+DivExp.           Exp        ::= Factor "/" Factor ;
+ModExp.           Exp        ::= Factor "%" Factor ;
+IndirectAddrExp.  Exp        ::= "[" Factor "]" ;
+ImmExp.           Exp        ::= Factor ;
 
 NumberFactor. Factor         ::= Integer ;
 HexFactor.    Factor         ::= Hex ;

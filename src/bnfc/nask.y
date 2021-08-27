@@ -446,6 +446,7 @@ Statement : _IDENT_ _COLON { $$ = new LabelStmt($1); result->statement_ = $$; }
   | _IDENT_ _KW_EQU Exp { $$ = new DeclareStmt($1, $3); result->statement_ = $$; }
   | _LBRACK ConfigType _STRING_ _RBRACK { $$ = new ConfigStmt($2, $3); result->statement_ = $$; }
   | Opcode ListMnemonicArgs { std::reverse($2->begin(),$2->end()) ;$$ = new MnemonicStmt($1, $2); result->statement_ = $$; }
+  | Opcode { $$ = new OpcodeStmt($1); result->statement_ = $$; }
 ;
 ListMnemonicArgs : MnemonicArgs { $$ = new ListMnemonicArgs(); $$->push_back($1); result->listmnemonicargs_ = $$; }
   | MnemonicArgs _COMMA ListMnemonicArgs { $3->push_back($1); $$ = $3; result->listmnemonicargs_ = $$; }
@@ -463,6 +464,7 @@ Exp : Factor _DEQ Factor { $$ = new EqExp($1, $3); result->exp_ = $$; }
   | Factor _STAR Factor { $$ = new MulExp($1, $3); result->exp_ = $$; }
   | Factor _SLASH Factor { $$ = new DivExp($1, $3); result->exp_ = $$; }
   | Factor _PERCENT Factor { $$ = new ModExp($1, $3); result->exp_ = $$; }
+  | _LBRACK Factor _RBRACK { $$ = new IndirectAddrExp($2); result->exp_ = $$; }
   | Factor { $$ = new ImmExp($1); result->exp_ = $$; }
 ;
 Factor : _INTEGER_ { $$ = new NumberFactor($1); result->factor_ = $$; }
