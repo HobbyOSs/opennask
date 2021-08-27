@@ -4,7 +4,7 @@
    List->accept() does NOT traverse the list. This allows different
    algorithms to use context information differently. */
 
-#include "Skeleton.H"
+#include "skeleton.hh"
 
 
 

@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_NASK_BISON_H_INCLUDED
-# define YY_NASK_BISON_H_INCLUDED
+#ifndef YY_NASK_BISON_HH_INCLUDED
+# define YY_NASK_BISON_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -428,7 +428,7 @@ union YYSTYPE
   ConfigType* configtype_;
   Opcode* opcode_;
 
-#line 432 "Bison.H"
+#line 432 "bison.hh"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -454,4 +454,4 @@ struct YYLTYPE
 
 int nask_parse (yyscan_t scanner, YYSTYPE *result);
 
-#endif /* !YY_NASK_BISON_H_INCLUDED  */
+#endif /* !YY_NASK_BISON_HH_INCLUDED  */

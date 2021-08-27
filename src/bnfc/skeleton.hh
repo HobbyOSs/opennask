@@ -2,7 +2,7 @@
 #define SKELETON_HEADER
 /* You might want to change the above name. */
 
-#include "Absyn.H"
+#include "absyn.hh"
 
 
 class Skeleton : public Visitor

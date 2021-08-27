@@ -412,8 +412,8 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"XLATB"      	 return _KW_XLATB;
 <INITIAL>"XOR"      	 return _KW_XOR;
 
-<INITIAL>";"[^\r\n]* /* skip */; /* BNFC: comment ";" */
-<INITIAL>"#"[^\r\n]* /* skip */; /* BNFC: comment "#" */
+<INITIAL>";"[^\n]* /* skip */; /* BNFC: comment ";" */
+<INITIAL>"#"[^\n]* /* skip */; /* BNFC: comment "#" */
 
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-*\$*    	 yylval->_string = strdup(yytext); return T_Hex;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
@@ -440,3 +440,4 @@ yyscan_t initialize_lexer(FILE *inp)
   if (inp) yyrestart(inp, scanner);
   return scanner;
 }
+
