@@ -422,8 +422,8 @@ IDENT [a-zA-Z0-9'_]
 <COMMENT1>\n BEGIN INITIAL;
 <COMMENT1>[^\n] /* skip */;
 
-<INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-*\$*    	 yylval->_string = strdup(yytext); return T_Hex;
-<INITIAL>(\_|({DIGIT}|{LETTER}))+\:    	 yylval->_string = strdup(yytext); return T_Label;
+<INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->_string = strdup(yytext); return T_Hex;
+<INITIAL>(\_|{LETTER})(\_|({DIGIT}|{LETTER}))*\:    	 yylval->_string = strdup(yytext); return T_Label;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;
 <STRING>\"             	 yylval->_string = LITERAL_BUFFER_HARVEST(); BEGIN INITIAL; return _STRING_;
