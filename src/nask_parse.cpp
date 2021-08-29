@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <getopt.h>
 #include "spdlog/spdlog.h"
 #include "parser.hh"
@@ -81,12 +82,12 @@ int main (int argc, char *argv[]) {
 
         if (trace_scanning) {
             printf("\n[Abstract Syntax]\n");
-            ShowAbsyn *s = new ShowAbsyn();
+            std::unique_ptr<ShowAbsyn> s(new ShowAbsyn());
             printf("%s\n\n", s->show(parse_tree));
         }
         if (trace_parsing) {
             printf("[Linearized Tree]\n");
-            PrintAbsyn *p = new PrintAbsyn();
+            std::unique_ptr<PrintAbsyn> p(new PrintAbsyn());
             printf("%s\n\n", p->print(parse_tree));
         }
         delete(parse_tree);
