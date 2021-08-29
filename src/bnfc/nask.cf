@@ -5,7 +5,6 @@
 comment "#" "\\n" ;
 comment ";" "\\n" ;
 
--- terminator Statement "\\n" ;
 entrypoints Program;
 
 Prog.           Program        ::= [Statement] ;
@@ -381,5 +380,5 @@ OpcodesXCHG.    Opcode       ::= "XCHG" ;
 OpcodesXLATB.   Opcode       ::= "XLATB" ;
 OpcodesXOR.     Opcode       ::= "XOR" ;
 
-token Hex '0' ('x'|'X') (digit | ["abcdef"] | ["ABCDEF"])+ '-'* '$'* ;
-token Label (letter | digit | '_')+ ':' ;
+token Hex '0' ('x'|'X') (digit | ["abcdef"] | ["ABCDEF"])+ '-'? '$'? ;
+token Label (letter | '_') (letter | digit | '_')* ':' ;
