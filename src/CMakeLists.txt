@@ -19,21 +19,18 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 ########### next target ###############
 
-find_package(BISON REQUIRED)
-find_package(FLEX REQUIRED)
-
-flex_target(lexer
-  ${CMAKE_CURRENT_SOURCE_DIR}/scanner.ll ${CMAKE_CURRENT_BINARY_DIR}/lexer.cc)
-bison_target(parser
-  ${CMAKE_CURRENT_SOURCE_DIR}/parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
-add_flex_bison_dependency(lexer parser)
-
 set(nask_parse_SRCS
   nask_parse.cpp
-  driver.cc
-  driver.hh
-  ${FLEX_lexer_OUTPUTS}
-  ${BISON_parser_OUTPUTS})
+  bnfc/absyn.cc
+  bnfc/absyn.hh
+  bnfc/buffer.cc
+  bnfc/buffer.hh
+  bnfc/lexer.cc
+  bnfc/parser.cc
+  bnfc/parser.hh
+  bnfc/printer.cc
+  bnfc/printer.hh
+  bnfc/parsererror.hh)
 
 if (WIN32)
   LIST(APPEND nask_parse_SRCS getopt.h getopt.c)
@@ -41,11 +38,10 @@ if (WIN32)
 endif()
 
 add_executable(nask_parse ${nask_parse_SRCS})
+target_link_libraries(nask_parse Threads::Threads)
 target_include_directories(nask_parse
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${FLEX_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_BINARY_DIR})
+  ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
 set_property(TARGET nask_parse
   PROPERTY CXX_STANDARD 14)
 
