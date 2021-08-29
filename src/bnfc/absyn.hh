@@ -17,6 +17,7 @@ typedef std::string Ident;
 
 
 typedef std::string Hex;
+typedef std::string Label;
 
 
 /********************   Forward Declarations    ********************/
@@ -27,6 +28,7 @@ class MnemonicArgs;
 class Exp;
 class Factor;
 class ConfigType;
+class DataType;
 class Opcode;
 class Prog;
 class LabelStmt;
@@ -34,7 +36,7 @@ class DeclareStmt;
 class ConfigStmt;
 class MnemonicStmt;
 class OpcodeStmt;
-class MnemoArgs;
+class MnemoArg;
 class EqExp;
 class NeqExp;
 class LtExp;
@@ -47,6 +49,9 @@ class MulExp;
 class DivExp;
 class ModExp;
 class IndirectAddrExp;
+class DatatypeExp;
+class RangeExp;
+class LabelExp;
 class ImmExp;
 class NumberFactor;
 class HexFactor;
@@ -61,6 +66,9 @@ class PadsConfig;
 class SectConfig;
 class AbsoConfig;
 class FileConfig;
+class ByteDataType;
+class WordDataType;
+class DwordDataType;
 class OpcodesAAA;
 class OpcodesAAD;
 class OpcodesAAS;
@@ -396,6 +404,7 @@ public:
   virtual void visitExp(Exp *p) = 0;
   virtual void visitFactor(Factor *p) = 0;
   virtual void visitConfigType(ConfigType *p) = 0;
+  virtual void visitDataType(DataType *p) = 0;
   virtual void visitOpcode(Opcode *p) = 0;
   virtual void visitProg(Prog *p) = 0;
   virtual void visitLabelStmt(LabelStmt *p) = 0;
@@ -403,7 +412,7 @@ public:
   virtual void visitConfigStmt(ConfigStmt *p) = 0;
   virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
   virtual void visitOpcodeStmt(OpcodeStmt *p) = 0;
-  virtual void visitMnemoArgs(MnemoArgs *p) = 0;
+  virtual void visitMnemoArg(MnemoArg *p) = 0;
   virtual void visitEqExp(EqExp *p) = 0;
   virtual void visitNeqExp(NeqExp *p) = 0;
   virtual void visitLtExp(LtExp *p) = 0;
@@ -416,6 +425,9 @@ public:
   virtual void visitDivExp(DivExp *p) = 0;
   virtual void visitModExp(ModExp *p) = 0;
   virtual void visitIndirectAddrExp(IndirectAddrExp *p) = 0;
+  virtual void visitDatatypeExp(DatatypeExp *p) = 0;
+  virtual void visitRangeExp(RangeExp *p) = 0;
+  virtual void visitLabelExp(LabelExp *p) = 0;
   virtual void visitImmExp(ImmExp *p) = 0;
   virtual void visitNumberFactor(NumberFactor *p) = 0;
   virtual void visitHexFactor(HexFactor *p) = 0;
@@ -430,6 +442,9 @@ public:
   virtual void visitSectConfig(SectConfig *p) = 0;
   virtual void visitAbsoConfig(AbsoConfig *p) = 0;
   virtual void visitFileConfig(FileConfig *p) = 0;
+  virtual void visitByteDataType(ByteDataType *p) = 0;
+  virtual void visitWordDataType(WordDataType *p) = 0;
+  virtual void visitDwordDataType(DwordDataType *p) = 0;
   virtual void visitOpcodesAAA(OpcodesAAA *p) = 0;
   virtual void visitOpcodesAAD(OpcodesAAD *p) = 0;
   virtual void visitOpcodesAAS(OpcodesAAS *p) = 0;
@@ -760,6 +775,7 @@ public:
   virtual void visitString(String x) = 0;
   virtual void visitIdent(Ident x) = 0;
   virtual void visitHex(Hex x) = 0;
+  virtual void visitLabel(Label x) = 0;
 
 };
 
@@ -816,6 +832,13 @@ public:
 
 };
 
+class DataType : public Visitable
+{
+public:
+  virtual DataType *clone() const = 0;
+
+};
+
 class Opcode : public Visitable
 {
 public:
@@ -842,11 +865,11 @@ public:
 class LabelStmt : public Statement
 {
 public:
-  Ident ident_;
+  Label label_;
 
   LabelStmt(const LabelStmt &);
   LabelStmt &operator=(const LabelStmt &);
-  LabelStmt(Ident p1);
+  LabelStmt(Label p1);
   ~LabelStmt();
   virtual void accept(Visitor *v);
   virtual LabelStmt *clone() const;
@@ -912,29 +935,29 @@ public:
   void swap(OpcodeStmt &);
 };
 
-class MnemoArgs : public MnemonicArgs
+class MnemoArg : public MnemonicArgs
 {
 public:
   Exp *exp_;
 
-  MnemoArgs(const MnemoArgs &);
-  MnemoArgs &operator=(const MnemoArgs &);
-  MnemoArgs(Exp *p1);
-  ~MnemoArgs();
+  MnemoArg(const MnemoArg &);
+  MnemoArg &operator=(const MnemoArg &);
+  MnemoArg(Exp *p1);
+  ~MnemoArg();
   virtual void accept(Visitor *v);
-  virtual MnemoArgs *clone() const;
-  void swap(MnemoArgs &);
+  virtual MnemoArg *clone() const;
+  void swap(MnemoArg &);
 };
 
 class EqExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   EqExp(const EqExp &);
   EqExp &operator=(const EqExp &);
-  EqExp(Factor *p1, Factor *p2);
+  EqExp(Exp *p1, Exp *p2);
   ~EqExp();
   virtual void accept(Visitor *v);
   virtual EqExp *clone() const;
@@ -944,12 +967,12 @@ public:
 class NeqExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   NeqExp(const NeqExp &);
   NeqExp &operator=(const NeqExp &);
-  NeqExp(Factor *p1, Factor *p2);
+  NeqExp(Exp *p1, Exp *p2);
   ~NeqExp();
   virtual void accept(Visitor *v);
   virtual NeqExp *clone() const;
@@ -959,12 +982,12 @@ public:
 class LtExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   LtExp(const LtExp &);
   LtExp &operator=(const LtExp &);
-  LtExp(Factor *p1, Factor *p2);
+  LtExp(Exp *p1, Exp *p2);
   ~LtExp();
   virtual void accept(Visitor *v);
   virtual LtExp *clone() const;
@@ -974,12 +997,12 @@ public:
 class GtExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   GtExp(const GtExp &);
   GtExp &operator=(const GtExp &);
-  GtExp(Factor *p1, Factor *p2);
+  GtExp(Exp *p1, Exp *p2);
   ~GtExp();
   virtual void accept(Visitor *v);
   virtual GtExp *clone() const;
@@ -989,12 +1012,12 @@ public:
 class LteExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   LteExp(const LteExp &);
   LteExp &operator=(const LteExp &);
-  LteExp(Factor *p1, Factor *p2);
+  LteExp(Exp *p1, Exp *p2);
   ~LteExp();
   virtual void accept(Visitor *v);
   virtual LteExp *clone() const;
@@ -1004,12 +1027,12 @@ public:
 class GteExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   GteExp(const GteExp &);
   GteExp &operator=(const GteExp &);
-  GteExp(Factor *p1, Factor *p2);
+  GteExp(Exp *p1, Exp *p2);
   ~GteExp();
   virtual void accept(Visitor *v);
   virtual GteExp *clone() const;
@@ -1019,12 +1042,12 @@ public:
 class PlusExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   PlusExp(const PlusExp &);
   PlusExp &operator=(const PlusExp &);
-  PlusExp(Factor *p1, Factor *p2);
+  PlusExp(Exp *p1, Exp *p2);
   ~PlusExp();
   virtual void accept(Visitor *v);
   virtual PlusExp *clone() const;
@@ -1034,12 +1057,12 @@ public:
 class MinusExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   MinusExp(const MinusExp &);
   MinusExp &operator=(const MinusExp &);
-  MinusExp(Factor *p1, Factor *p2);
+  MinusExp(Exp *p1, Exp *p2);
   ~MinusExp();
   virtual void accept(Visitor *v);
   virtual MinusExp *clone() const;
@@ -1049,12 +1072,12 @@ public:
 class MulExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   MulExp(const MulExp &);
   MulExp &operator=(const MulExp &);
-  MulExp(Factor *p1, Factor *p2);
+  MulExp(Exp *p1, Exp *p2);
   ~MulExp();
   virtual void accept(Visitor *v);
   virtual MulExp *clone() const;
@@ -1064,12 +1087,12 @@ public:
 class DivExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   DivExp(const DivExp &);
   DivExp &operator=(const DivExp &);
-  DivExp(Factor *p1, Factor *p2);
+  DivExp(Exp *p1, Exp *p2);
   ~DivExp();
   virtual void accept(Visitor *v);
   virtual DivExp *clone() const;
@@ -1079,12 +1102,12 @@ public:
 class ModExp : public Exp
 {
 public:
-  Factor *factor_1;
-  Factor *factor_2;
+  Exp *exp_1;
+  Exp *exp_2;
 
   ModExp(const ModExp &);
   ModExp &operator=(const ModExp &);
-  ModExp(Factor *p1, Factor *p2);
+  ModExp(Exp *p1, Exp *p2);
   ~ModExp();
   virtual void accept(Visitor *v);
   virtual ModExp *clone() const;
@@ -1094,15 +1117,60 @@ public:
 class IndirectAddrExp : public Exp
 {
 public:
-  Factor *factor_;
+  Exp *exp_;
 
   IndirectAddrExp(const IndirectAddrExp &);
   IndirectAddrExp &operator=(const IndirectAddrExp &);
-  IndirectAddrExp(Factor *p1);
+  IndirectAddrExp(Exp *p1);
   ~IndirectAddrExp();
   virtual void accept(Visitor *v);
   virtual IndirectAddrExp *clone() const;
   void swap(IndirectAddrExp &);
+};
+
+class DatatypeExp : public Exp
+{
+public:
+  DataType *datatype_;
+  Exp *exp_;
+
+  DatatypeExp(const DatatypeExp &);
+  DatatypeExp &operator=(const DatatypeExp &);
+  DatatypeExp(DataType *p1, Exp *p2);
+  ~DatatypeExp();
+  virtual void accept(Visitor *v);
+  virtual DatatypeExp *clone() const;
+  void swap(DatatypeExp &);
+};
+
+class RangeExp : public Exp
+{
+public:
+  DataType *datatype_;
+  Exp *exp_1;
+  Exp *exp_2;
+
+  RangeExp(const RangeExp &);
+  RangeExp &operator=(const RangeExp &);
+  RangeExp(DataType *p1, Exp *p2, Exp *p3);
+  ~RangeExp();
+  virtual void accept(Visitor *v);
+  virtual RangeExp *clone() const;
+  void swap(RangeExp &);
+};
+
+class LabelExp : public Exp
+{
+public:
+  Label label_;
+
+  LabelExp(const LabelExp &);
+  LabelExp &operator=(const LabelExp &);
+  LabelExp(Label p1);
+  ~LabelExp();
+  virtual void accept(Visitor *v);
+  virtual LabelExp *clone() const;
+  void swap(LabelExp &);
 };
 
 class ImmExp : public Exp
@@ -1290,6 +1358,45 @@ public:
   virtual void accept(Visitor *v);
   virtual FileConfig *clone() const;
   void swap(FileConfig &);
+};
+
+class ByteDataType : public DataType
+{
+public:
+
+  ByteDataType(const ByteDataType &);
+  ByteDataType &operator=(const ByteDataType &);
+  ByteDataType();
+  ~ByteDataType();
+  virtual void accept(Visitor *v);
+  virtual ByteDataType *clone() const;
+  void swap(ByteDataType &);
+};
+
+class WordDataType : public DataType
+{
+public:
+
+  WordDataType(const WordDataType &);
+  WordDataType &operator=(const WordDataType &);
+  WordDataType();
+  ~WordDataType();
+  virtual void accept(Visitor *v);
+  virtual WordDataType *clone() const;
+  void swap(WordDataType &);
+};
+
+class DwordDataType : public DataType
+{
+public:
+
+  DwordDataType(const DwordDataType &);
+  DwordDataType &operator=(const DwordDataType &);
+  DwordDataType();
+  ~DwordDataType();
+  virtual void accept(Visitor *v);
+  virtual DwordDataType *clone() const;
+  void swap(DwordDataType &);
 };
 
 class OpcodesAAA : public Opcode

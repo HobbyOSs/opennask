@@ -49,15 +49,15 @@ Prog *Prog::clone() const
 
 
 /********************   LabelStmt    ********************/
-LabelStmt::LabelStmt(Ident p1)
+LabelStmt::LabelStmt(Label p1)
 {
-  ident_ = p1;
+  label_ = p1;
 
 }
 
 LabelStmt::LabelStmt(const LabelStmt & other)
 {
-  ident_ = other.ident_;
+  label_ = other.label_;
 
 }
 
@@ -70,7 +70,7 @@ LabelStmt &LabelStmt::operator=(const LabelStmt & other)
 
 void LabelStmt::swap(LabelStmt & other)
 {
-  std::swap(ident_, other.ident_);
+  std::swap(label_, other.label_);
 
 }
 
@@ -277,62 +277,62 @@ OpcodeStmt *OpcodeStmt::clone() const
 
 
 
-/********************   MnemoArgs    ********************/
-MnemoArgs::MnemoArgs(Exp *p1)
+/********************   MnemoArg    ********************/
+MnemoArg::MnemoArg(Exp *p1)
 {
   exp_ = p1;
 
 }
 
-MnemoArgs::MnemoArgs(const MnemoArgs & other)
+MnemoArg::MnemoArg(const MnemoArg & other)
 {
   exp_ = other.exp_->clone();
 
 }
 
-MnemoArgs &MnemoArgs::operator=(const MnemoArgs & other)
+MnemoArg &MnemoArg::operator=(const MnemoArg & other)
 {
-  MnemoArgs tmp(other);
+  MnemoArg tmp(other);
   swap(tmp);
   return *this;
 }
 
-void MnemoArgs::swap(MnemoArgs & other)
+void MnemoArg::swap(MnemoArg & other)
 {
   std::swap(exp_, other.exp_);
 
 }
 
-MnemoArgs::~MnemoArgs()
+MnemoArg::~MnemoArg()
 {
   delete(exp_);
 
 }
 
-void MnemoArgs::accept(Visitor *v)
+void MnemoArg::accept(Visitor *v)
 {
-  v->visitMnemoArgs(this);
+  v->visitMnemoArg(this);
 }
 
-MnemoArgs *MnemoArgs::clone() const
+MnemoArg *MnemoArg::clone() const
 {
-  return new MnemoArgs(*this);
+  return new MnemoArg(*this);
 }
 
 
 
 /********************   EqExp    ********************/
-EqExp::EqExp(Factor *p1, Factor *p2)
+EqExp::EqExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 EqExp::EqExp(const EqExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -345,15 +345,15 @@ EqExp &EqExp::operator=(const EqExp & other)
 
 void EqExp::swap(EqExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 EqExp::~EqExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -370,17 +370,17 @@ EqExp *EqExp::clone() const
 
 
 /********************   NeqExp    ********************/
-NeqExp::NeqExp(Factor *p1, Factor *p2)
+NeqExp::NeqExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 NeqExp::NeqExp(const NeqExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -393,15 +393,15 @@ NeqExp &NeqExp::operator=(const NeqExp & other)
 
 void NeqExp::swap(NeqExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 NeqExp::~NeqExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -418,17 +418,17 @@ NeqExp *NeqExp::clone() const
 
 
 /********************   LtExp    ********************/
-LtExp::LtExp(Factor *p1, Factor *p2)
+LtExp::LtExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 LtExp::LtExp(const LtExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -441,15 +441,15 @@ LtExp &LtExp::operator=(const LtExp & other)
 
 void LtExp::swap(LtExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 LtExp::~LtExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -466,17 +466,17 @@ LtExp *LtExp::clone() const
 
 
 /********************   GtExp    ********************/
-GtExp::GtExp(Factor *p1, Factor *p2)
+GtExp::GtExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 GtExp::GtExp(const GtExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -489,15 +489,15 @@ GtExp &GtExp::operator=(const GtExp & other)
 
 void GtExp::swap(GtExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 GtExp::~GtExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -514,17 +514,17 @@ GtExp *GtExp::clone() const
 
 
 /********************   LteExp    ********************/
-LteExp::LteExp(Factor *p1, Factor *p2)
+LteExp::LteExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 LteExp::LteExp(const LteExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -537,15 +537,15 @@ LteExp &LteExp::operator=(const LteExp & other)
 
 void LteExp::swap(LteExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 LteExp::~LteExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -562,17 +562,17 @@ LteExp *LteExp::clone() const
 
 
 /********************   GteExp    ********************/
-GteExp::GteExp(Factor *p1, Factor *p2)
+GteExp::GteExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 GteExp::GteExp(const GteExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -585,15 +585,15 @@ GteExp &GteExp::operator=(const GteExp & other)
 
 void GteExp::swap(GteExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 GteExp::~GteExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -610,17 +610,17 @@ GteExp *GteExp::clone() const
 
 
 /********************   PlusExp    ********************/
-PlusExp::PlusExp(Factor *p1, Factor *p2)
+PlusExp::PlusExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 PlusExp::PlusExp(const PlusExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -633,15 +633,15 @@ PlusExp &PlusExp::operator=(const PlusExp & other)
 
 void PlusExp::swap(PlusExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 PlusExp::~PlusExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -658,17 +658,17 @@ PlusExp *PlusExp::clone() const
 
 
 /********************   MinusExp    ********************/
-MinusExp::MinusExp(Factor *p1, Factor *p2)
+MinusExp::MinusExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 MinusExp::MinusExp(const MinusExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -681,15 +681,15 @@ MinusExp &MinusExp::operator=(const MinusExp & other)
 
 void MinusExp::swap(MinusExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 MinusExp::~MinusExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -706,17 +706,17 @@ MinusExp *MinusExp::clone() const
 
 
 /********************   MulExp    ********************/
-MulExp::MulExp(Factor *p1, Factor *p2)
+MulExp::MulExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 MulExp::MulExp(const MulExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -729,15 +729,15 @@ MulExp &MulExp::operator=(const MulExp & other)
 
 void MulExp::swap(MulExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 MulExp::~MulExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -754,17 +754,17 @@ MulExp *MulExp::clone() const
 
 
 /********************   DivExp    ********************/
-DivExp::DivExp(Factor *p1, Factor *p2)
+DivExp::DivExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 DivExp::DivExp(const DivExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -777,15 +777,15 @@ DivExp &DivExp::operator=(const DivExp & other)
 
 void DivExp::swap(DivExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 DivExp::~DivExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -802,17 +802,17 @@ DivExp *DivExp::clone() const
 
 
 /********************   ModExp    ********************/
-ModExp::ModExp(Factor *p1, Factor *p2)
+ModExp::ModExp(Exp *p1, Exp *p2)
 {
-  factor_1 = p1;
-  factor_2 = p2;
+  exp_1 = p1;
+  exp_2 = p2;
 
 }
 
 ModExp::ModExp(const ModExp & other)
 {
-  factor_1 = other.factor_1->clone();
-  factor_2 = other.factor_2->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
 
 }
 
@@ -825,15 +825,15 @@ ModExp &ModExp::operator=(const ModExp & other)
 
 void ModExp::swap(ModExp & other)
 {
-  std::swap(factor_1, other.factor_1);
-  std::swap(factor_2, other.factor_2);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
 
 }
 
 ModExp::~ModExp()
 {
-  delete(factor_1);
-  delete(factor_2);
+  delete(exp_1);
+  delete(exp_2);
 
 }
 
@@ -850,15 +850,15 @@ ModExp *ModExp::clone() const
 
 
 /********************   IndirectAddrExp    ********************/
-IndirectAddrExp::IndirectAddrExp(Factor *p1)
+IndirectAddrExp::IndirectAddrExp(Exp *p1)
 {
-  factor_ = p1;
+  exp_ = p1;
 
 }
 
 IndirectAddrExp::IndirectAddrExp(const IndirectAddrExp & other)
 {
-  factor_ = other.factor_->clone();
+  exp_ = other.exp_->clone();
 
 }
 
@@ -871,13 +871,13 @@ IndirectAddrExp &IndirectAddrExp::operator=(const IndirectAddrExp & other)
 
 void IndirectAddrExp::swap(IndirectAddrExp & other)
 {
-  std::swap(factor_, other.factor_);
+  std::swap(exp_, other.exp_);
 
 }
 
 IndirectAddrExp::~IndirectAddrExp()
 {
-  delete(factor_);
+  delete(exp_);
 
 }
 
@@ -889,6 +889,149 @@ void IndirectAddrExp::accept(Visitor *v)
 IndirectAddrExp *IndirectAddrExp::clone() const
 {
   return new IndirectAddrExp(*this);
+}
+
+
+
+/********************   DatatypeExp    ********************/
+DatatypeExp::DatatypeExp(DataType *p1, Exp *p2)
+{
+  datatype_ = p1;
+  exp_ = p2;
+
+}
+
+DatatypeExp::DatatypeExp(const DatatypeExp & other)
+{
+  datatype_ = other.datatype_->clone();
+  exp_ = other.exp_->clone();
+
+}
+
+DatatypeExp &DatatypeExp::operator=(const DatatypeExp & other)
+{
+  DatatypeExp tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void DatatypeExp::swap(DatatypeExp & other)
+{
+  std::swap(datatype_, other.datatype_);
+  std::swap(exp_, other.exp_);
+
+}
+
+DatatypeExp::~DatatypeExp()
+{
+  delete(datatype_);
+  delete(exp_);
+
+}
+
+void DatatypeExp::accept(Visitor *v)
+{
+  v->visitDatatypeExp(this);
+}
+
+DatatypeExp *DatatypeExp::clone() const
+{
+  return new DatatypeExp(*this);
+}
+
+
+
+/********************   RangeExp    ********************/
+RangeExp::RangeExp(DataType *p1, Exp *p2, Exp *p3)
+{
+  datatype_ = p1;
+  exp_1 = p2;
+  exp_2 = p3;
+
+}
+
+RangeExp::RangeExp(const RangeExp & other)
+{
+  datatype_ = other.datatype_->clone();
+  exp_1 = other.exp_1->clone();
+  exp_2 = other.exp_2->clone();
+
+}
+
+RangeExp &RangeExp::operator=(const RangeExp & other)
+{
+  RangeExp tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void RangeExp::swap(RangeExp & other)
+{
+  std::swap(datatype_, other.datatype_);
+  std::swap(exp_1, other.exp_1);
+  std::swap(exp_2, other.exp_2);
+
+}
+
+RangeExp::~RangeExp()
+{
+  delete(datatype_);
+  delete(exp_1);
+  delete(exp_2);
+
+}
+
+void RangeExp::accept(Visitor *v)
+{
+  v->visitRangeExp(this);
+}
+
+RangeExp *RangeExp::clone() const
+{
+  return new RangeExp(*this);
+}
+
+
+
+/********************   LabelExp    ********************/
+LabelExp::LabelExp(Label p1)
+{
+  label_ = p1;
+
+}
+
+LabelExp::LabelExp(const LabelExp & other)
+{
+  label_ = other.label_;
+
+}
+
+LabelExp &LabelExp::operator=(const LabelExp & other)
+{
+  LabelExp tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void LabelExp::swap(LabelExp & other)
+{
+  std::swap(label_, other.label_);
+
+}
+
+LabelExp::~LabelExp()
+{
+
+}
+
+void LabelExp::accept(Visitor *v)
+{
+  v->visitLabelExp(this);
+}
+
+LabelExp *LabelExp::clone() const
+{
+  return new LabelExp(*this);
 }
 
 
@@ -1465,6 +1608,126 @@ void FileConfig::accept(Visitor *v)
 FileConfig *FileConfig::clone() const
 {
   return new FileConfig(*this);
+}
+
+
+
+/********************   ByteDataType    ********************/
+ByteDataType::ByteDataType()
+{
+
+}
+
+ByteDataType::ByteDataType(const ByteDataType & other)
+{
+
+}
+
+ByteDataType &ByteDataType::operator=(const ByteDataType & other)
+{
+  ByteDataType tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void ByteDataType::swap(ByteDataType & other)
+{
+
+}
+
+ByteDataType::~ByteDataType()
+{
+
+}
+
+void ByteDataType::accept(Visitor *v)
+{
+  v->visitByteDataType(this);
+}
+
+ByteDataType *ByteDataType::clone() const
+{
+  return new ByteDataType(*this);
+}
+
+
+
+/********************   WordDataType    ********************/
+WordDataType::WordDataType()
+{
+
+}
+
+WordDataType::WordDataType(const WordDataType & other)
+{
+
+}
+
+WordDataType &WordDataType::operator=(const WordDataType & other)
+{
+  WordDataType tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void WordDataType::swap(WordDataType & other)
+{
+
+}
+
+WordDataType::~WordDataType()
+{
+
+}
+
+void WordDataType::accept(Visitor *v)
+{
+  v->visitWordDataType(this);
+}
+
+WordDataType *WordDataType::clone() const
+{
+  return new WordDataType(*this);
+}
+
+
+
+/********************   DwordDataType    ********************/
+DwordDataType::DwordDataType()
+{
+
+}
+
+DwordDataType::DwordDataType(const DwordDataType & other)
+{
+
+}
+
+DwordDataType &DwordDataType::operator=(const DwordDataType & other)
+{
+  DwordDataType tmp(other);
+  swap(tmp);
+  return *this;
+}
+
+void DwordDataType::swap(DwordDataType & other)
+{
+
+}
+
+DwordDataType::~DwordDataType()
+{
+
+}
+
+void DwordDataType::accept(Visitor *v)
+{
+  v->visitDwordDataType(this);
+}
+
+DwordDataType *DwordDataType::clone() const
+{
+  return new DwordDataType(*this);
 }
 
 

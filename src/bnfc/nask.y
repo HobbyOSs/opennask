@@ -57,6 +57,7 @@ extern yyscan_t nask__initialize_lexer(FILE * inp);
   Exp* exp_;
   Factor* factor_;
   ConfigType* configtype_;
+  DataType* datatype_;
   Opcode* opcode_;
 }
 
@@ -106,6 +107,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_BTC       /* BTC */
 %token          _KW_BTR       /* BTR */
 %token          _KW_BTS       /* BTS */
+%token          _KW_BYTE      /* BYTE */
 %token          _KW_CALL      /* CALL */
 %token          _KW_CBW       /* CBW */
 %token          _KW_CDQ       /* CDQ */
@@ -131,6 +133,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_DQ        /* DQ */
 %token          _KW_DT        /* DT */
 %token          _KW_DW        /* DW */
+%token          _KW_DWORD     /* DWORD */
 %token          _KW_END       /* END */
 %token          _KW_ENTER     /* ENTER */
 %token          _KW_EQU       /* EQU */
@@ -411,6 +414,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _KW_VERW      /* VERW */
 %token          _KW_WAIT      /* WAIT */
 %token          _KW_WBINVD    /* WBINVD */
+%token          _KW_WORD      /* WORD */
 %token          _KW_WRMSR     /* WRMSR */
 %token          _KW_XADD      /* XADD */
 %token          _KW_XCHG      /* XCHG */
@@ -419,6 +423,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _LBRACK       /* [ */
 %token          _RBRACK       /* ] */
 %token<_string> T_Hex         /* Hex */
+%token<_string> T_Label       /* Label */
 %token<_string> _STRING_
 %token<_int>    _INTEGER_
 %token<_string> _IDENT_
@@ -431,6 +436,7 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %type <exp_> Exp
 %type <factor_> Factor
 %type <configtype_> ConfigType
+%type <datatype_> DataType
 %type <opcode_> Opcode
 
 %start Program
@@ -439,369 +445,376 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 
 Program : ListStatement { std::reverse($1->begin(),$1->end()) ;$$ = new Prog($1); result->program_ = $$; }
 ;
-ListStatement : Statement { $$ = new ListStatement(); $$->push_back($1); result->liststatement_ = $$; }
-  | Statement ListStatement { $2->push_back($1); $$ = $2; result->liststatement_ = $$; }
+ListStatement : Statement { $$ = new ListStatement(); $$->push_back($1); }
+  | Statement ListStatement { $2->push_back($1); $$ = $2; }
 ;
-Statement : _IDENT_ _COLON { $$ = new LabelStmt($1); result->statement_ = $$; }
-  | _IDENT_ _KW_EQU Exp { $$ = new DeclareStmt($1, $3); result->statement_ = $$; }
-  | _LBRACK ConfigType _STRING_ _RBRACK { $$ = new ConfigStmt($2, $3); result->statement_ = $$; }
-  | Opcode ListMnemonicArgs { std::reverse($2->begin(),$2->end()) ;$$ = new MnemonicStmt($1, $2); result->statement_ = $$; }
-  | Opcode { $$ = new OpcodeStmt($1); result->statement_ = $$; }
+Statement : T_Label { $$ = new LabelStmt($1); }
+  | _IDENT_ _KW_EQU Exp { $$ = new DeclareStmt($1, $3); }
+  | _LBRACK ConfigType _STRING_ _RBRACK { $$ = new ConfigStmt($2, $3); }
+  | Opcode ListMnemonicArgs { std::reverse($2->begin(),$2->end()) ;$$ = new MnemonicStmt($1, $2); }
+  | Opcode { $$ = new OpcodeStmt($1); }
 ;
-ListMnemonicArgs : MnemonicArgs { $$ = new ListMnemonicArgs(); $$->push_back($1); result->listmnemonicargs_ = $$; }
-  | MnemonicArgs _COMMA ListMnemonicArgs { $3->push_back($1); $$ = $3; result->listmnemonicargs_ = $$; }
+ListMnemonicArgs : MnemonicArgs { $$ = new ListMnemonicArgs(); $$->push_back($1); }
+  | MnemonicArgs _COMMA ListMnemonicArgs { $3->push_back($1); $$ = $3; }
 ;
-MnemonicArgs : Exp { $$ = new MnemoArgs($1); result->mnemonicargs_ = $$; }
+MnemonicArgs : Exp { $$ = new MnemoArg($1); }
 ;
-Exp : Factor _DEQ Factor { $$ = new EqExp($1, $3); result->exp_ = $$; }
-  | Factor _BANGEQ Factor { $$ = new NeqExp($1, $3); result->exp_ = $$; }
-  | Factor _LT Factor { $$ = new LtExp($1, $3); result->exp_ = $$; }
-  | Factor _GT Factor { $$ = new GtExp($1, $3); result->exp_ = $$; }
-  | Factor _LDARROW Factor { $$ = new LteExp($1, $3); result->exp_ = $$; }
-  | Factor _GTEQ Factor { $$ = new GteExp($1, $3); result->exp_ = $$; }
-  | Factor _PLUS Factor { $$ = new PlusExp($1, $3); result->exp_ = $$; }
-  | Factor _MINUS Factor { $$ = new MinusExp($1, $3); result->exp_ = $$; }
-  | Factor _STAR Factor { $$ = new MulExp($1, $3); result->exp_ = $$; }
-  | Factor _SLASH Factor { $$ = new DivExp($1, $3); result->exp_ = $$; }
-  | Factor _PERCENT Factor { $$ = new ModExp($1, $3); result->exp_ = $$; }
-  | _LBRACK Factor _RBRACK { $$ = new IndirectAddrExp($2); result->exp_ = $$; }
-  | Factor { $$ = new ImmExp($1); result->exp_ = $$; }
+Exp : Exp _DEQ Exp { $$ = new EqExp($1, $3); }
+  | Exp _BANGEQ Exp { $$ = new NeqExp($1, $3); }
+  | Exp _LT Exp { $$ = new LtExp($1, $3); }
+  | Exp _GT Exp { $$ = new GtExp($1, $3); }
+  | Exp _LDARROW Exp { $$ = new LteExp($1, $3); }
+  | Exp _GTEQ Exp { $$ = new GteExp($1, $3); }
+  | Exp _PLUS Exp { $$ = new PlusExp($1, $3); }
+  | Exp _MINUS Exp { $$ = new MinusExp($1, $3); }
+  | Exp _STAR Exp { $$ = new MulExp($1, $3); }
+  | Exp _SLASH Exp { $$ = new DivExp($1, $3); }
+  | Exp _PERCENT Exp { $$ = new ModExp($1, $3); }
+  | _LBRACK Exp _RBRACK { $$ = new IndirectAddrExp($2); }
+  | DataType _LBRACK Exp _RBRACK { $$ = new DatatypeExp($1, $3); }
+  | DataType Exp _COLON Exp { $$ = new RangeExp($1, $2, $4); }
+  | T_Label { $$ = new LabelExp($1); }
+  | Factor { $$ = new ImmExp($1); }
 ;
-Factor : _INTEGER_ { $$ = new NumberFactor($1); result->factor_ = $$; }
-  | T_Hex { $$ = new HexFactor($1); result->factor_ = $$; }
-  | _IDENT_ { $$ = new IdentFactor($1); result->factor_ = $$; }
-  | _STRING_ { $$ = new StringFactor($1); result->factor_ = $$; }
+Factor : _INTEGER_ { $$ = new NumberFactor($1); }
+  | T_Hex { $$ = new HexFactor($1); }
+  | _IDENT_ { $$ = new IdentFactor($1); }
+  | _STRING_ { $$ = new StringFactor($1); }
 ;
-ConfigType : _KW_BITS { $$ = new BitsConfig(); result->configtype_ = $$; }
-  | _KW_INSTRSET { $$ = new InstConfig(); result->configtype_ = $$; }
-  | _KW_OPTIMIZE { $$ = new OptiConfig(); result->configtype_ = $$; }
-  | _KW_FORMAT { $$ = new FormConfig(); result->configtype_ = $$; }
-  | _KW_PADDING { $$ = new PaddConfig(); result->configtype_ = $$; }
-  | _KW_PADSET { $$ = new PadsConfig(); result->configtype_ = $$; }
-  | _KW_SECTION { $$ = new SectConfig(); result->configtype_ = $$; }
-  | _KW_ABSOLUTE { $$ = new AbsoConfig(); result->configtype_ = $$; }
-  | _KW_FILE { $$ = new FileConfig(); result->configtype_ = $$; }
+ConfigType : _KW_BITS { $$ = new BitsConfig(); }
+  | _KW_INSTRSET { $$ = new InstConfig(); }
+  | _KW_OPTIMIZE { $$ = new OptiConfig(); }
+  | _KW_FORMAT { $$ = new FormConfig(); }
+  | _KW_PADDING { $$ = new PaddConfig(); }
+  | _KW_PADSET { $$ = new PadsConfig(); }
+  | _KW_SECTION { $$ = new SectConfig(); }
+  | _KW_ABSOLUTE { $$ = new AbsoConfig(); }
+  | _KW_FILE { $$ = new FileConfig(); }
 ;
-Opcode : _KW_AAA { $$ = new OpcodesAAA(); result->opcode_ = $$; }
-  | _KW_AAD { $$ = new OpcodesAAD(); result->opcode_ = $$; }
-  | _KW_AAS { $$ = new OpcodesAAS(); result->opcode_ = $$; }
-  | _KW_AAM { $$ = new OpcodesAAM(); result->opcode_ = $$; }
-  | _KW_ADC { $$ = new OpcodesADC(); result->opcode_ = $$; }
-  | _KW_ADD { $$ = new OpcodesADD(); result->opcode_ = $$; }
-  | _KW_AND { $$ = new OpcodesAND(); result->opcode_ = $$; }
-  | _KW_ALIGN { $$ = new OpcodesALIGN(); result->opcode_ = $$; }
-  | _KW_ALIGNB { $$ = new OpcodesALIGNB(); result->opcode_ = $$; }
-  | _KW_ARPL { $$ = new OpcodesARPL(); result->opcode_ = $$; }
-  | _KW_BOUND { $$ = new OpcodesBOUND(); result->opcode_ = $$; }
-  | _KW_BSF { $$ = new OpcodesBSF(); result->opcode_ = $$; }
-  | _KW_BSR { $$ = new OpcodesBSR(); result->opcode_ = $$; }
-  | _KW_BSWAP { $$ = new OpcodesBSWAP(); result->opcode_ = $$; }
-  | _KW_BT { $$ = new OpcodesBT(); result->opcode_ = $$; }
-  | _KW_BTC { $$ = new OpcodesBTC(); result->opcode_ = $$; }
-  | _KW_BTR { $$ = new OpcodesBTR(); result->opcode_ = $$; }
-  | _KW_BTS { $$ = new OpcodesBTS(); result->opcode_ = $$; }
-  | _KW_CALL { $$ = new OpcodesCALL(); result->opcode_ = $$; }
-  | _KW_CBW { $$ = new OpcodesCBW(); result->opcode_ = $$; }
-  | _KW_CDQ { $$ = new OpcodesCDQ(); result->opcode_ = $$; }
-  | _KW_CLC { $$ = new OpcodesCLC(); result->opcode_ = $$; }
-  | _KW_CLD { $$ = new OpcodesCLD(); result->opcode_ = $$; }
-  | _KW_CLI { $$ = new OpcodesCLI(); result->opcode_ = $$; }
-  | _KW_CLTS { $$ = new OpcodesCLTS(); result->opcode_ = $$; }
-  | _KW_CMC { $$ = new OpcodesCMC(); result->opcode_ = $$; }
-  | _KW_CMP { $$ = new OpcodesCMP(); result->opcode_ = $$; }
-  | _KW_CMPSB { $$ = new OpcodesCMPSB(); result->opcode_ = $$; }
-  | _KW_CMPSD { $$ = new OpcodesCMPSD(); result->opcode_ = $$; }
-  | _KW_CMPSW { $$ = new OpcodesCMPSW(); result->opcode_ = $$; }
-  | _KW_CMPXCHG { $$ = new OpcodesCMPXCHG(); result->opcode_ = $$; }
-  | _KW_CPUID { $$ = new OpcodesCPUID(); result->opcode_ = $$; }
-  | _KW_CWD { $$ = new OpcodesCWD(); result->opcode_ = $$; }
-  | _KW_CWDE { $$ = new OpcodesCWDE(); result->opcode_ = $$; }
-  | _KW_DAA { $$ = new OpcodesDAA(); result->opcode_ = $$; }
-  | _KW_DAS { $$ = new OpcodesDAS(); result->opcode_ = $$; }
-  | _KW_DB { $$ = new OpcodesDB(); result->opcode_ = $$; }
-  | _KW_DD { $$ = new OpcodesDD(); result->opcode_ = $$; }
-  | _KW_DEC { $$ = new OpcodesDEC(); result->opcode_ = $$; }
-  | _KW_DIV { $$ = new OpcodesDIV(); result->opcode_ = $$; }
-  | _KW_DQ { $$ = new OpcodesDQ(); result->opcode_ = $$; }
-  | _KW_DT { $$ = new OpcodesDT(); result->opcode_ = $$; }
-  | _KW_DW { $$ = new OpcodesDW(); result->opcode_ = $$; }
-  | _KW_END { $$ = new OpcodesEND(); result->opcode_ = $$; }
-  | _KW_ENTER { $$ = new OpcodesENTER(); result->opcode_ = $$; }
-  | _KW_EXTERN { $$ = new OpcodesEXTERN(); result->opcode_ = $$; }
-  | _KW_F2XM1 { $$ = new OpcodesF2XM1(); result->opcode_ = $$; }
-  | _KW_FABS { $$ = new OpcodesFABS(); result->opcode_ = $$; }
-  | _KW_FADD { $$ = new OpcodesFADD(); result->opcode_ = $$; }
-  | _KW_FADDP { $$ = new OpcodesFADDP(); result->opcode_ = $$; }
-  | _KW_FBLD { $$ = new OpcodesFBLD(); result->opcode_ = $$; }
-  | _KW_FBSTP { $$ = new OpcodesFBSTP(); result->opcode_ = $$; }
-  | _KW_FCHS { $$ = new OpcodesFCHS(); result->opcode_ = $$; }
-  | _KW_FCLEX { $$ = new OpcodesFCLEX(); result->opcode_ = $$; }
-  | _KW_FCOM { $$ = new OpcodesFCOM(); result->opcode_ = $$; }
-  | _KW_FCOMP { $$ = new OpcodesFCOMP(); result->opcode_ = $$; }
-  | _KW_FCOMPP { $$ = new OpcodesFCOMPP(); result->opcode_ = $$; }
-  | _KW_FCOS { $$ = new OpcodesFCOS(); result->opcode_ = $$; }
-  | _KW_FDECSTP { $$ = new OpcodesFDECSTP(); result->opcode_ = $$; }
-  | _KW_FDISI { $$ = new OpcodesFDISI(); result->opcode_ = $$; }
-  | _KW_FDIV { $$ = new OpcodesFDIV(); result->opcode_ = $$; }
-  | _KW_FDIVP { $$ = new OpcodesFDIVP(); result->opcode_ = $$; }
-  | _KW_FDIVR { $$ = new OpcodesFDIVR(); result->opcode_ = $$; }
-  | _KW_FDIVRP { $$ = new OpcodesFDIVRP(); result->opcode_ = $$; }
-  | _KW_FENI { $$ = new OpcodesFENI(); result->opcode_ = $$; }
-  | _KW_FFREE { $$ = new OpcodesFFREE(); result->opcode_ = $$; }
-  | _KW_FIADD { $$ = new OpcodesFIADD(); result->opcode_ = $$; }
-  | _KW_FICOM { $$ = new OpcodesFICOM(); result->opcode_ = $$; }
-  | _KW_FICOMP { $$ = new OpcodesFICOMP(); result->opcode_ = $$; }
-  | _KW_FIDIV { $$ = new OpcodesFIDIV(); result->opcode_ = $$; }
-  | _KW_FIDIVR { $$ = new OpcodesFIDIVR(); result->opcode_ = $$; }
-  | _KW_FILD { $$ = new OpcodesFILD(); result->opcode_ = $$; }
-  | _KW_FIMUL { $$ = new OpcodesFIMUL(); result->opcode_ = $$; }
-  | _KW_FINCSTP { $$ = new OpcodesFINCSTP(); result->opcode_ = $$; }
-  | _KW_FINIT { $$ = new OpcodesFINIT(); result->opcode_ = $$; }
-  | _KW_FIST { $$ = new OpcodesFIST(); result->opcode_ = $$; }
-  | _KW_FISTP { $$ = new OpcodesFISTP(); result->opcode_ = $$; }
-  | _KW_FISUB { $$ = new OpcodesFISUB(); result->opcode_ = $$; }
-  | _KW_FISUBR { $$ = new OpcodesFISUBR(); result->opcode_ = $$; }
-  | _KW_FLD { $$ = new OpcodesFLD(); result->opcode_ = $$; }
-  | _KW_FLD1 { $$ = new OpcodesFLD1(); result->opcode_ = $$; }
-  | _KW_FLDCW { $$ = new OpcodesFLDCW(); result->opcode_ = $$; }
-  | _KW_FLDENV { $$ = new OpcodesFLDENV(); result->opcode_ = $$; }
-  | _KW_FLDL2E { $$ = new OpcodesFLDL2E(); result->opcode_ = $$; }
-  | _KW_FLDL2T { $$ = new OpcodesFLDL2T(); result->opcode_ = $$; }
-  | _KW_FLDLG2 { $$ = new OpcodesFLDLG2(); result->opcode_ = $$; }
-  | _KW_FLDLN2 { $$ = new OpcodesFLDLN2(); result->opcode_ = $$; }
-  | _KW_FLDPI { $$ = new OpcodesFLDPI(); result->opcode_ = $$; }
-  | _KW_FLDZ { $$ = new OpcodesFLDZ(); result->opcode_ = $$; }
-  | _KW_FMUL { $$ = new OpcodesFMUL(); result->opcode_ = $$; }
-  | _KW_FMULP { $$ = new OpcodesFMULP(); result->opcode_ = $$; }
-  | _KW_FNCLEX { $$ = new OpcodesFNCLEX(); result->opcode_ = $$; }
-  | _KW_FNDISI { $$ = new OpcodesFNDISI(); result->opcode_ = $$; }
-  | _KW_FNENI { $$ = new OpcodesFNENI(); result->opcode_ = $$; }
-  | _KW_FNINIT { $$ = new OpcodesFNINIT(); result->opcode_ = $$; }
-  | _KW_FNOP { $$ = new OpcodesFNOP(); result->opcode_ = $$; }
-  | _KW_FNSAVE { $$ = new OpcodesFNSAVE(); result->opcode_ = $$; }
-  | _KW_FNSTCW { $$ = new OpcodesFNSTCW(); result->opcode_ = $$; }
-  | _KW_FNSTENV { $$ = new OpcodesFNSTENV(); result->opcode_ = $$; }
-  | _KW_FNSTSW { $$ = new OpcodesFNSTSW(); result->opcode_ = $$; }
-  | _KW_FPATAN { $$ = new OpcodesFPATAN(); result->opcode_ = $$; }
-  | _KW_FPTAN { $$ = new OpcodesFPTAN(); result->opcode_ = $$; }
-  | _KW_FPREM { $$ = new OpcodesFPREM(); result->opcode_ = $$; }
-  | _KW_FPREM1 { $$ = new OpcodesFPREM1(); result->opcode_ = $$; }
-  | _KW_FRNDINT { $$ = new OpcodesFRNDINT(); result->opcode_ = $$; }
-  | _KW_FRSTOR { $$ = new OpcodesFRSTOR(); result->opcode_ = $$; }
-  | _KW_FSAVE { $$ = new OpcodesFSAVE(); result->opcode_ = $$; }
-  | _KW_FSCALE { $$ = new OpcodesFSCALE(); result->opcode_ = $$; }
-  | _KW_FSETPM { $$ = new OpcodesFSETPM(); result->opcode_ = $$; }
-  | _KW_FSIN { $$ = new OpcodesFSIN(); result->opcode_ = $$; }
-  | _KW_FSINCOS { $$ = new OpcodesFSINCOS(); result->opcode_ = $$; }
-  | _KW_FSQRT { $$ = new OpcodesFSQRT(); result->opcode_ = $$; }
-  | _KW_FST { $$ = new OpcodesFST(); result->opcode_ = $$; }
-  | _KW_FSTCW { $$ = new OpcodesFSTCW(); result->opcode_ = $$; }
-  | _KW_FSTENV { $$ = new OpcodesFSTENV(); result->opcode_ = $$; }
-  | _KW_FSTP { $$ = new OpcodesFSTP(); result->opcode_ = $$; }
-  | _KW_FSTSW { $$ = new OpcodesFSTSW(); result->opcode_ = $$; }
-  | _KW_FSUB { $$ = new OpcodesFSUB(); result->opcode_ = $$; }
-  | _KW_FSUBP { $$ = new OpcodesFSUBP(); result->opcode_ = $$; }
-  | _KW_FSUBR { $$ = new OpcodesFSUBR(); result->opcode_ = $$; }
-  | _KW_FSUBRP { $$ = new OpcodesFSUBRP(); result->opcode_ = $$; }
-  | _KW_FTST { $$ = new OpcodesFTST(); result->opcode_ = $$; }
-  | _KW_FUCOM { $$ = new OpcodesFUCOM(); result->opcode_ = $$; }
-  | _KW_FUCOMP { $$ = new OpcodesFUCOMP(); result->opcode_ = $$; }
-  | _KW_FUCOMPP { $$ = new OpcodesFUCOMPP(); result->opcode_ = $$; }
-  | _KW_FXAM { $$ = new OpcodesFXAM(); result->opcode_ = $$; }
-  | _KW_FXCH { $$ = new OpcodesFXCH(); result->opcode_ = $$; }
-  | _KW_FXTRACT { $$ = new OpcodesFXTRACT(); result->opcode_ = $$; }
-  | _KW_FYL2X { $$ = new OpcodesFYL2X(); result->opcode_ = $$; }
-  | _KW_FYL2XP1 { $$ = new OpcodesFYL2XP1(); result->opcode_ = $$; }
-  | _KW_HLT { $$ = new OpcodesHLT(); result->opcode_ = $$; }
-  | _KW_IDIV { $$ = new OpcodesIDIV(); result->opcode_ = $$; }
-  | _KW_IMUL { $$ = new OpcodesIMUL(); result->opcode_ = $$; }
-  | _KW_IN { $$ = new OpcodesIN(); result->opcode_ = $$; }
-  | _KW_INC { $$ = new OpcodesINC(); result->opcode_ = $$; }
-  | _KW_INCO { $$ = new OpcodesINCO(); result->opcode_ = $$; }
-  | _KW_INSB { $$ = new OpcodesINSB(); result->opcode_ = $$; }
-  | _KW_INSD { $$ = new OpcodesINSD(); result->opcode_ = $$; }
-  | _KW_INSW { $$ = new OpcodesINSW(); result->opcode_ = $$; }
-  | _KW_INT { $$ = new OpcodesINT(); result->opcode_ = $$; }
-  | _KW_INT3 { $$ = new OpcodesINT3(); result->opcode_ = $$; }
-  | _KW_INTO { $$ = new OpcodesINTO(); result->opcode_ = $$; }
-  | _KW_INVD { $$ = new OpcodesINVD(); result->opcode_ = $$; }
-  | _KW_INVLPG { $$ = new OpcodesINVLPG(); result->opcode_ = $$; }
-  | _KW_IRET { $$ = new OpcodesIRET(); result->opcode_ = $$; }
-  | _KW_IRETD { $$ = new OpcodesIRETD(); result->opcode_ = $$; }
-  | _KW_IRETW { $$ = new OpcodesIRETW(); result->opcode_ = $$; }
-  | _KW_JA { $$ = new OpcodesJA(); result->opcode_ = $$; }
-  | _KW_JAE { $$ = new OpcodesJAE(); result->opcode_ = $$; }
-  | _KW_JB { $$ = new OpcodesJB(); result->opcode_ = $$; }
-  | _KW_JBE { $$ = new OpcodesJBE(); result->opcode_ = $$; }
-  | _KW_JC { $$ = new OpcodesJC(); result->opcode_ = $$; }
-  | _KW_JCXZ { $$ = new OpcodesJCXZ(); result->opcode_ = $$; }
-  | _KW_JE { $$ = new OpcodesJE(); result->opcode_ = $$; }
-  | _KW_JECXZ { $$ = new OpcodesJECXZ(); result->opcode_ = $$; }
-  | _KW_JG { $$ = new OpcodesJG(); result->opcode_ = $$; }
-  | _KW_JGE { $$ = new OpcodesJGE(); result->opcode_ = $$; }
-  | _KW_JL { $$ = new OpcodesJL(); result->opcode_ = $$; }
-  | _KW_JLE { $$ = new OpcodesJLE(); result->opcode_ = $$; }
-  | _KW_JMP { $$ = new OpcodesJMP(); result->opcode_ = $$; }
-  | _KW_JNA { $$ = new OpcodesJNA(); result->opcode_ = $$; }
-  | _KW_JNAE { $$ = new OpcodesJNAE(); result->opcode_ = $$; }
-  | _KW_JNB { $$ = new OpcodesJNB(); result->opcode_ = $$; }
-  | _KW_JNBE { $$ = new OpcodesJNBE(); result->opcode_ = $$; }
-  | _KW_JNC { $$ = new OpcodesJNC(); result->opcode_ = $$; }
-  | _KW_JNE { $$ = new OpcodesJNE(); result->opcode_ = $$; }
-  | _KW_JNG { $$ = new OpcodesJNG(); result->opcode_ = $$; }
-  | _KW_JNGE { $$ = new OpcodesJNGE(); result->opcode_ = $$; }
-  | _KW_JNL { $$ = new OpcodesJNL(); result->opcode_ = $$; }
-  | _KW_JNLE { $$ = new OpcodesJNLE(); result->opcode_ = $$; }
-  | _KW_JNO { $$ = new OpcodesJNO(); result->opcode_ = $$; }
-  | _KW_JNP { $$ = new OpcodesJNP(); result->opcode_ = $$; }
-  | _KW_JNS { $$ = new OpcodesJNS(); result->opcode_ = $$; }
-  | _KW_JNZ { $$ = new OpcodesJNZ(); result->opcode_ = $$; }
-  | _KW_JO { $$ = new OpcodesJO(); result->opcode_ = $$; }
-  | _KW_JP { $$ = new OpcodesJP(); result->opcode_ = $$; }
-  | _KW_JPE { $$ = new OpcodesJPE(); result->opcode_ = $$; }
-  | _KW_JPO { $$ = new OpcodesJPO(); result->opcode_ = $$; }
-  | _KW_JS { $$ = new OpcodesJS(); result->opcode_ = $$; }
-  | _KW_JZ { $$ = new OpcodesJZ(); result->opcode_ = $$; }
-  | _KW_LAHF { $$ = new OpcodesLAHF(); result->opcode_ = $$; }
-  | _KW_LAR { $$ = new OpcodesLAR(); result->opcode_ = $$; }
-  | _KW_LDS { $$ = new OpcodesLDS(); result->opcode_ = $$; }
-  | _KW_LEA { $$ = new OpcodesLEA(); result->opcode_ = $$; }
-  | _KW_LEAVE { $$ = new OpcodesLEAVE(); result->opcode_ = $$; }
-  | _KW_LES { $$ = new OpcodesLES(); result->opcode_ = $$; }
-  | _KW_LFS { $$ = new OpcodesLFS(); result->opcode_ = $$; }
-  | _KW_LGDT { $$ = new OpcodesLGDT(); result->opcode_ = $$; }
-  | _KW_LGS { $$ = new OpcodesLGS(); result->opcode_ = $$; }
-  | _KW_LIDT { $$ = new OpcodesLIDT(); result->opcode_ = $$; }
-  | _KW_LLDT { $$ = new OpcodesLLDT(); result->opcode_ = $$; }
-  | _KW_LMSW { $$ = new OpcodesLMSW(); result->opcode_ = $$; }
-  | _KW_LOCK { $$ = new OpcodesLOCK(); result->opcode_ = $$; }
-  | _KW_LODSB { $$ = new OpcodesLODSB(); result->opcode_ = $$; }
-  | _KW_LODSD { $$ = new OpcodesLODSD(); result->opcode_ = $$; }
-  | _KW_LODSW { $$ = new OpcodesLODSW(); result->opcode_ = $$; }
-  | _KW_LOOP { $$ = new OpcodesLOOP(); result->opcode_ = $$; }
-  | _KW_LOOPE { $$ = new OpcodesLOOPE(); result->opcode_ = $$; }
-  | _KW_LOOPNE { $$ = new OpcodesLOOPNE(); result->opcode_ = $$; }
-  | _KW_LOOPNZ { $$ = new OpcodesLOOPNZ(); result->opcode_ = $$; }
-  | _KW_LOOPZ { $$ = new OpcodesLOOPZ(); result->opcode_ = $$; }
-  | _KW_LSL { $$ = new OpcodesLSL(); result->opcode_ = $$; }
-  | _KW_LSS { $$ = new OpcodesLSS(); result->opcode_ = $$; }
-  | _KW_LTR { $$ = new OpcodesLTR(); result->opcode_ = $$; }
-  | _KW_MOV { $$ = new OpcodesMOV(); result->opcode_ = $$; }
-  | _KW_MOVSB { $$ = new OpcodesMOVSB(); result->opcode_ = $$; }
-  | _KW_MOVSD { $$ = new OpcodesMOVSD(); result->opcode_ = $$; }
-  | _KW_MOVSW { $$ = new OpcodesMOVSW(); result->opcode_ = $$; }
-  | _KW_MOVSX { $$ = new OpcodesMOVSX(); result->opcode_ = $$; }
-  | _KW_MOVZX { $$ = new OpcodesMOVZX(); result->opcode_ = $$; }
-  | _KW_MUL { $$ = new OpcodesMUL(); result->opcode_ = $$; }
-  | _KW_NEG { $$ = new OpcodesNEG(); result->opcode_ = $$; }
-  | _KW_NOP { $$ = new OpcodesNOP(); result->opcode_ = $$; }
-  | _KW_NOT { $$ = new OpcodesNOT(); result->opcode_ = $$; }
-  | _KW_OR { $$ = new OpcodesOR(); result->opcode_ = $$; }
-  | _KW_ORG { $$ = new OpcodesORG(); result->opcode_ = $$; }
-  | _KW_OUT { $$ = new OpcodesOUT(); result->opcode_ = $$; }
-  | _KW_OUTSB { $$ = new OpcodesOUTSB(); result->opcode_ = $$; }
-  | _KW_OUTSD { $$ = new OpcodesOUTSD(); result->opcode_ = $$; }
-  | _KW_OUTSW { $$ = new OpcodesOUTSW(); result->opcode_ = $$; }
-  | _KW_POP { $$ = new OpcodesPOP(); result->opcode_ = $$; }
-  | _KW_POPA { $$ = new OpcodesPOPA(); result->opcode_ = $$; }
-  | _KW_POPAD { $$ = new OpcodesPOPAD(); result->opcode_ = $$; }
-  | _KW_POPAW { $$ = new OpcodesPOPAW(); result->opcode_ = $$; }
-  | _KW_POPF { $$ = new OpcodesPOPF(); result->opcode_ = $$; }
-  | _KW_POPFD { $$ = new OpcodesPOPFD(); result->opcode_ = $$; }
-  | _KW_POPFW { $$ = new OpcodesPOPFW(); result->opcode_ = $$; }
-  | _KW_PUSH { $$ = new OpcodesPUSH(); result->opcode_ = $$; }
-  | _KW_PUSHA { $$ = new OpcodesPUSHA(); result->opcode_ = $$; }
-  | _KW_PUSHD { $$ = new OpcodesPUSHD(); result->opcode_ = $$; }
-  | _KW_PUSHAD { $$ = new OpcodesPUSHAD(); result->opcode_ = $$; }
-  | _KW_PUSHAW { $$ = new OpcodesPUSHAW(); result->opcode_ = $$; }
-  | _KW_PUSHF { $$ = new OpcodesPUSHF(); result->opcode_ = $$; }
-  | _KW_PUSHFD { $$ = new OpcodesPUSHFD(); result->opcode_ = $$; }
-  | _KW_PUSHFW { $$ = new OpcodesPUSHFW(); result->opcode_ = $$; }
-  | _KW_RCL { $$ = new OpcodesRCL(); result->opcode_ = $$; }
-  | _KW_RCR { $$ = new OpcodesRCR(); result->opcode_ = $$; }
-  | _KW_RDMSR { $$ = new OpcodesRDMSR(); result->opcode_ = $$; }
-  | _KW_RDPMC { $$ = new OpcodesRDPMC(); result->opcode_ = $$; }
-  | _KW_REP { $$ = new OpcodesREP(); result->opcode_ = $$; }
-  | _KW_REPE { $$ = new OpcodesREPE(); result->opcode_ = $$; }
-  | _KW_REPNE { $$ = new OpcodesREPNE(); result->opcode_ = $$; }
-  | _KW_REPNZ { $$ = new OpcodesREPNZ(); result->opcode_ = $$; }
-  | _KW_REPZ { $$ = new OpcodesREPZ(); result->opcode_ = $$; }
-  | _KW_RESB { $$ = new OpcodesRESB(); result->opcode_ = $$; }
-  | _KW_RESD { $$ = new OpcodesRESD(); result->opcode_ = $$; }
-  | _KW_RESQ { $$ = new OpcodesRESQ(); result->opcode_ = $$; }
-  | _KW_REST { $$ = new OpcodesREST(); result->opcode_ = $$; }
-  | _KW_RESW { $$ = new OpcodesRESW(); result->opcode_ = $$; }
-  | _KW_RET { $$ = new OpcodesRET(); result->opcode_ = $$; }
-  | _KW_RETF { $$ = new OpcodesRETF(); result->opcode_ = $$; }
-  | _KW_RETN { $$ = new OpcodesRETN(); result->opcode_ = $$; }
-  | _KW_ROL { $$ = new OpcodesROL(); result->opcode_ = $$; }
-  | _KW_ROR { $$ = new OpcodesROR(); result->opcode_ = $$; }
-  | _KW_RSM { $$ = new OpcodesRSM(); result->opcode_ = $$; }
-  | _KW_SAHF { $$ = new OpcodesSAHF(); result->opcode_ = $$; }
-  | _KW_SAL { $$ = new OpcodesSAL(); result->opcode_ = $$; }
-  | _KW_SAR { $$ = new OpcodesSAR(); result->opcode_ = $$; }
-  | _KW_SBB { $$ = new OpcodesSBB(); result->opcode_ = $$; }
-  | _KW_SCASB { $$ = new OpcodesSCASB(); result->opcode_ = $$; }
-  | _KW_SCASD { $$ = new OpcodesSCASD(); result->opcode_ = $$; }
-  | _KW_SCASW { $$ = new OpcodesSCASW(); result->opcode_ = $$; }
-  | _KW_SETA { $$ = new OpcodesSETA(); result->opcode_ = $$; }
-  | _KW_SETAE { $$ = new OpcodesSETAE(); result->opcode_ = $$; }
-  | _KW_SETB { $$ = new OpcodesSETB(); result->opcode_ = $$; }
-  | _KW_SETBE { $$ = new OpcodesSETBE(); result->opcode_ = $$; }
-  | _KW_SETC { $$ = new OpcodesSETC(); result->opcode_ = $$; }
-  | _KW_SETE { $$ = new OpcodesSETE(); result->opcode_ = $$; }
-  | _KW_SETG { $$ = new OpcodesSETG(); result->opcode_ = $$; }
-  | _KW_SETGE { $$ = new OpcodesSETGE(); result->opcode_ = $$; }
-  | _KW_SETL { $$ = new OpcodesSETL(); result->opcode_ = $$; }
-  | _KW_SETLE { $$ = new OpcodesSETLE(); result->opcode_ = $$; }
-  | _KW_SETNA { $$ = new OpcodesSETNA(); result->opcode_ = $$; }
-  | _KW_SETNAE { $$ = new OpcodesSETNAE(); result->opcode_ = $$; }
-  | _KW_SETNB { $$ = new OpcodesSETNB(); result->opcode_ = $$; }
-  | _KW_SETNBE { $$ = new OpcodesSETNBE(); result->opcode_ = $$; }
-  | _KW_SETNC { $$ = new OpcodesSETNC(); result->opcode_ = $$; }
-  | _KW_SETNE { $$ = new OpcodesSETNE(); result->opcode_ = $$; }
-  | _KW_SETNG { $$ = new OpcodesSETNG(); result->opcode_ = $$; }
-  | _KW_SETNGE { $$ = new OpcodesSETNGE(); result->opcode_ = $$; }
-  | _KW_SETNL { $$ = new OpcodesSETNL(); result->opcode_ = $$; }
-  | _KW_SETNLE { $$ = new OpcodesSETNLE(); result->opcode_ = $$; }
-  | _KW_SETNO { $$ = new OpcodesSETNO(); result->opcode_ = $$; }
-  | _KW_SETNP { $$ = new OpcodesSETNP(); result->opcode_ = $$; }
-  | _KW_SETNS { $$ = new OpcodesSETNS(); result->opcode_ = $$; }
-  | _KW_SETNZ { $$ = new OpcodesSETNZ(); result->opcode_ = $$; }
-  | _KW_SETO { $$ = new OpcodesSETO(); result->opcode_ = $$; }
-  | _KW_SETP { $$ = new OpcodesSETP(); result->opcode_ = $$; }
-  | _KW_SETPE { $$ = new OpcodesSETPE(); result->opcode_ = $$; }
-  | _KW_SETPO { $$ = new OpcodesSETPO(); result->opcode_ = $$; }
-  | _KW_SETS { $$ = new OpcodesSETS(); result->opcode_ = $$; }
-  | _KW_SETZ { $$ = new OpcodesSETZ(); result->opcode_ = $$; }
-  | _KW_SGDT { $$ = new OpcodesSGDT(); result->opcode_ = $$; }
-  | _KW_SHL { $$ = new OpcodesSHL(); result->opcode_ = $$; }
-  | _KW_SHLD { $$ = new OpcodesSHLD(); result->opcode_ = $$; }
-  | _KW_SHR { $$ = new OpcodesSHR(); result->opcode_ = $$; }
-  | _KW_SHRD { $$ = new OpcodesSHRD(); result->opcode_ = $$; }
-  | _KW_SIDT { $$ = new OpcodesSIDT(); result->opcode_ = $$; }
-  | _KW_SLDT { $$ = new OpcodesSLDT(); result->opcode_ = $$; }
-  | _KW_SMSW { $$ = new OpcodesSMSW(); result->opcode_ = $$; }
-  | _KW_STC { $$ = new OpcodesSTC(); result->opcode_ = $$; }
-  | _KW_STD { $$ = new OpcodesSTD(); result->opcode_ = $$; }
-  | _KW_STI { $$ = new OpcodesSTI(); result->opcode_ = $$; }
-  | _KW_STOSB { $$ = new OpcodesSTOSB(); result->opcode_ = $$; }
-  | _KW_STOSD { $$ = new OpcodesSTOSD(); result->opcode_ = $$; }
-  | _KW_STOSW { $$ = new OpcodesSTOSW(); result->opcode_ = $$; }
-  | _KW_STR { $$ = new OpcodesSTR(); result->opcode_ = $$; }
-  | _KW_SUB { $$ = new OpcodesSUB(); result->opcode_ = $$; }
-  | _KW_TEST { $$ = new OpcodesTEST(); result->opcode_ = $$; }
-  | _KW_TIMES { $$ = new OpcodesTIMES(); result->opcode_ = $$; }
-  | _KW_UD2 { $$ = new OpcodesUD2(); result->opcode_ = $$; }
-  | _KW_VERR { $$ = new OpcodesVERR(); result->opcode_ = $$; }
-  | _KW_VERW { $$ = new OpcodesVERW(); result->opcode_ = $$; }
-  | _KW_WAIT { $$ = new OpcodesWAIT(); result->opcode_ = $$; }
-  | _KW_WBINVD { $$ = new OpcodesWBINVD(); result->opcode_ = $$; }
-  | _KW_WRMSR { $$ = new OpcodesWRMSR(); result->opcode_ = $$; }
-  | _KW_XADD { $$ = new OpcodesXADD(); result->opcode_ = $$; }
-  | _KW_XCHG { $$ = new OpcodesXCHG(); result->opcode_ = $$; }
-  | _KW_XLATB { $$ = new OpcodesXLATB(); result->opcode_ = $$; }
-  | _KW_XOR { $$ = new OpcodesXOR(); result->opcode_ = $$; }
+DataType : _KW_BYTE { $$ = new ByteDataType(); }
+  | _KW_WORD { $$ = new WordDataType(); }
+  | _KW_DWORD { $$ = new DwordDataType(); }
+;
+Opcode : _KW_AAA { $$ = new OpcodesAAA(); }
+  | _KW_AAD { $$ = new OpcodesAAD(); }
+  | _KW_AAS { $$ = new OpcodesAAS(); }
+  | _KW_AAM { $$ = new OpcodesAAM(); }
+  | _KW_ADC { $$ = new OpcodesADC(); }
+  | _KW_ADD { $$ = new OpcodesADD(); }
+  | _KW_AND { $$ = new OpcodesAND(); }
+  | _KW_ALIGN { $$ = new OpcodesALIGN(); }
+  | _KW_ALIGNB { $$ = new OpcodesALIGNB(); }
+  | _KW_ARPL { $$ = new OpcodesARPL(); }
+  | _KW_BOUND { $$ = new OpcodesBOUND(); }
+  | _KW_BSF { $$ = new OpcodesBSF(); }
+  | _KW_BSR { $$ = new OpcodesBSR(); }
+  | _KW_BSWAP { $$ = new OpcodesBSWAP(); }
+  | _KW_BT { $$ = new OpcodesBT(); }
+  | _KW_BTC { $$ = new OpcodesBTC(); }
+  | _KW_BTR { $$ = new OpcodesBTR(); }
+  | _KW_BTS { $$ = new OpcodesBTS(); }
+  | _KW_CALL { $$ = new OpcodesCALL(); }
+  | _KW_CBW { $$ = new OpcodesCBW(); }
+  | _KW_CDQ { $$ = new OpcodesCDQ(); }
+  | _KW_CLC { $$ = new OpcodesCLC(); }
+  | _KW_CLD { $$ = new OpcodesCLD(); }
+  | _KW_CLI { $$ = new OpcodesCLI(); }
+  | _KW_CLTS { $$ = new OpcodesCLTS(); }
+  | _KW_CMC { $$ = new OpcodesCMC(); }
+  | _KW_CMP { $$ = new OpcodesCMP(); }
+  | _KW_CMPSB { $$ = new OpcodesCMPSB(); }
+  | _KW_CMPSD { $$ = new OpcodesCMPSD(); }
+  | _KW_CMPSW { $$ = new OpcodesCMPSW(); }
+  | _KW_CMPXCHG { $$ = new OpcodesCMPXCHG(); }
+  | _KW_CPUID { $$ = new OpcodesCPUID(); }
+  | _KW_CWD { $$ = new OpcodesCWD(); }
+  | _KW_CWDE { $$ = new OpcodesCWDE(); }
+  | _KW_DAA { $$ = new OpcodesDAA(); }
+  | _KW_DAS { $$ = new OpcodesDAS(); }
+  | _KW_DB { $$ = new OpcodesDB(); }
+  | _KW_DD { $$ = new OpcodesDD(); }
+  | _KW_DEC { $$ = new OpcodesDEC(); }
+  | _KW_DIV { $$ = new OpcodesDIV(); }
+  | _KW_DQ { $$ = new OpcodesDQ(); }
+  | _KW_DT { $$ = new OpcodesDT(); }
+  | _KW_DW { $$ = new OpcodesDW(); }
+  | _KW_END { $$ = new OpcodesEND(); }
+  | _KW_ENTER { $$ = new OpcodesENTER(); }
+  | _KW_EXTERN { $$ = new OpcodesEXTERN(); }
+  | _KW_F2XM1 { $$ = new OpcodesF2XM1(); }
+  | _KW_FABS { $$ = new OpcodesFABS(); }
+  | _KW_FADD { $$ = new OpcodesFADD(); }
+  | _KW_FADDP { $$ = new OpcodesFADDP(); }
+  | _KW_FBLD { $$ = new OpcodesFBLD(); }
+  | _KW_FBSTP { $$ = new OpcodesFBSTP(); }
+  | _KW_FCHS { $$ = new OpcodesFCHS(); }
+  | _KW_FCLEX { $$ = new OpcodesFCLEX(); }
+  | _KW_FCOM { $$ = new OpcodesFCOM(); }
+  | _KW_FCOMP { $$ = new OpcodesFCOMP(); }
+  | _KW_FCOMPP { $$ = new OpcodesFCOMPP(); }
+  | _KW_FCOS { $$ = new OpcodesFCOS(); }
+  | _KW_FDECSTP { $$ = new OpcodesFDECSTP(); }
+  | _KW_FDISI { $$ = new OpcodesFDISI(); }
+  | _KW_FDIV { $$ = new OpcodesFDIV(); }
+  | _KW_FDIVP { $$ = new OpcodesFDIVP(); }
+  | _KW_FDIVR { $$ = new OpcodesFDIVR(); }
+  | _KW_FDIVRP { $$ = new OpcodesFDIVRP(); }
+  | _KW_FENI { $$ = new OpcodesFENI(); }
+  | _KW_FFREE { $$ = new OpcodesFFREE(); }
+  | _KW_FIADD { $$ = new OpcodesFIADD(); }
+  | _KW_FICOM { $$ = new OpcodesFICOM(); }
+  | _KW_FICOMP { $$ = new OpcodesFICOMP(); }
+  | _KW_FIDIV { $$ = new OpcodesFIDIV(); }
+  | _KW_FIDIVR { $$ = new OpcodesFIDIVR(); }
+  | _KW_FILD { $$ = new OpcodesFILD(); }
+  | _KW_FIMUL { $$ = new OpcodesFIMUL(); }
+  | _KW_FINCSTP { $$ = new OpcodesFINCSTP(); }
+  | _KW_FINIT { $$ = new OpcodesFINIT(); }
+  | _KW_FIST { $$ = new OpcodesFIST(); }
+  | _KW_FISTP { $$ = new OpcodesFISTP(); }
+  | _KW_FISUB { $$ = new OpcodesFISUB(); }
+  | _KW_FISUBR { $$ = new OpcodesFISUBR(); }
+  | _KW_FLD { $$ = new OpcodesFLD(); }
+  | _KW_FLD1 { $$ = new OpcodesFLD1(); }
+  | _KW_FLDCW { $$ = new OpcodesFLDCW(); }
+  | _KW_FLDENV { $$ = new OpcodesFLDENV(); }
+  | _KW_FLDL2E { $$ = new OpcodesFLDL2E(); }
+  | _KW_FLDL2T { $$ = new OpcodesFLDL2T(); }
+  | _KW_FLDLG2 { $$ = new OpcodesFLDLG2(); }
+  | _KW_FLDLN2 { $$ = new OpcodesFLDLN2(); }
+  | _KW_FLDPI { $$ = new OpcodesFLDPI(); }
+  | _KW_FLDZ { $$ = new OpcodesFLDZ(); }
+  | _KW_FMUL { $$ = new OpcodesFMUL(); }
+  | _KW_FMULP { $$ = new OpcodesFMULP(); }
+  | _KW_FNCLEX { $$ = new OpcodesFNCLEX(); }
+  | _KW_FNDISI { $$ = new OpcodesFNDISI(); }
+  | _KW_FNENI { $$ = new OpcodesFNENI(); }
+  | _KW_FNINIT { $$ = new OpcodesFNINIT(); }
+  | _KW_FNOP { $$ = new OpcodesFNOP(); }
+  | _KW_FNSAVE { $$ = new OpcodesFNSAVE(); }
+  | _KW_FNSTCW { $$ = new OpcodesFNSTCW(); }
+  | _KW_FNSTENV { $$ = new OpcodesFNSTENV(); }
+  | _KW_FNSTSW { $$ = new OpcodesFNSTSW(); }
+  | _KW_FPATAN { $$ = new OpcodesFPATAN(); }
+  | _KW_FPTAN { $$ = new OpcodesFPTAN(); }
+  | _KW_FPREM { $$ = new OpcodesFPREM(); }
+  | _KW_FPREM1 { $$ = new OpcodesFPREM1(); }
+  | _KW_FRNDINT { $$ = new OpcodesFRNDINT(); }
+  | _KW_FRSTOR { $$ = new OpcodesFRSTOR(); }
+  | _KW_FSAVE { $$ = new OpcodesFSAVE(); }
+  | _KW_FSCALE { $$ = new OpcodesFSCALE(); }
+  | _KW_FSETPM { $$ = new OpcodesFSETPM(); }
+  | _KW_FSIN { $$ = new OpcodesFSIN(); }
+  | _KW_FSINCOS { $$ = new OpcodesFSINCOS(); }
+  | _KW_FSQRT { $$ = new OpcodesFSQRT(); }
+  | _KW_FST { $$ = new OpcodesFST(); }
+  | _KW_FSTCW { $$ = new OpcodesFSTCW(); }
+  | _KW_FSTENV { $$ = new OpcodesFSTENV(); }
+  | _KW_FSTP { $$ = new OpcodesFSTP(); }
+  | _KW_FSTSW { $$ = new OpcodesFSTSW(); }
+  | _KW_FSUB { $$ = new OpcodesFSUB(); }
+  | _KW_FSUBP { $$ = new OpcodesFSUBP(); }
+  | _KW_FSUBR { $$ = new OpcodesFSUBR(); }
+  | _KW_FSUBRP { $$ = new OpcodesFSUBRP(); }
+  | _KW_FTST { $$ = new OpcodesFTST(); }
+  | _KW_FUCOM { $$ = new OpcodesFUCOM(); }
+  | _KW_FUCOMP { $$ = new OpcodesFUCOMP(); }
+  | _KW_FUCOMPP { $$ = new OpcodesFUCOMPP(); }
+  | _KW_FXAM { $$ = new OpcodesFXAM(); }
+  | _KW_FXCH { $$ = new OpcodesFXCH(); }
+  | _KW_FXTRACT { $$ = new OpcodesFXTRACT(); }
+  | _KW_FYL2X { $$ = new OpcodesFYL2X(); }
+  | _KW_FYL2XP1 { $$ = new OpcodesFYL2XP1(); }
+  | _KW_HLT { $$ = new OpcodesHLT(); }
+  | _KW_IDIV { $$ = new OpcodesIDIV(); }
+  | _KW_IMUL { $$ = new OpcodesIMUL(); }
+  | _KW_IN { $$ = new OpcodesIN(); }
+  | _KW_INC { $$ = new OpcodesINC(); }
+  | _KW_INCO { $$ = new OpcodesINCO(); }
+  | _KW_INSB { $$ = new OpcodesINSB(); }
+  | _KW_INSD { $$ = new OpcodesINSD(); }
+  | _KW_INSW { $$ = new OpcodesINSW(); }
+  | _KW_INT { $$ = new OpcodesINT(); }
+  | _KW_INT3 { $$ = new OpcodesINT3(); }
+  | _KW_INTO { $$ = new OpcodesINTO(); }
+  | _KW_INVD { $$ = new OpcodesINVD(); }
+  | _KW_INVLPG { $$ = new OpcodesINVLPG(); }
+  | _KW_IRET { $$ = new OpcodesIRET(); }
+  | _KW_IRETD { $$ = new OpcodesIRETD(); }
+  | _KW_IRETW { $$ = new OpcodesIRETW(); }
+  | _KW_JA { $$ = new OpcodesJA(); }
+  | _KW_JAE { $$ = new OpcodesJAE(); }
+  | _KW_JB { $$ = new OpcodesJB(); }
+  | _KW_JBE { $$ = new OpcodesJBE(); }
+  | _KW_JC { $$ = new OpcodesJC(); }
+  | _KW_JCXZ { $$ = new OpcodesJCXZ(); }
+  | _KW_JE { $$ = new OpcodesJE(); }
+  | _KW_JECXZ { $$ = new OpcodesJECXZ(); }
+  | _KW_JG { $$ = new OpcodesJG(); }
+  | _KW_JGE { $$ = new OpcodesJGE(); }
+  | _KW_JL { $$ = new OpcodesJL(); }
+  | _KW_JLE { $$ = new OpcodesJLE(); }
+  | _KW_JMP { $$ = new OpcodesJMP(); }
+  | _KW_JNA { $$ = new OpcodesJNA(); }
+  | _KW_JNAE { $$ = new OpcodesJNAE(); }
+  | _KW_JNB { $$ = new OpcodesJNB(); }
+  | _KW_JNBE { $$ = new OpcodesJNBE(); }
+  | _KW_JNC { $$ = new OpcodesJNC(); }
+  | _KW_JNE { $$ = new OpcodesJNE(); }
+  | _KW_JNG { $$ = new OpcodesJNG(); }
+  | _KW_JNGE { $$ = new OpcodesJNGE(); }
+  | _KW_JNL { $$ = new OpcodesJNL(); }
+  | _KW_JNLE { $$ = new OpcodesJNLE(); }
+  | _KW_JNO { $$ = new OpcodesJNO(); }
+  | _KW_JNP { $$ = new OpcodesJNP(); }
+  | _KW_JNS { $$ = new OpcodesJNS(); }
+  | _KW_JNZ { $$ = new OpcodesJNZ(); }
+  | _KW_JO { $$ = new OpcodesJO(); }
+  | _KW_JP { $$ = new OpcodesJP(); }
+  | _KW_JPE { $$ = new OpcodesJPE(); }
+  | _KW_JPO { $$ = new OpcodesJPO(); }
+  | _KW_JS { $$ = new OpcodesJS(); }
+  | _KW_JZ { $$ = new OpcodesJZ(); }
+  | _KW_LAHF { $$ = new OpcodesLAHF(); }
+  | _KW_LAR { $$ = new OpcodesLAR(); }
+  | _KW_LDS { $$ = new OpcodesLDS(); }
+  | _KW_LEA { $$ = new OpcodesLEA(); }
+  | _KW_LEAVE { $$ = new OpcodesLEAVE(); }
+  | _KW_LES { $$ = new OpcodesLES(); }
+  | _KW_LFS { $$ = new OpcodesLFS(); }
+  | _KW_LGDT { $$ = new OpcodesLGDT(); }
+  | _KW_LGS { $$ = new OpcodesLGS(); }
+  | _KW_LIDT { $$ = new OpcodesLIDT(); }
+  | _KW_LLDT { $$ = new OpcodesLLDT(); }
+  | _KW_LMSW { $$ = new OpcodesLMSW(); }
+  | _KW_LOCK { $$ = new OpcodesLOCK(); }
+  | _KW_LODSB { $$ = new OpcodesLODSB(); }
+  | _KW_LODSD { $$ = new OpcodesLODSD(); }
+  | _KW_LODSW { $$ = new OpcodesLODSW(); }
+  | _KW_LOOP { $$ = new OpcodesLOOP(); }
+  | _KW_LOOPE { $$ = new OpcodesLOOPE(); }
+  | _KW_LOOPNE { $$ = new OpcodesLOOPNE(); }
+  | _KW_LOOPNZ { $$ = new OpcodesLOOPNZ(); }
+  | _KW_LOOPZ { $$ = new OpcodesLOOPZ(); }
+  | _KW_LSL { $$ = new OpcodesLSL(); }
+  | _KW_LSS { $$ = new OpcodesLSS(); }
+  | _KW_LTR { $$ = new OpcodesLTR(); }
+  | _KW_MOV { $$ = new OpcodesMOV(); }
+  | _KW_MOVSB { $$ = new OpcodesMOVSB(); }
+  | _KW_MOVSD { $$ = new OpcodesMOVSD(); }
+  | _KW_MOVSW { $$ = new OpcodesMOVSW(); }
+  | _KW_MOVSX { $$ = new OpcodesMOVSX(); }
+  | _KW_MOVZX { $$ = new OpcodesMOVZX(); }
+  | _KW_MUL { $$ = new OpcodesMUL(); }
+  | _KW_NEG { $$ = new OpcodesNEG(); }
+  | _KW_NOP { $$ = new OpcodesNOP(); }
+  | _KW_NOT { $$ = new OpcodesNOT(); }
+  | _KW_OR { $$ = new OpcodesOR(); }
+  | _KW_ORG { $$ = new OpcodesORG(); }
+  | _KW_OUT { $$ = new OpcodesOUT(); }
+  | _KW_OUTSB { $$ = new OpcodesOUTSB(); }
+  | _KW_OUTSD { $$ = new OpcodesOUTSD(); }
+  | _KW_OUTSW { $$ = new OpcodesOUTSW(); }
+  | _KW_POP { $$ = new OpcodesPOP(); }
+  | _KW_POPA { $$ = new OpcodesPOPA(); }
+  | _KW_POPAD { $$ = new OpcodesPOPAD(); }
+  | _KW_POPAW { $$ = new OpcodesPOPAW(); }
+  | _KW_POPF { $$ = new OpcodesPOPF(); }
+  | _KW_POPFD { $$ = new OpcodesPOPFD(); }
+  | _KW_POPFW { $$ = new OpcodesPOPFW(); }
+  | _KW_PUSH { $$ = new OpcodesPUSH(); }
+  | _KW_PUSHA { $$ = new OpcodesPUSHA(); }
+  | _KW_PUSHD { $$ = new OpcodesPUSHD(); }
+  | _KW_PUSHAD { $$ = new OpcodesPUSHAD(); }
+  | _KW_PUSHAW { $$ = new OpcodesPUSHAW(); }
+  | _KW_PUSHF { $$ = new OpcodesPUSHF(); }
+  | _KW_PUSHFD { $$ = new OpcodesPUSHFD(); }
+  | _KW_PUSHFW { $$ = new OpcodesPUSHFW(); }
+  | _KW_RCL { $$ = new OpcodesRCL(); }
+  | _KW_RCR { $$ = new OpcodesRCR(); }
+  | _KW_RDMSR { $$ = new OpcodesRDMSR(); }
+  | _KW_RDPMC { $$ = new OpcodesRDPMC(); }
+  | _KW_REP { $$ = new OpcodesREP(); }
+  | _KW_REPE { $$ = new OpcodesREPE(); }
+  | _KW_REPNE { $$ = new OpcodesREPNE(); }
+  | _KW_REPNZ { $$ = new OpcodesREPNZ(); }
+  | _KW_REPZ { $$ = new OpcodesREPZ(); }
+  | _KW_RESB { $$ = new OpcodesRESB(); }
+  | _KW_RESD { $$ = new OpcodesRESD(); }
+  | _KW_RESQ { $$ = new OpcodesRESQ(); }
+  | _KW_REST { $$ = new OpcodesREST(); }
+  | _KW_RESW { $$ = new OpcodesRESW(); }
+  | _KW_RET { $$ = new OpcodesRET(); }
+  | _KW_RETF { $$ = new OpcodesRETF(); }
+  | _KW_RETN { $$ = new OpcodesRETN(); }
+  | _KW_ROL { $$ = new OpcodesROL(); }
+  | _KW_ROR { $$ = new OpcodesROR(); }
+  | _KW_RSM { $$ = new OpcodesRSM(); }
+  | _KW_SAHF { $$ = new OpcodesSAHF(); }
+  | _KW_SAL { $$ = new OpcodesSAL(); }
+  | _KW_SAR { $$ = new OpcodesSAR(); }
+  | _KW_SBB { $$ = new OpcodesSBB(); }
+  | _KW_SCASB { $$ = new OpcodesSCASB(); }
+  | _KW_SCASD { $$ = new OpcodesSCASD(); }
+  | _KW_SCASW { $$ = new OpcodesSCASW(); }
+  | _KW_SETA { $$ = new OpcodesSETA(); }
+  | _KW_SETAE { $$ = new OpcodesSETAE(); }
+  | _KW_SETB { $$ = new OpcodesSETB(); }
+  | _KW_SETBE { $$ = new OpcodesSETBE(); }
+  | _KW_SETC { $$ = new OpcodesSETC(); }
+  | _KW_SETE { $$ = new OpcodesSETE(); }
+  | _KW_SETG { $$ = new OpcodesSETG(); }
+  | _KW_SETGE { $$ = new OpcodesSETGE(); }
+  | _KW_SETL { $$ = new OpcodesSETL(); }
+  | _KW_SETLE { $$ = new OpcodesSETLE(); }
+  | _KW_SETNA { $$ = new OpcodesSETNA(); }
+  | _KW_SETNAE { $$ = new OpcodesSETNAE(); }
+  | _KW_SETNB { $$ = new OpcodesSETNB(); }
+  | _KW_SETNBE { $$ = new OpcodesSETNBE(); }
+  | _KW_SETNC { $$ = new OpcodesSETNC(); }
+  | _KW_SETNE { $$ = new OpcodesSETNE(); }
+  | _KW_SETNG { $$ = new OpcodesSETNG(); }
+  | _KW_SETNGE { $$ = new OpcodesSETNGE(); }
+  | _KW_SETNL { $$ = new OpcodesSETNL(); }
+  | _KW_SETNLE { $$ = new OpcodesSETNLE(); }
+  | _KW_SETNO { $$ = new OpcodesSETNO(); }
+  | _KW_SETNP { $$ = new OpcodesSETNP(); }
+  | _KW_SETNS { $$ = new OpcodesSETNS(); }
+  | _KW_SETNZ { $$ = new OpcodesSETNZ(); }
+  | _KW_SETO { $$ = new OpcodesSETO(); }
+  | _KW_SETP { $$ = new OpcodesSETP(); }
+  | _KW_SETPE { $$ = new OpcodesSETPE(); }
+  | _KW_SETPO { $$ = new OpcodesSETPO(); }
+  | _KW_SETS { $$ = new OpcodesSETS(); }
+  | _KW_SETZ { $$ = new OpcodesSETZ(); }
+  | _KW_SGDT { $$ = new OpcodesSGDT(); }
+  | _KW_SHL { $$ = new OpcodesSHL(); }
+  | _KW_SHLD { $$ = new OpcodesSHLD(); }
+  | _KW_SHR { $$ = new OpcodesSHR(); }
+  | _KW_SHRD { $$ = new OpcodesSHRD(); }
+  | _KW_SIDT { $$ = new OpcodesSIDT(); }
+  | _KW_SLDT { $$ = new OpcodesSLDT(); }
+  | _KW_SMSW { $$ = new OpcodesSMSW(); }
+  | _KW_STC { $$ = new OpcodesSTC(); }
+  | _KW_STD { $$ = new OpcodesSTD(); }
+  | _KW_STI { $$ = new OpcodesSTI(); }
+  | _KW_STOSB { $$ = new OpcodesSTOSB(); }
+  | _KW_STOSD { $$ = new OpcodesSTOSD(); }
+  | _KW_STOSW { $$ = new OpcodesSTOSW(); }
+  | _KW_STR { $$ = new OpcodesSTR(); }
+  | _KW_SUB { $$ = new OpcodesSUB(); }
+  | _KW_TEST { $$ = new OpcodesTEST(); }
+  | _KW_TIMES { $$ = new OpcodesTIMES(); }
+  | _KW_UD2 { $$ = new OpcodesUD2(); }
+  | _KW_VERR { $$ = new OpcodesVERR(); }
+  | _KW_VERW { $$ = new OpcodesVERW(); }
+  | _KW_WAIT { $$ = new OpcodesWAIT(); }
+  | _KW_WBINVD { $$ = new OpcodesWBINVD(); }
+  | _KW_WRMSR { $$ = new OpcodesWRMSR(); }
+  | _KW_XADD { $$ = new OpcodesXADD(); }
+  | _KW_XCHG { $$ = new OpcodesXCHG(); }
+  | _KW_XLATB { $$ = new OpcodesXLATB(); }
+  | _KW_XOR { $$ = new OpcodesXOR(); }
 ;
 
 %%
@@ -848,362 +861,6 @@ Program* psProgram(const char *str)
   else
   { /* Success */
     return result.program_;
-  }
-}
-
-/* Entrypoint: parse ListStatement* from file. */
-ListStatement* pListStatement(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-std::reverse(result.liststatement_->begin(), result.liststatement_->end());
-    return result.liststatement_;
-  }
-}
-
-/* Entrypoint: parse ListStatement* from string. */
-ListStatement* psListStatement(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-std::reverse(result.liststatement_->begin(), result.liststatement_->end());
-    return result.liststatement_;
-  }
-}
-
-/* Entrypoint: parse Statement* from file. */
-Statement* pStatement(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.statement_;
-  }
-}
-
-/* Entrypoint: parse Statement* from string. */
-Statement* psStatement(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.statement_;
-  }
-}
-
-/* Entrypoint: parse ListMnemonicArgs* from file. */
-ListMnemonicArgs* pListMnemonicArgs(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-std::reverse(result.listmnemonicargs_->begin(), result.listmnemonicargs_->end());
-    return result.listmnemonicargs_;
-  }
-}
-
-/* Entrypoint: parse ListMnemonicArgs* from string. */
-ListMnemonicArgs* psListMnemonicArgs(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-std::reverse(result.listmnemonicargs_->begin(), result.listmnemonicargs_->end());
-    return result.listmnemonicargs_;
-  }
-}
-
-/* Entrypoint: parse MnemonicArgs* from file. */
-MnemonicArgs* pMnemonicArgs(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.mnemonicargs_;
-  }
-}
-
-/* Entrypoint: parse MnemonicArgs* from string. */
-MnemonicArgs* psMnemonicArgs(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.mnemonicargs_;
-  }
-}
-
-/* Entrypoint: parse Exp* from file. */
-Exp* pExp(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.exp_;
-  }
-}
-
-/* Entrypoint: parse Exp* from string. */
-Exp* psExp(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.exp_;
-  }
-}
-
-/* Entrypoint: parse Factor* from file. */
-Factor* pFactor(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.factor_;
-  }
-}
-
-/* Entrypoint: parse Factor* from string. */
-Factor* psFactor(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.factor_;
-  }
-}
-
-/* Entrypoint: parse ConfigType* from file. */
-ConfigType* pConfigType(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.configtype_;
-  }
-}
-
-/* Entrypoint: parse ConfigType* from string. */
-ConfigType* psConfigType(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.configtype_;
-  }
-}
-
-/* Entrypoint: parse Opcode* from file. */
-Opcode* pOpcode(FILE *inp)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(inp);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  int error = yyparse(scanner, &result);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.opcode_;
-  }
-}
-
-/* Entrypoint: parse Opcode* from string. */
-Opcode* psOpcode(const char *str)
-{
-  YYSTYPE result;
-  yyscan_t scanner = nask__initialize_lexer(0);
-  if (!scanner) {
-    fprintf(stderr, "Failed to initialize lexer.\n");
-    return 0;
-  }
-  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
-  int error = yyparse(scanner, &result);
-  nask__delete_buffer(buf, scanner);
-  nask_lex_destroy(scanner);
-  if (error)
-  { /* Failure */
-    return 0;
-  }
-  else
-  { /* Success */
-    return result.opcode_;
   }
 }
 

@@ -14,6 +14,7 @@ public:
   void visitExp(Exp *p);
   void visitFactor(Factor *p);
   void visitConfigType(ConfigType *p);
+  void visitDataType(DataType *p);
   void visitOpcode(Opcode *p);
   void visitProg(Prog *p);
   void visitLabelStmt(LabelStmt *p);
@@ -21,7 +22,7 @@ public:
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
   void visitOpcodeStmt(OpcodeStmt *p);
-  void visitMnemoArgs(MnemoArgs *p);
+  void visitMnemoArg(MnemoArg *p);
   void visitEqExp(EqExp *p);
   void visitNeqExp(NeqExp *p);
   void visitLtExp(LtExp *p);
@@ -34,6 +35,9 @@ public:
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
   void visitIndirectAddrExp(IndirectAddrExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitRangeExp(RangeExp *p);
+  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);
@@ -48,6 +52,9 @@ public:
   void visitSectConfig(SectConfig *p);
   void visitAbsoConfig(AbsoConfig *p);
   void visitFileConfig(FileConfig *p);
+  void visitByteDataType(ByteDataType *p);
+  void visitWordDataType(WordDataType *p);
+  void visitDwordDataType(DwordDataType *p);
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);
   void visitOpcodesAAS(OpcodesAAS *p);
@@ -377,6 +384,7 @@ public:
   void visitString(String x);
   void visitIdent(Ident x);
   void visitHex(Hex x);
+  void visitLabel(Label x);
 
 };
 

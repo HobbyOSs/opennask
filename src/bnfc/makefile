@@ -1,5 +1,5 @@
 CC=g++ -g
-CCFLAGS=--ansi -W -Wall -Wno-unused-parameter -Wno-unused-function -Wno-unneeded-internal-declaration
+CCFLAGS=--ansi -W -Wall -Wno-unused-parameter -Wno-unused-function -Wno-unneeded-internal-declaration -DYYDEBUG
 
 FLEX=flex
 FLEX_OPTS=-Pnask_

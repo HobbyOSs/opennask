@@ -45,7 +45,7 @@ class PrintAbsyn : public Visitor
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
-  void visitMnemoArgs(MnemoArgs *p);
+  void visitMnemoArg(MnemoArg *p);
   void visitExp(Exp *p); /* abstract class */
   void visitEqExp(EqExp *p);
   void visitNeqExp(NeqExp *p);
@@ -59,6 +59,9 @@ class PrintAbsyn : public Visitor
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
   void visitIndirectAddrExp(IndirectAddrExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitRangeExp(RangeExp *p);
+  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
@@ -75,6 +78,10 @@ class PrintAbsyn : public Visitor
   void visitSectConfig(SectConfig *p);
   void visitAbsoConfig(AbsoConfig *p);
   void visitFileConfig(FileConfig *p);
+  void visitDataType(DataType *p); /* abstract class */
+  void visitByteDataType(ByteDataType *p);
+  void visitWordDataType(WordDataType *p);
+  void visitDwordDataType(DwordDataType *p);
   void visitOpcode(Opcode *p); /* abstract class */
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);
@@ -403,6 +410,7 @@ class PrintAbsyn : public Visitor
   void visitString(String s);
   void visitIdent(String s);
   void visitHex(String s);
+  void visitLabel(String s);
  protected:
   char *buf_;
   int cur_, buf_size;
@@ -487,7 +495,7 @@ class ShowAbsyn : public Visitor
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
-  void visitMnemoArgs(MnemoArgs *p);
+  void visitMnemoArg(MnemoArg *p);
   void visitExp(Exp *p); /* abstract class */
   void visitEqExp(EqExp *p);
   void visitNeqExp(NeqExp *p);
@@ -501,6 +509,9 @@ class ShowAbsyn : public Visitor
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
   void visitIndirectAddrExp(IndirectAddrExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitRangeExp(RangeExp *p);
+  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
@@ -517,6 +528,10 @@ class ShowAbsyn : public Visitor
   void visitSectConfig(SectConfig *p);
   void visitAbsoConfig(AbsoConfig *p);
   void visitFileConfig(FileConfig *p);
+  void visitDataType(DataType *p); /* abstract class */
+  void visitByteDataType(ByteDataType *p);
+  void visitWordDataType(WordDataType *p);
+  void visitDwordDataType(DwordDataType *p);
   void visitOpcode(Opcode *p); /* abstract class */
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);
@@ -845,6 +860,7 @@ class ShowAbsyn : public Visitor
   void visitString(String s);
   void visitIdent(String s);
   void visitHex(String s);
+  void visitLabel(String s);
  protected:
   char *buf_;
   int cur_, buf_size;

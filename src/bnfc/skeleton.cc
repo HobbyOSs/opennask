@@ -14,6 +14,7 @@ void Skeleton::visitMnemonicArgs(MnemonicArgs *t) {} //abstract class
 void Skeleton::visitExp(Exp *t) {} //abstract class
 void Skeleton::visitFactor(Factor *t) {} //abstract class
 void Skeleton::visitConfigType(ConfigType *t) {} //abstract class
+void Skeleton::visitDataType(DataType *t) {} //abstract class
 void Skeleton::visitOpcode(Opcode *t) {} //abstract class
 
 void Skeleton::visitProg(Prog *prog)
@@ -28,7 +29,7 @@ void Skeleton::visitLabelStmt(LabelStmt *label_stmt)
 {
   /* Code For LabelStmt Goes Here */
 
-  visitIdent(label_stmt->ident_);
+  visitLabel(label_stmt->label_);
 
 }
 
@@ -67,11 +68,11 @@ void Skeleton::visitOpcodeStmt(OpcodeStmt *opcode_stmt)
 
 }
 
-void Skeleton::visitMnemoArgs(MnemoArgs *mnemo_args)
+void Skeleton::visitMnemoArg(MnemoArg *mnemo_arg)
 {
-  /* Code For MnemoArgs Goes Here */
+  /* Code For MnemoArg Goes Here */
 
-  if (mnemo_args->exp_) mnemo_args->exp_->accept(this);
+  if (mnemo_arg->exp_) mnemo_arg->exp_->accept(this);
 
 }
 
@@ -79,8 +80,8 @@ void Skeleton::visitEqExp(EqExp *eq_exp)
 {
   /* Code For EqExp Goes Here */
 
-  if (eq_exp->factor_1) eq_exp->factor_1->accept(this);
-  if (eq_exp->factor_2) eq_exp->factor_2->accept(this);
+  if (eq_exp->exp_1) eq_exp->exp_1->accept(this);
+  if (eq_exp->exp_2) eq_exp->exp_2->accept(this);
 
 }
 
@@ -88,8 +89,8 @@ void Skeleton::visitNeqExp(NeqExp *neq_exp)
 {
   /* Code For NeqExp Goes Here */
 
-  if (neq_exp->factor_1) neq_exp->factor_1->accept(this);
-  if (neq_exp->factor_2) neq_exp->factor_2->accept(this);
+  if (neq_exp->exp_1) neq_exp->exp_1->accept(this);
+  if (neq_exp->exp_2) neq_exp->exp_2->accept(this);
 
 }
 
@@ -97,8 +98,8 @@ void Skeleton::visitLtExp(LtExp *lt_exp)
 {
   /* Code For LtExp Goes Here */
 
-  if (lt_exp->factor_1) lt_exp->factor_1->accept(this);
-  if (lt_exp->factor_2) lt_exp->factor_2->accept(this);
+  if (lt_exp->exp_1) lt_exp->exp_1->accept(this);
+  if (lt_exp->exp_2) lt_exp->exp_2->accept(this);
 
 }
 
@@ -106,8 +107,8 @@ void Skeleton::visitGtExp(GtExp *gt_exp)
 {
   /* Code For GtExp Goes Here */
 
-  if (gt_exp->factor_1) gt_exp->factor_1->accept(this);
-  if (gt_exp->factor_2) gt_exp->factor_2->accept(this);
+  if (gt_exp->exp_1) gt_exp->exp_1->accept(this);
+  if (gt_exp->exp_2) gt_exp->exp_2->accept(this);
 
 }
 
@@ -115,8 +116,8 @@ void Skeleton::visitLteExp(LteExp *lte_exp)
 {
   /* Code For LteExp Goes Here */
 
-  if (lte_exp->factor_1) lte_exp->factor_1->accept(this);
-  if (lte_exp->factor_2) lte_exp->factor_2->accept(this);
+  if (lte_exp->exp_1) lte_exp->exp_1->accept(this);
+  if (lte_exp->exp_2) lte_exp->exp_2->accept(this);
 
 }
 
@@ -124,8 +125,8 @@ void Skeleton::visitGteExp(GteExp *gte_exp)
 {
   /* Code For GteExp Goes Here */
 
-  if (gte_exp->factor_1) gte_exp->factor_1->accept(this);
-  if (gte_exp->factor_2) gte_exp->factor_2->accept(this);
+  if (gte_exp->exp_1) gte_exp->exp_1->accept(this);
+  if (gte_exp->exp_2) gte_exp->exp_2->accept(this);
 
 }
 
@@ -133,8 +134,8 @@ void Skeleton::visitPlusExp(PlusExp *plus_exp)
 {
   /* Code For PlusExp Goes Here */
 
-  if (plus_exp->factor_1) plus_exp->factor_1->accept(this);
-  if (plus_exp->factor_2) plus_exp->factor_2->accept(this);
+  if (plus_exp->exp_1) plus_exp->exp_1->accept(this);
+  if (plus_exp->exp_2) plus_exp->exp_2->accept(this);
 
 }
 
@@ -142,8 +143,8 @@ void Skeleton::visitMinusExp(MinusExp *minus_exp)
 {
   /* Code For MinusExp Goes Here */
 
-  if (minus_exp->factor_1) minus_exp->factor_1->accept(this);
-  if (minus_exp->factor_2) minus_exp->factor_2->accept(this);
+  if (minus_exp->exp_1) minus_exp->exp_1->accept(this);
+  if (minus_exp->exp_2) minus_exp->exp_2->accept(this);
 
 }
 
@@ -151,8 +152,8 @@ void Skeleton::visitMulExp(MulExp *mul_exp)
 {
   /* Code For MulExp Goes Here */
 
-  if (mul_exp->factor_1) mul_exp->factor_1->accept(this);
-  if (mul_exp->factor_2) mul_exp->factor_2->accept(this);
+  if (mul_exp->exp_1) mul_exp->exp_1->accept(this);
+  if (mul_exp->exp_2) mul_exp->exp_2->accept(this);
 
 }
 
@@ -160,8 +161,8 @@ void Skeleton::visitDivExp(DivExp *div_exp)
 {
   /* Code For DivExp Goes Here */
 
-  if (div_exp->factor_1) div_exp->factor_1->accept(this);
-  if (div_exp->factor_2) div_exp->factor_2->accept(this);
+  if (div_exp->exp_1) div_exp->exp_1->accept(this);
+  if (div_exp->exp_2) div_exp->exp_2->accept(this);
 
 }
 
@@ -169,8 +170,8 @@ void Skeleton::visitModExp(ModExp *mod_exp)
 {
   /* Code For ModExp Goes Here */
 
-  if (mod_exp->factor_1) mod_exp->factor_1->accept(this);
-  if (mod_exp->factor_2) mod_exp->factor_2->accept(this);
+  if (mod_exp->exp_1) mod_exp->exp_1->accept(this);
+  if (mod_exp->exp_2) mod_exp->exp_2->accept(this);
 
 }
 
@@ -178,7 +179,34 @@ void Skeleton::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp)
 {
   /* Code For IndirectAddrExp Goes Here */
 
-  if (indirect_addr_exp->factor_) indirect_addr_exp->factor_->accept(this);
+  if (indirect_addr_exp->exp_) indirect_addr_exp->exp_->accept(this);
+
+}
+
+void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
+{
+  /* Code For DatatypeExp Goes Here */
+
+  if (datatype_exp->datatype_) datatype_exp->datatype_->accept(this);
+  if (datatype_exp->exp_) datatype_exp->exp_->accept(this);
+
+}
+
+void Skeleton::visitRangeExp(RangeExp *range_exp)
+{
+  /* Code For RangeExp Goes Here */
+
+  if (range_exp->datatype_) range_exp->datatype_->accept(this);
+  if (range_exp->exp_1) range_exp->exp_1->accept(this);
+  if (range_exp->exp_2) range_exp->exp_2->accept(this);
+
+}
+
+void Skeleton::visitLabelExp(LabelExp *label_exp)
+{
+  /* Code For LabelExp Goes Here */
+
+  visitLabel(label_exp->label_);
 
 }
 
@@ -281,6 +309,27 @@ void Skeleton::visitAbsoConfig(AbsoConfig *abso_config)
 void Skeleton::visitFileConfig(FileConfig *file_config)
 {
   /* Code For FileConfig Goes Here */
+
+
+}
+
+void Skeleton::visitByteDataType(ByteDataType *byte_data_type)
+{
+  /* Code For ByteDataType Goes Here */
+
+
+}
+
+void Skeleton::visitWordDataType(WordDataType *word_data_type)
+{
+  /* Code For WordDataType Goes Here */
+
+
+}
+
+void Skeleton::visitDwordDataType(DwordDataType *dword_data_type)
+{
+  /* Code For DwordDataType Goes Here */
 
 
 }
@@ -2571,6 +2620,11 @@ void Skeleton::visitIdent(Ident x)
 void Skeleton::visitHex(Hex x)
 {
   /* Code for Hex Goes Here */
+}
+
+void Skeleton::visitLabel(Label x)
+{
+  /* Code for Label Goes Here */
 }
 
 

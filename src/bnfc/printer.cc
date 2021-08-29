@@ -170,8 +170,7 @@ void PrintAbsyn::visitLabelStmt(LabelStmt *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  visitIdent(p->ident_);
-  render(':');
+  visitLabel(p->label_);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -247,7 +246,7 @@ void PrintAbsyn::iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMn
 
 void PrintAbsyn::visitMnemonicArgs(MnemonicArgs *p) {} //abstract class
 
-void PrintAbsyn::visitMnemoArgs(MnemoArgs *p)
+void PrintAbsyn::visitMnemoArg(MnemoArg *p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
@@ -265,9 +264,9 @@ void PrintAbsyn::visitEqExp(EqExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render("==");
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -278,9 +277,9 @@ void PrintAbsyn::visitNeqExp(NeqExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render("!=");
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -291,9 +290,9 @@ void PrintAbsyn::visitLtExp(LtExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('<');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -304,9 +303,9 @@ void PrintAbsyn::visitGtExp(GtExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('>');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -317,9 +316,9 @@ void PrintAbsyn::visitLteExp(LteExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render("<=");
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -330,9 +329,9 @@ void PrintAbsyn::visitGteExp(GteExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render(">=");
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -343,9 +342,9 @@ void PrintAbsyn::visitPlusExp(PlusExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('+');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -356,9 +355,9 @@ void PrintAbsyn::visitMinusExp(MinusExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('-');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -369,9 +368,9 @@ void PrintAbsyn::visitMulExp(MulExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('*');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -382,9 +381,9 @@ void PrintAbsyn::visitDivExp(DivExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('/');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -395,9 +394,9 @@ void PrintAbsyn::visitModExp(ModExp *p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  _i_ = 0; p->factor_1->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
   render('%');
-  _i_ = 0; p->factor_2->accept(this);
+  _i_ = 0; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -409,8 +408,47 @@ void PrintAbsyn::visitIndirectAddrExp(IndirectAddrExp *p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  _i_ = 0; p->factor_->accept(this);
+  _i_ = 0; p->exp_->accept(this);
   render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitDatatypeExp(DatatypeExp *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->datatype_->accept(this);
+  render('[');
+  _i_ = 0; p->exp_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitRangeExp(RangeExp *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->datatype_->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
+  render(':');
+  _i_ = 0; p->exp_2->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitLabelExp(LabelExp *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  visitLabel(p->label_);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -569,6 +607,41 @@ void PrintAbsyn::visitFileConfig(FileConfig *p)
   if (oldi > 0) render(_L_PAREN);
 
   render("FILE");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitDataType(DataType *p) {} //abstract class
+
+void PrintAbsyn::visitByteDataType(ByteDataType *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("BYTE");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitWordDataType(WordDataType *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("WORD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitDwordDataType(DwordDataType *p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("DWORD");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4136,6 +4209,12 @@ void PrintAbsyn::visitHex(String s)
 }
 
 
+void PrintAbsyn::visitLabel(String s)
+{
+  render(s);
+}
+
+
 ShowAbsyn::ShowAbsyn(void)
 {
   buf_ = 0;
@@ -4181,8 +4260,7 @@ void ShowAbsyn::visitLabelStmt(LabelStmt *p)
   bufAppend('(');
   bufAppend("LabelStmt");
   bufAppend(' ');
-  visitIdent(p->ident_);
-  bufAppend(' ');
+  visitLabel(p->label_);
   bufAppend(')');
 }
 void ShowAbsyn::visitDeclareStmt(DeclareStmt *p)
@@ -4245,10 +4323,10 @@ void ShowAbsyn::visitListMnemonicArgs(ListMnemonicArgs *listmnemonicargs)
 
 void ShowAbsyn::visitMnemonicArgs(MnemonicArgs *p) {} //abstract class
 
-void ShowAbsyn::visitMnemoArgs(MnemoArgs *p)
+void ShowAbsyn::visitMnemoArg(MnemoArg *p)
 {
   bufAppend('(');
-  bufAppend("MnemoArgs");
+  bufAppend("MnemoArg");
   bufAppend(' ');
   bufAppend('[');
   if (p->exp_)  p->exp_->accept(this);
@@ -4262,9 +4340,9 @@ void ShowAbsyn::visitEqExp(EqExp *p)
   bufAppend('(');
   bufAppend("EqExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitNeqExp(NeqExp *p)
@@ -4272,9 +4350,9 @@ void ShowAbsyn::visitNeqExp(NeqExp *p)
   bufAppend('(');
   bufAppend("NeqExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitLtExp(LtExp *p)
@@ -4282,9 +4360,9 @@ void ShowAbsyn::visitLtExp(LtExp *p)
   bufAppend('(');
   bufAppend("LtExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitGtExp(GtExp *p)
@@ -4292,9 +4370,9 @@ void ShowAbsyn::visitGtExp(GtExp *p)
   bufAppend('(');
   bufAppend("GtExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitLteExp(LteExp *p)
@@ -4302,9 +4380,9 @@ void ShowAbsyn::visitLteExp(LteExp *p)
   bufAppend('(');
   bufAppend("LteExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitGteExp(GteExp *p)
@@ -4312,9 +4390,9 @@ void ShowAbsyn::visitGteExp(GteExp *p)
   bufAppend('(');
   bufAppend("GteExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitPlusExp(PlusExp *p)
@@ -4322,9 +4400,9 @@ void ShowAbsyn::visitPlusExp(PlusExp *p)
   bufAppend('(');
   bufAppend("PlusExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitMinusExp(MinusExp *p)
@@ -4332,9 +4410,9 @@ void ShowAbsyn::visitMinusExp(MinusExp *p)
   bufAppend('(');
   bufAppend("MinusExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitMulExp(MulExp *p)
@@ -4342,9 +4420,9 @@ void ShowAbsyn::visitMulExp(MulExp *p)
   bufAppend('(');
   bufAppend("MulExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitDivExp(DivExp *p)
@@ -4352,9 +4430,9 @@ void ShowAbsyn::visitDivExp(DivExp *p)
   bufAppend('(');
   bufAppend("DivExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitModExp(ModExp *p)
@@ -4362,9 +4440,9 @@ void ShowAbsyn::visitModExp(ModExp *p)
   bufAppend('(');
   bufAppend("ModExp");
   bufAppend(' ');
-  p->factor_1->accept(this);
+  p->exp_1->accept(this);
   bufAppend(' ');
-  p->factor_2->accept(this);
+  p->exp_2->accept(this);
   bufAppend(')');
 }
 void ShowAbsyn::visitIndirectAddrExp(IndirectAddrExp *p)
@@ -4373,9 +4451,46 @@ void ShowAbsyn::visitIndirectAddrExp(IndirectAddrExp *p)
   bufAppend("IndirectAddrExp");
   bufAppend(' ');
   bufAppend('[');
-  if (p->factor_)  p->factor_->accept(this);
+  if (p->exp_)  p->exp_->accept(this);
   bufAppend(']');
   bufAppend(' ');
+  bufAppend(')');
+}
+void ShowAbsyn::visitDatatypeExp(DatatypeExp *p)
+{
+  bufAppend('(');
+  bufAppend("DatatypeExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->datatype_)  p->datatype_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+void ShowAbsyn::visitRangeExp(RangeExp *p)
+{
+  bufAppend('(');
+  bufAppend("RangeExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->datatype_)  p->datatype_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  p->exp_1->accept(this);
+  bufAppend(' ');
+  p->exp_2->accept(this);
+  bufAppend(')');
+}
+void ShowAbsyn::visitLabelExp(LabelExp *p)
+{
+  bufAppend('(');
+  bufAppend("LabelExp");
+  bufAppend(' ');
+  visitLabel(p->label_);
   bufAppend(')');
 }
 void ShowAbsyn::visitImmExp(ImmExp *p)
@@ -4459,6 +4574,20 @@ void ShowAbsyn::visitAbsoConfig(AbsoConfig *p)
 void ShowAbsyn::visitFileConfig(FileConfig *p)
 {
   bufAppend("FileConfig");
+}
+void ShowAbsyn::visitDataType(DataType *p) {} //abstract class
+
+void ShowAbsyn::visitByteDataType(ByteDataType *p)
+{
+  bufAppend("ByteDataType");
+}
+void ShowAbsyn::visitWordDataType(WordDataType *p)
+{
+  bufAppend("WordDataType");
+}
+void ShowAbsyn::visitDwordDataType(DwordDataType *p)
+{
+  bufAppend("DwordDataType");
 }
 void ShowAbsyn::visitOpcode(Opcode *p) {} //abstract class
 
@@ -5774,6 +5903,14 @@ void ShowAbsyn::visitIdent(String s)
 }
 
 void ShowAbsyn::visitHex(String s)
+{
+  bufAppend('\"');
+  bufAppend(s);
+  bufAppend('\"');
+}
+
+
+void ShowAbsyn::visitLabel(String s)
 {
   bufAppend('\"');
   bufAppend(s);

@@ -2,13 +2,16 @@
 -- Nask.cf
 -- $ bnfc -m -cpp_stl nask.cf
 --
-comment "#" ;
-comment ";" ;
+comment "#" "\\n" ;
+comment ";" "\\n" ;
 
-terminator Statement "\\n" ;
+-- terminator Statement "\\n" ;
 entrypoints Program;
 
 Prog.           Program        ::= [Statement] ;
+
+(:[]).          [Statement]    ::= Statement ;
+(:).            [Statement]    ::= Statement [Statement] ;
 
 LabelStmt.      Statement      ::= Label ;
 DeclareStmt.    Statement      ::= Ident "EQU" Exp ;
