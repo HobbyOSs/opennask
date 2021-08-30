@@ -2,10 +2,7 @@
 #include <memory>
 #include <getopt.h>
 #include "spdlog/spdlog.h"
-#include "parser.hh"
-#include "printer.hh"
-#include "absyn.hh"
-#include "parsererror.hh"
+#include "driver.hh"
 
 void usage() {
     printf("Usage:  [--help | --parse | --scan] source \n");
@@ -70,28 +67,6 @@ int main (int argc, char *argv[]) {
         }
     } else input = stdin;
 
-    /* The default entry point is used. For other options see Parser.H */
-    Program *parse_tree = NULL;
-    try {
-        parse_tree = pProgram(input);
-    } catch( parse_error &e) {
-        std::cerr << "Parse error on line " << e.getLine() << "\n";
-    }
-    if (parse_tree) {
-        printf("\nParse Successful!\n");
-
-        if (trace_scanning) {
-            printf("\n[Abstract Syntax]\n");
-            std::unique_ptr<ShowAbsyn> s(new ShowAbsyn());
-            printf("%s\n\n", s->show(parse_tree));
-        }
-        if (trace_parsing) {
-            printf("[Linearized Tree]\n");
-            std::unique_ptr<PrintAbsyn> p(new PrintAbsyn());
-            printf("%s\n\n", p->print(parse_tree));
-        }
-        delete(parse_tree);
-        return 0;
-    }
-    return 1;
+    std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
+    return d->Parse(input);
 }
