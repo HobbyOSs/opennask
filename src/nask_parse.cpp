@@ -59,23 +59,26 @@ int main (int argc, char *argv[]) {
     }
 
     // argv[optind] がオプションでない最初のコマンドラインパラメータ
-    const char* assembly_src = argv[optind];
-    const char* assembly_dst = argv[optind + 1];
-
-    //const size_t len = nask_utility::filesize(assembly_src);
-    //if (len == -1) {
-    //    std::cerr << "NASK : can't open " << assembly_src << std::endl;
-    //    return 17;
-    //}
+    const char* assembly_src;
+    const char* assembly_dst;
 
     // 入力するアセンブラ情報, inputをFILE*で設定しているのはflex/bisonのIFが古く改修が困難なため
-    if (assembly_dst != NULL) {
+    if (argv[optind+1] != NULL) {
+        assembly_src = argv[optind];
+        assembly_dst = argv[optind + 1];
+
         input = fopen(assembly_src, "r");
         if (!input) {
-            std::cerr << "NASK : can't read " << assembly_src << std::endl;
+            std::string out = assembly_src ? std::string(assembly_src) : std::string("");
+            std::cerr << "NASK : can't read "
+                      << out // srcがNULLの場合がある
+                      << std::endl;
             return 17;
         }
-    } else input = stdin;
+    } else {
+        assembly_dst = argv[optind];
+        input = stdin;
+    }
 
     std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
     d->Parse(input);
