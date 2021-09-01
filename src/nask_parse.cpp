@@ -29,7 +29,7 @@ int main (int argc, char *argv[]) {
 
         switch(opt){
         case 'V':
-            printf("naskparse \n");
+            printf("opennask \n");
             printf("Copyright (C) 2021 Hiroyuki Nagata.\n"
                    "ライセンス GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
                    "This is free software: you are free to change and redistribute it.\n"
@@ -58,15 +58,28 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    filename = argv[optind];
-    if (filename) {
-        input = fopen(filename, "r");
+    // argv[optind] がオプションでない最初のコマンドラインパラメータ
+    const char* assembly_src = argv[optind];
+    const char* assembly_dst = argv[optind + 1];
+
+    //const size_t len = nask_utility::filesize(assembly_src);
+    //if (len == -1) {
+    //    std::cerr << "NASK : can't open " << assembly_src << std::endl;
+    //    return 17;
+    //}
+
+    // 入力するアセンブラ情報, inputをFILE*で設定しているのはflex/bisonのIFが古く改修が困難なため
+    if (assembly_dst != NULL) {
+        input = fopen(assembly_src, "r");
         if (!input) {
-            usage();
-            return 1;
+            std::cerr << "NASK : can't read " << assembly_src << std::endl;
+            return 17;
         }
     } else input = stdin;
 
     std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
-    return d->Parse(input);
+    d->Parse(input);
+    d->Eval(assembly_dst);
+
+    return 0;
 }
