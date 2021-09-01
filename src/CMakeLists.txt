@@ -21,6 +21,8 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 set(nask_parse_SRCS
   nask_parse.cpp
+  driver.cc
+  driver.hh
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc

@@ -1,10 +1,8 @@
 #include <iostream>
+#include <memory>
 #include <getopt.h>
 #include "spdlog/spdlog.h"
-#include "parser.hh"
-#include "printer.hh"
-#include "absyn.hh"
-#include "parsererror.hh"
+#include "driver.hh"
 
 void usage() {
     printf("Usage:  [--help | --parse | --scan] source \n");
@@ -31,7 +29,7 @@ int main (int argc, char *argv[]) {
 
         switch(opt){
         case 'V':
-            printf("naskparse \n");
+            printf("opennask \n");
             printf("Copyright (C) 2021 Hiroyuki Nagata.\n"
                    "ライセンス GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
                    "This is free software: you are free to change and redistribute it.\n"
@@ -60,37 +58,31 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    filename = argv[optind];
-    if (filename) {
-        input = fopen(filename, "r");
+    // argv[optind] がオプションでない最初のコマンドラインパラメータ
+    const char* assembly_src;
+    const char* assembly_dst;
+
+    // 入力するアセンブラ情報, inputをFILE*で設定しているのはflex/bisonのIFが古く改修が困難なため
+    if (argv[optind+1] != NULL) {
+        assembly_src = argv[optind];
+        assembly_dst = argv[optind + 1];
+
+        input = fopen(assembly_src, "r");
         if (!input) {
-            usage();
-            return 1;
+            std::string out = assembly_src ? std::string(assembly_src) : std::string("");
+            std::cerr << "NASK : can't read "
+                      << out // srcがNULLの場合がある
+                      << std::endl;
+            return 17;
         }
-    } else input = stdin;
-
-    /* The default entry point is used. For other options see Parser.H */
-    Program *parse_tree = NULL;
-    try {
-        parse_tree = pProgram(input);
-    } catch( parse_error &e) {
-        std::cerr << "Parse error on line " << e.getLine() << "\n";
+    } else {
+        assembly_dst = argv[optind];
+        input = stdin;
     }
-    if (parse_tree) {
-        printf("\nParse Successful!\n");
 
-        if (trace_scanning) {
-            printf("\n[Abstract Syntax]\n");
-            ShowAbsyn *s = new ShowAbsyn();
-            printf("%s\n\n", s->show(parse_tree));
-        }
-        if (trace_parsing) {
-            printf("[Linearized Tree]\n");
-            PrintAbsyn *p = new PrintAbsyn();
-            printf("%s\n\n", p->print(parse_tree));
-        }
-        delete(parse_tree);
-        return 0;
-    }
-    return 1;
+    std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
+    d->Parse(input);
+    d->Eval(assembly_dst);
+
+    return 0;
 }
