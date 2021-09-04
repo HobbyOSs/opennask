@@ -32,7 +32,9 @@ set(nask_parse_SRCS
   bnfc/parser.hh
   bnfc/printer.cc
   bnfc/printer.hh
-  bnfc/parsererror.hh)
+  bnfc/parsererror.hh
+  bnfc/skeleton.cc
+  bnfc/skeleton.hh)
 
 if (WIN32)
   LIST(APPEND nask_parse_SRCS getopt.h getopt.c)

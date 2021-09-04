@@ -81,8 +81,7 @@ int main (int argc, char *argv[]) {
     }
 
     std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
-    d->Parse(input);
-    d->Eval(assembly_dst);
+    d->Parse(input, assembly_dst);
 
     return 0;
 }
