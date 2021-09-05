@@ -1,7 +1,10 @@
 #include <fstream>
+#include <typeinfo>
 #include "driver.hh"
 #include "parser.hh"
+#include "demangle.hpp"
 
+using namespace std::placeholders;
 
 Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
@@ -10,9 +13,7 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
     this->trace_scanning = trace_scanning;
     this->trace_parsing = trace_parsing;
-static std::map<std::string, std::string> equ_map;
-    //variables["one"] = 1;
-    //variables["two"] = 2;
+    this->dollar_position = 0;
 }
 
 int Driver::Parse(FILE *input, const char* assembly_dst) {
@@ -56,7 +57,7 @@ int Driver::Eval(Program *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    // Eval開始
+    // Eval開始(FIXME: なぜダウンキャストするんだ…?)
     Prog *prog = dynamic_cast<Prog*>(parse_tree);
     this->visitProg(prog);
 
@@ -95,4 +96,70 @@ void Driver::visitLabel(Label x) {
 
     //inst.store_label_dst(label_dst, binout_container);
     //inst.update_label_dst_offset(label_dst, binout_container);
+}
+
+void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
+
+    log()->debug("visitDeclareStmt start");
+    visitIdent(declare_stmt->ident_);
+    if (declare_stmt->exp_) {
+        declare_stmt->exp_->accept(this);
+    }
+    log()->debug("visitDeclareStmt end");
+}
+
+void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
+
+    log()->debug("visitMnemonicStmt start");
+    if (mnemonic_stmt->opcode_) {
+        mnemonic_stmt->opcode_->accept(this);
+    }
+    if (mnemonic_stmt->listmnemonicargs_) {
+        mnemonic_stmt->listmnemonicargs_->accept(this);
+    }
+
+    typedef std::function<void(ListMnemonicArgs*)> nim_callback;
+    typedef std::map<std::string, nim_callback> funcs_type;
+
+    funcs_type funcs {
+        std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
+    };
+
+    const std::string opcode = type(*mnemonic_stmt->opcode_);
+
+    funcs_type::iterator it = funcs.find(opcode);
+    if (it != funcs.end()) {
+        it->second(mnemonic_stmt->listmnemonicargs_);
+    } else {
+        std::cout << "not implemented..." << std::endl;
+    }
+    log()->debug("visitMnemonicStmt end");
+}
+
+void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
+    if (mnemo_arg->exp_) {
+        mnemo_arg->exp_->accept(this);
+    }
+    std::cout << "visitMnemoArg" << mnemo_arg->exp_ << std::endl;
+}
+
+void Driver::visitImmExp(ImmExp *imm_exp) {
+    if (imm_exp->factor_) {
+        imm_exp->factor_->accept(this);
+    }
+}
+
+void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
+    std::cout << "hello" << std::endl;
+
+    for (const auto& e : *list_mnemonic_args) {
+        std::cout << type(e) << std::endl;
+    }
+}
+
+//
+// Visit Opcode系の処理
+//
+void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
+    // NOP
 }

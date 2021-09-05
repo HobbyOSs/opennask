@@ -55,6 +55,9 @@ private:
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
 
+    // $ の位置
+    uint32_t dollar_position = 0;
+
 public:
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -72,6 +75,16 @@ public:
     void visitProg(Prog *prog) override;
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitLabel(Label x) override;
+    void visitDeclareStmt(DeclareStmt *declare_stmt) override;
+    void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
+    void visitMnemoArg(MnemoArg *mnemo_arg) override;
+    void visitImmExp(ImmExp *p) override;
+
+    // opcodeの読み取り
+    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
+
+    // opcodeの処理
+    void processORG(ListMnemonicArgs* list_mnemonic_args);
 };
 
 #endif // ! DRIVER_HH
