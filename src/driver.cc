@@ -137,11 +137,6 @@ void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
     std::cout << "visitMnemoArg" << mnemo_arg->exp_ << std::endl;
 }
 
-void Driver::visitImmExp(ImmExp *imm_exp) {
-    if (imm_exp->factor_) {
-        imm_exp->factor_->accept(this);
-    }
-}
 
 void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
     std::cout << "hello" << std::endl;
@@ -156,6 +151,18 @@ void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
 //
 void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
     // NOP
+}
+
+//
+// expressionの処理
+//
+void Driver::visitImmExp(ImmExp *imm_exp) {
+    if (imm_exp->factor_) {
+        imm_exp->factor_->accept(this);
+    }
+    std::any c = this->context.top();
+    this->context.pop();
+    this->context.push(c);
 }
 
 //

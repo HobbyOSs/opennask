@@ -80,7 +80,6 @@ public:
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
-    void visitImmExp(ImmExp *p) override;
 
     // opcodeの読み取り
     void visitOpcodesORG(OpcodesORG *opcodes_org) override;
@@ -88,13 +87,16 @@ public:
     // opcodeの処理
     void processORG(ListMnemonicArgs* list_mnemonic_args);
 
+    // expression
+    void visitImmExp(ImmExp *p) override;
+
     // factor
     void visitNumberFactor(NumberFactor *p) override;
     void visitHexFactor(HexFactor *p) override;
     void visitIdentFactor(IdentFactor *p) override;
     void visitStringFactor(StringFactor *p) override;
 
-    // tokenの処理
+    // token
     void visitInteger(Integer x) override;
     void visitChar(Char x) override;
     void visitDouble(Double x) override;
