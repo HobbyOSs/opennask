@@ -85,18 +85,6 @@ void Driver::visitLabelStmt(LabelStmt *label_stmt) {
     log()->debug("visitLabelStmt end");
 }
 
-void Driver::visitLabel(Label x) {
-    // label: (label_dstと呼ぶ)
-    // 1) label_dstの位置を記録する → label_dst_stack
-    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
-
-    std::string label_dst = x.substr(0, x.find(":", 0));
-    log()->debug("coming another label: {} bin[{}]",
-                 label_dst, std::to_string(this->binout_container.size()));
-
-    //inst.store_label_dst(label_dst, binout_container);
-    //inst.update_label_dst_offset(label_dst, binout_container);
-}
 
 void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
@@ -162,4 +150,32 @@ void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
 //
 void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
     // NOP
+}
+
+//
+// tokenの処理
+//
+void Driver::visitInteger(Integer x) {
+}
+void Driver::visitChar(Char x) {
+}
+void Driver::visitDouble(Double x) {
+}
+void Driver::visitString(String x) {
+}
+void Driver::visitIdent(Ident x) {
+}
+void Driver::visitHex(Hex x) {
+}
+void Driver::visitLabel(Label x) {
+    // label: (label_dstと呼ぶ)
+    // 1) label_dstの位置を記録する → label_dst_stack
+    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
+
+    std::string label_dst = x.substr(0, x.find(":", 0));
+    log()->debug("coming another label: {} bin[{}]",
+                 label_dst, std::to_string(this->binout_container.size()));
+
+    //inst.store_label_dst(label_dst, binout_container);
+    //inst.update_label_dst_offset(label_dst, binout_container);
 }

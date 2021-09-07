@@ -1,12 +1,13 @@
 #include <cmath>
 #include <CppUTest/TestHarness.h>
 #include "tinyexpr.h"
+#include "driver.hh"
 
-TEST_GROUP(tinyexpr_suite)
+TEST_GROUP(exp_suite)
 {
 };
 
-TEST(tinyexpr_suite, testInt)
+TEST(exp_suite, testInt)
 {
      int error;
 
@@ -25,7 +26,7 @@ TEST(tinyexpr_suite, testInt)
      CHECK_EQUAL(4, error);
 }
 
-TEST(tinyexpr_suite, testNask)
+TEST(exp_suite, testNask)
 {
      int error;
 

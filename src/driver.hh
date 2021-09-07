@@ -1,10 +1,11 @@
 #ifndef DRIVER_HH
 #define DRIVER_HH
+
 #include <string>
-#include <map>
 #include <memory>
 #include <iostream>
 #include "spdlog/spdlog.h"
+//#include "nonstd/any.hpp"
 #include "parser.hh"
 #include "printer.hh"
 #include "absyn.hh"
@@ -48,13 +49,15 @@ typedef std::vector<LABEL_SRC_ELEMENT> LABEL_SRC_STACK;
 class Driver : public Skeleton {
 
 private:
+    // visitorのcontext情報
+    //std::stack<std::any> context;
+
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
     static LABEL_DST_STACK label_dst_stack;
     static LABEL_SRC_STACK label_src_stack;
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
-
     // $ の位置
     uint32_t dollar_position = 0;
 
@@ -74,7 +77,6 @@ public:
     // 以下、Parse/Evalのための関数
     void visitProg(Prog *prog) override;
     void visitLabelStmt(LabelStmt *label_stmt) override;
-    void visitLabel(Label x) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
@@ -85,6 +87,16 @@ public:
 
     // opcodeの処理
     void processORG(ListMnemonicArgs* list_mnemonic_args);
+
+    // tokenの処理
+    void visitInteger(Integer x) override;
+    void visitChar(Char x) override;
+    void visitDouble(Double x) override;
+    void visitString(String x) override;
+    void visitIdent(Ident x) override;
+    void visitHex(Hex x) override;
+    void visitLabel(Label x) override;
+
 };
 
 #endif // ! DRIVER_HH
