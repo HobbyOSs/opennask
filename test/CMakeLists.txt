@@ -7,6 +7,7 @@ find_package(CppUTest REQUIRED)
 # general settings
 include_directories(${root_SOURCE_DIR}/parasol)
 include_directories(${root_SOURCE_DIR}/src)
+include_directories(${root_SOURCE_DIR}/src/bnfc)
 include_directories(${CPPUTEST_INCLUDE_DIR})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -16,8 +17,16 @@ find_package(Threads REQUIRED)
 set(alltest_SRCS
     alltest.cpp
     nask_suite.cpp
-    tinyexpr_suite.cpp
+    exp_suite.cpp
     inst_suite.cpp
+    ../src/demangle.cpp
+    ../src/bnfc/skeleton.cc
+    ../src/bnfc/absyn.cc
+    ../src/bnfc/parser.cc
+    ../src/bnfc/printer.cc
+    ../src/bnfc/lexer.cc
+    ../src/bnfc/buffer.cc
+    ../src/driver.cc
     ../src/tinyexpr.c
     ../src/nask_utility.cpp
     ../src/mod_rm.cpp
@@ -26,8 +35,11 @@ set(alltest_SRCS
 add_executable(alltest ${alltest_SRCS})
 target_link_libraries(alltest parasol Threads::Threads ${CPPUTEST_LIBRARY})
 
-set_property(TARGET alltest PROPERTY CXX_STANDARD 11)
-set_property(TARGET alltest PROPERTY CXX_STANDARD_REQUIRED ON)
+set_target_properties(alltest PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS ON)
+
 
 add_test(
   NAME alltest

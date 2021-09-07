@@ -49,7 +49,7 @@ target_include_directories(nask_parse
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
 set_property(TARGET nask_parse
-  PROPERTY CXX_STANDARD 14)
+  PROPERTY CXX_STANDARD 17)
 
 ########### next target ###############
 

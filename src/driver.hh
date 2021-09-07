@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <any>
 #include "spdlog/spdlog.h"
 //#include "nonstd/any.hpp"
 #include "parser.hh"
@@ -49,8 +50,9 @@ typedef std::vector<LABEL_SRC_ELEMENT> LABEL_SRC_STACK;
 class Driver : public Skeleton {
 
 private:
-    // visitorのcontext情報
-    //std::stack<std::any> context;
+    // 字句解析, 構文解析のフラグ
+    bool trace_parsing;
+    bool trace_scanning;
 
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
@@ -62,17 +64,15 @@ private:
     uint32_t dollar_position = 0;
 
 public:
+    // visitorのcontext情報
+    std::stack<std::any> context;
+
     Driver(bool trace_scanning, bool trace_parsing);
-
-
 
     // FILE* f をパースする, 成功時は0を返す
     int Parse(FILE *input, const char* assembly_dst);
     // ASTを評価し結果をファイルに書き込む
     int Eval(Program *parse_tree, const char* assembly_dst);
-
-    bool trace_parsing;
-    bool trace_scanning;
 
     // 以下、Parse/Evalのための関数
     void visitProg(Prog *prog) override;

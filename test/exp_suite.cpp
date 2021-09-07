@@ -1,11 +1,42 @@
+#include "driver.hh"
+#include "tinyexpr.h"
+#include <memory>
 #include <cmath>
 #include <CppUTest/TestHarness.h>
-#include "tinyexpr.h"
-#include "driver.hh"
+
 
 TEST_GROUP(exp_suite)
 {
 };
+
+TEST(exp_suite, testToken)
+{
+    std::unique_ptr<Driver> d(new Driver(false, false));
+
+    d->visitInteger(30);
+    CHECK_EQUAL(30, std::any_cast<int>(d->context.top()));
+    d->context.pop();
+
+    d->visitChar('H');
+    CHECK_EQUAL('H', std::any_cast<char>(d->context.top()));
+    d->context.pop();
+
+    d->visitDouble(3.14);
+    CHECK_EQUAL(3.14, std::any_cast<double>(d->context.top()));
+    d->context.pop();
+
+    d->visitString("hello1");
+    CHECK_EQUAL("hello1", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+
+    d->visitIdent("hello2");
+    CHECK_EQUAL("hello2", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+
+    d->visitHex("hello3");
+    CHECK_EQUAL("hello3", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+}
 
 TEST(exp_suite, testInt)
 {

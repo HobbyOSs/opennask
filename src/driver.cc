@@ -9,10 +9,16 @@ using namespace std::placeholders;
 Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
     // spdlog
-    auto logger = spdlog::stdout_logger_mt("opennask", "console");
+    if(!spdlog::get("opennask")) {
+        auto logger = spdlog::stdout_logger_mt("opennask", "console");
+    }
 
+    // lexer, parser
     this->trace_scanning = trace_scanning;
     this->trace_parsing = trace_parsing;
+    this->context = std::stack<std::any>();
+
+    // nask
     this->dollar_position = 0;
 }
 
@@ -156,17 +162,35 @@ void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
 // tokenの処理
 //
 void Driver::visitInteger(Integer x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitChar(Char x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitDouble(Double x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitString(String x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitIdent(Ident x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitHex(Hex x) {
+    std::any c = x;
+    this->context.push(c);
 }
+
 void Driver::visitLabel(Label x) {
     // label: (label_dstと呼ぶ)
     // 1) label_dstの位置を記録する → label_dst_stack
@@ -178,4 +202,7 @@ void Driver::visitLabel(Label x) {
 
     //inst.store_label_dst(label_dst, binout_container);
     //inst.update_label_dst_offset(label_dst, binout_container);
+
+    std::any c = x;
+    this->context.push(c);
 }
