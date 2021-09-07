@@ -159,6 +159,37 @@ void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
 }
 
 //
+// factorの処理
+//
+void Driver::visitNumberFactor(NumberFactor *number_factor) {
+    visitInteger(number_factor->integer_);
+    std::any c = this->context.top();
+    this->context.pop();
+    this->context.push(c);
+}
+
+void Driver::visitHexFactor(HexFactor *hex_factor) {
+    visitHex(hex_factor->hex_);
+    std::any c = this->context.top();
+    this->context.pop();
+    this->context.push(c);
+}
+
+void Driver::visitIdentFactor(IdentFactor *ident_factor) {
+    visitIdent(ident_factor->ident_);
+    std::any c = this->context.top();
+    this->context.pop();
+    this->context.push(c);
+}
+
+void Driver::visitStringFactor(StringFactor *string_factor) {
+    visitString(string_factor->string_);
+    std::any c = this->context.top();
+    this->context.pop();
+    this->context.push(c);
+}
+
+//
 // tokenの処理
 //
 void Driver::visitInteger(Integer x) {

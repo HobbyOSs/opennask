@@ -88,6 +88,12 @@ public:
     // opcodeの処理
     void processORG(ListMnemonicArgs* list_mnemonic_args);
 
+    // factor
+    void visitNumberFactor(NumberFactor *p) override;
+    void visitHexFactor(HexFactor *p) override;
+    void visitIdentFactor(IdentFactor *p) override;
+    void visitStringFactor(StringFactor *p) override;
+
     // tokenの処理
     void visitInteger(Integer x) override;
     void visitChar(Char x) override;

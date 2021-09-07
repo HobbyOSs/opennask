@@ -38,6 +38,32 @@ TEST(exp_suite, testToken)
     d->context.pop();
 }
 
+TEST(exp_suite, testFactor)
+{
+    std::unique_ptr<Driver> d(new Driver(false, false));
+
+    auto numberFactor = NumberFactor(30);
+    d->visitNumberFactor(&numberFactor);
+    CHECK_EQUAL(30, std::any_cast<int>(d->context.top()));
+    d->context.pop();
+
+    auto hexFactor = HexFactor("hello1");
+    d->visitHexFactor(&hexFactor);
+    CHECK_EQUAL("hello1", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+
+    auto identFactor = IdentFactor("hello2");
+    d->visitIdentFactor(&identFactor);
+    CHECK_EQUAL("hello2", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+
+    auto stringFactor = StringFactor("hello3");
+    d->visitStringFactor(&stringFactor);
+    CHECK_EQUAL("hello3", std::any_cast<std::string>(d->context.top()));
+    d->context.pop();
+}
+
+
 TEST(exp_suite, testInt)
 {
      int error;
