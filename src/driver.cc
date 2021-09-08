@@ -16,7 +16,6 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
     // lexer, parser
     this->trace_scanning = trace_scanning;
     this->trace_parsing = trace_parsing;
-    this->context = std::stack<std::any>();
 
     // nask
     this->dollar_position = 0;
@@ -160,9 +159,40 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
     if (imm_exp->factor_) {
         imm_exp->factor_->accept(this);
     }
-    std::any c = this->context.top();
-    this->context.pop();
-    this->context.push(c);
+    context c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
+}
+
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
+void Driver::visitPlusExp(PlusExp *plus_exp) {
+    if (plus_exp->exp_1) {
+        plus_exp->exp_1->accept(this);
+    }
+
+    context left = this->ctx.top();
+    this->ctx.pop();
+
+    if (plus_exp->exp_2) {
+        plus_exp->exp_2->accept(this);
+    }
+
+    context right = this->ctx.top();
+    this->ctx.pop();
+
+    context ans = std::visit(
+        overload
+        {
+            [](int arg1, int arg2) -> context { return arg1 + arg2; },
+            [](double arg1, double arg2) -> context { return arg1 + arg2; },
+            [](auto arg1, auto arg2) -> context{ return 0; },
+        },
+        left, right
+    );
+
+    this->ctx.push(ans);
 }
 
 //
@@ -170,63 +200,63 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
 //
 void Driver::visitNumberFactor(NumberFactor *number_factor) {
     visitInteger(number_factor->integer_);
-    std::any c = this->context.top();
-    this->context.pop();
-    this->context.push(c);
+    context c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
 }
 
 void Driver::visitHexFactor(HexFactor *hex_factor) {
     visitHex(hex_factor->hex_);
-    std::any c = this->context.top();
-    this->context.pop();
-    this->context.push(c);
+    context c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
 }
 
 void Driver::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
-    std::any c = this->context.top();
-    this->context.pop();
-    this->context.push(c);
+    context c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
 }
 
 void Driver::visitStringFactor(StringFactor *string_factor) {
     visitString(string_factor->string_);
-    std::any c = this->context.top();
-    this->context.pop();
-    this->context.push(c);
+    context c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
 }
 
 //
 // tokenの処理
 //
 void Driver::visitInteger(Integer x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitChar(Char x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitDouble(Double x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitString(String x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitIdent(Ident x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitHex(Hex x) {
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
 
 void Driver::visitLabel(Label x) {
@@ -241,6 +271,12 @@ void Driver::visitLabel(Label x) {
     //inst.store_label_dst(label_dst, binout_container);
     //inst.update_label_dst_offset(label_dst, binout_container);
 
-    std::any c = x;
-    this->context.push(c);
+    context c = x;
+    this->ctx.push(c);
 }
+
+
+//struct NumberVisitor {
+//    int operator()(int x) { return x; }
+//    double operator()(double x) { return x; }
+//};

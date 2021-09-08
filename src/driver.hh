@@ -4,9 +4,8 @@
 #include <string>
 #include <memory>
 #include <iostream>
-#include <any>
+#include <variant>
 #include "spdlog/spdlog.h"
-//#include "nonstd/any.hpp"
 #include "parser.hh"
 #include "printer.hh"
 #include "absyn.hh"
@@ -65,7 +64,8 @@ private:
 
 public:
     // visitorのcontext情報
-    std::stack<std::any> context;
+    using context = std::variant<int, std::string, double, char>;
+    std::stack<context> ctx;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -89,6 +89,7 @@ public:
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitPlusExp(PlusExp *p) override;
 
     // factor
     void visitNumberFactor(NumberFactor *p) override;

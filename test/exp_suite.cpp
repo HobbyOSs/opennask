@@ -15,28 +15,28 @@ TEST(exp_suite, testToken)
     std::unique_ptr<Driver> d(new Driver(false, false));
 
     d->visitInteger(30);
-    CHECK_EQUAL(30, std::any_cast<int>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
+    d->ctx.pop();
 
     d->visitChar('H');
-    CHECK_EQUAL('H', std::any_cast<char>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL('H', std::get<char>(d->ctx.top()));
+    d->ctx.pop();
 
     d->visitDouble(3.14);
-    CHECK_EQUAL(3.14, std::any_cast<double>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL(3.14, std::get<double>(d->ctx.top()));
+    d->ctx.pop();
 
     d->visitString("hello1");
-    CHECK_EQUAL("hello1", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 
     d->visitIdent("hello2");
-    CHECK_EQUAL("hello2", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 
     d->visitHex("hello3");
-    CHECK_EQUAL("hello3", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 }
 
 TEST(exp_suite, testFactor)
@@ -45,26 +45,26 @@ TEST(exp_suite, testFactor)
 
     auto numberFactor = NumberFactor(30);
     d->visitNumberFactor(&numberFactor);
-    CHECK_EQUAL(30, std::any_cast<int>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
+    d->ctx.pop();
 
     auto hexFactor = HexFactor("hello1");
     d->visitHexFactor(&hexFactor);
-    CHECK_EQUAL("hello1", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 
     auto identFactor = IdentFactor("hello2");
     d->visitIdentFactor(&identFactor);
-    CHECK_EQUAL("hello2", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 
     auto stringFactor = StringFactor("hello3");
     d->visitStringFactor(&stringFactor);
-    CHECK_EQUAL("hello3", std::any_cast<std::string>(d->context.top()));
-    d->context.pop();
+    CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
+    d->ctx.pop();
 }
 
-TEST(exp_suite, testExp)
+TEST(exp_suite, testImmExp)
 {
     std::unique_ptr<Driver> d(new Driver(false, false));
 
@@ -76,47 +76,64 @@ TEST(exp_suite, testExp)
     {
         auto immExp = ImmExp(numberFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL(30, std::any_cast<int>(d->context.top()));
-        d->context.pop();
+        CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
+        d->ctx.pop();
     }
     {
         auto immExp = ImmExp(hexFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello1", std::any_cast<std::string>(d->context.top()));
-        d->context.pop();
+        CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
+        d->ctx.pop();
     }
     {
         auto immExp = ImmExp(identFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello2", std::any_cast<std::string>(d->context.top()));
-        d->context.pop();
+        CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
+        d->ctx.pop();
     }
     {
         auto immExp = ImmExp(stringFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello3", std::any_cast<std::string>(d->context.top()));
-        d->context.pop();
+        CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
+        d->ctx.pop();
     }
 }
 
-/**
-TEST(exp_suite, testNask)
+TEST(exp_suite, testPlusExp)
 {
-    int error;
+    std::unique_ptr<Driver> d(new Driver(false, false));
 
-    const double ecx1 = te_interp("512*1024/4", &error);
-    CHECK(!std::isnan(ecx1));
-    CHECK_EQUAL(131072, ecx1);
+    auto numberFactor1 = NumberFactor(7);
+    auto numberFactor2 = NumberFactor(5);
 
-    const double ecx2 = te_interp("512/4", &error);
-    CHECK(!std::isnan(ecx2));
-    CHECK_EQUAL(128, ecx2);
-
-    const double dw = te_interp("8*3-1", &error);
-    CHECK(!std::isnan(dw));
-    CHECK_EQUAL(23, dw);
+    {
+        auto immExp1 = ImmExp(numberFactor1.clone());
+        auto immExp2 = ImmExp(numberFactor2.clone());
+        auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
+        d->visitPlusExp(&plusExp);
+        CHECK_EQUAL(12, std::get<int>(d->ctx.top()));
+        d->ctx.pop();
+    }
 }
 
+TEST(exp_suite, testCalc)
+{
+    std::unique_ptr<Driver> d(new Driver(false, false));
+
+    // const double ecx1 = te_interp("512*1024/4", &error);
+    // CHECK(!std::isnan(ecx1));
+    // CHECK_EQUAL(131072, ecx1);
+    //
+    // const double ecx2 = te_interp("512/4", &error);
+    // CHECK(!std::isnan(ecx2));
+    // CHECK_EQUAL(128, ecx2);
+    //
+    // const double dw = te_interp("8*3-1", &error);
+    // CHECK(!std::isnan(dw));
+    // CHECK_EQUAL(23, dw);
+}
+
+/**
 
 TEST(exp_suite, testInt)
 {
