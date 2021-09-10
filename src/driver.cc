@@ -1,5 +1,6 @@
 #include <fstream>
 #include <typeinfo>
+#include <type_traits>
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
@@ -21,13 +22,106 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
     this->dollar_position = 0;
 }
 
-int Driver::Parse(FILE *input, const char* assembly_dst) {
+// テストのため各種の型をエントリーポイントとしてパースできるようにしている
+template int Driver::Parse<Program>(FILE* in, char const* dst);
+template int Driver::Parse<Program>(const char* in, char const* dst);
+template int Driver::Parse<ListStatement>(FILE* in, char const* dst);
+template int Driver::Parse<ListStatement>(const char* in, char const* dst);
+template int Driver::Parse<Statement>(FILE* in, char const* dst);
+template int Driver::Parse<Statement>(const char* in, char const* dst);
+template int Driver::Parse<ListMnemonicArgs>(FILE* in, char const* dst);
+template int Driver::Parse<ListMnemonicArgs>(const char* in, char const* dst);
+template int Driver::Parse<MnemonicArgs>(FILE* in, char const* dst);
+template int Driver::Parse<MnemonicArgs>(const char* in, char const* dst);
+template int Driver::Parse<Exp>(FILE* in, char const* dst);
+template int Driver::Parse<Exp>(const char* in, char const* dst);
+template int Driver::Parse<Factor>(FILE* in, char const* dst);
+template int Driver::Parse<Factor>(const char* in, char const* dst);
+template int Driver::Parse<ConfigType>(FILE* in, char const* dst);
+template int Driver::Parse<ConfigType>(const char* in, char const* dst);
+template int Driver::Parse<DataType>(FILE* in, char const* dst);
+template int Driver::Parse<DataType>(const char* in, char const* dst);
+template int Driver::Parse<Opcode>(FILE* in, char const* dst);
+template int Driver::Parse<Opcode>(const char* in, char const* dst);
 
-    /* The default entry point is used. For other options see Parser.H */
-    Program *parse_tree = NULL;
+
+template <class T, class IN>
+int Driver::Parse(IN *input, const char* assembly_dst) {
+
+    T* parse_tree = NULL;
 
     try {
-        parse_tree = pProgram(input);
+        if constexpr (std::is_same_v<T, Program>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pProgram(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psProgram(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, ListStatement>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pListStatement(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psListStatement(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, Statement>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pStatement(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psStatement(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pListMnemonicArgs(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psListMnemonicArgs(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, MnemonicArgs>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pMnemonicArgs(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psMnemonicArgs(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, Exp>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pExp(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psExp(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, Factor>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pFactor(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psFactor(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, ConfigType>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pConfigType(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psConfigType(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, DataType>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pDataType(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psDataType(input);
+            }
+        }
+        if constexpr (std::is_same_v<T, Opcode>) {
+            if constexpr (std::is_same_v<IN, FILE>) {
+                parse_tree = pOpcode(input);
+            } else if constexpr (std::is_same_v<IN, char>) {
+                parse_tree = psOpcode(input);
+            }
+        }
+
     } catch( parse_error &e) {
         std::cerr << "Parse error on line " << e.getLine() << "\n";
     }
@@ -46,7 +140,7 @@ int Driver::Parse(FILE *input, const char* assembly_dst) {
             printf("%s\n\n", p->print(parse_tree));
         }
 
-        this->Eval(parse_tree, assembly_dst);
+        this->Eval<T>(parse_tree, assembly_dst);
 
         delete(parse_tree);
         return 0;
@@ -54,7 +148,9 @@ int Driver::Parse(FILE *input, const char* assembly_dst) {
     return 1;
 }
 
-int Driver::Eval(Program *parse_tree, const char* assembly_dst) {
+
+template <class T>
+int Driver::Eval(T *parse_tree, const char* assembly_dst) {
 
     std::ofstream binout(assembly_dst, std::ios::trunc | std::ios::binary);
     if ( binout.bad() || binout.fail() ) {
@@ -62,9 +158,37 @@ int Driver::Eval(Program *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    // Eval開始(FIXME: なぜダウンキャストするんだ…?)
-    Prog *prog = dynamic_cast<Prog*>(parse_tree);
-    this->visitProg(prog);
+    // Eval開始
+    if constexpr (std::is_same_v<T, Program>) {
+        this->visitProgram(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, ListStatement>) {
+        this->visitListStatement(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, Statement>) {
+        this->visitStatement(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+        this->visitListMnemonicArgs(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, MnemonicArgs>) {
+        this->visitMnemonicArgs(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, Exp>) {
+        this->visitExp(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, Factor>) {
+        this->visitFactor(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, ConfigType>) {
+        this->visitConfigType(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, DataType>) {
+        this->visitDataType(parse_tree);
+    }
+    if constexpr (std::is_same_v<T, Opcode>) {
+        this->visitOpcode(parse_tree);
+    }
 
     // output binary
     binout.write(

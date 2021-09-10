@@ -69,10 +69,13 @@ public:
 
     Driver(bool trace_scanning, bool trace_parsing);
 
-    // FILE* f をパースする, 成功時は0を返す
-    int Parse(FILE *input, const char* assembly_dst);
+    // FILE* f / const char* in をパースする, 成功時は0を返す
+    template <class T, class IN>
+    int Parse(IN *input, const char* assembly_dst);
+
     // ASTを評価し結果をファイルに書き込む
-    int Eval(Program *parse_tree, const char* assembly_dst);
+    template <class T>
+    int Eval(T* parse_tree, const char* assembly_dst);
 
     // 以下、Parse/Evalのための関数
     void visitProg(Prog *prog) override;

@@ -118,7 +118,17 @@ TEST(exp_suite, testPlusExp)
 
 TEST(exp_suite, testCalc)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::string input = "";
+    FILE *old_stdin = stdin;
+    FILE* strm = fmemopen((void*) input.c_str(), input.size(), "r");
+
+    stdin = strm;
+    scanf("512+1024+4");
+    stdin = old_stdin;
+    fclose(strm);
+
+    Exp *exp = pExp(stdin);
+
 
     // const double ecx1 = te_interp("512*1024/4", &error);
     // CHECK(!std::isnan(ecx1));
