@@ -46,80 +46,102 @@ template int Driver::Parse<Opcode>(const char* in, char const* dst);
 
 
 template <class T, class IN>
-int Driver::Parse(IN *input, const char* assembly_dst) {
+int Driver::Parse(IN input, const char* assembly_dst) {
 
     T* parse_tree = NULL;
 
     try {
         if constexpr (std::is_same_v<T, Program>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pProgram(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psProgram(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, ListStatement>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, ListStatement>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pListStatement(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psListStatement(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, Statement>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, Statement>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pStatement(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psStatement(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pListMnemonicArgs(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psListMnemonicArgs(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, MnemonicArgs>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, MnemonicArgs>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pMnemonicArgs(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psMnemonicArgs(input);
             }
         }
-        if constexpr (std::is_same_v<T, Exp>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, Exp>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pExp(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
+                std::cerr << input << std::endl;
                 parse_tree = psExp(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, Factor>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, Factor>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pFactor(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psFactor(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, ConfigType>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, ConfigType>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pConfigType(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psConfigType(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, DataType>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, DataType>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pDataType(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psDataType(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
         }
-        if constexpr (std::is_same_v<T, Opcode>) {
-            if constexpr (std::is_same_v<IN, FILE>) {
+        else if constexpr (std::is_same_v<T, Opcode>) {
+            if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pOpcode(input);
-            } else if constexpr (std::is_same_v<IN, char>) {
+            } else if constexpr (std::is_same_v<IN, const char*>) {
                 parse_tree = psOpcode(input);
+            } else {
+                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
             }
+        }
+        else {
+            static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
         }
 
     } catch( parse_error &e) {

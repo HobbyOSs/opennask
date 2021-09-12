@@ -1,13 +1,17 @@
 #include "driver.hh"
 #include "tinyexpr.h"
+#include "spdlog/spdlog.h"
 #include <memory>
 #include <cmath>
 #include <CppUTest/TestHarness.h>
+#include <CppUTest/CommandLineTestRunner.h>
 
+// メモリリーク扱いされるのでテストケース側でloggerを作る
+auto logger = spdlog::stdout_logger_mt("opennask", "console");
 
 TEST_GROUP(exp_suite)
 {
-
+    //spdlog::set_level(spdlog::level::debug);
 };
 
 TEST(exp_suite, testToken)
@@ -42,7 +46,6 @@ TEST(exp_suite, testToken)
 TEST(exp_suite, testFactor)
 {
     std::unique_ptr<Driver> d(new Driver(false, false));
-
     auto numberFactor = NumberFactor(30);
     d->visitNumberFactor(&numberFactor);
     CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
@@ -66,32 +69,34 @@ TEST(exp_suite, testFactor)
 
 TEST(exp_suite, testImmExp)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
-
     auto numberFactor = NumberFactor(30);
     auto hexFactor = HexFactor("hello1");
     auto identFactor = IdentFactor("hello2");
     auto stringFactor = StringFactor("hello3");
 
     {
+        std::unique_ptr<Driver> d(new Driver(false, false));
         auto immExp = ImmExp(numberFactor.clone());
         d->visitImmExp(&immExp);
         CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
         d->ctx.pop();
     }
     {
+        std::unique_ptr<Driver> d(new Driver(false, false));
         auto immExp = ImmExp(hexFactor.clone());
         d->visitImmExp(&immExp);
         CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
         d->ctx.pop();
     }
     {
+        std::unique_ptr<Driver> d(new Driver(false, false));
         auto immExp = ImmExp(identFactor.clone());
         d->visitImmExp(&immExp);
         CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
         d->ctx.pop();
     }
     {
+        std::unique_ptr<Driver> d(new Driver(false, false));
         auto immExp = ImmExp(stringFactor.clone());
         d->visitImmExp(&immExp);
         CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
@@ -102,14 +107,13 @@ TEST(exp_suite, testImmExp)
 TEST(exp_suite, testPlusExp)
 {
     std::unique_ptr<Driver> d(new Driver(false, false));
-
-    auto numberFactor1 = NumberFactor(7);
-    auto numberFactor2 = NumberFactor(5);
-
     {
+        auto numberFactor1 = NumberFactor(7);
+        auto numberFactor2 = NumberFactor(5);
         auto immExp1 = ImmExp(numberFactor1.clone());
         auto immExp2 = ImmExp(numberFactor2.clone());
         auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
+
         d->visitPlusExp(&plusExp);
         CHECK_EQUAL(12, std::get<int>(d->ctx.top()));
         d->ctx.pop();
@@ -118,17 +122,11 @@ TEST(exp_suite, testPlusExp)
 
 TEST(exp_suite, testCalc)
 {
-    std::string input = "";
-    FILE *old_stdin = stdin;
-    FILE* strm = fmemopen((void*) input.c_str(), input.size(), "r");
+    std::unique_ptr<Driver> d(new Driver(false, false));
+    d->Parse<Exp>("512+1024", "./test.img");
 
-    stdin = strm;
-    scanf("512+1024+4");
-    stdin = old_stdin;
-    fclose(strm);
-
-    Exp *exp = pExp(stdin);
-
+    log()->debug("{}", std::get<int>(d->ctx.top() ));
+    //CHECK_EQUAL(1540, std::get<int>(d->ctx.top()));
 
     // const double ecx1 = te_interp("512*1024/4", &error);
     // CHECK(!std::isnan(ecx1));
@@ -161,3 +159,15 @@ TEST(exp_suite, testInt)
     CHECK_EQUAL(4, error);
 }
 */
+
+int main(int argc, char** argv) {
+    spdlog::set_level(spdlog::level::debug);
+    logger->debug("Howdy?");
+    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
+    args.push_back("-v"); // Set verbose mode
+    args.push_back("-c"); // Set color output (OPTIONAL)
+
+    // Run all tests
+    int i = RUN_ALL_TESTS(args.size(), &args[0]);
+    return i;
+}

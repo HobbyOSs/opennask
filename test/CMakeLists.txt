@@ -13,6 +13,33 @@ include_directories(${CPPUTEST_INCLUDE_DIR})
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+# lexer, parser testing
+set(parsertest_SRCS
+  exp_suite.cpp
+  ../src/bnfc/skeleton.cc
+  ../src/bnfc/absyn.cc
+  ../src/bnfc/parser.cc
+  ../src/bnfc/printer.cc
+  ../src/bnfc/lexer.cc
+  ../src/bnfc/buffer.cc
+  ../src/driver.cc
+  ../src/demangle.cpp)
+
+add_executable(parsertest ${parsertest_SRCS})
+target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
+
+set_target_properties(parsertest PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS ON)
+
+add_test(
+  NAME parsertest
+  COMMAND $<TARGET_FILE:parsertest>
+)
+
+set_tests_properties(parsertest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
 # general testing
 #set(alltest_SRCS
 #    alltest.cpp

@@ -71,7 +71,7 @@ public:
 
     // FILE* f / const char* in をパースする, 成功時は0を返す
     template <class T, class IN>
-    int Parse(IN *input, const char* assembly_dst);
+    int Parse(IN input, const char* assembly_dst);
 
     // ASTを評価し結果をファイルに書き込む
     template <class T>
@@ -110,5 +110,8 @@ public:
     void visitLabel(Label x) override;
 
 };
+
+template <typename T>
+constexpr bool false_v = false;
 
 #endif // ! DRIVER_HH
