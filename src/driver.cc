@@ -22,6 +22,97 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
     this->dollar_position = 0;
 }
 
+// 以下、抽象クラスの実装(内部で動的に分岐)
+void Driver::visitProgram(Program *t) {
+
+    // std::visitを使いたいが、難しいのでdynamic_castで
+    // https://en.cppreference.com/w/cpp/utility/variant/visit
+    if (dynamic_cast<Prog*>(t) != nullptr) {
+        this->visitProg(dynamic_cast<Prog*>(t));
+    }
+}
+
+void Driver::visitStatement(Statement *t) {
+
+    if (dynamic_cast<LabelStmt*>(t) != nullptr) {
+        this->visitLabelStmt(dynamic_cast<LabelStmt*>(t));
+    } else if (dynamic_cast<DeclareStmt*>(t) != nullptr) {
+        this->visitDeclareStmt(dynamic_cast<DeclareStmt*>(t));
+    } else if (dynamic_cast<ConfigStmt*>(t) != nullptr) {
+        this->visitConfigStmt(dynamic_cast<ConfigStmt*>(t));
+    } else if (dynamic_cast<MnemonicStmt*>(t) != nullptr) {
+        this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
+    } else if (dynamic_cast<OpcodeStmt*>(t) != nullptr) {
+        this->visitOpcodeStmt(dynamic_cast<OpcodeStmt*>(t));
+    }
+}
+
+void Driver::visitMnemonicArgs(MnemonicArgs *t) {
+
+    if (dynamic_cast<MnemoArg*>(t) != nullptr) {
+        this->visitMnemoArg(dynamic_cast<MnemoArg*>(t));
+    }
+}
+
+void Driver::visitExp(Exp *t) {
+
+    if (dynamic_cast<EqExp*>(t) != nullptr) {
+        this->visitEqExp(dynamic_cast<EqExp*>(t));
+    } else if (dynamic_cast<NeqExp*>(t) != nullptr) {
+        this->visitNeqExp(dynamic_cast<NeqExp*>(t));
+    } else if (dynamic_cast<LtExp*>(t) != nullptr) {
+        this->visitLtExp(dynamic_cast<LtExp*>(t));
+    } else if (dynamic_cast<GtExp*>(t) != nullptr) {
+        this->visitGtExp(dynamic_cast<GtExp*>(t));
+    } else if (dynamic_cast<LteExp*>(t) != nullptr) {
+        this->visitLteExp(dynamic_cast<LteExp*>(t));
+    } else if (dynamic_cast<GteExp*>(t) != nullptr) {
+        this->visitGteExp(dynamic_cast<GteExp*>(t));
+    } else if (dynamic_cast<PlusExp*>(t) != nullptr) {
+        this->visitPlusExp(dynamic_cast<PlusExp*>(t));
+    } else if (dynamic_cast<MinusExp*>(t) != nullptr) {
+        this->visitMinusExp(dynamic_cast<MinusExp*>(t));
+    } else if (dynamic_cast<MulExp*>(t) != nullptr) {
+        this->visitMulExp(dynamic_cast<MulExp*>(t));
+    } else if (dynamic_cast<DivExp*>(t) != nullptr) {
+        this->visitDivExp(dynamic_cast<DivExp*>(t));
+    } else if (dynamic_cast<ModExp*>(t) != nullptr) {
+        this->visitModExp(dynamic_cast<ModExp*>(t));
+    } else if (dynamic_cast<IndirectAddrExp*>(t) != nullptr) {
+        this->visitIndirectAddrExp(dynamic_cast<IndirectAddrExp*>(t));
+    } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
+        this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
+    } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
+        this->visitRangeExp(dynamic_cast<RangeExp*>(t));
+    } else if (dynamic_cast<LabelExp*>(t) != nullptr) {
+        this->visitLabelExp(dynamic_cast<LabelExp*>(t));
+    } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
+        this->visitImmExp(dynamic_cast<ImmExp*>(t));
+    }
+}
+
+void Driver::visitFactor(Factor *t) {
+
+    if (dynamic_cast<NumberFactor*>(t) != nullptr) {
+        this->visitNumberFactor(dynamic_cast<NumberFactor*>(t));
+    } else if (dynamic_cast<HexFactor*>(t) != nullptr) {
+        this->visitHexFactor(dynamic_cast<HexFactor*>(t));
+    } else if (dynamic_cast<IdentFactor*>(t) != nullptr) {
+        this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
+    } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
+        this->visitStringFactor(dynamic_cast<StringFactor*>(t));
+    }
+}
+
+void Driver::visitConfigType(ConfigType *t) {
+}
+
+void Driver::visitDataType(DataType *t) {
+}
+
+void Driver::visitOpcode(Opcode *t) {
+}
+
 // テストのため各種の型をエントリーポイントとしてパースできるようにしている
 template int Driver::Parse<Program>(FILE* in, char const* dst);
 template int Driver::Parse<Program>(const char* in, char const* dst);
@@ -98,7 +189,6 @@ int Driver::Parse(IN input, const char* assembly_dst) {
             if constexpr (std::is_same_v<IN, FILE*>) {
                 parse_tree = pExp(input);
             } else if constexpr (std::is_same_v<IN, const char*>) {
-                std::cerr << input << std::endl;
                 parse_tree = psExp(input);
             } else {
                 static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
@@ -163,6 +253,7 @@ int Driver::Parse(IN input, const char* assembly_dst) {
         }
 
         this->Eval<T>(parse_tree, assembly_dst);
+        log()->debug("parse_tree is: {}", type(parse_tree));
 
         delete(parse_tree);
         return 0;
@@ -183,33 +274,26 @@ int Driver::Eval(T *parse_tree, const char* assembly_dst) {
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {
         this->visitProgram(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, ListStatement>) {
+    } else if constexpr (std::is_same_v<T, ListStatement>) {
         this->visitListStatement(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, Statement>) {
+    } else if constexpr (std::is_same_v<T, Statement>) {
         this->visitStatement(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+    } else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
         this->visitListMnemonicArgs(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, MnemonicArgs>) {
+    } else if constexpr (std::is_same_v<T, MnemonicArgs>) {
         this->visitMnemonicArgs(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, Exp>) {
+    } else if constexpr (std::is_same_v<T, Exp>) {
         this->visitExp(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, Factor>) {
+    } else if constexpr (std::is_same_v<T, Factor>) {
         this->visitFactor(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, ConfigType>) {
+    } else if constexpr (std::is_same_v<T, ConfigType>) {
         this->visitConfigType(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, DataType>) {
+    } else if constexpr (std::is_same_v<T, DataType>) {
         this->visitDataType(parse_tree);
-    }
-    if constexpr (std::is_same_v<T, Opcode>) {
+    } else if constexpr (std::is_same_v<T, Opcode>) {
         this->visitOpcode(parse_tree);
+    } else {
+        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }
 
     // output binary
@@ -223,17 +307,16 @@ int Driver::Eval(T *parse_tree, const char* assembly_dst) {
 
 void Driver::visitProg(Prog *prog) {
 
-    log()->debug("visitProg start");
     if (prog->liststatement_) {
         prog->liststatement_->accept(this);
     }
-    log()->debug("visitProg end");
+    std::any c = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(c);
 }
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {
-    log()->debug("visitLabelStmt start");
     visitLabel(label_stmt->label_);
-    log()->debug("visitLabelStmt end");
 }
 
 
@@ -261,6 +344,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
 
@@ -282,10 +366,13 @@ void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
     std::cout << "visitMnemoArg" << mnemo_arg->exp_ << std::endl;
 }
 
+void Driver::processDB(ListMnemonicArgs* list_mnemonic_args) {
+    for (const auto& e : *list_mnemonic_args) {
+        std::cout << "processDB: args -> " << type(e) << std::endl;
+    }
+}
 
 void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
-    std::cout << "hello" << std::endl;
-
     for (const auto& e : *list_mnemonic_args) {
         std::cout << type(e) << std::endl;
     }
@@ -294,6 +381,10 @@ void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
 //
 // Visit Opcode系の処理
 //
+void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
+    // NOP
+}
+
 void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
     // NOP
 }
@@ -305,7 +396,7 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
     if (imm_exp->factor_) {
         imm_exp->factor_->accept(this);
     }
-    context c = this->ctx.top();
+    std::any c = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(c);
 }
@@ -318,27 +409,27 @@ void Driver::visitPlusExp(PlusExp *plus_exp) {
         plus_exp->exp_1->accept(this);
     }
 
-    context left = this->ctx.top();
+    std::any left = this->ctx.top();
     this->ctx.pop();
 
     if (plus_exp->exp_2) {
         plus_exp->exp_2->accept(this);
     }
 
-    context right = this->ctx.top();
+    std::any right = this->ctx.top();
     this->ctx.pop();
 
-    context ans = std::visit(
-        overload
-        {
-            [](int arg1, int arg2) -> context { return arg1 + arg2; },
-            [](double arg1, double arg2) -> context { return arg1 + arg2; },
-            [](auto arg1, auto arg2) -> context{ return 0; },
-        },
-        left, right
-    );
+    //std::any ans = std::visit(
+    //    overload
+    //    {
+    //        [](int arg1, int arg2) -> context { return arg1 + arg2; },
+    //        [](double arg1, double arg2) -> context { return arg1 + arg2; },
+    //        [](auto arg1, auto arg2) -> context{ return 0; },
+    //    },
+    //    left, right
+    //);
 
-    this->ctx.push(ans);
+    //this->ctx.push(ans);
 }
 
 //
@@ -346,28 +437,28 @@ void Driver::visitPlusExp(PlusExp *plus_exp) {
 //
 void Driver::visitNumberFactor(NumberFactor *number_factor) {
     visitInteger(number_factor->integer_);
-    context c = this->ctx.top();
+    std::any c = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(c);
 }
 
 void Driver::visitHexFactor(HexFactor *hex_factor) {
     visitHex(hex_factor->hex_);
-    context c = this->ctx.top();
+    std::any c = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(c);
 }
 
 void Driver::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
-    context c = this->ctx.top();
+    std::any c = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(c);
 }
 
 void Driver::visitStringFactor(StringFactor *string_factor) {
     visitString(string_factor->string_);
-    context c = this->ctx.top();
+    std::any c = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(c);
 }
@@ -376,32 +467,32 @@ void Driver::visitStringFactor(StringFactor *string_factor) {
 // tokenの処理
 //
 void Driver::visitInteger(Integer x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
 void Driver::visitChar(Char x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
 void Driver::visitDouble(Double x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
 void Driver::visitString(String x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
 void Driver::visitIdent(Ident x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
 void Driver::visitHex(Hex x) {
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
 
@@ -417,12 +508,6 @@ void Driver::visitLabel(Label x) {
     //inst.store_label_dst(label_dst, binout_container);
     //inst.update_label_dst_offset(label_dst, binout_container);
 
-    context c = x;
+    std::any c = x;
     this->ctx.push(c);
 }
-
-
-//struct NumberVisitor {
-//    int operator()(int x) { return x; }
-//    double operator()(double x) { return x; }
-//};

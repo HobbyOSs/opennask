@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
-#include <variant>
+#include <any>
 #include "spdlog/spdlog.h"
 #include "parser.hh"
 #include "printer.hh"
@@ -64,8 +64,7 @@ private:
 
 public:
     // visitorのcontext情報
-    using context = std::variant<int, std::string, double, char>;
-    std::stack<context> ctx;
+    std::stack<std::any> ctx;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -77,7 +76,17 @@ public:
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
 
-    // 以下、Parse/Evalのための関数
+    // 以下、抽象クラスの実装(内部で動的に分岐)
+    void visitProgram(Program *t) override;
+    void visitStatement(Statement *t) override;
+    void visitMnemonicArgs(MnemonicArgs *t) override;
+    void visitExp(Exp *t) override;
+    void visitFactor(Factor *t) override;
+    void visitConfigType(ConfigType *t) override;
+    void visitDataType(DataType *t) override;
+    void visitOpcode(Opcode *t) override;
+
+    // 以下、Parse/Evalのための実装
     void visitProg(Prog *prog) override;
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
@@ -86,8 +95,10 @@ public:
 
     // opcodeの読み取り
     void visitOpcodesORG(OpcodesORG *opcodes_org) override;
+    void visitOpcodesDB(OpcodesDB *opcodes_db) override;
 
     // opcodeの処理
+    void processDB(ListMnemonicArgs* list_mnemonic_args);
     void processORG(ListMnemonicArgs* list_mnemonic_args);
 
     // expression

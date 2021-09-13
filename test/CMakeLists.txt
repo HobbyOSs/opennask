@@ -14,6 +14,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # lexer, parser testing
+# `ctest -R parsertest`
 set(parsertest_SRCS
   exp_suite.cpp
   ../src/bnfc/skeleton.cc
@@ -39,41 +40,6 @@ add_test(
 )
 
 set_tests_properties(parsertest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
-
-# general testing
-#set(alltest_SRCS
-#    alltest.cpp
-#    nask_suite.cpp
-#    exp_suite.cpp
-#    inst_suite.cpp
-#    ../src/demangle.cpp
-#    ../src/bnfc/skeleton.cc
-#    ../src/bnfc/absyn.cc
-#    ../src/bnfc/parser.cc
-#    ../src/bnfc/printer.cc
-#    ../src/bnfc/lexer.cc
-#    ../src/bnfc/buffer.cc
-#    ../src/driver.cc
-#    ../src/tinyexpr.c
-#    ../src/nask_utility.cpp
-#    ../src/mod_rm.cpp
-#    ../src/string_util.cpp)
-#
-#add_executable(alltest ${alltest_SRCS})
-#target_link_libraries(alltest parasol Threads::Threads ${CPPUTEST_LIBRARY})
-#
-#set_target_properties(alltest PROPERTIES
-#  CXX_STANDARD 17
-#  CXX_STANDARD_REQUIRED ON
-#  CXX_EXTENSIONS ON)
-#
-#
-#add_test(
-#  NAME alltest
-#  COMMAND $<TARGET_FILE:alltest>
-#)
-#
-#set_tests_properties(alltest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
 # `ctest -R modrmtest`
 set(modrmtest_SRCS
