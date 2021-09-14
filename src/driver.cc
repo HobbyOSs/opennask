@@ -310,9 +310,7 @@ void Driver::visitProg(Prog *prog) {
     if (prog->liststatement_) {
         prog->liststatement_->accept(this);
     }
-    std::any c = this->ctx.top();
-    this->ctx.pop();
-    this->ctx.push(c);
+    std::cerr << "visitProg end" << std::endl;
 }
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {
@@ -340,7 +338,11 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         mnemonic_stmt->listmnemonicargs_->accept(this);
     }
 
-    typedef std::function<void(ListMnemonicArgs*)> nim_callback;
+    std::any c = this->ctx.top();
+    std::vector<std::any> mnemonic_args = std::any_cast<std::vector<std::any>>(c);
+    this->ctx.pop();
+
+    typedef std::function<void(std::vector<std::any>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
@@ -352,28 +354,21 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type::iterator it = funcs.find(opcode);
     if (it != funcs.end()) {
-        it->second(mnemonic_stmt->listmnemonicargs_);
+        it->second(mnemonic_args);
     } else {
         std::cout << "not implemented..." << std::endl;
     }
     log()->debug("visitMnemonicStmt end");
 }
 
-void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
-    if (mnemo_arg->exp_) {
-        mnemo_arg->exp_->accept(this);
-    }
-    std::cout << "visitMnemoArg" << mnemo_arg->exp_ << std::endl;
-}
-
-void Driver::processDB(ListMnemonicArgs* list_mnemonic_args) {
-    for (const auto& e : *list_mnemonic_args) {
-        std::cout << "processDB: args -> " << type(e) << std::endl;
+void Driver::processDB(std::vector<std::any>& memonic_args) {
+    for (const auto& e : memonic_args) {
+        std::cout << "processDB: args " << type(e) << " -> " << std::endl;
     }
 }
 
-void Driver::processORG(ListMnemonicArgs* list_mnemonic_args) {
-    for (const auto& e : *list_mnemonic_args) {
+void Driver::processORG(std::vector<std::any>& memonic_args) {
+    for (const auto& e : memonic_args) {
         std::cout << type(e) << std::endl;
     }
 }
@@ -389,6 +384,36 @@ void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
     // NOP
 }
 
+
+void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
+
+    std::vector<std::any> cs;
+    for (ListMnemonicArgs::iterator i = list_mnemonic_args->begin() ; i != list_mnemonic_args->end() ; ++i) {
+        (*i)->accept(this);
+
+        std::any c = this->ctx.top();
+        this->ctx.pop();
+        cs.push_back(c);
+    }
+    this->ctx.push(cs);
+}
+
+void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
+    if (mnemo_arg->exp_) {
+        mnemo_arg->exp_->accept(this);
+    }
+    std::any c = this->ctx.top();
+    this->ctx.pop();
+
+    if (c.type() == typeid(int)) {
+        this->ctx.push(std::any_cast<int>(c));
+    } else if (c.type() == typeid(std::string)) {
+        this->ctx.push(std::any_cast<std::string>(c));
+    } else {
+        // error!
+    }
+}
+
 //
 // expressionの処理
 //
@@ -397,12 +422,16 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
         imm_exp->factor_->accept(this);
     }
     std::any c = this->ctx.top();
-    this->ctx.pop();
-    this->ctx.push(c);
-}
 
-template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
-template<class... Ts> overload(Ts...) -> overload<Ts...>;
+    this->ctx.pop();
+    if (c.type() == typeid(int)) {
+        this->ctx.push(std::any_cast<int>(c));
+    } else if (c.type() == typeid(std::string)) {
+        this->ctx.push(std::any_cast<std::string>(c));
+    } else {
+        // error!
+    }
+}
 
 void Driver::visitPlusExp(PlusExp *plus_exp) {
     if (plus_exp->exp_1) {
@@ -419,17 +448,11 @@ void Driver::visitPlusExp(PlusExp *plus_exp) {
     std::any right = this->ctx.top();
     this->ctx.pop();
 
-    //std::any ans = std::visit(
-    //    overload
-    //    {
-    //        [](int arg1, int arg2) -> context { return arg1 + arg2; },
-    //        [](double arg1, double arg2) -> context { return arg1 + arg2; },
-    //        [](auto arg1, auto arg2) -> context{ return 0; },
-    //    },
-    //    left, right
-    //);
-
-    //this->ctx.push(ans);
+    if (left.type() == typeid(int) && right.type() == typeid(int)) {
+        this->ctx.push(std::any_cast<int>(left) + std::any_cast<int>(right));
+    } else {
+        // error!
+    }
 }
 
 //
@@ -439,7 +462,11 @@ void Driver::visitNumberFactor(NumberFactor *number_factor) {
     visitInteger(number_factor->integer_);
     std::any c = this->ctx.top();
     this->ctx.pop();
-    this->ctx.push(c);
+    if (c.type() == typeid(int)) {
+        this->ctx.push(std::any_cast<int>(c));
+    } else {
+        // error!
+    }
 }
 
 void Driver::visitHexFactor(HexFactor *hex_factor) {

@@ -2,6 +2,7 @@
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
+#include <list>
 #include <memory>
 #include <cmath>
 #include <CppUTest/TestHarness.h>
@@ -46,105 +47,114 @@ TEST(exp_suite, testToken)
 
 TEST(exp_suite, testFactor)
 {
-    //std::unique_ptr<Driver> d(new Driver(false, false));
-    //auto numberFactor = NumberFactor(30);
-    //d->visitNumberFactor(&numberFactor);
-    //CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
-    //d->ctx.pop();
-    //
-    //auto hexFactor = HexFactor("hello1");
-    //d->visitHexFactor(&hexFactor);
-    //CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
-    //d->ctx.pop();
-    //
-    //auto identFactor = IdentFactor("hello2");
-    //d->visitIdentFactor(&identFactor);
-    //CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
-    //d->ctx.pop();
-    //
-    //auto stringFactor = StringFactor("hello3");
-    //d->visitStringFactor(&stringFactor);
-    //CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
-    //d->ctx.pop();
+    std::unique_ptr<Driver> d(new Driver(false, false));
+    auto numberFactor = NumberFactor(30);
+    d->visitNumberFactor(&numberFactor);
+    CHECK_EQUAL(30, std::any_cast<int>(d->ctx.top()));
+    d->ctx.pop();
+
+    auto hexFactor = HexFactor("hello1");
+    d->visitHexFactor(&hexFactor);
+    CHECK_EQUAL("hello1", std::any_cast<std::string>(d->ctx.top()));
+    d->ctx.pop();
+
+    auto identFactor = IdentFactor("hello2");
+    d->visitIdentFactor(&identFactor);
+    CHECK_EQUAL("hello2", std::any_cast<std::string>(d->ctx.top()));
+    d->ctx.pop();
+
+    auto stringFactor = StringFactor("hello3");
+    d->visitStringFactor(&stringFactor);
+    CHECK_EQUAL("hello3", std::any_cast<std::string>(d->ctx.top()));
+    d->ctx.pop();
 }
 
 TEST(exp_suite, testImmExp)
 {
+    std::unique_ptr<Driver> d(new Driver(false, false));
+
     auto numberFactor = NumberFactor(30);
     auto hexFactor = HexFactor("hello1");
     auto identFactor = IdentFactor("hello2");
     auto stringFactor = StringFactor("hello3");
 
-    //{
-    //    std::unique_ptr<Driver> d(new Driver(false, false));
-    //    auto immExp = ImmExp(numberFactor.clone());
-    //    d->visitImmExp(&immExp);
-    //    CHECK_EQUAL(30, std::get<int>(d->ctx.top()));
-    //    d->ctx.pop();
-    //}
-    //{
-    //    std::unique_ptr<Driver> d(new Driver(false, false));
-    //    auto immExp = ImmExp(hexFactor.clone());
-    //    d->visitImmExp(&immExp);
-    //    CHECK_EQUAL("hello1", std::get<std::string>(d->ctx.top()));
-    //    d->ctx.pop();
-    //}
-    //{
-    //    std::unique_ptr<Driver> d(new Driver(false, false));
-    //    auto immExp = ImmExp(identFactor.clone());
-    //    d->visitImmExp(&immExp);
-    //    CHECK_EQUAL("hello2", std::get<std::string>(d->ctx.top()));
-    //    d->ctx.pop();
-    //}
-    //{
-    //    std::unique_ptr<Driver> d(new Driver(false, false));
-    //    auto immExp = ImmExp(stringFactor.clone());
-    //    d->visitImmExp(&immExp);
-    //    CHECK_EQUAL("hello3", std::get<std::string>(d->ctx.top()));
-    //    d->ctx.pop();
-    //}
+    {
+        auto immExp = ImmExp(numberFactor.clone());
+        d->visitImmExp(&immExp);
+        CHECK_EQUAL(30, std::any_cast<int>(d->ctx.top()));
+        d->ctx.pop();
+    }
+    {
+        auto immExp = ImmExp(hexFactor.clone());
+        d->visitImmExp(&immExp);
+        CHECK_EQUAL("hello1", std::any_cast<std::string>(d->ctx.top()));
+        d->ctx.pop();
+    }
+    {
+        auto immExp = ImmExp(identFactor.clone());
+        d->visitImmExp(&immExp);
+        CHECK_EQUAL("hello2", std::any_cast<std::string>(d->ctx.top()));
+        d->ctx.pop();
+    }
+    {
+        auto immExp = ImmExp(stringFactor.clone());
+        d->visitImmExp(&immExp);
+        CHECK_EQUAL("hello3", std::any_cast<std::string>(d->ctx.top()));
+        d->ctx.pop();
+    }
 }
 
-TEST(exp_suite, testPlusExp)
+TEST(exp_suite, testArithmeticOperations)
 {
     std::unique_ptr<Driver> d(new Driver(false, false));
-    //{
-    //    auto numberFactor1 = NumberFactor(7);
-    //    auto numberFactor2 = NumberFactor(5);
-    //    auto immExp1 = ImmExp(numberFactor1.clone());
-    //    auto immExp2 = ImmExp(numberFactor2.clone());
-    //    auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
-    //
-    //    d->visitPlusExp(&plusExp);
-    //    CHECK_EQUAL(12, std::get<int>(d->ctx.top()));
-    //    d->ctx.pop();
-    //}
+    {
+        auto numberFactor1 = NumberFactor(7);
+        auto numberFactor2 = NumberFactor(3);
+        auto immExp1 = ImmExp(numberFactor1.clone());
+        auto immExp2 = ImmExp(numberFactor2.clone());
+        auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
+
+        d->visitPlusExp(&plusExp);
+        CHECK_EQUAL(10, std::any_cast<int>(d->ctx.top()));
+        d->ctx.pop();
+    }
 }
 
-TEST(exp_suite, testCalc)
+TEST(exp_suite, testMnemoArgs)
 {
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    //{
-    //    d->Parse<Program>("DB 1 + 1", "./test.img");
-    //    auto c = d->ctx.top();
-    //    std::cout << type(c) << std::endl;
-    //    //CHECK_EQUAL(1540, std::get<int>(d->ctx.top()));
-    //}
+    std::unique_ptr<Driver> d(new Driver(false, false));
+    {
+        auto numberFactor = NumberFactor(12);
+        auto immExp = ImmExp(numberFactor.clone());
+        auto mnemoArg = MnemoArg(immExp.clone());
 
-    //log()->debug("{}", std::get<int>(d->ctx.top() ));
-    //CHECK_EQUAL(1540, std::get<int>(d->ctx.top()));
+        d->visitMnemoArg(&mnemoArg);
+        CHECK_EQUAL(12, std::any_cast<int>(d->ctx.top()));
+        d->ctx.pop();
+    }
+    {
+        auto mnemoArg1 = MnemoArg(ImmExp(NumberFactor(12).clone()).clone());
+        auto mnemoArg2 = MnemoArg(ImmExp(NumberFactor(13).clone()).clone());
+        auto mnemoArgs = ListMnemonicArgs();
 
-    // const double ecx1 = te_interp("512*1024/4", &error);
-    // CHECK(!std::isnan(ecx1));
-    // CHECK_EQUAL(131072, ecx1);
-    //
-    // const double ecx2 = te_interp("512/4", &error);
-    // CHECK(!std::isnan(ecx2));
-    // CHECK_EQUAL(128, ecx2);
-    //
-    // const double dw = te_interp("8*3-1", &error);
-    // CHECK(!std::isnan(dw));
-    // CHECK_EQUAL(23, dw);
+        mnemoArgs.push_back(mnemoArg1.clone());
+        mnemoArgs.push_back(mnemoArg2.clone());
+
+        d->visitListMnemonicArgs(&mnemoArgs);
+        std::vector<std::any> actual = std::any_cast<std::vector<std::any>>(d->ctx.top());
+        CHECK_EQUAL(2, actual.size());
+        CHECK_EQUAL(12, std::any_cast<int>(actual[0]));
+        CHECK_EQUAL(13, std::any_cast<int>(actual[1]));
+        d->ctx.pop();
+    }
+}
+
+TEST(exp_suite, testSimpleMnemonic)
+{
+
+    std::unique_ptr<Driver> d(new Driver(false, false));
+    d->Parse<Program>("DB 10, 20, 30", "test.img");
+
 }
 
 /**
@@ -168,11 +178,10 @@ TEST(exp_suite, testInt)
 
 int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::debug);
-    logger->debug("Howdy?");
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-    args.push_back("TEST(exp_suite, testCalc)");
+    //args.push_back("-c"); // Set color output (OPTIONAL)
+    //args.push_back("TEST(exp_suite, testMnemoArgs)");
 
     // TODO: bnfc側のメモリリーク修正する https://github.com/HobbyOSs/opennask/issues/42
     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();

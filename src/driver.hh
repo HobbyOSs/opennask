@@ -91,6 +91,7 @@ public:
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
+    void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
     // opcodeの読み取り
@@ -98,8 +99,8 @@ public:
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
 
     // opcodeの処理
-    void processDB(ListMnemonicArgs* list_mnemonic_args);
-    void processORG(ListMnemonicArgs* list_mnemonic_args);
+    void processDB(std::vector<std::any>& memonic_args);
+    void processORG(std::vector<std::any>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
