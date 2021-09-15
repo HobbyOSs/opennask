@@ -338,11 +338,12 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         mnemonic_stmt->listmnemonicargs_->accept(this);
     }
 
-    std::any c = this->ctx.top();
-    std::vector<std::any> mnemonic_args = std::any_cast<std::vector<std::any>>(c);
-    this->ctx.pop();
+    std::vector<TParaToken> mnemonic_args;
+    for (TParaToken t = this->ctx.top(); ! this->ctx.empty() ; this->ctx.pop() ) {
+        mnemonic_args.push_back(t);
+    }
 
-    typedef std::function<void(std::vector<std::any>&)> nim_callback;
+    typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
@@ -361,13 +362,13 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     log()->debug("visitMnemonicStmt end");
 }
 
-void Driver::processDB(std::vector<std::any>& memonic_args) {
+void Driver::processDB(std::vector<TParaToken>& memonic_args) {
     for (const auto& e : memonic_args) {
         std::cout << "processDB: args " << type(e) << " -> " << std::endl;
     }
 }
 
-void Driver::processORG(std::vector<std::any>& memonic_args) {
+void Driver::processORG(std::vector<TParaToken>& memonic_args) {
     for (const auto& e : memonic_args) {
         std::cout << type(e) << std::endl;
     }
@@ -387,31 +388,21 @@ void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
 
 void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
 
-    std::vector<std::any> cs;
     for (ListMnemonicArgs::iterator i = list_mnemonic_args->begin() ; i != list_mnemonic_args->end() ; ++i) {
         (*i)->accept(this);
 
-        std::any c = this->ctx.top();
-        this->ctx.pop();
-        cs.push_back(c);
+        TParaToken t = this->ctx.top();
+        this->ctx.push(t);
     }
-    this->ctx.push(cs);
 }
 
 void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
     if (mnemo_arg->exp_) {
         mnemo_arg->exp_->accept(this);
     }
-    std::any c = this->ctx.top();
+    TParaToken t = this->ctx.top();
     this->ctx.pop();
-
-    if (c.type() == typeid(int)) {
-        this->ctx.push(std::any_cast<int>(c));
-    } else if (c.type() == typeid(std::string)) {
-        this->ctx.push(std::any_cast<std::string>(c));
-    } else {
-        // error!
-    }
+    this->ctx.push(t);
 }
 
 //
@@ -421,16 +412,9 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
     if (imm_exp->factor_) {
         imm_exp->factor_->accept(this);
     }
-    std::any c = this->ctx.top();
-
+    TParaToken t = this->ctx.top();
     this->ctx.pop();
-    if (c.type() == typeid(int)) {
-        this->ctx.push(std::any_cast<int>(c));
-    } else if (c.type() == typeid(std::string)) {
-        this->ctx.push(std::any_cast<std::string>(c));
-    } else {
-        // error!
-    }
+    this->ctx.push(t);
 }
 
 void Driver::visitPlusExp(PlusExp *plus_exp) {
@@ -438,21 +422,21 @@ void Driver::visitPlusExp(PlusExp *plus_exp) {
         plus_exp->exp_1->accept(this);
     }
 
-    std::any left = this->ctx.top();
+    TParaToken left = this->ctx.top();
+    left.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
     if (plus_exp->exp_2) {
         plus_exp->exp_2->accept(this);
     }
 
-    std::any right = this->ctx.top();
+    TParaToken right = this->ctx.top();
+    right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
-    if (left.type() == typeid(int) && right.type() == typeid(int)) {
-        this->ctx.push(std::any_cast<int>(left) + std::any_cast<int>(right));
-    } else {
-        // error!
-    }
+    long sum = left.AsLong() + right.AsLong();
+    TParaToken t = TParaToken(std::to_string(sum), TParaToken::ttInteger);
+    this->ctx.push(t);
 }
 
 //
@@ -460,67 +444,67 @@ void Driver::visitPlusExp(PlusExp *plus_exp) {
 //
 void Driver::visitNumberFactor(NumberFactor *number_factor) {
     visitInteger(number_factor->integer_);
-    std::any c = this->ctx.top();
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
-    if (c.type() == typeid(int)) {
-        this->ctx.push(std::any_cast<int>(c));
-    } else {
-        // error!
-    }
+    this->ctx.push(t);
 }
 
 void Driver::visitHexFactor(HexFactor *hex_factor) {
     visitHex(hex_factor->hex_);
-    std::any c = this->ctx.top();
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttHex);
     this->ctx.pop();
-    this->ctx.push(c);
+    this->ctx.push(t);
 }
 
 void Driver::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
-    std::any c = this->ctx.top();
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
-    this->ctx.push(c);
+    this->ctx.push(t);
 }
 
 void Driver::visitStringFactor(StringFactor *string_factor) {
     visitString(string_factor->string_);
-    std::any c = this->ctx.top();
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
-    this->ctx.push(c);
+    this->ctx.push(t);
 }
 
 //
 // tokenの処理
 //
 void Driver::visitInteger(Integer x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(std::to_string(x), TParaToken::ttInteger);
+    this->ctx.push(t);
 }
 
 void Driver::visitChar(Char x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(std::to_string(x), TParaToken::ttIdentifier);
+    this->ctx.push(t);
 }
 
 void Driver::visitDouble(Double x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(std::to_string(x), TParaToken::ttFloating);
+    this->ctx.push(t);
 }
 
 void Driver::visitString(String x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
 }
 
 void Driver::visitIdent(Ident x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
 }
 
 void Driver::visitHex(Hex x) {
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(x, TParaToken::ttHex);
+    this->ctx.push(t);
 }
 
 void Driver::visitLabel(Label x) {
@@ -535,6 +519,6 @@ void Driver::visitLabel(Label x) {
     //inst.store_label_dst(label_dst, binout_container);
     //inst.update_label_dst_offset(label_dst, binout_container);
 
-    std::any c = x;
-    this->ctx.push(c);
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
 }

@@ -51,6 +51,10 @@ bool TParaToken::IsInteger(void) const {
     return (_type == TParaToken::ttInteger);
 }
 
+bool TParaToken::IsHex(void) const {
+    return (_type == TParaToken::ttHex);
+}
+
 bool TParaToken::IsFloating(void) const {
     return (_type == TParaToken::ttFloating);
 }
@@ -91,27 +95,50 @@ string TParaToken::AsString(void) const {
     return _token_string;
 }
 
-long TParaToken::AsLong(void) const noexcept(false) {
+int TParaToken::AsInt(void) const noexcept(false) {
     if (! IsInteger()) {
         throw std::runtime_error("integer is expected.");
     }
 
-    long LongValue;
+    int int_value;
     if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
         // Hex Number
         istringstream value_stream(_token_string.substr(2, string::npos));
-        if (! (value_stream >> hex >> LongValue)) {
+        if (! (value_stream >> hex >> int_value)) {
             throw std::runtime_error("integer is expected.");
         }
     } else {
         // Dec Number
         istringstream value_stream(_token_string);
-        if (! (value_stream >> LongValue)) {
+        if (! (value_stream >> int_value)) {
             throw std::runtime_error("integer is expected.");
         }
     }
 
-    return LongValue;
+    return int_value;
+}
+
+long TParaToken::AsLong(void) const noexcept(false) {
+    if (! IsInteger()) {
+        throw std::runtime_error("integer is expected.");
+    }
+
+    long long_value;
+    if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
+        // Hex Number
+        istringstream value_stream(_token_string.substr(2, string::npos));
+        if (! (value_stream >> hex >> long_value)) {
+            throw std::runtime_error("integer is expected.");
+        }
+    } else {
+        // Dec Number
+        istringstream value_stream(_token_string);
+        if (! (value_stream >> long_value)) {
+            throw std::runtime_error("integer is expected.");
+        }
+    }
+
+    return long_value;
 }
 
 double TParaToken::AsDouble(void) const noexcept(false) {
@@ -182,6 +209,9 @@ TParaToken& TParaToken::MustBe(TTokenType expected_token_type) noexcept(false) {
             break;
         case ttInteger:
             expected = "integer";
+            break;
+        case ttHex:
+            expected = "hex";
             break;
         case ttFloating:
             expected = "floating";

@@ -16,6 +16,7 @@ public:
         ttKeyword,
         ttIdentifier,
         ttInteger,
+        ttHex,
         ttFloating,
         ttSeparator,
         ttOperator,
@@ -34,6 +35,7 @@ public:
     virtual bool IsKeyword(void) const;
     virtual bool IsIdentifier(void) const;
     virtual bool IsInteger(void) const;
+    virtual bool IsHex(void) const;
     virtual bool IsFloating(void) const;
     virtual bool IsSeparator(void) const;
     virtual bool IsOperator(void) const;
@@ -44,6 +46,7 @@ public:
     virtual bool Is(const std::string& string) const;
     virtual bool IsNot(const std::string& string) const;
     virtual std::string AsString(void) const;
+    virtual int AsInt(void) const noexcept(false);
     virtual long AsLong(void) const noexcept(false);
     virtual double AsDouble(void) const noexcept(false);
     virtual TParaToken& RemoveQuotation(char quoter = '\0');

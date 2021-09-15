@@ -24,7 +24,9 @@ set(parsertest_SRCS
   ../src/bnfc/lexer.cc
   ../src/bnfc/buffer.cc
   ../src/driver.cc
-  ../src/demangle.cpp)
+  ../src/demangle.cpp
+  ../src/para_token.cc
+  ../src/para_token.hh)
 
 add_executable(parsertest ${parsertest_SRCS})
 target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})

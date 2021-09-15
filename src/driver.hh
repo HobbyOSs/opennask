@@ -6,6 +6,7 @@
 #include <iostream>
 #include <any>
 #include "spdlog/spdlog.h"
+#include "para_token.hh"
 #include "parser.hh"
 #include "printer.hh"
 #include "absyn.hh"
@@ -64,7 +65,7 @@ private:
 
 public:
     // visitorのcontext情報
-    std::stack<std::any> ctx;
+    std::stack<TParaToken> ctx;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -99,8 +100,8 @@ public:
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
 
     // opcodeの処理
-    void processDB(std::vector<std::any>& memonic_args);
-    void processORG(std::vector<std::any>& memonic_args);
+    void processDB(std::vector<TParaToken>& memonic_args);
+    void processORG(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
