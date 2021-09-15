@@ -23,6 +23,8 @@ set(nask_parse_SRCS
   nask_parse.cpp
   driver.cc
   driver.hh
+  para_token.cc
+  para_token.hh
   demangle.hpp
   demangle.cpp
   bnfc/absyn.cc
