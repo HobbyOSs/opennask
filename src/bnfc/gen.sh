@@ -14,6 +14,9 @@ find . -name \*.cc -or -name \*.hh -or -name \*.l -or -name \*.y | xargs sed -i 
 sed -i '6i #include<algorithm>' absyn.hh
 sed -i 's/%pure_parser/%define api.pure/g' nask.y
 
+# entrypointの定義と実装のメソッド名が一致していない
+sed -i 's/ p\(.*const\)/ ps\1/g' parser.hh
+
 # flexでdebugログ出す設定
 # sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.l
 # sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l

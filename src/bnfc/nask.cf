@@ -5,7 +5,7 @@
 comment "#" "\\n" ;
 comment ";" "\\n" ;
 
-entrypoints Program;
+-- entrypoints Program;
 
 Prog.           Program        ::= [Statement] ;
 

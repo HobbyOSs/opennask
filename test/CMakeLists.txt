@@ -7,34 +7,41 @@ find_package(CppUTest REQUIRED)
 # general settings
 include_directories(${root_SOURCE_DIR}/parasol)
 include_directories(${root_SOURCE_DIR}/src)
+include_directories(${root_SOURCE_DIR}/src/bnfc)
 include_directories(${CPPUTEST_INCLUDE_DIR})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# general testing
-set(alltest_SRCS
-    alltest.cpp
-    nask_suite.cpp
-    tinyexpr_suite.cpp
-    inst_suite.cpp
-    ../src/tinyexpr.c
-    ../src/nask_utility.cpp
-    ../src/mod_rm.cpp
-    ../src/string_util.cpp)
+# lexer, parser testing
+# `ctest -R parsertest`
+set(parsertest_SRCS
+  exp_suite.cpp
+  ../src/bnfc/skeleton.cc
+  ../src/bnfc/absyn.cc
+  ../src/bnfc/parser.cc
+  ../src/bnfc/printer.cc
+  ../src/bnfc/lexer.cc
+  ../src/bnfc/buffer.cc
+  ../src/driver.cc
+  ../src/demangle.cpp
+  ../src/para_token.cc
+  ../src/para_token.hh)
 
-add_executable(alltest ${alltest_SRCS})
-target_link_libraries(alltest parasol Threads::Threads ${CPPUTEST_LIBRARY})
+add_executable(parsertest ${parsertest_SRCS})
+target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
 
-set_property(TARGET alltest PROPERTY CXX_STANDARD 11)
-set_property(TARGET alltest PROPERTY CXX_STANDARD_REQUIRED ON)
+set_target_properties(parsertest PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS ON)
 
 add_test(
-  NAME alltest
-  COMMAND $<TARGET_FILE:alltest>
+  NAME parsertest
+  COMMAND $<TARGET_FILE:parsertest>
 )
 
-set_tests_properties(alltest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+set_tests_properties(parsertest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
 # `ctest -R modrmtest`
 set(modrmtest_SRCS

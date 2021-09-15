@@ -2071,2173 +2071,2173 @@ yyreduce:
 
   case 3: /* ListStatement: Statement  */
 #line 448 "nask.y"
-                          { (yyval.liststatement_) = new ListStatement(); (yyval.liststatement_)->push_back((yyvsp[0].statement_)); }
+                          { (yyval.liststatement_) = new ListStatement(); (yyval.liststatement_)->push_back((yyvsp[0].statement_)); result->liststatement_ = (yyval.liststatement_); }
 #line 2076 "parser.cc"
     break;
 
   case 4: /* ListStatement: Statement ListStatement  */
 #line 449 "nask.y"
-                            { (yyvsp[0].liststatement_)->push_back((yyvsp[-1].statement_)); (yyval.liststatement_) = (yyvsp[0].liststatement_); }
+                            { (yyvsp[0].liststatement_)->push_back((yyvsp[-1].statement_)); (yyval.liststatement_) = (yyvsp[0].liststatement_); result->liststatement_ = (yyval.liststatement_); }
 #line 2082 "parser.cc"
     break;
 
   case 5: /* Statement: T_Label  */
 #line 451 "nask.y"
-                    { (yyval.statement_) = new LabelStmt((yyvsp[0]._string)); }
+                    { (yyval.statement_) = new LabelStmt((yyvsp[0]._string)); result->statement_ = (yyval.statement_); }
 #line 2088 "parser.cc"
     break;
 
   case 6: /* Statement: _IDENT_ _KW_EQU Exp  */
 #line 452 "nask.y"
-                        { (yyval.statement_) = new DeclareStmt((yyvsp[-2]._string), (yyvsp[0].exp_)); }
+                        { (yyval.statement_) = new DeclareStmt((yyvsp[-2]._string), (yyvsp[0].exp_)); result->statement_ = (yyval.statement_); }
 #line 2094 "parser.cc"
     break;
 
   case 7: /* Statement: _LBRACK ConfigType _STRING_ _RBRACK  */
 #line 453 "nask.y"
-                                        { (yyval.statement_) = new ConfigStmt((yyvsp[-2].configtype_), (yyvsp[-1]._string)); }
+                                        { (yyval.statement_) = new ConfigStmt((yyvsp[-2].configtype_), (yyvsp[-1]._string)); result->statement_ = (yyval.statement_); }
 #line 2100 "parser.cc"
     break;
 
   case 8: /* Statement: Opcode ListMnemonicArgs  */
 #line 454 "nask.y"
-                            { std::reverse((yyvsp[0].listmnemonicargs_)->begin(),(yyvsp[0].listmnemonicargs_)->end()) ;(yyval.statement_) = new MnemonicStmt((yyvsp[-1].opcode_), (yyvsp[0].listmnemonicargs_)); }
+                            { std::reverse((yyvsp[0].listmnemonicargs_)->begin(),(yyvsp[0].listmnemonicargs_)->end()) ;(yyval.statement_) = new MnemonicStmt((yyvsp[-1].opcode_), (yyvsp[0].listmnemonicargs_)); result->statement_ = (yyval.statement_); }
 #line 2106 "parser.cc"
     break;
 
   case 9: /* Statement: Opcode  */
 #line 455 "nask.y"
-           { (yyval.statement_) = new OpcodeStmt((yyvsp[0].opcode_)); }
+           { (yyval.statement_) = new OpcodeStmt((yyvsp[0].opcode_)); result->statement_ = (yyval.statement_); }
 #line 2112 "parser.cc"
     break;
 
   case 10: /* ListMnemonicArgs: MnemonicArgs  */
 #line 457 "nask.y"
-                                { (yyval.listmnemonicargs_) = new ListMnemonicArgs(); (yyval.listmnemonicargs_)->push_back((yyvsp[0].mnemonicargs_)); }
+                                { (yyval.listmnemonicargs_) = new ListMnemonicArgs(); (yyval.listmnemonicargs_)->push_back((yyvsp[0].mnemonicargs_)); result->listmnemonicargs_ = (yyval.listmnemonicargs_); }
 #line 2118 "parser.cc"
     break;
 
   case 11: /* ListMnemonicArgs: MnemonicArgs _COMMA ListMnemonicArgs  */
 #line 458 "nask.y"
-                                         { (yyvsp[0].listmnemonicargs_)->push_back((yyvsp[-2].mnemonicargs_)); (yyval.listmnemonicargs_) = (yyvsp[0].listmnemonicargs_); }
+                                         { (yyvsp[0].listmnemonicargs_)->push_back((yyvsp[-2].mnemonicargs_)); (yyval.listmnemonicargs_) = (yyvsp[0].listmnemonicargs_); result->listmnemonicargs_ = (yyval.listmnemonicargs_); }
 #line 2124 "parser.cc"
     break;
 
   case 12: /* MnemonicArgs: Exp  */
 #line 460 "nask.y"
-                   { (yyval.mnemonicargs_) = new MnemoArg((yyvsp[0].exp_)); }
+                   { (yyval.mnemonicargs_) = new MnemoArg((yyvsp[0].exp_)); result->mnemonicargs_ = (yyval.mnemonicargs_); }
 #line 2130 "parser.cc"
     break;
 
   case 13: /* Exp: Exp _DEQ Exp  */
 #line 462 "nask.y"
-                   { (yyval.exp_) = new EqExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                   { (yyval.exp_) = new EqExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2136 "parser.cc"
     break;
 
   case 14: /* Exp: Exp _BANGEQ Exp  */
 #line 463 "nask.y"
-                    { (yyval.exp_) = new NeqExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                    { (yyval.exp_) = new NeqExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2142 "parser.cc"
     break;
 
   case 15: /* Exp: Exp _LT Exp  */
 #line 464 "nask.y"
-                { (yyval.exp_) = new LtExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                { (yyval.exp_) = new LtExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2148 "parser.cc"
     break;
 
   case 16: /* Exp: Exp _GT Exp  */
 #line 465 "nask.y"
-                { (yyval.exp_) = new GtExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                { (yyval.exp_) = new GtExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2154 "parser.cc"
     break;
 
   case 17: /* Exp: Exp _LDARROW Exp  */
 #line 466 "nask.y"
-                     { (yyval.exp_) = new LteExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                     { (yyval.exp_) = new LteExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2160 "parser.cc"
     break;
 
   case 18: /* Exp: Exp _GTEQ Exp  */
 #line 467 "nask.y"
-                  { (yyval.exp_) = new GteExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                  { (yyval.exp_) = new GteExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2166 "parser.cc"
     break;
 
   case 19: /* Exp: Exp _PLUS Exp  */
 #line 468 "nask.y"
-                  { (yyval.exp_) = new PlusExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                  { (yyval.exp_) = new PlusExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2172 "parser.cc"
     break;
 
   case 20: /* Exp: Exp _MINUS Exp  */
 #line 469 "nask.y"
-                   { (yyval.exp_) = new MinusExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                   { (yyval.exp_) = new MinusExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2178 "parser.cc"
     break;
 
   case 21: /* Exp: Exp _STAR Exp  */
 #line 470 "nask.y"
-                  { (yyval.exp_) = new MulExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                  { (yyval.exp_) = new MulExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2184 "parser.cc"
     break;
 
   case 22: /* Exp: Exp _SLASH Exp  */
 #line 471 "nask.y"
-                   { (yyval.exp_) = new DivExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                   { (yyval.exp_) = new DivExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2190 "parser.cc"
     break;
 
   case 23: /* Exp: Exp _PERCENT Exp  */
 #line 472 "nask.y"
-                     { (yyval.exp_) = new ModExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                     { (yyval.exp_) = new ModExp((yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2196 "parser.cc"
     break;
 
   case 24: /* Exp: _LBRACK Exp _RBRACK  */
 #line 473 "nask.y"
-                        { (yyval.exp_) = new IndirectAddrExp((yyvsp[-1].exp_)); }
+                        { (yyval.exp_) = new IndirectAddrExp((yyvsp[-1].exp_)); result->exp_ = (yyval.exp_); }
 #line 2202 "parser.cc"
     break;
 
   case 25: /* Exp: DataType _LBRACK Exp _RBRACK  */
 #line 474 "nask.y"
-                                 { (yyval.exp_) = new DatatypeExp((yyvsp[-3].datatype_), (yyvsp[-1].exp_)); }
+                                 { (yyval.exp_) = new DatatypeExp((yyvsp[-3].datatype_), (yyvsp[-1].exp_)); result->exp_ = (yyval.exp_); }
 #line 2208 "parser.cc"
     break;
 
   case 26: /* Exp: DataType Exp _COLON Exp  */
 #line 475 "nask.y"
-                            { (yyval.exp_) = new RangeExp((yyvsp[-3].datatype_), (yyvsp[-2].exp_), (yyvsp[0].exp_)); }
+                            { (yyval.exp_) = new RangeExp((yyvsp[-3].datatype_), (yyvsp[-2].exp_), (yyvsp[0].exp_)); result->exp_ = (yyval.exp_); }
 #line 2214 "parser.cc"
     break;
 
   case 27: /* Exp: T_Label  */
 #line 476 "nask.y"
-            { (yyval.exp_) = new LabelExp((yyvsp[0]._string)); }
+            { (yyval.exp_) = new LabelExp((yyvsp[0]._string)); result->exp_ = (yyval.exp_); }
 #line 2220 "parser.cc"
     break;
 
   case 28: /* Exp: Factor  */
 #line 477 "nask.y"
-           { (yyval.exp_) = new ImmExp((yyvsp[0].factor_)); }
+           { (yyval.exp_) = new ImmExp((yyvsp[0].factor_)); result->exp_ = (yyval.exp_); }
 #line 2226 "parser.cc"
     break;
 
   case 29: /* Factor: _INTEGER_  */
 #line 479 "nask.y"
-                   { (yyval.factor_) = new NumberFactor((yyvsp[0]._int)); }
+                   { (yyval.factor_) = new NumberFactor((yyvsp[0]._int)); result->factor_ = (yyval.factor_); }
 #line 2232 "parser.cc"
     break;
 
   case 30: /* Factor: T_Hex  */
 #line 480 "nask.y"
-          { (yyval.factor_) = new HexFactor((yyvsp[0]._string)); }
+          { (yyval.factor_) = new HexFactor((yyvsp[0]._string)); result->factor_ = (yyval.factor_); }
 #line 2238 "parser.cc"
     break;
 
   case 31: /* Factor: _IDENT_  */
 #line 481 "nask.y"
-            { (yyval.factor_) = new IdentFactor((yyvsp[0]._string)); }
+            { (yyval.factor_) = new IdentFactor((yyvsp[0]._string)); result->factor_ = (yyval.factor_); }
 #line 2244 "parser.cc"
     break;
 
   case 32: /* Factor: _STRING_  */
 #line 482 "nask.y"
-             { (yyval.factor_) = new StringFactor((yyvsp[0]._string)); }
+             { (yyval.factor_) = new StringFactor((yyvsp[0]._string)); result->factor_ = (yyval.factor_); }
 #line 2250 "parser.cc"
     break;
 
   case 33: /* ConfigType: _KW_BITS  */
 #line 484 "nask.y"
-                      { (yyval.configtype_) = new BitsConfig(); }
+                      { (yyval.configtype_) = new BitsConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2256 "parser.cc"
     break;
 
   case 34: /* ConfigType: _KW_INSTRSET  */
 #line 485 "nask.y"
-                 { (yyval.configtype_) = new InstConfig(); }
+                 { (yyval.configtype_) = new InstConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2262 "parser.cc"
     break;
 
   case 35: /* ConfigType: _KW_OPTIMIZE  */
 #line 486 "nask.y"
-                 { (yyval.configtype_) = new OptiConfig(); }
+                 { (yyval.configtype_) = new OptiConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2268 "parser.cc"
     break;
 
   case 36: /* ConfigType: _KW_FORMAT  */
 #line 487 "nask.y"
-               { (yyval.configtype_) = new FormConfig(); }
+               { (yyval.configtype_) = new FormConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2274 "parser.cc"
     break;
 
   case 37: /* ConfigType: _KW_PADDING  */
 #line 488 "nask.y"
-                { (yyval.configtype_) = new PaddConfig(); }
+                { (yyval.configtype_) = new PaddConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2280 "parser.cc"
     break;
 
   case 38: /* ConfigType: _KW_PADSET  */
 #line 489 "nask.y"
-               { (yyval.configtype_) = new PadsConfig(); }
+               { (yyval.configtype_) = new PadsConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2286 "parser.cc"
     break;
 
   case 39: /* ConfigType: _KW_SECTION  */
 #line 490 "nask.y"
-                { (yyval.configtype_) = new SectConfig(); }
+                { (yyval.configtype_) = new SectConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2292 "parser.cc"
     break;
 
   case 40: /* ConfigType: _KW_ABSOLUTE  */
 #line 491 "nask.y"
-                 { (yyval.configtype_) = new AbsoConfig(); }
+                 { (yyval.configtype_) = new AbsoConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2298 "parser.cc"
     break;
 
   case 41: /* ConfigType: _KW_FILE  */
 #line 492 "nask.y"
-             { (yyval.configtype_) = new FileConfig(); }
+             { (yyval.configtype_) = new FileConfig(); result->configtype_ = (yyval.configtype_); }
 #line 2304 "parser.cc"
     break;
 
   case 42: /* DataType: _KW_BYTE  */
 #line 494 "nask.y"
-                    { (yyval.datatype_) = new ByteDataType(); }
+                    { (yyval.datatype_) = new ByteDataType(); result->datatype_ = (yyval.datatype_); }
 #line 2310 "parser.cc"
     break;
 
   case 43: /* DataType: _KW_WORD  */
 #line 495 "nask.y"
-             { (yyval.datatype_) = new WordDataType(); }
+             { (yyval.datatype_) = new WordDataType(); result->datatype_ = (yyval.datatype_); }
 #line 2316 "parser.cc"
     break;
 
   case 44: /* DataType: _KW_DWORD  */
 #line 496 "nask.y"
-              { (yyval.datatype_) = new DwordDataType(); }
+              { (yyval.datatype_) = new DwordDataType(); result->datatype_ = (yyval.datatype_); }
 #line 2322 "parser.cc"
     break;
 
   case 45: /* Opcode: _KW_AAA  */
 #line 498 "nask.y"
-                 { (yyval.opcode_) = new OpcodesAAA(); }
+                 { (yyval.opcode_) = new OpcodesAAA(); result->opcode_ = (yyval.opcode_); }
 #line 2328 "parser.cc"
     break;
 
   case 46: /* Opcode: _KW_AAD  */
 #line 499 "nask.y"
-            { (yyval.opcode_) = new OpcodesAAD(); }
+            { (yyval.opcode_) = new OpcodesAAD(); result->opcode_ = (yyval.opcode_); }
 #line 2334 "parser.cc"
     break;
 
   case 47: /* Opcode: _KW_AAS  */
 #line 500 "nask.y"
-            { (yyval.opcode_) = new OpcodesAAS(); }
+            { (yyval.opcode_) = new OpcodesAAS(); result->opcode_ = (yyval.opcode_); }
 #line 2340 "parser.cc"
     break;
 
   case 48: /* Opcode: _KW_AAM  */
 #line 501 "nask.y"
-            { (yyval.opcode_) = new OpcodesAAM(); }
+            { (yyval.opcode_) = new OpcodesAAM(); result->opcode_ = (yyval.opcode_); }
 #line 2346 "parser.cc"
     break;
 
   case 49: /* Opcode: _KW_ADC  */
 #line 502 "nask.y"
-            { (yyval.opcode_) = new OpcodesADC(); }
+            { (yyval.opcode_) = new OpcodesADC(); result->opcode_ = (yyval.opcode_); }
 #line 2352 "parser.cc"
     break;
 
   case 50: /* Opcode: _KW_ADD  */
 #line 503 "nask.y"
-            { (yyval.opcode_) = new OpcodesADD(); }
+            { (yyval.opcode_) = new OpcodesADD(); result->opcode_ = (yyval.opcode_); }
 #line 2358 "parser.cc"
     break;
 
   case 51: /* Opcode: _KW_AND  */
 #line 504 "nask.y"
-            { (yyval.opcode_) = new OpcodesAND(); }
+            { (yyval.opcode_) = new OpcodesAND(); result->opcode_ = (yyval.opcode_); }
 #line 2364 "parser.cc"
     break;
 
   case 52: /* Opcode: _KW_ALIGN  */
 #line 505 "nask.y"
-              { (yyval.opcode_) = new OpcodesALIGN(); }
+              { (yyval.opcode_) = new OpcodesALIGN(); result->opcode_ = (yyval.opcode_); }
 #line 2370 "parser.cc"
     break;
 
   case 53: /* Opcode: _KW_ALIGNB  */
 #line 506 "nask.y"
-               { (yyval.opcode_) = new OpcodesALIGNB(); }
+               { (yyval.opcode_) = new OpcodesALIGNB(); result->opcode_ = (yyval.opcode_); }
 #line 2376 "parser.cc"
     break;
 
   case 54: /* Opcode: _KW_ARPL  */
 #line 507 "nask.y"
-             { (yyval.opcode_) = new OpcodesARPL(); }
+             { (yyval.opcode_) = new OpcodesARPL(); result->opcode_ = (yyval.opcode_); }
 #line 2382 "parser.cc"
     break;
 
   case 55: /* Opcode: _KW_BOUND  */
 #line 508 "nask.y"
-              { (yyval.opcode_) = new OpcodesBOUND(); }
+              { (yyval.opcode_) = new OpcodesBOUND(); result->opcode_ = (yyval.opcode_); }
 #line 2388 "parser.cc"
     break;
 
   case 56: /* Opcode: _KW_BSF  */
 #line 509 "nask.y"
-            { (yyval.opcode_) = new OpcodesBSF(); }
+            { (yyval.opcode_) = new OpcodesBSF(); result->opcode_ = (yyval.opcode_); }
 #line 2394 "parser.cc"
     break;
 
   case 57: /* Opcode: _KW_BSR  */
 #line 510 "nask.y"
-            { (yyval.opcode_) = new OpcodesBSR(); }
+            { (yyval.opcode_) = new OpcodesBSR(); result->opcode_ = (yyval.opcode_); }
 #line 2400 "parser.cc"
     break;
 
   case 58: /* Opcode: _KW_BSWAP  */
 #line 511 "nask.y"
-              { (yyval.opcode_) = new OpcodesBSWAP(); }
+              { (yyval.opcode_) = new OpcodesBSWAP(); result->opcode_ = (yyval.opcode_); }
 #line 2406 "parser.cc"
     break;
 
   case 59: /* Opcode: _KW_BT  */
 #line 512 "nask.y"
-           { (yyval.opcode_) = new OpcodesBT(); }
+           { (yyval.opcode_) = new OpcodesBT(); result->opcode_ = (yyval.opcode_); }
 #line 2412 "parser.cc"
     break;
 
   case 60: /* Opcode: _KW_BTC  */
 #line 513 "nask.y"
-            { (yyval.opcode_) = new OpcodesBTC(); }
+            { (yyval.opcode_) = new OpcodesBTC(); result->opcode_ = (yyval.opcode_); }
 #line 2418 "parser.cc"
     break;
 
   case 61: /* Opcode: _KW_BTR  */
 #line 514 "nask.y"
-            { (yyval.opcode_) = new OpcodesBTR(); }
+            { (yyval.opcode_) = new OpcodesBTR(); result->opcode_ = (yyval.opcode_); }
 #line 2424 "parser.cc"
     break;
 
   case 62: /* Opcode: _KW_BTS  */
 #line 515 "nask.y"
-            { (yyval.opcode_) = new OpcodesBTS(); }
+            { (yyval.opcode_) = new OpcodesBTS(); result->opcode_ = (yyval.opcode_); }
 #line 2430 "parser.cc"
     break;
 
   case 63: /* Opcode: _KW_CALL  */
 #line 516 "nask.y"
-             { (yyval.opcode_) = new OpcodesCALL(); }
+             { (yyval.opcode_) = new OpcodesCALL(); result->opcode_ = (yyval.opcode_); }
 #line 2436 "parser.cc"
     break;
 
   case 64: /* Opcode: _KW_CBW  */
 #line 517 "nask.y"
-            { (yyval.opcode_) = new OpcodesCBW(); }
+            { (yyval.opcode_) = new OpcodesCBW(); result->opcode_ = (yyval.opcode_); }
 #line 2442 "parser.cc"
     break;
 
   case 65: /* Opcode: _KW_CDQ  */
 #line 518 "nask.y"
-            { (yyval.opcode_) = new OpcodesCDQ(); }
+            { (yyval.opcode_) = new OpcodesCDQ(); result->opcode_ = (yyval.opcode_); }
 #line 2448 "parser.cc"
     break;
 
   case 66: /* Opcode: _KW_CLC  */
 #line 519 "nask.y"
-            { (yyval.opcode_) = new OpcodesCLC(); }
+            { (yyval.opcode_) = new OpcodesCLC(); result->opcode_ = (yyval.opcode_); }
 #line 2454 "parser.cc"
     break;
 
   case 67: /* Opcode: _KW_CLD  */
 #line 520 "nask.y"
-            { (yyval.opcode_) = new OpcodesCLD(); }
+            { (yyval.opcode_) = new OpcodesCLD(); result->opcode_ = (yyval.opcode_); }
 #line 2460 "parser.cc"
     break;
 
   case 68: /* Opcode: _KW_CLI  */
 #line 521 "nask.y"
-            { (yyval.opcode_) = new OpcodesCLI(); }
+            { (yyval.opcode_) = new OpcodesCLI(); result->opcode_ = (yyval.opcode_); }
 #line 2466 "parser.cc"
     break;
 
   case 69: /* Opcode: _KW_CLTS  */
 #line 522 "nask.y"
-             { (yyval.opcode_) = new OpcodesCLTS(); }
+             { (yyval.opcode_) = new OpcodesCLTS(); result->opcode_ = (yyval.opcode_); }
 #line 2472 "parser.cc"
     break;
 
   case 70: /* Opcode: _KW_CMC  */
 #line 523 "nask.y"
-            { (yyval.opcode_) = new OpcodesCMC(); }
+            { (yyval.opcode_) = new OpcodesCMC(); result->opcode_ = (yyval.opcode_); }
 #line 2478 "parser.cc"
     break;
 
   case 71: /* Opcode: _KW_CMP  */
 #line 524 "nask.y"
-            { (yyval.opcode_) = new OpcodesCMP(); }
+            { (yyval.opcode_) = new OpcodesCMP(); result->opcode_ = (yyval.opcode_); }
 #line 2484 "parser.cc"
     break;
 
   case 72: /* Opcode: _KW_CMPSB  */
 #line 525 "nask.y"
-              { (yyval.opcode_) = new OpcodesCMPSB(); }
+              { (yyval.opcode_) = new OpcodesCMPSB(); result->opcode_ = (yyval.opcode_); }
 #line 2490 "parser.cc"
     break;
 
   case 73: /* Opcode: _KW_CMPSD  */
 #line 526 "nask.y"
-              { (yyval.opcode_) = new OpcodesCMPSD(); }
+              { (yyval.opcode_) = new OpcodesCMPSD(); result->opcode_ = (yyval.opcode_); }
 #line 2496 "parser.cc"
     break;
 
   case 74: /* Opcode: _KW_CMPSW  */
 #line 527 "nask.y"
-              { (yyval.opcode_) = new OpcodesCMPSW(); }
+              { (yyval.opcode_) = new OpcodesCMPSW(); result->opcode_ = (yyval.opcode_); }
 #line 2502 "parser.cc"
     break;
 
   case 75: /* Opcode: _KW_CMPXCHG  */
 #line 528 "nask.y"
-                { (yyval.opcode_) = new OpcodesCMPXCHG(); }
+                { (yyval.opcode_) = new OpcodesCMPXCHG(); result->opcode_ = (yyval.opcode_); }
 #line 2508 "parser.cc"
     break;
 
   case 76: /* Opcode: _KW_CPUID  */
 #line 529 "nask.y"
-              { (yyval.opcode_) = new OpcodesCPUID(); }
+              { (yyval.opcode_) = new OpcodesCPUID(); result->opcode_ = (yyval.opcode_); }
 #line 2514 "parser.cc"
     break;
 
   case 77: /* Opcode: _KW_CWD  */
 #line 530 "nask.y"
-            { (yyval.opcode_) = new OpcodesCWD(); }
+            { (yyval.opcode_) = new OpcodesCWD(); result->opcode_ = (yyval.opcode_); }
 #line 2520 "parser.cc"
     break;
 
   case 78: /* Opcode: _KW_CWDE  */
 #line 531 "nask.y"
-             { (yyval.opcode_) = new OpcodesCWDE(); }
+             { (yyval.opcode_) = new OpcodesCWDE(); result->opcode_ = (yyval.opcode_); }
 #line 2526 "parser.cc"
     break;
 
   case 79: /* Opcode: _KW_DAA  */
 #line 532 "nask.y"
-            { (yyval.opcode_) = new OpcodesDAA(); }
+            { (yyval.opcode_) = new OpcodesDAA(); result->opcode_ = (yyval.opcode_); }
 #line 2532 "parser.cc"
     break;
 
   case 80: /* Opcode: _KW_DAS  */
 #line 533 "nask.y"
-            { (yyval.opcode_) = new OpcodesDAS(); }
+            { (yyval.opcode_) = new OpcodesDAS(); result->opcode_ = (yyval.opcode_); }
 #line 2538 "parser.cc"
     break;
 
   case 81: /* Opcode: _KW_DB  */
 #line 534 "nask.y"
-           { (yyval.opcode_) = new OpcodesDB(); }
+           { (yyval.opcode_) = new OpcodesDB(); result->opcode_ = (yyval.opcode_); }
 #line 2544 "parser.cc"
     break;
 
   case 82: /* Opcode: _KW_DD  */
 #line 535 "nask.y"
-           { (yyval.opcode_) = new OpcodesDD(); }
+           { (yyval.opcode_) = new OpcodesDD(); result->opcode_ = (yyval.opcode_); }
 #line 2550 "parser.cc"
     break;
 
   case 83: /* Opcode: _KW_DEC  */
 #line 536 "nask.y"
-            { (yyval.opcode_) = new OpcodesDEC(); }
+            { (yyval.opcode_) = new OpcodesDEC(); result->opcode_ = (yyval.opcode_); }
 #line 2556 "parser.cc"
     break;
 
   case 84: /* Opcode: _KW_DIV  */
 #line 537 "nask.y"
-            { (yyval.opcode_) = new OpcodesDIV(); }
+            { (yyval.opcode_) = new OpcodesDIV(); result->opcode_ = (yyval.opcode_); }
 #line 2562 "parser.cc"
     break;
 
   case 85: /* Opcode: _KW_DQ  */
 #line 538 "nask.y"
-           { (yyval.opcode_) = new OpcodesDQ(); }
+           { (yyval.opcode_) = new OpcodesDQ(); result->opcode_ = (yyval.opcode_); }
 #line 2568 "parser.cc"
     break;
 
   case 86: /* Opcode: _KW_DT  */
 #line 539 "nask.y"
-           { (yyval.opcode_) = new OpcodesDT(); }
+           { (yyval.opcode_) = new OpcodesDT(); result->opcode_ = (yyval.opcode_); }
 #line 2574 "parser.cc"
     break;
 
   case 87: /* Opcode: _KW_DW  */
 #line 540 "nask.y"
-           { (yyval.opcode_) = new OpcodesDW(); }
+           { (yyval.opcode_) = new OpcodesDW(); result->opcode_ = (yyval.opcode_); }
 #line 2580 "parser.cc"
     break;
 
   case 88: /* Opcode: _KW_END  */
 #line 541 "nask.y"
-            { (yyval.opcode_) = new OpcodesEND(); }
+            { (yyval.opcode_) = new OpcodesEND(); result->opcode_ = (yyval.opcode_); }
 #line 2586 "parser.cc"
     break;
 
   case 89: /* Opcode: _KW_ENTER  */
 #line 542 "nask.y"
-              { (yyval.opcode_) = new OpcodesENTER(); }
+              { (yyval.opcode_) = new OpcodesENTER(); result->opcode_ = (yyval.opcode_); }
 #line 2592 "parser.cc"
     break;
 
   case 90: /* Opcode: _KW_EXTERN  */
 #line 543 "nask.y"
-               { (yyval.opcode_) = new OpcodesEXTERN(); }
+               { (yyval.opcode_) = new OpcodesEXTERN(); result->opcode_ = (yyval.opcode_); }
 #line 2598 "parser.cc"
     break;
 
   case 91: /* Opcode: _KW_F2XM1  */
 #line 544 "nask.y"
-              { (yyval.opcode_) = new OpcodesF2XM1(); }
+              { (yyval.opcode_) = new OpcodesF2XM1(); result->opcode_ = (yyval.opcode_); }
 #line 2604 "parser.cc"
     break;
 
   case 92: /* Opcode: _KW_FABS  */
 #line 545 "nask.y"
-             { (yyval.opcode_) = new OpcodesFABS(); }
+             { (yyval.opcode_) = new OpcodesFABS(); result->opcode_ = (yyval.opcode_); }
 #line 2610 "parser.cc"
     break;
 
   case 93: /* Opcode: _KW_FADD  */
 #line 546 "nask.y"
-             { (yyval.opcode_) = new OpcodesFADD(); }
+             { (yyval.opcode_) = new OpcodesFADD(); result->opcode_ = (yyval.opcode_); }
 #line 2616 "parser.cc"
     break;
 
   case 94: /* Opcode: _KW_FADDP  */
 #line 547 "nask.y"
-              { (yyval.opcode_) = new OpcodesFADDP(); }
+              { (yyval.opcode_) = new OpcodesFADDP(); result->opcode_ = (yyval.opcode_); }
 #line 2622 "parser.cc"
     break;
 
   case 95: /* Opcode: _KW_FBLD  */
 #line 548 "nask.y"
-             { (yyval.opcode_) = new OpcodesFBLD(); }
+             { (yyval.opcode_) = new OpcodesFBLD(); result->opcode_ = (yyval.opcode_); }
 #line 2628 "parser.cc"
     break;
 
   case 96: /* Opcode: _KW_FBSTP  */
 #line 549 "nask.y"
-              { (yyval.opcode_) = new OpcodesFBSTP(); }
+              { (yyval.opcode_) = new OpcodesFBSTP(); result->opcode_ = (yyval.opcode_); }
 #line 2634 "parser.cc"
     break;
 
   case 97: /* Opcode: _KW_FCHS  */
 #line 550 "nask.y"
-             { (yyval.opcode_) = new OpcodesFCHS(); }
+             { (yyval.opcode_) = new OpcodesFCHS(); result->opcode_ = (yyval.opcode_); }
 #line 2640 "parser.cc"
     break;
 
   case 98: /* Opcode: _KW_FCLEX  */
 #line 551 "nask.y"
-              { (yyval.opcode_) = new OpcodesFCLEX(); }
+              { (yyval.opcode_) = new OpcodesFCLEX(); result->opcode_ = (yyval.opcode_); }
 #line 2646 "parser.cc"
     break;
 
   case 99: /* Opcode: _KW_FCOM  */
 #line 552 "nask.y"
-             { (yyval.opcode_) = new OpcodesFCOM(); }
+             { (yyval.opcode_) = new OpcodesFCOM(); result->opcode_ = (yyval.opcode_); }
 #line 2652 "parser.cc"
     break;
 
   case 100: /* Opcode: _KW_FCOMP  */
 #line 553 "nask.y"
-              { (yyval.opcode_) = new OpcodesFCOMP(); }
+              { (yyval.opcode_) = new OpcodesFCOMP(); result->opcode_ = (yyval.opcode_); }
 #line 2658 "parser.cc"
     break;
 
   case 101: /* Opcode: _KW_FCOMPP  */
 #line 554 "nask.y"
-               { (yyval.opcode_) = new OpcodesFCOMPP(); }
+               { (yyval.opcode_) = new OpcodesFCOMPP(); result->opcode_ = (yyval.opcode_); }
 #line 2664 "parser.cc"
     break;
 
   case 102: /* Opcode: _KW_FCOS  */
 #line 555 "nask.y"
-             { (yyval.opcode_) = new OpcodesFCOS(); }
+             { (yyval.opcode_) = new OpcodesFCOS(); result->opcode_ = (yyval.opcode_); }
 #line 2670 "parser.cc"
     break;
 
   case 103: /* Opcode: _KW_FDECSTP  */
 #line 556 "nask.y"
-                { (yyval.opcode_) = new OpcodesFDECSTP(); }
+                { (yyval.opcode_) = new OpcodesFDECSTP(); result->opcode_ = (yyval.opcode_); }
 #line 2676 "parser.cc"
     break;
 
   case 104: /* Opcode: _KW_FDISI  */
 #line 557 "nask.y"
-              { (yyval.opcode_) = new OpcodesFDISI(); }
+              { (yyval.opcode_) = new OpcodesFDISI(); result->opcode_ = (yyval.opcode_); }
 #line 2682 "parser.cc"
     break;
 
   case 105: /* Opcode: _KW_FDIV  */
 #line 558 "nask.y"
-             { (yyval.opcode_) = new OpcodesFDIV(); }
+             { (yyval.opcode_) = new OpcodesFDIV(); result->opcode_ = (yyval.opcode_); }
 #line 2688 "parser.cc"
     break;
 
   case 106: /* Opcode: _KW_FDIVP  */
 #line 559 "nask.y"
-              { (yyval.opcode_) = new OpcodesFDIVP(); }
+              { (yyval.opcode_) = new OpcodesFDIVP(); result->opcode_ = (yyval.opcode_); }
 #line 2694 "parser.cc"
     break;
 
   case 107: /* Opcode: _KW_FDIVR  */
 #line 560 "nask.y"
-              { (yyval.opcode_) = new OpcodesFDIVR(); }
+              { (yyval.opcode_) = new OpcodesFDIVR(); result->opcode_ = (yyval.opcode_); }
 #line 2700 "parser.cc"
     break;
 
   case 108: /* Opcode: _KW_FDIVRP  */
 #line 561 "nask.y"
-               { (yyval.opcode_) = new OpcodesFDIVRP(); }
+               { (yyval.opcode_) = new OpcodesFDIVRP(); result->opcode_ = (yyval.opcode_); }
 #line 2706 "parser.cc"
     break;
 
   case 109: /* Opcode: _KW_FENI  */
 #line 562 "nask.y"
-             { (yyval.opcode_) = new OpcodesFENI(); }
+             { (yyval.opcode_) = new OpcodesFENI(); result->opcode_ = (yyval.opcode_); }
 #line 2712 "parser.cc"
     break;
 
   case 110: /* Opcode: _KW_FFREE  */
 #line 563 "nask.y"
-              { (yyval.opcode_) = new OpcodesFFREE(); }
+              { (yyval.opcode_) = new OpcodesFFREE(); result->opcode_ = (yyval.opcode_); }
 #line 2718 "parser.cc"
     break;
 
   case 111: /* Opcode: _KW_FIADD  */
 #line 564 "nask.y"
-              { (yyval.opcode_) = new OpcodesFIADD(); }
+              { (yyval.opcode_) = new OpcodesFIADD(); result->opcode_ = (yyval.opcode_); }
 #line 2724 "parser.cc"
     break;
 
   case 112: /* Opcode: _KW_FICOM  */
 #line 565 "nask.y"
-              { (yyval.opcode_) = new OpcodesFICOM(); }
+              { (yyval.opcode_) = new OpcodesFICOM(); result->opcode_ = (yyval.opcode_); }
 #line 2730 "parser.cc"
     break;
 
   case 113: /* Opcode: _KW_FICOMP  */
 #line 566 "nask.y"
-               { (yyval.opcode_) = new OpcodesFICOMP(); }
+               { (yyval.opcode_) = new OpcodesFICOMP(); result->opcode_ = (yyval.opcode_); }
 #line 2736 "parser.cc"
     break;
 
   case 114: /* Opcode: _KW_FIDIV  */
 #line 567 "nask.y"
-              { (yyval.opcode_) = new OpcodesFIDIV(); }
+              { (yyval.opcode_) = new OpcodesFIDIV(); result->opcode_ = (yyval.opcode_); }
 #line 2742 "parser.cc"
     break;
 
   case 115: /* Opcode: _KW_FIDIVR  */
 #line 568 "nask.y"
-               { (yyval.opcode_) = new OpcodesFIDIVR(); }
+               { (yyval.opcode_) = new OpcodesFIDIVR(); result->opcode_ = (yyval.opcode_); }
 #line 2748 "parser.cc"
     break;
 
   case 116: /* Opcode: _KW_FILD  */
 #line 569 "nask.y"
-             { (yyval.opcode_) = new OpcodesFILD(); }
+             { (yyval.opcode_) = new OpcodesFILD(); result->opcode_ = (yyval.opcode_); }
 #line 2754 "parser.cc"
     break;
 
   case 117: /* Opcode: _KW_FIMUL  */
 #line 570 "nask.y"
-              { (yyval.opcode_) = new OpcodesFIMUL(); }
+              { (yyval.opcode_) = new OpcodesFIMUL(); result->opcode_ = (yyval.opcode_); }
 #line 2760 "parser.cc"
     break;
 
   case 118: /* Opcode: _KW_FINCSTP  */
 #line 571 "nask.y"
-                { (yyval.opcode_) = new OpcodesFINCSTP(); }
+                { (yyval.opcode_) = new OpcodesFINCSTP(); result->opcode_ = (yyval.opcode_); }
 #line 2766 "parser.cc"
     break;
 
   case 119: /* Opcode: _KW_FINIT  */
 #line 572 "nask.y"
-              { (yyval.opcode_) = new OpcodesFINIT(); }
+              { (yyval.opcode_) = new OpcodesFINIT(); result->opcode_ = (yyval.opcode_); }
 #line 2772 "parser.cc"
     break;
 
   case 120: /* Opcode: _KW_FIST  */
 #line 573 "nask.y"
-             { (yyval.opcode_) = new OpcodesFIST(); }
+             { (yyval.opcode_) = new OpcodesFIST(); result->opcode_ = (yyval.opcode_); }
 #line 2778 "parser.cc"
     break;
 
   case 121: /* Opcode: _KW_FISTP  */
 #line 574 "nask.y"
-              { (yyval.opcode_) = new OpcodesFISTP(); }
+              { (yyval.opcode_) = new OpcodesFISTP(); result->opcode_ = (yyval.opcode_); }
 #line 2784 "parser.cc"
     break;
 
   case 122: /* Opcode: _KW_FISUB  */
 #line 575 "nask.y"
-              { (yyval.opcode_) = new OpcodesFISUB(); }
+              { (yyval.opcode_) = new OpcodesFISUB(); result->opcode_ = (yyval.opcode_); }
 #line 2790 "parser.cc"
     break;
 
   case 123: /* Opcode: _KW_FISUBR  */
 #line 576 "nask.y"
-               { (yyval.opcode_) = new OpcodesFISUBR(); }
+               { (yyval.opcode_) = new OpcodesFISUBR(); result->opcode_ = (yyval.opcode_); }
 #line 2796 "parser.cc"
     break;
 
   case 124: /* Opcode: _KW_FLD  */
 #line 577 "nask.y"
-            { (yyval.opcode_) = new OpcodesFLD(); }
+            { (yyval.opcode_) = new OpcodesFLD(); result->opcode_ = (yyval.opcode_); }
 #line 2802 "parser.cc"
     break;
 
   case 125: /* Opcode: _KW_FLD1  */
 #line 578 "nask.y"
-             { (yyval.opcode_) = new OpcodesFLD1(); }
+             { (yyval.opcode_) = new OpcodesFLD1(); result->opcode_ = (yyval.opcode_); }
 #line 2808 "parser.cc"
     break;
 
   case 126: /* Opcode: _KW_FLDCW  */
 #line 579 "nask.y"
-              { (yyval.opcode_) = new OpcodesFLDCW(); }
+              { (yyval.opcode_) = new OpcodesFLDCW(); result->opcode_ = (yyval.opcode_); }
 #line 2814 "parser.cc"
     break;
 
   case 127: /* Opcode: _KW_FLDENV  */
 #line 580 "nask.y"
-               { (yyval.opcode_) = new OpcodesFLDENV(); }
+               { (yyval.opcode_) = new OpcodesFLDENV(); result->opcode_ = (yyval.opcode_); }
 #line 2820 "parser.cc"
     break;
 
   case 128: /* Opcode: _KW_FLDL2E  */
 #line 581 "nask.y"
-               { (yyval.opcode_) = new OpcodesFLDL2E(); }
+               { (yyval.opcode_) = new OpcodesFLDL2E(); result->opcode_ = (yyval.opcode_); }
 #line 2826 "parser.cc"
     break;
 
   case 129: /* Opcode: _KW_FLDL2T  */
 #line 582 "nask.y"
-               { (yyval.opcode_) = new OpcodesFLDL2T(); }
+               { (yyval.opcode_) = new OpcodesFLDL2T(); result->opcode_ = (yyval.opcode_); }
 #line 2832 "parser.cc"
     break;
 
   case 130: /* Opcode: _KW_FLDLG2  */
 #line 583 "nask.y"
-               { (yyval.opcode_) = new OpcodesFLDLG2(); }
+               { (yyval.opcode_) = new OpcodesFLDLG2(); result->opcode_ = (yyval.opcode_); }
 #line 2838 "parser.cc"
     break;
 
   case 131: /* Opcode: _KW_FLDLN2  */
 #line 584 "nask.y"
-               { (yyval.opcode_) = new OpcodesFLDLN2(); }
+               { (yyval.opcode_) = new OpcodesFLDLN2(); result->opcode_ = (yyval.opcode_); }
 #line 2844 "parser.cc"
     break;
 
   case 132: /* Opcode: _KW_FLDPI  */
 #line 585 "nask.y"
-              { (yyval.opcode_) = new OpcodesFLDPI(); }
+              { (yyval.opcode_) = new OpcodesFLDPI(); result->opcode_ = (yyval.opcode_); }
 #line 2850 "parser.cc"
     break;
 
   case 133: /* Opcode: _KW_FLDZ  */
 #line 586 "nask.y"
-             { (yyval.opcode_) = new OpcodesFLDZ(); }
+             { (yyval.opcode_) = new OpcodesFLDZ(); result->opcode_ = (yyval.opcode_); }
 #line 2856 "parser.cc"
     break;
 
   case 134: /* Opcode: _KW_FMUL  */
 #line 587 "nask.y"
-             { (yyval.opcode_) = new OpcodesFMUL(); }
+             { (yyval.opcode_) = new OpcodesFMUL(); result->opcode_ = (yyval.opcode_); }
 #line 2862 "parser.cc"
     break;
 
   case 135: /* Opcode: _KW_FMULP  */
 #line 588 "nask.y"
-              { (yyval.opcode_) = new OpcodesFMULP(); }
+              { (yyval.opcode_) = new OpcodesFMULP(); result->opcode_ = (yyval.opcode_); }
 #line 2868 "parser.cc"
     break;
 
   case 136: /* Opcode: _KW_FNCLEX  */
 #line 589 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNCLEX(); }
+               { (yyval.opcode_) = new OpcodesFNCLEX(); result->opcode_ = (yyval.opcode_); }
 #line 2874 "parser.cc"
     break;
 
   case 137: /* Opcode: _KW_FNDISI  */
 #line 590 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNDISI(); }
+               { (yyval.opcode_) = new OpcodesFNDISI(); result->opcode_ = (yyval.opcode_); }
 #line 2880 "parser.cc"
     break;
 
   case 138: /* Opcode: _KW_FNENI  */
 #line 591 "nask.y"
-              { (yyval.opcode_) = new OpcodesFNENI(); }
+              { (yyval.opcode_) = new OpcodesFNENI(); result->opcode_ = (yyval.opcode_); }
 #line 2886 "parser.cc"
     break;
 
   case 139: /* Opcode: _KW_FNINIT  */
 #line 592 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNINIT(); }
+               { (yyval.opcode_) = new OpcodesFNINIT(); result->opcode_ = (yyval.opcode_); }
 #line 2892 "parser.cc"
     break;
 
   case 140: /* Opcode: _KW_FNOP  */
 #line 593 "nask.y"
-             { (yyval.opcode_) = new OpcodesFNOP(); }
+             { (yyval.opcode_) = new OpcodesFNOP(); result->opcode_ = (yyval.opcode_); }
 #line 2898 "parser.cc"
     break;
 
   case 141: /* Opcode: _KW_FNSAVE  */
 #line 594 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNSAVE(); }
+               { (yyval.opcode_) = new OpcodesFNSAVE(); result->opcode_ = (yyval.opcode_); }
 #line 2904 "parser.cc"
     break;
 
   case 142: /* Opcode: _KW_FNSTCW  */
 #line 595 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNSTCW(); }
+               { (yyval.opcode_) = new OpcodesFNSTCW(); result->opcode_ = (yyval.opcode_); }
 #line 2910 "parser.cc"
     break;
 
   case 143: /* Opcode: _KW_FNSTENV  */
 #line 596 "nask.y"
-                { (yyval.opcode_) = new OpcodesFNSTENV(); }
+                { (yyval.opcode_) = new OpcodesFNSTENV(); result->opcode_ = (yyval.opcode_); }
 #line 2916 "parser.cc"
     break;
 
   case 144: /* Opcode: _KW_FNSTSW  */
 #line 597 "nask.y"
-               { (yyval.opcode_) = new OpcodesFNSTSW(); }
+               { (yyval.opcode_) = new OpcodesFNSTSW(); result->opcode_ = (yyval.opcode_); }
 #line 2922 "parser.cc"
     break;
 
   case 145: /* Opcode: _KW_FPATAN  */
 #line 598 "nask.y"
-               { (yyval.opcode_) = new OpcodesFPATAN(); }
+               { (yyval.opcode_) = new OpcodesFPATAN(); result->opcode_ = (yyval.opcode_); }
 #line 2928 "parser.cc"
     break;
 
   case 146: /* Opcode: _KW_FPTAN  */
 #line 599 "nask.y"
-              { (yyval.opcode_) = new OpcodesFPTAN(); }
+              { (yyval.opcode_) = new OpcodesFPTAN(); result->opcode_ = (yyval.opcode_); }
 #line 2934 "parser.cc"
     break;
 
   case 147: /* Opcode: _KW_FPREM  */
 #line 600 "nask.y"
-              { (yyval.opcode_) = new OpcodesFPREM(); }
+              { (yyval.opcode_) = new OpcodesFPREM(); result->opcode_ = (yyval.opcode_); }
 #line 2940 "parser.cc"
     break;
 
   case 148: /* Opcode: _KW_FPREM1  */
 #line 601 "nask.y"
-               { (yyval.opcode_) = new OpcodesFPREM1(); }
+               { (yyval.opcode_) = new OpcodesFPREM1(); result->opcode_ = (yyval.opcode_); }
 #line 2946 "parser.cc"
     break;
 
   case 149: /* Opcode: _KW_FRNDINT  */
 #line 602 "nask.y"
-                { (yyval.opcode_) = new OpcodesFRNDINT(); }
+                { (yyval.opcode_) = new OpcodesFRNDINT(); result->opcode_ = (yyval.opcode_); }
 #line 2952 "parser.cc"
     break;
 
   case 150: /* Opcode: _KW_FRSTOR  */
 #line 603 "nask.y"
-               { (yyval.opcode_) = new OpcodesFRSTOR(); }
+               { (yyval.opcode_) = new OpcodesFRSTOR(); result->opcode_ = (yyval.opcode_); }
 #line 2958 "parser.cc"
     break;
 
   case 151: /* Opcode: _KW_FSAVE  */
 #line 604 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSAVE(); }
+              { (yyval.opcode_) = new OpcodesFSAVE(); result->opcode_ = (yyval.opcode_); }
 #line 2964 "parser.cc"
     break;
 
   case 152: /* Opcode: _KW_FSCALE  */
 #line 605 "nask.y"
-               { (yyval.opcode_) = new OpcodesFSCALE(); }
+               { (yyval.opcode_) = new OpcodesFSCALE(); result->opcode_ = (yyval.opcode_); }
 #line 2970 "parser.cc"
     break;
 
   case 153: /* Opcode: _KW_FSETPM  */
 #line 606 "nask.y"
-               { (yyval.opcode_) = new OpcodesFSETPM(); }
+               { (yyval.opcode_) = new OpcodesFSETPM(); result->opcode_ = (yyval.opcode_); }
 #line 2976 "parser.cc"
     break;
 
   case 154: /* Opcode: _KW_FSIN  */
 #line 607 "nask.y"
-             { (yyval.opcode_) = new OpcodesFSIN(); }
+             { (yyval.opcode_) = new OpcodesFSIN(); result->opcode_ = (yyval.opcode_); }
 #line 2982 "parser.cc"
     break;
 
   case 155: /* Opcode: _KW_FSINCOS  */
 #line 608 "nask.y"
-                { (yyval.opcode_) = new OpcodesFSINCOS(); }
+                { (yyval.opcode_) = new OpcodesFSINCOS(); result->opcode_ = (yyval.opcode_); }
 #line 2988 "parser.cc"
     break;
 
   case 156: /* Opcode: _KW_FSQRT  */
 #line 609 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSQRT(); }
+              { (yyval.opcode_) = new OpcodesFSQRT(); result->opcode_ = (yyval.opcode_); }
 #line 2994 "parser.cc"
     break;
 
   case 157: /* Opcode: _KW_FST  */
 #line 610 "nask.y"
-            { (yyval.opcode_) = new OpcodesFST(); }
+            { (yyval.opcode_) = new OpcodesFST(); result->opcode_ = (yyval.opcode_); }
 #line 3000 "parser.cc"
     break;
 
   case 158: /* Opcode: _KW_FSTCW  */
 #line 611 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSTCW(); }
+              { (yyval.opcode_) = new OpcodesFSTCW(); result->opcode_ = (yyval.opcode_); }
 #line 3006 "parser.cc"
     break;
 
   case 159: /* Opcode: _KW_FSTENV  */
 #line 612 "nask.y"
-               { (yyval.opcode_) = new OpcodesFSTENV(); }
+               { (yyval.opcode_) = new OpcodesFSTENV(); result->opcode_ = (yyval.opcode_); }
 #line 3012 "parser.cc"
     break;
 
   case 160: /* Opcode: _KW_FSTP  */
 #line 613 "nask.y"
-             { (yyval.opcode_) = new OpcodesFSTP(); }
+             { (yyval.opcode_) = new OpcodesFSTP(); result->opcode_ = (yyval.opcode_); }
 #line 3018 "parser.cc"
     break;
 
   case 161: /* Opcode: _KW_FSTSW  */
 #line 614 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSTSW(); }
+              { (yyval.opcode_) = new OpcodesFSTSW(); result->opcode_ = (yyval.opcode_); }
 #line 3024 "parser.cc"
     break;
 
   case 162: /* Opcode: _KW_FSUB  */
 #line 615 "nask.y"
-             { (yyval.opcode_) = new OpcodesFSUB(); }
+             { (yyval.opcode_) = new OpcodesFSUB(); result->opcode_ = (yyval.opcode_); }
 #line 3030 "parser.cc"
     break;
 
   case 163: /* Opcode: _KW_FSUBP  */
 #line 616 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSUBP(); }
+              { (yyval.opcode_) = new OpcodesFSUBP(); result->opcode_ = (yyval.opcode_); }
 #line 3036 "parser.cc"
     break;
 
   case 164: /* Opcode: _KW_FSUBR  */
 #line 617 "nask.y"
-              { (yyval.opcode_) = new OpcodesFSUBR(); }
+              { (yyval.opcode_) = new OpcodesFSUBR(); result->opcode_ = (yyval.opcode_); }
 #line 3042 "parser.cc"
     break;
 
   case 165: /* Opcode: _KW_FSUBRP  */
 #line 618 "nask.y"
-               { (yyval.opcode_) = new OpcodesFSUBRP(); }
+               { (yyval.opcode_) = new OpcodesFSUBRP(); result->opcode_ = (yyval.opcode_); }
 #line 3048 "parser.cc"
     break;
 
   case 166: /* Opcode: _KW_FTST  */
 #line 619 "nask.y"
-             { (yyval.opcode_) = new OpcodesFTST(); }
+             { (yyval.opcode_) = new OpcodesFTST(); result->opcode_ = (yyval.opcode_); }
 #line 3054 "parser.cc"
     break;
 
   case 167: /* Opcode: _KW_FUCOM  */
 #line 620 "nask.y"
-              { (yyval.opcode_) = new OpcodesFUCOM(); }
+              { (yyval.opcode_) = new OpcodesFUCOM(); result->opcode_ = (yyval.opcode_); }
 #line 3060 "parser.cc"
     break;
 
   case 168: /* Opcode: _KW_FUCOMP  */
 #line 621 "nask.y"
-               { (yyval.opcode_) = new OpcodesFUCOMP(); }
+               { (yyval.opcode_) = new OpcodesFUCOMP(); result->opcode_ = (yyval.opcode_); }
 #line 3066 "parser.cc"
     break;
 
   case 169: /* Opcode: _KW_FUCOMPP  */
 #line 622 "nask.y"
-                { (yyval.opcode_) = new OpcodesFUCOMPP(); }
+                { (yyval.opcode_) = new OpcodesFUCOMPP(); result->opcode_ = (yyval.opcode_); }
 #line 3072 "parser.cc"
     break;
 
   case 170: /* Opcode: _KW_FXAM  */
 #line 623 "nask.y"
-             { (yyval.opcode_) = new OpcodesFXAM(); }
+             { (yyval.opcode_) = new OpcodesFXAM(); result->opcode_ = (yyval.opcode_); }
 #line 3078 "parser.cc"
     break;
 
   case 171: /* Opcode: _KW_FXCH  */
 #line 624 "nask.y"
-             { (yyval.opcode_) = new OpcodesFXCH(); }
+             { (yyval.opcode_) = new OpcodesFXCH(); result->opcode_ = (yyval.opcode_); }
 #line 3084 "parser.cc"
     break;
 
   case 172: /* Opcode: _KW_FXTRACT  */
 #line 625 "nask.y"
-                { (yyval.opcode_) = new OpcodesFXTRACT(); }
+                { (yyval.opcode_) = new OpcodesFXTRACT(); result->opcode_ = (yyval.opcode_); }
 #line 3090 "parser.cc"
     break;
 
   case 173: /* Opcode: _KW_FYL2X  */
 #line 626 "nask.y"
-              { (yyval.opcode_) = new OpcodesFYL2X(); }
+              { (yyval.opcode_) = new OpcodesFYL2X(); result->opcode_ = (yyval.opcode_); }
 #line 3096 "parser.cc"
     break;
 
   case 174: /* Opcode: _KW_FYL2XP1  */
 #line 627 "nask.y"
-                { (yyval.opcode_) = new OpcodesFYL2XP1(); }
+                { (yyval.opcode_) = new OpcodesFYL2XP1(); result->opcode_ = (yyval.opcode_); }
 #line 3102 "parser.cc"
     break;
 
   case 175: /* Opcode: _KW_HLT  */
 #line 628 "nask.y"
-            { (yyval.opcode_) = new OpcodesHLT(); }
+            { (yyval.opcode_) = new OpcodesHLT(); result->opcode_ = (yyval.opcode_); }
 #line 3108 "parser.cc"
     break;
 
   case 176: /* Opcode: _KW_IDIV  */
 #line 629 "nask.y"
-             { (yyval.opcode_) = new OpcodesIDIV(); }
+             { (yyval.opcode_) = new OpcodesIDIV(); result->opcode_ = (yyval.opcode_); }
 #line 3114 "parser.cc"
     break;
 
   case 177: /* Opcode: _KW_IMUL  */
 #line 630 "nask.y"
-             { (yyval.opcode_) = new OpcodesIMUL(); }
+             { (yyval.opcode_) = new OpcodesIMUL(); result->opcode_ = (yyval.opcode_); }
 #line 3120 "parser.cc"
     break;
 
   case 178: /* Opcode: _KW_IN  */
 #line 631 "nask.y"
-           { (yyval.opcode_) = new OpcodesIN(); }
+           { (yyval.opcode_) = new OpcodesIN(); result->opcode_ = (yyval.opcode_); }
 #line 3126 "parser.cc"
     break;
 
   case 179: /* Opcode: _KW_INC  */
 #line 632 "nask.y"
-            { (yyval.opcode_) = new OpcodesINC(); }
+            { (yyval.opcode_) = new OpcodesINC(); result->opcode_ = (yyval.opcode_); }
 #line 3132 "parser.cc"
     break;
 
   case 180: /* Opcode: _KW_INCO  */
 #line 633 "nask.y"
-             { (yyval.opcode_) = new OpcodesINCO(); }
+             { (yyval.opcode_) = new OpcodesINCO(); result->opcode_ = (yyval.opcode_); }
 #line 3138 "parser.cc"
     break;
 
   case 181: /* Opcode: _KW_INSB  */
 #line 634 "nask.y"
-             { (yyval.opcode_) = new OpcodesINSB(); }
+             { (yyval.opcode_) = new OpcodesINSB(); result->opcode_ = (yyval.opcode_); }
 #line 3144 "parser.cc"
     break;
 
   case 182: /* Opcode: _KW_INSD  */
 #line 635 "nask.y"
-             { (yyval.opcode_) = new OpcodesINSD(); }
+             { (yyval.opcode_) = new OpcodesINSD(); result->opcode_ = (yyval.opcode_); }
 #line 3150 "parser.cc"
     break;
 
   case 183: /* Opcode: _KW_INSW  */
 #line 636 "nask.y"
-             { (yyval.opcode_) = new OpcodesINSW(); }
+             { (yyval.opcode_) = new OpcodesINSW(); result->opcode_ = (yyval.opcode_); }
 #line 3156 "parser.cc"
     break;
 
   case 184: /* Opcode: _KW_INT  */
 #line 637 "nask.y"
-            { (yyval.opcode_) = new OpcodesINT(); }
+            { (yyval.opcode_) = new OpcodesINT(); result->opcode_ = (yyval.opcode_); }
 #line 3162 "parser.cc"
     break;
 
   case 185: /* Opcode: _KW_INT3  */
 #line 638 "nask.y"
-             { (yyval.opcode_) = new OpcodesINT3(); }
+             { (yyval.opcode_) = new OpcodesINT3(); result->opcode_ = (yyval.opcode_); }
 #line 3168 "parser.cc"
     break;
 
   case 186: /* Opcode: _KW_INTO  */
 #line 639 "nask.y"
-             { (yyval.opcode_) = new OpcodesINTO(); }
+             { (yyval.opcode_) = new OpcodesINTO(); result->opcode_ = (yyval.opcode_); }
 #line 3174 "parser.cc"
     break;
 
   case 187: /* Opcode: _KW_INVD  */
 #line 640 "nask.y"
-             { (yyval.opcode_) = new OpcodesINVD(); }
+             { (yyval.opcode_) = new OpcodesINVD(); result->opcode_ = (yyval.opcode_); }
 #line 3180 "parser.cc"
     break;
 
   case 188: /* Opcode: _KW_INVLPG  */
 #line 641 "nask.y"
-               { (yyval.opcode_) = new OpcodesINVLPG(); }
+               { (yyval.opcode_) = new OpcodesINVLPG(); result->opcode_ = (yyval.opcode_); }
 #line 3186 "parser.cc"
     break;
 
   case 189: /* Opcode: _KW_IRET  */
 #line 642 "nask.y"
-             { (yyval.opcode_) = new OpcodesIRET(); }
+             { (yyval.opcode_) = new OpcodesIRET(); result->opcode_ = (yyval.opcode_); }
 #line 3192 "parser.cc"
     break;
 
   case 190: /* Opcode: _KW_IRETD  */
 #line 643 "nask.y"
-              { (yyval.opcode_) = new OpcodesIRETD(); }
+              { (yyval.opcode_) = new OpcodesIRETD(); result->opcode_ = (yyval.opcode_); }
 #line 3198 "parser.cc"
     break;
 
   case 191: /* Opcode: _KW_IRETW  */
 #line 644 "nask.y"
-              { (yyval.opcode_) = new OpcodesIRETW(); }
+              { (yyval.opcode_) = new OpcodesIRETW(); result->opcode_ = (yyval.opcode_); }
 #line 3204 "parser.cc"
     break;
 
   case 192: /* Opcode: _KW_JA  */
 #line 645 "nask.y"
-           { (yyval.opcode_) = new OpcodesJA(); }
+           { (yyval.opcode_) = new OpcodesJA(); result->opcode_ = (yyval.opcode_); }
 #line 3210 "parser.cc"
     break;
 
   case 193: /* Opcode: _KW_JAE  */
 #line 646 "nask.y"
-            { (yyval.opcode_) = new OpcodesJAE(); }
+            { (yyval.opcode_) = new OpcodesJAE(); result->opcode_ = (yyval.opcode_); }
 #line 3216 "parser.cc"
     break;
 
   case 194: /* Opcode: _KW_JB  */
 #line 647 "nask.y"
-           { (yyval.opcode_) = new OpcodesJB(); }
+           { (yyval.opcode_) = new OpcodesJB(); result->opcode_ = (yyval.opcode_); }
 #line 3222 "parser.cc"
     break;
 
   case 195: /* Opcode: _KW_JBE  */
 #line 648 "nask.y"
-            { (yyval.opcode_) = new OpcodesJBE(); }
+            { (yyval.opcode_) = new OpcodesJBE(); result->opcode_ = (yyval.opcode_); }
 #line 3228 "parser.cc"
     break;
 
   case 196: /* Opcode: _KW_JC  */
 #line 649 "nask.y"
-           { (yyval.opcode_) = new OpcodesJC(); }
+           { (yyval.opcode_) = new OpcodesJC(); result->opcode_ = (yyval.opcode_); }
 #line 3234 "parser.cc"
     break;
 
   case 197: /* Opcode: _KW_JCXZ  */
 #line 650 "nask.y"
-             { (yyval.opcode_) = new OpcodesJCXZ(); }
+             { (yyval.opcode_) = new OpcodesJCXZ(); result->opcode_ = (yyval.opcode_); }
 #line 3240 "parser.cc"
     break;
 
   case 198: /* Opcode: _KW_JE  */
 #line 651 "nask.y"
-           { (yyval.opcode_) = new OpcodesJE(); }
+           { (yyval.opcode_) = new OpcodesJE(); result->opcode_ = (yyval.opcode_); }
 #line 3246 "parser.cc"
     break;
 
   case 199: /* Opcode: _KW_JECXZ  */
 #line 652 "nask.y"
-              { (yyval.opcode_) = new OpcodesJECXZ(); }
+              { (yyval.opcode_) = new OpcodesJECXZ(); result->opcode_ = (yyval.opcode_); }
 #line 3252 "parser.cc"
     break;
 
   case 200: /* Opcode: _KW_JG  */
 #line 653 "nask.y"
-           { (yyval.opcode_) = new OpcodesJG(); }
+           { (yyval.opcode_) = new OpcodesJG(); result->opcode_ = (yyval.opcode_); }
 #line 3258 "parser.cc"
     break;
 
   case 201: /* Opcode: _KW_JGE  */
 #line 654 "nask.y"
-            { (yyval.opcode_) = new OpcodesJGE(); }
+            { (yyval.opcode_) = new OpcodesJGE(); result->opcode_ = (yyval.opcode_); }
 #line 3264 "parser.cc"
     break;
 
   case 202: /* Opcode: _KW_JL  */
 #line 655 "nask.y"
-           { (yyval.opcode_) = new OpcodesJL(); }
+           { (yyval.opcode_) = new OpcodesJL(); result->opcode_ = (yyval.opcode_); }
 #line 3270 "parser.cc"
     break;
 
   case 203: /* Opcode: _KW_JLE  */
 #line 656 "nask.y"
-            { (yyval.opcode_) = new OpcodesJLE(); }
+            { (yyval.opcode_) = new OpcodesJLE(); result->opcode_ = (yyval.opcode_); }
 #line 3276 "parser.cc"
     break;
 
   case 204: /* Opcode: _KW_JMP  */
 #line 657 "nask.y"
-            { (yyval.opcode_) = new OpcodesJMP(); }
+            { (yyval.opcode_) = new OpcodesJMP(); result->opcode_ = (yyval.opcode_); }
 #line 3282 "parser.cc"
     break;
 
   case 205: /* Opcode: _KW_JNA  */
 #line 658 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNA(); }
+            { (yyval.opcode_) = new OpcodesJNA(); result->opcode_ = (yyval.opcode_); }
 #line 3288 "parser.cc"
     break;
 
   case 206: /* Opcode: _KW_JNAE  */
 #line 659 "nask.y"
-             { (yyval.opcode_) = new OpcodesJNAE(); }
+             { (yyval.opcode_) = new OpcodesJNAE(); result->opcode_ = (yyval.opcode_); }
 #line 3294 "parser.cc"
     break;
 
   case 207: /* Opcode: _KW_JNB  */
 #line 660 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNB(); }
+            { (yyval.opcode_) = new OpcodesJNB(); result->opcode_ = (yyval.opcode_); }
 #line 3300 "parser.cc"
     break;
 
   case 208: /* Opcode: _KW_JNBE  */
 #line 661 "nask.y"
-             { (yyval.opcode_) = new OpcodesJNBE(); }
+             { (yyval.opcode_) = new OpcodesJNBE(); result->opcode_ = (yyval.opcode_); }
 #line 3306 "parser.cc"
     break;
 
   case 209: /* Opcode: _KW_JNC  */
 #line 662 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNC(); }
+            { (yyval.opcode_) = new OpcodesJNC(); result->opcode_ = (yyval.opcode_); }
 #line 3312 "parser.cc"
     break;
 
   case 210: /* Opcode: _KW_JNE  */
 #line 663 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNE(); }
+            { (yyval.opcode_) = new OpcodesJNE(); result->opcode_ = (yyval.opcode_); }
 #line 3318 "parser.cc"
     break;
 
   case 211: /* Opcode: _KW_JNG  */
 #line 664 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNG(); }
+            { (yyval.opcode_) = new OpcodesJNG(); result->opcode_ = (yyval.opcode_); }
 #line 3324 "parser.cc"
     break;
 
   case 212: /* Opcode: _KW_JNGE  */
 #line 665 "nask.y"
-             { (yyval.opcode_) = new OpcodesJNGE(); }
+             { (yyval.opcode_) = new OpcodesJNGE(); result->opcode_ = (yyval.opcode_); }
 #line 3330 "parser.cc"
     break;
 
   case 213: /* Opcode: _KW_JNL  */
 #line 666 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNL(); }
+            { (yyval.opcode_) = new OpcodesJNL(); result->opcode_ = (yyval.opcode_); }
 #line 3336 "parser.cc"
     break;
 
   case 214: /* Opcode: _KW_JNLE  */
 #line 667 "nask.y"
-             { (yyval.opcode_) = new OpcodesJNLE(); }
+             { (yyval.opcode_) = new OpcodesJNLE(); result->opcode_ = (yyval.opcode_); }
 #line 3342 "parser.cc"
     break;
 
   case 215: /* Opcode: _KW_JNO  */
 #line 668 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNO(); }
+            { (yyval.opcode_) = new OpcodesJNO(); result->opcode_ = (yyval.opcode_); }
 #line 3348 "parser.cc"
     break;
 
   case 216: /* Opcode: _KW_JNP  */
 #line 669 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNP(); }
+            { (yyval.opcode_) = new OpcodesJNP(); result->opcode_ = (yyval.opcode_); }
 #line 3354 "parser.cc"
     break;
 
   case 217: /* Opcode: _KW_JNS  */
 #line 670 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNS(); }
+            { (yyval.opcode_) = new OpcodesJNS(); result->opcode_ = (yyval.opcode_); }
 #line 3360 "parser.cc"
     break;
 
   case 218: /* Opcode: _KW_JNZ  */
 #line 671 "nask.y"
-            { (yyval.opcode_) = new OpcodesJNZ(); }
+            { (yyval.opcode_) = new OpcodesJNZ(); result->opcode_ = (yyval.opcode_); }
 #line 3366 "parser.cc"
     break;
 
   case 219: /* Opcode: _KW_JO  */
 #line 672 "nask.y"
-           { (yyval.opcode_) = new OpcodesJO(); }
+           { (yyval.opcode_) = new OpcodesJO(); result->opcode_ = (yyval.opcode_); }
 #line 3372 "parser.cc"
     break;
 
   case 220: /* Opcode: _KW_JP  */
 #line 673 "nask.y"
-           { (yyval.opcode_) = new OpcodesJP(); }
+           { (yyval.opcode_) = new OpcodesJP(); result->opcode_ = (yyval.opcode_); }
 #line 3378 "parser.cc"
     break;
 
   case 221: /* Opcode: _KW_JPE  */
 #line 674 "nask.y"
-            { (yyval.opcode_) = new OpcodesJPE(); }
+            { (yyval.opcode_) = new OpcodesJPE(); result->opcode_ = (yyval.opcode_); }
 #line 3384 "parser.cc"
     break;
 
   case 222: /* Opcode: _KW_JPO  */
 #line 675 "nask.y"
-            { (yyval.opcode_) = new OpcodesJPO(); }
+            { (yyval.opcode_) = new OpcodesJPO(); result->opcode_ = (yyval.opcode_); }
 #line 3390 "parser.cc"
     break;
 
   case 223: /* Opcode: _KW_JS  */
 #line 676 "nask.y"
-           { (yyval.opcode_) = new OpcodesJS(); }
+           { (yyval.opcode_) = new OpcodesJS(); result->opcode_ = (yyval.opcode_); }
 #line 3396 "parser.cc"
     break;
 
   case 224: /* Opcode: _KW_JZ  */
 #line 677 "nask.y"
-           { (yyval.opcode_) = new OpcodesJZ(); }
+           { (yyval.opcode_) = new OpcodesJZ(); result->opcode_ = (yyval.opcode_); }
 #line 3402 "parser.cc"
     break;
 
   case 225: /* Opcode: _KW_LAHF  */
 #line 678 "nask.y"
-             { (yyval.opcode_) = new OpcodesLAHF(); }
+             { (yyval.opcode_) = new OpcodesLAHF(); result->opcode_ = (yyval.opcode_); }
 #line 3408 "parser.cc"
     break;
 
   case 226: /* Opcode: _KW_LAR  */
 #line 679 "nask.y"
-            { (yyval.opcode_) = new OpcodesLAR(); }
+            { (yyval.opcode_) = new OpcodesLAR(); result->opcode_ = (yyval.opcode_); }
 #line 3414 "parser.cc"
     break;
 
   case 227: /* Opcode: _KW_LDS  */
 #line 680 "nask.y"
-            { (yyval.opcode_) = new OpcodesLDS(); }
+            { (yyval.opcode_) = new OpcodesLDS(); result->opcode_ = (yyval.opcode_); }
 #line 3420 "parser.cc"
     break;
 
   case 228: /* Opcode: _KW_LEA  */
 #line 681 "nask.y"
-            { (yyval.opcode_) = new OpcodesLEA(); }
+            { (yyval.opcode_) = new OpcodesLEA(); result->opcode_ = (yyval.opcode_); }
 #line 3426 "parser.cc"
     break;
 
   case 229: /* Opcode: _KW_LEAVE  */
 #line 682 "nask.y"
-              { (yyval.opcode_) = new OpcodesLEAVE(); }
+              { (yyval.opcode_) = new OpcodesLEAVE(); result->opcode_ = (yyval.opcode_); }
 #line 3432 "parser.cc"
     break;
 
   case 230: /* Opcode: _KW_LES  */
 #line 683 "nask.y"
-            { (yyval.opcode_) = new OpcodesLES(); }
+            { (yyval.opcode_) = new OpcodesLES(); result->opcode_ = (yyval.opcode_); }
 #line 3438 "parser.cc"
     break;
 
   case 231: /* Opcode: _KW_LFS  */
 #line 684 "nask.y"
-            { (yyval.opcode_) = new OpcodesLFS(); }
+            { (yyval.opcode_) = new OpcodesLFS(); result->opcode_ = (yyval.opcode_); }
 #line 3444 "parser.cc"
     break;
 
   case 232: /* Opcode: _KW_LGDT  */
 #line 685 "nask.y"
-             { (yyval.opcode_) = new OpcodesLGDT(); }
+             { (yyval.opcode_) = new OpcodesLGDT(); result->opcode_ = (yyval.opcode_); }
 #line 3450 "parser.cc"
     break;
 
   case 233: /* Opcode: _KW_LGS  */
 #line 686 "nask.y"
-            { (yyval.opcode_) = new OpcodesLGS(); }
+            { (yyval.opcode_) = new OpcodesLGS(); result->opcode_ = (yyval.opcode_); }
 #line 3456 "parser.cc"
     break;
 
   case 234: /* Opcode: _KW_LIDT  */
 #line 687 "nask.y"
-             { (yyval.opcode_) = new OpcodesLIDT(); }
+             { (yyval.opcode_) = new OpcodesLIDT(); result->opcode_ = (yyval.opcode_); }
 #line 3462 "parser.cc"
     break;
 
   case 235: /* Opcode: _KW_LLDT  */
 #line 688 "nask.y"
-             { (yyval.opcode_) = new OpcodesLLDT(); }
+             { (yyval.opcode_) = new OpcodesLLDT(); result->opcode_ = (yyval.opcode_); }
 #line 3468 "parser.cc"
     break;
 
   case 236: /* Opcode: _KW_LMSW  */
 #line 689 "nask.y"
-             { (yyval.opcode_) = new OpcodesLMSW(); }
+             { (yyval.opcode_) = new OpcodesLMSW(); result->opcode_ = (yyval.opcode_); }
 #line 3474 "parser.cc"
     break;
 
   case 237: /* Opcode: _KW_LOCK  */
 #line 690 "nask.y"
-             { (yyval.opcode_) = new OpcodesLOCK(); }
+             { (yyval.opcode_) = new OpcodesLOCK(); result->opcode_ = (yyval.opcode_); }
 #line 3480 "parser.cc"
     break;
 
   case 238: /* Opcode: _KW_LODSB  */
 #line 691 "nask.y"
-              { (yyval.opcode_) = new OpcodesLODSB(); }
+              { (yyval.opcode_) = new OpcodesLODSB(); result->opcode_ = (yyval.opcode_); }
 #line 3486 "parser.cc"
     break;
 
   case 239: /* Opcode: _KW_LODSD  */
 #line 692 "nask.y"
-              { (yyval.opcode_) = new OpcodesLODSD(); }
+              { (yyval.opcode_) = new OpcodesLODSD(); result->opcode_ = (yyval.opcode_); }
 #line 3492 "parser.cc"
     break;
 
   case 240: /* Opcode: _KW_LODSW  */
 #line 693 "nask.y"
-              { (yyval.opcode_) = new OpcodesLODSW(); }
+              { (yyval.opcode_) = new OpcodesLODSW(); result->opcode_ = (yyval.opcode_); }
 #line 3498 "parser.cc"
     break;
 
   case 241: /* Opcode: _KW_LOOP  */
 #line 694 "nask.y"
-             { (yyval.opcode_) = new OpcodesLOOP(); }
+             { (yyval.opcode_) = new OpcodesLOOP(); result->opcode_ = (yyval.opcode_); }
 #line 3504 "parser.cc"
     break;
 
   case 242: /* Opcode: _KW_LOOPE  */
 #line 695 "nask.y"
-              { (yyval.opcode_) = new OpcodesLOOPE(); }
+              { (yyval.opcode_) = new OpcodesLOOPE(); result->opcode_ = (yyval.opcode_); }
 #line 3510 "parser.cc"
     break;
 
   case 243: /* Opcode: _KW_LOOPNE  */
 #line 696 "nask.y"
-               { (yyval.opcode_) = new OpcodesLOOPNE(); }
+               { (yyval.opcode_) = new OpcodesLOOPNE(); result->opcode_ = (yyval.opcode_); }
 #line 3516 "parser.cc"
     break;
 
   case 244: /* Opcode: _KW_LOOPNZ  */
 #line 697 "nask.y"
-               { (yyval.opcode_) = new OpcodesLOOPNZ(); }
+               { (yyval.opcode_) = new OpcodesLOOPNZ(); result->opcode_ = (yyval.opcode_); }
 #line 3522 "parser.cc"
     break;
 
   case 245: /* Opcode: _KW_LOOPZ  */
 #line 698 "nask.y"
-              { (yyval.opcode_) = new OpcodesLOOPZ(); }
+              { (yyval.opcode_) = new OpcodesLOOPZ(); result->opcode_ = (yyval.opcode_); }
 #line 3528 "parser.cc"
     break;
 
   case 246: /* Opcode: _KW_LSL  */
 #line 699 "nask.y"
-            { (yyval.opcode_) = new OpcodesLSL(); }
+            { (yyval.opcode_) = new OpcodesLSL(); result->opcode_ = (yyval.opcode_); }
 #line 3534 "parser.cc"
     break;
 
   case 247: /* Opcode: _KW_LSS  */
 #line 700 "nask.y"
-            { (yyval.opcode_) = new OpcodesLSS(); }
+            { (yyval.opcode_) = new OpcodesLSS(); result->opcode_ = (yyval.opcode_); }
 #line 3540 "parser.cc"
     break;
 
   case 248: /* Opcode: _KW_LTR  */
 #line 701 "nask.y"
-            { (yyval.opcode_) = new OpcodesLTR(); }
+            { (yyval.opcode_) = new OpcodesLTR(); result->opcode_ = (yyval.opcode_); }
 #line 3546 "parser.cc"
     break;
 
   case 249: /* Opcode: _KW_MOV  */
 #line 702 "nask.y"
-            { (yyval.opcode_) = new OpcodesMOV(); }
+            { (yyval.opcode_) = new OpcodesMOV(); result->opcode_ = (yyval.opcode_); }
 #line 3552 "parser.cc"
     break;
 
   case 250: /* Opcode: _KW_MOVSB  */
 #line 703 "nask.y"
-              { (yyval.opcode_) = new OpcodesMOVSB(); }
+              { (yyval.opcode_) = new OpcodesMOVSB(); result->opcode_ = (yyval.opcode_); }
 #line 3558 "parser.cc"
     break;
 
   case 251: /* Opcode: _KW_MOVSD  */
 #line 704 "nask.y"
-              { (yyval.opcode_) = new OpcodesMOVSD(); }
+              { (yyval.opcode_) = new OpcodesMOVSD(); result->opcode_ = (yyval.opcode_); }
 #line 3564 "parser.cc"
     break;
 
   case 252: /* Opcode: _KW_MOVSW  */
 #line 705 "nask.y"
-              { (yyval.opcode_) = new OpcodesMOVSW(); }
+              { (yyval.opcode_) = new OpcodesMOVSW(); result->opcode_ = (yyval.opcode_); }
 #line 3570 "parser.cc"
     break;
 
   case 253: /* Opcode: _KW_MOVSX  */
 #line 706 "nask.y"
-              { (yyval.opcode_) = new OpcodesMOVSX(); }
+              { (yyval.opcode_) = new OpcodesMOVSX(); result->opcode_ = (yyval.opcode_); }
 #line 3576 "parser.cc"
     break;
 
   case 254: /* Opcode: _KW_MOVZX  */
 #line 707 "nask.y"
-              { (yyval.opcode_) = new OpcodesMOVZX(); }
+              { (yyval.opcode_) = new OpcodesMOVZX(); result->opcode_ = (yyval.opcode_); }
 #line 3582 "parser.cc"
     break;
 
   case 255: /* Opcode: _KW_MUL  */
 #line 708 "nask.y"
-            { (yyval.opcode_) = new OpcodesMUL(); }
+            { (yyval.opcode_) = new OpcodesMUL(); result->opcode_ = (yyval.opcode_); }
 #line 3588 "parser.cc"
     break;
 
   case 256: /* Opcode: _KW_NEG  */
 #line 709 "nask.y"
-            { (yyval.opcode_) = new OpcodesNEG(); }
+            { (yyval.opcode_) = new OpcodesNEG(); result->opcode_ = (yyval.opcode_); }
 #line 3594 "parser.cc"
     break;
 
   case 257: /* Opcode: _KW_NOP  */
 #line 710 "nask.y"
-            { (yyval.opcode_) = new OpcodesNOP(); }
+            { (yyval.opcode_) = new OpcodesNOP(); result->opcode_ = (yyval.opcode_); }
 #line 3600 "parser.cc"
     break;
 
   case 258: /* Opcode: _KW_NOT  */
 #line 711 "nask.y"
-            { (yyval.opcode_) = new OpcodesNOT(); }
+            { (yyval.opcode_) = new OpcodesNOT(); result->opcode_ = (yyval.opcode_); }
 #line 3606 "parser.cc"
     break;
 
   case 259: /* Opcode: _KW_OR  */
 #line 712 "nask.y"
-           { (yyval.opcode_) = new OpcodesOR(); }
+           { (yyval.opcode_) = new OpcodesOR(); result->opcode_ = (yyval.opcode_); }
 #line 3612 "parser.cc"
     break;
 
   case 260: /* Opcode: _KW_ORG  */
 #line 713 "nask.y"
-            { (yyval.opcode_) = new OpcodesORG(); }
+            { (yyval.opcode_) = new OpcodesORG(); result->opcode_ = (yyval.opcode_); }
 #line 3618 "parser.cc"
     break;
 
   case 261: /* Opcode: _KW_OUT  */
 #line 714 "nask.y"
-            { (yyval.opcode_) = new OpcodesOUT(); }
+            { (yyval.opcode_) = new OpcodesOUT(); result->opcode_ = (yyval.opcode_); }
 #line 3624 "parser.cc"
     break;
 
   case 262: /* Opcode: _KW_OUTSB  */
 #line 715 "nask.y"
-              { (yyval.opcode_) = new OpcodesOUTSB(); }
+              { (yyval.opcode_) = new OpcodesOUTSB(); result->opcode_ = (yyval.opcode_); }
 #line 3630 "parser.cc"
     break;
 
   case 263: /* Opcode: _KW_OUTSD  */
 #line 716 "nask.y"
-              { (yyval.opcode_) = new OpcodesOUTSD(); }
+              { (yyval.opcode_) = new OpcodesOUTSD(); result->opcode_ = (yyval.opcode_); }
 #line 3636 "parser.cc"
     break;
 
   case 264: /* Opcode: _KW_OUTSW  */
 #line 717 "nask.y"
-              { (yyval.opcode_) = new OpcodesOUTSW(); }
+              { (yyval.opcode_) = new OpcodesOUTSW(); result->opcode_ = (yyval.opcode_); }
 #line 3642 "parser.cc"
     break;
 
   case 265: /* Opcode: _KW_POP  */
 #line 718 "nask.y"
-            { (yyval.opcode_) = new OpcodesPOP(); }
+            { (yyval.opcode_) = new OpcodesPOP(); result->opcode_ = (yyval.opcode_); }
 #line 3648 "parser.cc"
     break;
 
   case 266: /* Opcode: _KW_POPA  */
 #line 719 "nask.y"
-             { (yyval.opcode_) = new OpcodesPOPA(); }
+             { (yyval.opcode_) = new OpcodesPOPA(); result->opcode_ = (yyval.opcode_); }
 #line 3654 "parser.cc"
     break;
 
   case 267: /* Opcode: _KW_POPAD  */
 #line 720 "nask.y"
-              { (yyval.opcode_) = new OpcodesPOPAD(); }
+              { (yyval.opcode_) = new OpcodesPOPAD(); result->opcode_ = (yyval.opcode_); }
 #line 3660 "parser.cc"
     break;
 
   case 268: /* Opcode: _KW_POPAW  */
 #line 721 "nask.y"
-              { (yyval.opcode_) = new OpcodesPOPAW(); }
+              { (yyval.opcode_) = new OpcodesPOPAW(); result->opcode_ = (yyval.opcode_); }
 #line 3666 "parser.cc"
     break;
 
   case 269: /* Opcode: _KW_POPF  */
 #line 722 "nask.y"
-             { (yyval.opcode_) = new OpcodesPOPF(); }
+             { (yyval.opcode_) = new OpcodesPOPF(); result->opcode_ = (yyval.opcode_); }
 #line 3672 "parser.cc"
     break;
 
   case 270: /* Opcode: _KW_POPFD  */
 #line 723 "nask.y"
-              { (yyval.opcode_) = new OpcodesPOPFD(); }
+              { (yyval.opcode_) = new OpcodesPOPFD(); result->opcode_ = (yyval.opcode_); }
 #line 3678 "parser.cc"
     break;
 
   case 271: /* Opcode: _KW_POPFW  */
 #line 724 "nask.y"
-              { (yyval.opcode_) = new OpcodesPOPFW(); }
+              { (yyval.opcode_) = new OpcodesPOPFW(); result->opcode_ = (yyval.opcode_); }
 #line 3684 "parser.cc"
     break;
 
   case 272: /* Opcode: _KW_PUSH  */
 #line 725 "nask.y"
-             { (yyval.opcode_) = new OpcodesPUSH(); }
+             { (yyval.opcode_) = new OpcodesPUSH(); result->opcode_ = (yyval.opcode_); }
 #line 3690 "parser.cc"
     break;
 
   case 273: /* Opcode: _KW_PUSHA  */
 #line 726 "nask.y"
-              { (yyval.opcode_) = new OpcodesPUSHA(); }
+              { (yyval.opcode_) = new OpcodesPUSHA(); result->opcode_ = (yyval.opcode_); }
 #line 3696 "parser.cc"
     break;
 
   case 274: /* Opcode: _KW_PUSHD  */
 #line 727 "nask.y"
-              { (yyval.opcode_) = new OpcodesPUSHD(); }
+              { (yyval.opcode_) = new OpcodesPUSHD(); result->opcode_ = (yyval.opcode_); }
 #line 3702 "parser.cc"
     break;
 
   case 275: /* Opcode: _KW_PUSHAD  */
 #line 728 "nask.y"
-               { (yyval.opcode_) = new OpcodesPUSHAD(); }
+               { (yyval.opcode_) = new OpcodesPUSHAD(); result->opcode_ = (yyval.opcode_); }
 #line 3708 "parser.cc"
     break;
 
   case 276: /* Opcode: _KW_PUSHAW  */
 #line 729 "nask.y"
-               { (yyval.opcode_) = new OpcodesPUSHAW(); }
+               { (yyval.opcode_) = new OpcodesPUSHAW(); result->opcode_ = (yyval.opcode_); }
 #line 3714 "parser.cc"
     break;
 
   case 277: /* Opcode: _KW_PUSHF  */
 #line 730 "nask.y"
-              { (yyval.opcode_) = new OpcodesPUSHF(); }
+              { (yyval.opcode_) = new OpcodesPUSHF(); result->opcode_ = (yyval.opcode_); }
 #line 3720 "parser.cc"
     break;
 
   case 278: /* Opcode: _KW_PUSHFD  */
 #line 731 "nask.y"
-               { (yyval.opcode_) = new OpcodesPUSHFD(); }
+               { (yyval.opcode_) = new OpcodesPUSHFD(); result->opcode_ = (yyval.opcode_); }
 #line 3726 "parser.cc"
     break;
 
   case 279: /* Opcode: _KW_PUSHFW  */
 #line 732 "nask.y"
-               { (yyval.opcode_) = new OpcodesPUSHFW(); }
+               { (yyval.opcode_) = new OpcodesPUSHFW(); result->opcode_ = (yyval.opcode_); }
 #line 3732 "parser.cc"
     break;
 
   case 280: /* Opcode: _KW_RCL  */
 #line 733 "nask.y"
-            { (yyval.opcode_) = new OpcodesRCL(); }
+            { (yyval.opcode_) = new OpcodesRCL(); result->opcode_ = (yyval.opcode_); }
 #line 3738 "parser.cc"
     break;
 
   case 281: /* Opcode: _KW_RCR  */
 #line 734 "nask.y"
-            { (yyval.opcode_) = new OpcodesRCR(); }
+            { (yyval.opcode_) = new OpcodesRCR(); result->opcode_ = (yyval.opcode_); }
 #line 3744 "parser.cc"
     break;
 
   case 282: /* Opcode: _KW_RDMSR  */
 #line 735 "nask.y"
-              { (yyval.opcode_) = new OpcodesRDMSR(); }
+              { (yyval.opcode_) = new OpcodesRDMSR(); result->opcode_ = (yyval.opcode_); }
 #line 3750 "parser.cc"
     break;
 
   case 283: /* Opcode: _KW_RDPMC  */
 #line 736 "nask.y"
-              { (yyval.opcode_) = new OpcodesRDPMC(); }
+              { (yyval.opcode_) = new OpcodesRDPMC(); result->opcode_ = (yyval.opcode_); }
 #line 3756 "parser.cc"
     break;
 
   case 284: /* Opcode: _KW_REP  */
 #line 737 "nask.y"
-            { (yyval.opcode_) = new OpcodesREP(); }
+            { (yyval.opcode_) = new OpcodesREP(); result->opcode_ = (yyval.opcode_); }
 #line 3762 "parser.cc"
     break;
 
   case 285: /* Opcode: _KW_REPE  */
 #line 738 "nask.y"
-             { (yyval.opcode_) = new OpcodesREPE(); }
+             { (yyval.opcode_) = new OpcodesREPE(); result->opcode_ = (yyval.opcode_); }
 #line 3768 "parser.cc"
     break;
 
   case 286: /* Opcode: _KW_REPNE  */
 #line 739 "nask.y"
-              { (yyval.opcode_) = new OpcodesREPNE(); }
+              { (yyval.opcode_) = new OpcodesREPNE(); result->opcode_ = (yyval.opcode_); }
 #line 3774 "parser.cc"
     break;
 
   case 287: /* Opcode: _KW_REPNZ  */
 #line 740 "nask.y"
-              { (yyval.opcode_) = new OpcodesREPNZ(); }
+              { (yyval.opcode_) = new OpcodesREPNZ(); result->opcode_ = (yyval.opcode_); }
 #line 3780 "parser.cc"
     break;
 
   case 288: /* Opcode: _KW_REPZ  */
 #line 741 "nask.y"
-             { (yyval.opcode_) = new OpcodesREPZ(); }
+             { (yyval.opcode_) = new OpcodesREPZ(); result->opcode_ = (yyval.opcode_); }
 #line 3786 "parser.cc"
     break;
 
   case 289: /* Opcode: _KW_RESB  */
 #line 742 "nask.y"
-             { (yyval.opcode_) = new OpcodesRESB(); }
+             { (yyval.opcode_) = new OpcodesRESB(); result->opcode_ = (yyval.opcode_); }
 #line 3792 "parser.cc"
     break;
 
   case 290: /* Opcode: _KW_RESD  */
 #line 743 "nask.y"
-             { (yyval.opcode_) = new OpcodesRESD(); }
+             { (yyval.opcode_) = new OpcodesRESD(); result->opcode_ = (yyval.opcode_); }
 #line 3798 "parser.cc"
     break;
 
   case 291: /* Opcode: _KW_RESQ  */
 #line 744 "nask.y"
-             { (yyval.opcode_) = new OpcodesRESQ(); }
+             { (yyval.opcode_) = new OpcodesRESQ(); result->opcode_ = (yyval.opcode_); }
 #line 3804 "parser.cc"
     break;
 
   case 292: /* Opcode: _KW_REST  */
 #line 745 "nask.y"
-             { (yyval.opcode_) = new OpcodesREST(); }
+             { (yyval.opcode_) = new OpcodesREST(); result->opcode_ = (yyval.opcode_); }
 #line 3810 "parser.cc"
     break;
 
   case 293: /* Opcode: _KW_RESW  */
 #line 746 "nask.y"
-             { (yyval.opcode_) = new OpcodesRESW(); }
+             { (yyval.opcode_) = new OpcodesRESW(); result->opcode_ = (yyval.opcode_); }
 #line 3816 "parser.cc"
     break;
 
   case 294: /* Opcode: _KW_RET  */
 #line 747 "nask.y"
-            { (yyval.opcode_) = new OpcodesRET(); }
+            { (yyval.opcode_) = new OpcodesRET(); result->opcode_ = (yyval.opcode_); }
 #line 3822 "parser.cc"
     break;
 
   case 295: /* Opcode: _KW_RETF  */
 #line 748 "nask.y"
-             { (yyval.opcode_) = new OpcodesRETF(); }
+             { (yyval.opcode_) = new OpcodesRETF(); result->opcode_ = (yyval.opcode_); }
 #line 3828 "parser.cc"
     break;
 
   case 296: /* Opcode: _KW_RETN  */
 #line 749 "nask.y"
-             { (yyval.opcode_) = new OpcodesRETN(); }
+             { (yyval.opcode_) = new OpcodesRETN(); result->opcode_ = (yyval.opcode_); }
 #line 3834 "parser.cc"
     break;
 
   case 297: /* Opcode: _KW_ROL  */
 #line 750 "nask.y"
-            { (yyval.opcode_) = new OpcodesROL(); }
+            { (yyval.opcode_) = new OpcodesROL(); result->opcode_ = (yyval.opcode_); }
 #line 3840 "parser.cc"
     break;
 
   case 298: /* Opcode: _KW_ROR  */
 #line 751 "nask.y"
-            { (yyval.opcode_) = new OpcodesROR(); }
+            { (yyval.opcode_) = new OpcodesROR(); result->opcode_ = (yyval.opcode_); }
 #line 3846 "parser.cc"
     break;
 
   case 299: /* Opcode: _KW_RSM  */
 #line 752 "nask.y"
-            { (yyval.opcode_) = new OpcodesRSM(); }
+            { (yyval.opcode_) = new OpcodesRSM(); result->opcode_ = (yyval.opcode_); }
 #line 3852 "parser.cc"
     break;
 
   case 300: /* Opcode: _KW_SAHF  */
 #line 753 "nask.y"
-             { (yyval.opcode_) = new OpcodesSAHF(); }
+             { (yyval.opcode_) = new OpcodesSAHF(); result->opcode_ = (yyval.opcode_); }
 #line 3858 "parser.cc"
     break;
 
   case 301: /* Opcode: _KW_SAL  */
 #line 754 "nask.y"
-            { (yyval.opcode_) = new OpcodesSAL(); }
+            { (yyval.opcode_) = new OpcodesSAL(); result->opcode_ = (yyval.opcode_); }
 #line 3864 "parser.cc"
     break;
 
   case 302: /* Opcode: _KW_SAR  */
 #line 755 "nask.y"
-            { (yyval.opcode_) = new OpcodesSAR(); }
+            { (yyval.opcode_) = new OpcodesSAR(); result->opcode_ = (yyval.opcode_); }
 #line 3870 "parser.cc"
     break;
 
   case 303: /* Opcode: _KW_SBB  */
 #line 756 "nask.y"
-            { (yyval.opcode_) = new OpcodesSBB(); }
+            { (yyval.opcode_) = new OpcodesSBB(); result->opcode_ = (yyval.opcode_); }
 #line 3876 "parser.cc"
     break;
 
   case 304: /* Opcode: _KW_SCASB  */
 #line 757 "nask.y"
-              { (yyval.opcode_) = new OpcodesSCASB(); }
+              { (yyval.opcode_) = new OpcodesSCASB(); result->opcode_ = (yyval.opcode_); }
 #line 3882 "parser.cc"
     break;
 
   case 305: /* Opcode: _KW_SCASD  */
 #line 758 "nask.y"
-              { (yyval.opcode_) = new OpcodesSCASD(); }
+              { (yyval.opcode_) = new OpcodesSCASD(); result->opcode_ = (yyval.opcode_); }
 #line 3888 "parser.cc"
     break;
 
   case 306: /* Opcode: _KW_SCASW  */
 #line 759 "nask.y"
-              { (yyval.opcode_) = new OpcodesSCASW(); }
+              { (yyval.opcode_) = new OpcodesSCASW(); result->opcode_ = (yyval.opcode_); }
 #line 3894 "parser.cc"
     break;
 
   case 307: /* Opcode: _KW_SETA  */
 #line 760 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETA(); }
+             { (yyval.opcode_) = new OpcodesSETA(); result->opcode_ = (yyval.opcode_); }
 #line 3900 "parser.cc"
     break;
 
   case 308: /* Opcode: _KW_SETAE  */
 #line 761 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETAE(); }
+              { (yyval.opcode_) = new OpcodesSETAE(); result->opcode_ = (yyval.opcode_); }
 #line 3906 "parser.cc"
     break;
 
   case 309: /* Opcode: _KW_SETB  */
 #line 762 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETB(); }
+             { (yyval.opcode_) = new OpcodesSETB(); result->opcode_ = (yyval.opcode_); }
 #line 3912 "parser.cc"
     break;
 
   case 310: /* Opcode: _KW_SETBE  */
 #line 763 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETBE(); }
+              { (yyval.opcode_) = new OpcodesSETBE(); result->opcode_ = (yyval.opcode_); }
 #line 3918 "parser.cc"
     break;
 
   case 311: /* Opcode: _KW_SETC  */
 #line 764 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETC(); }
+             { (yyval.opcode_) = new OpcodesSETC(); result->opcode_ = (yyval.opcode_); }
 #line 3924 "parser.cc"
     break;
 
   case 312: /* Opcode: _KW_SETE  */
 #line 765 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETE(); }
+             { (yyval.opcode_) = new OpcodesSETE(); result->opcode_ = (yyval.opcode_); }
 #line 3930 "parser.cc"
     break;
 
   case 313: /* Opcode: _KW_SETG  */
 #line 766 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETG(); }
+             { (yyval.opcode_) = new OpcodesSETG(); result->opcode_ = (yyval.opcode_); }
 #line 3936 "parser.cc"
     break;
 
   case 314: /* Opcode: _KW_SETGE  */
 #line 767 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETGE(); }
+              { (yyval.opcode_) = new OpcodesSETGE(); result->opcode_ = (yyval.opcode_); }
 #line 3942 "parser.cc"
     break;
 
   case 315: /* Opcode: _KW_SETL  */
 #line 768 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETL(); }
+             { (yyval.opcode_) = new OpcodesSETL(); result->opcode_ = (yyval.opcode_); }
 #line 3948 "parser.cc"
     break;
 
   case 316: /* Opcode: _KW_SETLE  */
 #line 769 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETLE(); }
+              { (yyval.opcode_) = new OpcodesSETLE(); result->opcode_ = (yyval.opcode_); }
 #line 3954 "parser.cc"
     break;
 
   case 317: /* Opcode: _KW_SETNA  */
 #line 770 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNA(); }
+              { (yyval.opcode_) = new OpcodesSETNA(); result->opcode_ = (yyval.opcode_); }
 #line 3960 "parser.cc"
     break;
 
   case 318: /* Opcode: _KW_SETNAE  */
 #line 771 "nask.y"
-               { (yyval.opcode_) = new OpcodesSETNAE(); }
+               { (yyval.opcode_) = new OpcodesSETNAE(); result->opcode_ = (yyval.opcode_); }
 #line 3966 "parser.cc"
     break;
 
   case 319: /* Opcode: _KW_SETNB  */
 #line 772 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNB(); }
+              { (yyval.opcode_) = new OpcodesSETNB(); result->opcode_ = (yyval.opcode_); }
 #line 3972 "parser.cc"
     break;
 
   case 320: /* Opcode: _KW_SETNBE  */
 #line 773 "nask.y"
-               { (yyval.opcode_) = new OpcodesSETNBE(); }
+               { (yyval.opcode_) = new OpcodesSETNBE(); result->opcode_ = (yyval.opcode_); }
 #line 3978 "parser.cc"
     break;
 
   case 321: /* Opcode: _KW_SETNC  */
 #line 774 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNC(); }
+              { (yyval.opcode_) = new OpcodesSETNC(); result->opcode_ = (yyval.opcode_); }
 #line 3984 "parser.cc"
     break;
 
   case 322: /* Opcode: _KW_SETNE  */
 #line 775 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNE(); }
+              { (yyval.opcode_) = new OpcodesSETNE(); result->opcode_ = (yyval.opcode_); }
 #line 3990 "parser.cc"
     break;
 
   case 323: /* Opcode: _KW_SETNG  */
 #line 776 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNG(); }
+              { (yyval.opcode_) = new OpcodesSETNG(); result->opcode_ = (yyval.opcode_); }
 #line 3996 "parser.cc"
     break;
 
   case 324: /* Opcode: _KW_SETNGE  */
 #line 777 "nask.y"
-               { (yyval.opcode_) = new OpcodesSETNGE(); }
+               { (yyval.opcode_) = new OpcodesSETNGE(); result->opcode_ = (yyval.opcode_); }
 #line 4002 "parser.cc"
     break;
 
   case 325: /* Opcode: _KW_SETNL  */
 #line 778 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNL(); }
+              { (yyval.opcode_) = new OpcodesSETNL(); result->opcode_ = (yyval.opcode_); }
 #line 4008 "parser.cc"
     break;
 
   case 326: /* Opcode: _KW_SETNLE  */
 #line 779 "nask.y"
-               { (yyval.opcode_) = new OpcodesSETNLE(); }
+               { (yyval.opcode_) = new OpcodesSETNLE(); result->opcode_ = (yyval.opcode_); }
 #line 4014 "parser.cc"
     break;
 
   case 327: /* Opcode: _KW_SETNO  */
 #line 780 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNO(); }
+              { (yyval.opcode_) = new OpcodesSETNO(); result->opcode_ = (yyval.opcode_); }
 #line 4020 "parser.cc"
     break;
 
   case 328: /* Opcode: _KW_SETNP  */
 #line 781 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNP(); }
+              { (yyval.opcode_) = new OpcodesSETNP(); result->opcode_ = (yyval.opcode_); }
 #line 4026 "parser.cc"
     break;
 
   case 329: /* Opcode: _KW_SETNS  */
 #line 782 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNS(); }
+              { (yyval.opcode_) = new OpcodesSETNS(); result->opcode_ = (yyval.opcode_); }
 #line 4032 "parser.cc"
     break;
 
   case 330: /* Opcode: _KW_SETNZ  */
 #line 783 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETNZ(); }
+              { (yyval.opcode_) = new OpcodesSETNZ(); result->opcode_ = (yyval.opcode_); }
 #line 4038 "parser.cc"
     break;
 
   case 331: /* Opcode: _KW_SETO  */
 #line 784 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETO(); }
+             { (yyval.opcode_) = new OpcodesSETO(); result->opcode_ = (yyval.opcode_); }
 #line 4044 "parser.cc"
     break;
 
   case 332: /* Opcode: _KW_SETP  */
 #line 785 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETP(); }
+             { (yyval.opcode_) = new OpcodesSETP(); result->opcode_ = (yyval.opcode_); }
 #line 4050 "parser.cc"
     break;
 
   case 333: /* Opcode: _KW_SETPE  */
 #line 786 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETPE(); }
+              { (yyval.opcode_) = new OpcodesSETPE(); result->opcode_ = (yyval.opcode_); }
 #line 4056 "parser.cc"
     break;
 
   case 334: /* Opcode: _KW_SETPO  */
 #line 787 "nask.y"
-              { (yyval.opcode_) = new OpcodesSETPO(); }
+              { (yyval.opcode_) = new OpcodesSETPO(); result->opcode_ = (yyval.opcode_); }
 #line 4062 "parser.cc"
     break;
 
   case 335: /* Opcode: _KW_SETS  */
 #line 788 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETS(); }
+             { (yyval.opcode_) = new OpcodesSETS(); result->opcode_ = (yyval.opcode_); }
 #line 4068 "parser.cc"
     break;
 
   case 336: /* Opcode: _KW_SETZ  */
 #line 789 "nask.y"
-             { (yyval.opcode_) = new OpcodesSETZ(); }
+             { (yyval.opcode_) = new OpcodesSETZ(); result->opcode_ = (yyval.opcode_); }
 #line 4074 "parser.cc"
     break;
 
   case 337: /* Opcode: _KW_SGDT  */
 #line 790 "nask.y"
-             { (yyval.opcode_) = new OpcodesSGDT(); }
+             { (yyval.opcode_) = new OpcodesSGDT(); result->opcode_ = (yyval.opcode_); }
 #line 4080 "parser.cc"
     break;
 
   case 338: /* Opcode: _KW_SHL  */
 #line 791 "nask.y"
-            { (yyval.opcode_) = new OpcodesSHL(); }
+            { (yyval.opcode_) = new OpcodesSHL(); result->opcode_ = (yyval.opcode_); }
 #line 4086 "parser.cc"
     break;
 
   case 339: /* Opcode: _KW_SHLD  */
 #line 792 "nask.y"
-             { (yyval.opcode_) = new OpcodesSHLD(); }
+             { (yyval.opcode_) = new OpcodesSHLD(); result->opcode_ = (yyval.opcode_); }
 #line 4092 "parser.cc"
     break;
 
   case 340: /* Opcode: _KW_SHR  */
 #line 793 "nask.y"
-            { (yyval.opcode_) = new OpcodesSHR(); }
+            { (yyval.opcode_) = new OpcodesSHR(); result->opcode_ = (yyval.opcode_); }
 #line 4098 "parser.cc"
     break;
 
   case 341: /* Opcode: _KW_SHRD  */
 #line 794 "nask.y"
-             { (yyval.opcode_) = new OpcodesSHRD(); }
+             { (yyval.opcode_) = new OpcodesSHRD(); result->opcode_ = (yyval.opcode_); }
 #line 4104 "parser.cc"
     break;
 
   case 342: /* Opcode: _KW_SIDT  */
 #line 795 "nask.y"
-             { (yyval.opcode_) = new OpcodesSIDT(); }
+             { (yyval.opcode_) = new OpcodesSIDT(); result->opcode_ = (yyval.opcode_); }
 #line 4110 "parser.cc"
     break;
 
   case 343: /* Opcode: _KW_SLDT  */
 #line 796 "nask.y"
-             { (yyval.opcode_) = new OpcodesSLDT(); }
+             { (yyval.opcode_) = new OpcodesSLDT(); result->opcode_ = (yyval.opcode_); }
 #line 4116 "parser.cc"
     break;
 
   case 344: /* Opcode: _KW_SMSW  */
 #line 797 "nask.y"
-             { (yyval.opcode_) = new OpcodesSMSW(); }
+             { (yyval.opcode_) = new OpcodesSMSW(); result->opcode_ = (yyval.opcode_); }
 #line 4122 "parser.cc"
     break;
 
   case 345: /* Opcode: _KW_STC  */
 #line 798 "nask.y"
-            { (yyval.opcode_) = new OpcodesSTC(); }
+            { (yyval.opcode_) = new OpcodesSTC(); result->opcode_ = (yyval.opcode_); }
 #line 4128 "parser.cc"
     break;
 
   case 346: /* Opcode: _KW_STD  */
 #line 799 "nask.y"
-            { (yyval.opcode_) = new OpcodesSTD(); }
+            { (yyval.opcode_) = new OpcodesSTD(); result->opcode_ = (yyval.opcode_); }
 #line 4134 "parser.cc"
     break;
 
   case 347: /* Opcode: _KW_STI  */
 #line 800 "nask.y"
-            { (yyval.opcode_) = new OpcodesSTI(); }
+            { (yyval.opcode_) = new OpcodesSTI(); result->opcode_ = (yyval.opcode_); }
 #line 4140 "parser.cc"
     break;
 
   case 348: /* Opcode: _KW_STOSB  */
 #line 801 "nask.y"
-              { (yyval.opcode_) = new OpcodesSTOSB(); }
+              { (yyval.opcode_) = new OpcodesSTOSB(); result->opcode_ = (yyval.opcode_); }
 #line 4146 "parser.cc"
     break;
 
   case 349: /* Opcode: _KW_STOSD  */
 #line 802 "nask.y"
-              { (yyval.opcode_) = new OpcodesSTOSD(); }
+              { (yyval.opcode_) = new OpcodesSTOSD(); result->opcode_ = (yyval.opcode_); }
 #line 4152 "parser.cc"
     break;
 
   case 350: /* Opcode: _KW_STOSW  */
 #line 803 "nask.y"
-              { (yyval.opcode_) = new OpcodesSTOSW(); }
+              { (yyval.opcode_) = new OpcodesSTOSW(); result->opcode_ = (yyval.opcode_); }
 #line 4158 "parser.cc"
     break;
 
   case 351: /* Opcode: _KW_STR  */
 #line 804 "nask.y"
-            { (yyval.opcode_) = new OpcodesSTR(); }
+            { (yyval.opcode_) = new OpcodesSTR(); result->opcode_ = (yyval.opcode_); }
 #line 4164 "parser.cc"
     break;
 
   case 352: /* Opcode: _KW_SUB  */
 #line 805 "nask.y"
-            { (yyval.opcode_) = new OpcodesSUB(); }
+            { (yyval.opcode_) = new OpcodesSUB(); result->opcode_ = (yyval.opcode_); }
 #line 4170 "parser.cc"
     break;
 
   case 353: /* Opcode: _KW_TEST  */
 #line 806 "nask.y"
-             { (yyval.opcode_) = new OpcodesTEST(); }
+             { (yyval.opcode_) = new OpcodesTEST(); result->opcode_ = (yyval.opcode_); }
 #line 4176 "parser.cc"
     break;
 
   case 354: /* Opcode: _KW_TIMES  */
 #line 807 "nask.y"
-              { (yyval.opcode_) = new OpcodesTIMES(); }
+              { (yyval.opcode_) = new OpcodesTIMES(); result->opcode_ = (yyval.opcode_); }
 #line 4182 "parser.cc"
     break;
 
   case 355: /* Opcode: _KW_UD2  */
 #line 808 "nask.y"
-            { (yyval.opcode_) = new OpcodesUD2(); }
+            { (yyval.opcode_) = new OpcodesUD2(); result->opcode_ = (yyval.opcode_); }
 #line 4188 "parser.cc"
     break;
 
   case 356: /* Opcode: _KW_VERR  */
 #line 809 "nask.y"
-             { (yyval.opcode_) = new OpcodesVERR(); }
+             { (yyval.opcode_) = new OpcodesVERR(); result->opcode_ = (yyval.opcode_); }
 #line 4194 "parser.cc"
     break;
 
   case 357: /* Opcode: _KW_VERW  */
 #line 810 "nask.y"
-             { (yyval.opcode_) = new OpcodesVERW(); }
+             { (yyval.opcode_) = new OpcodesVERW(); result->opcode_ = (yyval.opcode_); }
 #line 4200 "parser.cc"
     break;
 
   case 358: /* Opcode: _KW_WAIT  */
 #line 811 "nask.y"
-             { (yyval.opcode_) = new OpcodesWAIT(); }
+             { (yyval.opcode_) = new OpcodesWAIT(); result->opcode_ = (yyval.opcode_); }
 #line 4206 "parser.cc"
     break;
 
   case 359: /* Opcode: _KW_WBINVD  */
 #line 812 "nask.y"
-               { (yyval.opcode_) = new OpcodesWBINVD(); }
+               { (yyval.opcode_) = new OpcodesWBINVD(); result->opcode_ = (yyval.opcode_); }
 #line 4212 "parser.cc"
     break;
 
   case 360: /* Opcode: _KW_WRMSR  */
 #line 813 "nask.y"
-              { (yyval.opcode_) = new OpcodesWRMSR(); }
+              { (yyval.opcode_) = new OpcodesWRMSR(); result->opcode_ = (yyval.opcode_); }
 #line 4218 "parser.cc"
     break;
 
   case 361: /* Opcode: _KW_XADD  */
 #line 814 "nask.y"
-             { (yyval.opcode_) = new OpcodesXADD(); }
+             { (yyval.opcode_) = new OpcodesXADD(); result->opcode_ = (yyval.opcode_); }
 #line 4224 "parser.cc"
     break;
 
   case 362: /* Opcode: _KW_XCHG  */
 #line 815 "nask.y"
-             { (yyval.opcode_) = new OpcodesXCHG(); }
+             { (yyval.opcode_) = new OpcodesXCHG(); result->opcode_ = (yyval.opcode_); }
 #line 4230 "parser.cc"
     break;
 
   case 363: /* Opcode: _KW_XLATB  */
 #line 816 "nask.y"
-              { (yyval.opcode_) = new OpcodesXLATB(); }
+              { (yyval.opcode_) = new OpcodesXLATB(); result->opcode_ = (yyval.opcode_); }
 #line 4236 "parser.cc"
     break;
 
   case 364: /* Opcode: _KW_XOR  */
 #line 817 "nask.y"
-            { (yyval.opcode_) = new OpcodesXOR(); }
+            { (yyval.opcode_) = new OpcodesXOR(); result->opcode_ = (yyval.opcode_); }
 #line 4242 "parser.cc"
     break;
 
@@ -4486,6 +4486,406 @@ Program* psProgram(const char *str)
   else
   { /* Success */
     return result.program_;
+  }
+}
+
+/* Entrypoint: parse ListStatement* from file. */
+ListStatement* pListStatement(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+std::reverse(result.liststatement_->begin(), result.liststatement_->end());
+    return result.liststatement_;
+  }
+}
+
+/* Entrypoint: parse ListStatement* from string. */
+ListStatement* psListStatement(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+std::reverse(result.liststatement_->begin(), result.liststatement_->end());
+    return result.liststatement_;
+  }
+}
+
+/* Entrypoint: parse Statement* from file. */
+Statement* pStatement(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.statement_;
+  }
+}
+
+/* Entrypoint: parse Statement* from string. */
+Statement* psStatement(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.statement_;
+  }
+}
+
+/* Entrypoint: parse ListMnemonicArgs* from file. */
+ListMnemonicArgs* pListMnemonicArgs(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+std::reverse(result.listmnemonicargs_->begin(), result.listmnemonicargs_->end());
+    return result.listmnemonicargs_;
+  }
+}
+
+/* Entrypoint: parse ListMnemonicArgs* from string. */
+ListMnemonicArgs* psListMnemonicArgs(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+std::reverse(result.listmnemonicargs_->begin(), result.listmnemonicargs_->end());
+    return result.listmnemonicargs_;
+  }
+}
+
+/* Entrypoint: parse MnemonicArgs* from file. */
+MnemonicArgs* pMnemonicArgs(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.mnemonicargs_;
+  }
+}
+
+/* Entrypoint: parse MnemonicArgs* from string. */
+MnemonicArgs* psMnemonicArgs(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.mnemonicargs_;
+  }
+}
+
+/* Entrypoint: parse Exp* from file. */
+Exp* pExp(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.exp_;
+  }
+}
+
+/* Entrypoint: parse Exp* from string. */
+Exp* psExp(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.exp_;
+  }
+}
+
+/* Entrypoint: parse Factor* from file. */
+Factor* pFactor(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.factor_;
+  }
+}
+
+/* Entrypoint: parse Factor* from string. */
+Factor* psFactor(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.factor_;
+  }
+}
+
+/* Entrypoint: parse ConfigType* from file. */
+ConfigType* pConfigType(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.configtype_;
+  }
+}
+
+/* Entrypoint: parse ConfigType* from string. */
+ConfigType* psConfigType(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.configtype_;
+  }
+}
+
+/* Entrypoint: parse DataType* from file. */
+DataType* pDataType(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.datatype_;
+  }
+}
+
+/* Entrypoint: parse DataType* from string. */
+DataType* psDataType(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.datatype_;
+  }
+}
+
+/* Entrypoint: parse Opcode* from file. */
+Opcode* pOpcode(FILE *inp)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(inp);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  int error = yyparse(scanner, &result);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.opcode_;
+  }
+}
+
+/* Entrypoint: parse Opcode* from string. */
+Opcode* psOpcode(const char *str)
+{
+  YYSTYPE result;
+  yyscan_t scanner = nask__initialize_lexer(0);
+  if (!scanner) {
+    fprintf(stderr, "Failed to initialize lexer.\n");
+    return 0;
+  }
+  YY_BUFFER_STATE buf = nask__scan_string(str, scanner);
+  int error = yyparse(scanner, &result);
+  nask__delete_buffer(buf, scanner);
+  nask_lex_destroy(scanner);
+  if (error)
+  { /* Failure */
+    return 0;
+  }
+  else
+  { /* Success */
+    return result.opcode_;
   }
 }
 

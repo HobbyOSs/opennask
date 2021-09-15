@@ -23,6 +23,10 @@ set(nask_parse_SRCS
   nask_parse.cpp
   driver.cc
   driver.hh
+  para_token.cc
+  para_token.hh
+  demangle.hpp
+  demangle.cpp
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc
@@ -32,7 +36,9 @@ set(nask_parse_SRCS
   bnfc/parser.hh
   bnfc/printer.cc
   bnfc/printer.hh
-  bnfc/parsererror.hh)
+  bnfc/parsererror.hh
+  bnfc/skeleton.cc
+  bnfc/skeleton.hh)
 
 if (WIN32)
   LIST(APPEND nask_parse_SRCS getopt.h getopt.c)
@@ -45,7 +51,7 @@ target_include_directories(nask_parse
   PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
 set_property(TARGET nask_parse
-  PROPERTY CXX_STANDARD 14)
+  PROPERTY CXX_STANDARD 17)
 
 ########### next target ###############
 
