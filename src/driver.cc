@@ -25,8 +25,6 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 // 以下、抽象クラスの実装(内部で動的に分岐)
 void Driver::visitProgram(Program *t) {
 
-    // std::visitを使いたいが、難しいのでdynamic_castで
-    // https://en.cppreference.com/w/cpp/utility/variant/visit
     if (dynamic_cast<Prog*>(t) != nullptr) {
         this->visitProg(dynamic_cast<Prog*>(t));
     }
@@ -390,9 +388,6 @@ void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
 
     for (ListMnemonicArgs::iterator i = list_mnemonic_args->begin() ; i != list_mnemonic_args->end() ; ++i) {
         (*i)->accept(this);
-
-        TParaToken t = this->ctx.top();
-        this->ctx.push(t);
     }
 }
 

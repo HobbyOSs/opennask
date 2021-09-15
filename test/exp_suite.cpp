@@ -142,12 +142,12 @@ TEST(exp_suite, testMnemoArgs)
         mnemoArgs.push_back(mnemoArg2.clone());
 
         d->visitListMnemonicArgs(&mnemoArgs);
-        //auto actual = d->ctx.top();
+        CHECK_EQUAL(2, d->ctx.size());
 
-        //CHECK_EQUAL(2, d->ctx.size());
-        //CHECK_EQUAL(12, std::any_cast<int>(actual[0]));
-        //CHECK_EQUAL(13, std::any_cast<int>(actual[1]));
-        //d->ctx.pop();
+        CHECK_EQUAL(13, d->ctx.top().AsInt());
+        d->ctx.pop();
+        CHECK_EQUAL(12, d->ctx.top().AsInt());
+        d->ctx.pop();
     }
 }
 
