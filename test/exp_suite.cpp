@@ -24,10 +24,10 @@ TEST(exp_suite, testToken)
     CHECK_EQUAL(30, d->ctx.top().AsInt());
     d->ctx.pop();
 
-    //d->visitChar('H');
-    //std::cout << d->ctx.top().AsString() << std::endl;
-    //CHECK_EQUAL('H', (char) d->ctx.top().AsString().at(0));
-    //d->ctx.pop();
+    d->visitChar('H');
+    std::cout << d->ctx.top().AsString() << std::endl;
+    CHECK_EQUAL("H", d->ctx.top().AsString());
+    d->ctx.pop();
 
     d->visitDouble(3.14);
     CHECK_EQUAL(3.14, d->ctx.top().AsDouble());
@@ -108,15 +108,39 @@ TEST(exp_suite, testImmExp)
 TEST(exp_suite, testArithmeticOperations)
 {
     std::unique_ptr<Driver> d(new Driver(false, false));
-    {
-        auto numberFactor1 = NumberFactor(7);
-        auto numberFactor2 = NumberFactor(3);
-        auto immExp1 = ImmExp(numberFactor1.clone());
-        auto immExp2 = ImmExp(numberFactor2.clone());
-        auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
+    auto numberFactor1 = NumberFactor(7);
+    auto numberFactor2 = NumberFactor(3);
+    auto immExp1 = ImmExp(numberFactor1.clone());
+    auto immExp2 = ImmExp(numberFactor2.clone());
 
+    {
+        auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
         d->visitPlusExp(&plusExp);
         CHECK_EQUAL(10, d->ctx.top().AsInt());
+        d->ctx.pop();
+    }
+    {
+        auto minusExp = MinusExp(immExp1.clone(), immExp2.clone());
+        d->visitMinusExp(&minusExp);
+        CHECK_EQUAL(4, d->ctx.top().AsInt());
+        d->ctx.pop();
+    }
+    {
+        auto mulExp = MulExp(immExp1.clone(), immExp2.clone());
+        d->visitMulExp(&mulExp);
+        CHECK_EQUAL(21, d->ctx.top().AsInt());
+        d->ctx.pop();
+    }
+    {
+        auto divExp = DivExp(immExp1.clone(), immExp2.clone());
+        d->visitDivExp(&divExp);
+        CHECK_EQUAL(2, d->ctx.top().AsInt());
+        d->ctx.pop();
+    }
+    {
+        auto modExp = ModExp(immExp1.clone(), immExp2.clone());
+        d->visitModExp(&modExp);
+        CHECK_EQUAL(1, d->ctx.top().AsInt());
         d->ctx.pop();
     }
 }

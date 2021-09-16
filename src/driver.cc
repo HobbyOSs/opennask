@@ -400,25 +400,62 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
-void Driver::visitPlusExp(PlusExp *plus_exp) {
-    if (plus_exp->exp_1) {
-        plus_exp->exp_1->accept(this);
-    }
+void Driver::visitPlusExp(PlusExp *p) {
+    visitArithmeticOperations(p);
+}
+void Driver::visitMinusExp(MinusExp *p) {
+    visitArithmeticOperations(p);
+}
+void Driver::visitMulExp(MulExp *p) {
+    visitArithmeticOperations(p);
+}
+void Driver::visitDivExp(DivExp *p) {
+    visitArithmeticOperations(p);
+}
+void Driver::visitModExp(ModExp *p) {
+    visitArithmeticOperations(p);
+}
 
+template void Driver::visitArithmeticOperations<PlusExp>(PlusExp *p);
+template void Driver::visitArithmeticOperations<MinusExp>(MinusExp *p);
+template void Driver::visitArithmeticOperations<MulExp>(MulExp *p);
+template void Driver::visitArithmeticOperations<DivExp>(DivExp *p);
+template void Driver::visitArithmeticOperations<ModExp>(ModExp *p);
+
+
+template <class T>
+void Driver::visitArithmeticOperations(T *exp) {
+
+    if (exp->exp_1) {
+        exp->exp_1->accept(this);
+    }
     TParaToken left = this->ctx.top();
     left.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
-    if (plus_exp->exp_2) {
-        plus_exp->exp_2->accept(this);
+    if (exp->exp_2) {
+        exp->exp_2->accept(this);
     }
-
     TParaToken right = this->ctx.top();
     right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
-    long sum = left.AsLong() + right.AsLong();
-    TParaToken t = TParaToken(std::to_string(sum), TParaToken::ttInteger);
+    long ans = 0;
+    if constexpr (std::is_same_v<T, PlusExp>) {
+        ans = left.AsLong() + right.AsLong();
+    } else if constexpr (std::is_same_v<T, MinusExp>) {
+        ans = left.AsLong() - right.AsLong();
+    } else if constexpr (std::is_same_v<T, MulExp>) {
+        ans = left.AsLong() * right.AsLong();
+    } else if constexpr (std::is_same_v<T, DivExp>) {
+        ans = left.AsLong() / right.AsLong();
+    } else if constexpr (std::is_same_v<T, ModExp>) {
+        ans = left.AsLong() % right.AsLong();
+    } else {
+        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
+    }
+
+    TParaToken t = TParaToken(std::to_string(ans), TParaToken::ttInteger);
     this->ctx.push(t);
 }
 
@@ -466,7 +503,8 @@ void Driver::visitInteger(Integer x) {
 }
 
 void Driver::visitChar(Char x) {
-    TParaToken t = TParaToken(std::to_string(x), TParaToken::ttIdentifier);
+    std::string str{x};
+    TParaToken t = TParaToken(str, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }
 
