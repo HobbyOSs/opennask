@@ -23,12 +23,6 @@ OpcodeStmt.     Statement      ::= Opcode ;
 MnemoArg.       MnemonicArgs   ::= Exp ;
 
 
-EqExp.                   Exp   ::= Exp "==" Exp ;
-NeqExp.                  Exp   ::= Exp "!=" Exp ;
-LtExp.                   Exp   ::= Exp "<"  Exp ;
-GtExp.                   Exp   ::= Exp ">"  Exp ;
-LteExp.                  Exp   ::= Exp "<=" Exp ;
-GteExp.                  Exp   ::= Exp ">=" Exp ;
 PlusExp.                 Exp   ::= Exp "+" Exp ;
 MinusExp.                Exp   ::= Exp "-" Exp ;
 MulExp.                  Exp   ::= Exp "*" Exp ;

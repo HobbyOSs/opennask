@@ -74,7 +74,6 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %}
 
 %token          _ERROR_
-%token          _BANGEQ       /* != */
 %token          _PERCENT      /* % */
 %token          _STAR         /* * */
 %token          _PLUS         /* + */
@@ -82,11 +81,6 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _MINUS        /* - */
 %token          _SLASH        /* / */
 %token          _COLON        /* : */
-%token          _LT           /* < */
-%token          _LDARROW      /* <= */
-%token          _DEQ          /* == */
-%token          _GT           /* > */
-%token          _GTEQ         /* >= */
 %token          _KW_AAA       /* AAA */
 %token          _KW_AAD       /* AAD */
 %token          _KW_AAM       /* AAM */
@@ -459,13 +453,7 @@ ListMnemonicArgs : MnemonicArgs { $$ = new ListMnemonicArgs(); $$->push_back($1)
 ;
 MnemonicArgs : Exp { $$ = new MnemoArg($1); result->mnemonicargs_ = $$; }
 ;
-Exp : Exp _DEQ Exp { $$ = new EqExp($1, $3); result->exp_ = $$; }
-  | Exp _BANGEQ Exp { $$ = new NeqExp($1, $3); result->exp_ = $$; }
-  | Exp _LT Exp { $$ = new LtExp($1, $3); result->exp_ = $$; }
-  | Exp _GT Exp { $$ = new GtExp($1, $3); result->exp_ = $$; }
-  | Exp _LDARROW Exp { $$ = new LteExp($1, $3); result->exp_ = $$; }
-  | Exp _GTEQ Exp { $$ = new GteExp($1, $3); result->exp_ = $$; }
-  | Exp _PLUS Exp { $$ = new PlusExp($1, $3); result->exp_ = $$; }
+Exp : Exp _PLUS Exp { $$ = new PlusExp($1, $3); result->exp_ = $$; }
   | Exp _MINUS Exp { $$ = new MinusExp($1, $3); result->exp_ = $$; }
   | Exp _STAR Exp { $$ = new MulExp($1, $3); result->exp_ = $$; }
   | Exp _SLASH Exp { $$ = new DivExp($1, $3); result->exp_ = $$; }

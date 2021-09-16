@@ -106,6 +106,12 @@ public:
     // expression
     void visitImmExp(ImmExp *p) override;
     void visitPlusExp(PlusExp *p) override;
+    void visitMinusExp(MinusExp *p) override;
+    void visitMulExp(MulExp *p) override;
+    void visitDivExp(DivExp *p) override;
+    void visitModExp(ModExp *p) override;
+    template <class T>
+    void visitArithmeticOperations(T *t);
 
     // factor
     void visitNumberFactor(NumberFactor *p) override;

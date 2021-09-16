@@ -69,12 +69,6 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"["      	 return _LBRACK;
 <INITIAL>"]"      	 return _RBRACK;
 <INITIAL>","      	 return _COMMA;
-<INITIAL>"=="      	 return _DEQ;
-<INITIAL>"!="      	 return _BANGEQ;
-<INITIAL>"<"      	 return _LT;
-<INITIAL>">"      	 return _GT;
-<INITIAL>"<="      	 return _LDARROW;
-<INITIAL>">="      	 return _GTEQ;
 <INITIAL>"+"      	 return _PLUS;
 <INITIAL>"-"      	 return _MINUS;
 <INITIAL>"*"      	 return _STAR;

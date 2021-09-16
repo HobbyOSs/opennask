@@ -23,12 +23,6 @@ public:
   void visitMnemonicStmt(MnemonicStmt *p);
   void visitOpcodeStmt(OpcodeStmt *p);
   void visitMnemoArg(MnemoArg *p);
-  void visitEqExp(EqExp *p);
-  void visitNeqExp(NeqExp *p);
-  void visitLtExp(LtExp *p);
-  void visitGtExp(GtExp *p);
-  void visitLteExp(LteExp *p);
-  void visitGteExp(GteExp *p);
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
   void visitMulExp(MulExp *p);
