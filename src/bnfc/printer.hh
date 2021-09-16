@@ -47,12 +47,6 @@ class PrintAbsyn : public Visitor
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
   void visitMnemoArg(MnemoArg *p);
   void visitExp(Exp *p); /* abstract class */
-  void visitEqExp(EqExp *p);
-  void visitNeqExp(NeqExp *p);
-  void visitLtExp(LtExp *p);
-  void visitGtExp(GtExp *p);
-  void visitLteExp(LteExp *p);
-  void visitGteExp(GteExp *p);
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
   void visitMulExp(MulExp *p);
@@ -497,12 +491,6 @@ class ShowAbsyn : public Visitor
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
   void visitMnemoArg(MnemoArg *p);
   void visitExp(Exp *p); /* abstract class */
-  void visitEqExp(EqExp *p);
-  void visitNeqExp(NeqExp *p);
-  void visitLtExp(LtExp *p);
-  void visitGtExp(GtExp *p);
-  void visitLteExp(LteExp *p);
-  void visitGteExp(GteExp *p);
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
   void visitMulExp(MulExp *p);

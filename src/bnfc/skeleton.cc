@@ -76,60 +76,6 @@ void Skeleton::visitMnemoArg(MnemoArg *mnemo_arg)
 
 }
 
-void Skeleton::visitEqExp(EqExp *eq_exp)
-{
-  /* Code For EqExp Goes Here */
-
-  if (eq_exp->exp_1) eq_exp->exp_1->accept(this);
-  if (eq_exp->exp_2) eq_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitNeqExp(NeqExp *neq_exp)
-{
-  /* Code For NeqExp Goes Here */
-
-  if (neq_exp->exp_1) neq_exp->exp_1->accept(this);
-  if (neq_exp->exp_2) neq_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitLtExp(LtExp *lt_exp)
-{
-  /* Code For LtExp Goes Here */
-
-  if (lt_exp->exp_1) lt_exp->exp_1->accept(this);
-  if (lt_exp->exp_2) lt_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitGtExp(GtExp *gt_exp)
-{
-  /* Code For GtExp Goes Here */
-
-  if (gt_exp->exp_1) gt_exp->exp_1->accept(this);
-  if (gt_exp->exp_2) gt_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitLteExp(LteExp *lte_exp)
-{
-  /* Code For LteExp Goes Here */
-
-  if (lte_exp->exp_1) lte_exp->exp_1->accept(this);
-  if (lte_exp->exp_2) lte_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitGteExp(GteExp *gte_exp)
-{
-  /* Code For GteExp Goes Here */
-
-  if (gte_exp->exp_1) gte_exp->exp_1->accept(this);
-  if (gte_exp->exp_2) gte_exp->exp_2->accept(this);
-
-}
-
 void Skeleton::visitPlusExp(PlusExp *plus_exp)
 {
   /* Code For PlusExp Goes Here */

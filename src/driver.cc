@@ -54,19 +54,7 @@ void Driver::visitMnemonicArgs(MnemonicArgs *t) {
 
 void Driver::visitExp(Exp *t) {
 
-    if (dynamic_cast<EqExp*>(t) != nullptr) {
-        this->visitEqExp(dynamic_cast<EqExp*>(t));
-    } else if (dynamic_cast<NeqExp*>(t) != nullptr) {
-        this->visitNeqExp(dynamic_cast<NeqExp*>(t));
-    } else if (dynamic_cast<LtExp*>(t) != nullptr) {
-        this->visitLtExp(dynamic_cast<LtExp*>(t));
-    } else if (dynamic_cast<GtExp*>(t) != nullptr) {
-        this->visitGtExp(dynamic_cast<GtExp*>(t));
-    } else if (dynamic_cast<LteExp*>(t) != nullptr) {
-        this->visitLteExp(dynamic_cast<LteExp*>(t));
-    } else if (dynamic_cast<GteExp*>(t) != nullptr) {
-        this->visitGteExp(dynamic_cast<GteExp*>(t));
-    } else if (dynamic_cast<PlusExp*>(t) != nullptr) {
+    if (dynamic_cast<PlusExp*>(t) != nullptr) {
         this->visitPlusExp(dynamic_cast<PlusExp*>(t));
     } else if (dynamic_cast<MinusExp*>(t) != nullptr) {
         this->visitMinusExp(dynamic_cast<MinusExp*>(t));

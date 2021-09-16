@@ -37,12 +37,6 @@ class ConfigStmt;
 class MnemonicStmt;
 class OpcodeStmt;
 class MnemoArg;
-class EqExp;
-class NeqExp;
-class LtExp;
-class GtExp;
-class LteExp;
-class GteExp;
 class PlusExp;
 class MinusExp;
 class MulExp;
@@ -413,12 +407,6 @@ public:
   virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
   virtual void visitOpcodeStmt(OpcodeStmt *p) = 0;
   virtual void visitMnemoArg(MnemoArg *p) = 0;
-  virtual void visitEqExp(EqExp *p) = 0;
-  virtual void visitNeqExp(NeqExp *p) = 0;
-  virtual void visitLtExp(LtExp *p) = 0;
-  virtual void visitGtExp(GtExp *p) = 0;
-  virtual void visitLteExp(LteExp *p) = 0;
-  virtual void visitGteExp(GteExp *p) = 0;
   virtual void visitPlusExp(PlusExp *p) = 0;
   virtual void visitMinusExp(MinusExp *p) = 0;
   virtual void visitMulExp(MulExp *p) = 0;
@@ -947,96 +935,6 @@ public:
   virtual void accept(Visitor *v);
   virtual MnemoArg *clone() const;
   void swap(MnemoArg &);
-};
-
-class EqExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  EqExp(const EqExp &);
-  EqExp &operator=(const EqExp &);
-  EqExp(Exp *p1, Exp *p2);
-  ~EqExp();
-  virtual void accept(Visitor *v);
-  virtual EqExp *clone() const;
-  void swap(EqExp &);
-};
-
-class NeqExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  NeqExp(const NeqExp &);
-  NeqExp &operator=(const NeqExp &);
-  NeqExp(Exp *p1, Exp *p2);
-  ~NeqExp();
-  virtual void accept(Visitor *v);
-  virtual NeqExp *clone() const;
-  void swap(NeqExp &);
-};
-
-class LtExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  LtExp(const LtExp &);
-  LtExp &operator=(const LtExp &);
-  LtExp(Exp *p1, Exp *p2);
-  ~LtExp();
-  virtual void accept(Visitor *v);
-  virtual LtExp *clone() const;
-  void swap(LtExp &);
-};
-
-class GtExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  GtExp(const GtExp &);
-  GtExp &operator=(const GtExp &);
-  GtExp(Exp *p1, Exp *p2);
-  ~GtExp();
-  virtual void accept(Visitor *v);
-  virtual GtExp *clone() const;
-  void swap(GtExp &);
-};
-
-class LteExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  LteExp(const LteExp &);
-  LteExp &operator=(const LteExp &);
-  LteExp(Exp *p1, Exp *p2);
-  ~LteExp();
-  virtual void accept(Visitor *v);
-  virtual LteExp *clone() const;
-  void swap(LteExp &);
-};
-
-class GteExp : public Exp
-{
-public:
-  Exp *exp_1;
-  Exp *exp_2;
-
-  GteExp(const GteExp &);
-  GteExp &operator=(const GteExp &);
-  GteExp(Exp *p1, Exp *p2);
-  ~GteExp();
-  virtual void accept(Visitor *v);
-  virtual GteExp *clone() const;
-  void swap(GteExp &);
 };
 
 class PlusExp : public Exp
