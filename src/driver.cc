@@ -358,8 +358,10 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
 void Driver::processDB(std::vector<TParaToken>& memonic_args) {
     for (const auto& e : memonic_args) {
-        log()->info("type: {}, value: {}", type(e), e.AsString());
-        this->binout_container.push_back(e.AsInt());
+        if (e.IsInteger() || e.IsHex()) {
+            log()->info("type: {}, value: {}", type(e), e.AsInt());
+            this->binout_container.push_back(e.AsInt());
+        }
     }
 }
 
