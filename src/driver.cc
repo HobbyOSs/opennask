@@ -5,6 +5,7 @@
 #include "parser.hh"
 #include "demangle.hpp"
 
+
 using namespace std::placeholders;
 
 Driver::Driver(bool trace_scanning, bool trace_parsing) {
@@ -316,7 +317,6 @@ void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
 void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
-    log()->debug("visitMnemonicStmt start");
     if (mnemonic_stmt->opcode_) {
         mnemonic_stmt->opcode_->accept(this);
     }
@@ -325,9 +325,18 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     }
 
     std::vector<TParaToken> mnemonic_args;
-    for (TParaToken t = this->ctx.top(); ! this->ctx.empty() ; this->ctx.pop() ) {
+    size_t size = this->ctx.size();
+    mnemonic_args.reserve(size);
+
+    for (int i = 0; i < size; i++ ) {
+        TParaToken t = this->ctx.top();
         mnemonic_args.push_back(t);
+        this->ctx.pop();
     }
+
+    std::reverse(mnemonic_args.begin(), mnemonic_args.end());
+    std::string debug_str = this->join(mnemonic_args, ",");
+    log()->debug("visitMnemonicStmt: result {}", debug_str);
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -345,12 +354,12 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     } else {
         std::cout << "not implemented..." << std::endl;
     }
-    log()->debug("visitMnemonicStmt end");
 }
 
 void Driver::processDB(std::vector<TParaToken>& memonic_args) {
     for (const auto& e : memonic_args) {
-        std::cout << "processDB: args " << type(e) << " -> " << std::endl;
+        log()->info("type: {}, value: {}", type(e), e.AsString());
+        this->binout_container.push_back(e.AsInt());
     }
 }
 
@@ -542,4 +551,19 @@ void Driver::visitLabel(Label x) {
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
+}
+
+const std::string Driver::join(std::vector<TParaToken>& array, const std::string& sep) {
+    std::stringstream ss;
+    ss << std::hex
+       << std::setw(2)
+       << std::setfill('0');
+
+    for(size_t i = 0; i < array.size(); ++i) {
+        if(i != 0) {
+            ss << sep;
+        }
+        ss << array[i].AsInt();
+    }
+    return ss.str();
 }
