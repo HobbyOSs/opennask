@@ -32,7 +32,7 @@ void Prog::swap(Prog & other)
 
 Prog::~Prog()
 {
-  delete(liststatement_);
+  //delete(liststatement_);
 
 }
 
@@ -122,7 +122,7 @@ void DeclareStmt::swap(DeclareStmt & other)
 
 DeclareStmt::~DeclareStmt()
 {
-  delete(exp_);
+  //delete(exp_);
 
 }
 
@@ -169,7 +169,7 @@ void ConfigStmt::swap(ConfigStmt & other)
 
 ConfigStmt::~ConfigStmt()
 {
-  delete(configtype_);
+  //delete(configtype_);
 
 }
 
@@ -216,8 +216,8 @@ void MnemonicStmt::swap(MnemonicStmt & other)
 
 MnemonicStmt::~MnemonicStmt()
 {
-  delete(opcode_);
-  delete(listmnemonicargs_);
+  //delete(opcode_);
+  //delete(listmnemonicargs_);
 
 }
 
@@ -261,7 +261,7 @@ void OpcodeStmt::swap(OpcodeStmt & other)
 
 OpcodeStmt::~OpcodeStmt()
 {
-  delete(opcode_);
+  //delete(opcode_);
 
 }
 
@@ -305,7 +305,7 @@ void MnemoArg::swap(MnemoArg & other)
 
 MnemoArg::~MnemoArg()
 {
-  delete(exp_);
+  //delete(exp_);
 
 }
 
@@ -352,8 +352,8 @@ void PlusExp::swap(PlusExp & other)
 
 PlusExp::~PlusExp()
 {
-  delete(exp_1);
-  delete(exp_2);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -400,8 +400,8 @@ void MinusExp::swap(MinusExp & other)
 
 MinusExp::~MinusExp()
 {
-  delete(exp_1);
-  delete(exp_2);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -448,8 +448,8 @@ void MulExp::swap(MulExp & other)
 
 MulExp::~MulExp()
 {
-  delete(exp_1);
-  delete(exp_2);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -496,8 +496,8 @@ void DivExp::swap(DivExp & other)
 
 DivExp::~DivExp()
 {
-  delete(exp_1);
-  delete(exp_2);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -544,8 +544,8 @@ void ModExp::swap(ModExp & other)
 
 ModExp::~ModExp()
 {
-  delete(exp_1);
-  delete(exp_2);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -589,7 +589,7 @@ void IndirectAddrExp::swap(IndirectAddrExp & other)
 
 IndirectAddrExp::~IndirectAddrExp()
 {
-  delete(exp_);
+  //delete(exp_);
 
 }
 
@@ -636,8 +636,8 @@ void DatatypeExp::swap(DatatypeExp & other)
 
 DatatypeExp::~DatatypeExp()
 {
-  delete(datatype_);
-  delete(exp_);
+  //delete(datatype_);
+  //delete(exp_);
 
 }
 
@@ -687,9 +687,9 @@ void RangeExp::swap(RangeExp & other)
 
 RangeExp::~RangeExp()
 {
-  delete(datatype_);
-  delete(exp_1);
-  delete(exp_2);
+  //delete(datatype_);
+  //delete(exp_1);
+  //delete(exp_2);
 
 }
 
@@ -776,7 +776,7 @@ void ImmExp::swap(ImmExp & other)
 
 ImmExp::~ImmExp()
 {
-  delete(factor_);
+  //delete(factor_);
 
 }
 
@@ -14279,8 +14279,3 @@ ListMnemonicArgs* consListMnemonicArgs(MnemonicArgs* x, ListMnemonicArgs* xs) {
   xs->insert(xs->begin(), x);
   return xs;
 }
-
-
-
-
-

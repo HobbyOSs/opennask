@@ -77,6 +77,9 @@ public:
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
 
+    template <class T>
+    void Delete(T* parse_tree);
+
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
     void visitStatement(Statement *t) override;

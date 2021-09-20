@@ -242,12 +242,107 @@ int Driver::Parse(IN input, const char* assembly_dst) {
         this->Eval<T>(parse_tree, assembly_dst);
         log()->debug("parse_tree is: {}", type(parse_tree));
 
-        delete(parse_tree);
+        this->Delete<T>(parse_tree);
+
         return 0;
     }
     return 1;
 }
 
+
+template <class T>
+void Driver::Delete(T *pt) {
+
+    if (auto prog = dynamic_cast<Prog*>(pt); prog != nullptr) {
+
+        log()->debug("success cast {}", type(prog));
+        for (auto stmt : *prog->liststatement_) {
+            log()->debug("iterate under prog {}", type(stmt));
+            this->Delete<Statement>(stmt);
+        }
+        delete(prog->liststatement_); //deleteできない
+        delete(prog);
+
+    } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
+
+        log()->debug("success cast {}", type(stmt));
+
+        if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
+            log()->debug("success cast {}", type(t));
+
+            delete(t->opcode_);
+            log()->debug("delete {}", type(t->opcode_));
+            for (auto arg : *t->listmnemonicargs_) {
+                log()->debug("iterate under mnemonic_stmt {}", type(arg));
+                this->Delete<MnemonicArgs>(arg);
+                delete(arg);
+            }
+            log()->debug("delete {}", type(t->listmnemonicargs_));
+            delete(t->listmnemonicargs_);
+            log()->debug("delete {}", type(t));
+            delete(t);
+
+        } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
+            log()->debug("success cast {}", type(t));
+            delete(t->opcode_);
+            log()->debug("delete {}", type(t->opcode_));
+        }
+
+    } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
+
+        if (auto arg = dynamic_cast<MnemoArg*>(args); arg != nullptr) {
+            log()->debug("success cast {}", type(arg));
+
+            this->Delete<Exp>(arg->exp_);
+
+            log()->debug("delete {}", type(arg->exp_));
+            delete(arg->exp_);
+        }
+    } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
+
+        log()->debug("success cast {}", type(exp));
+
+        if (auto plus_exp = dynamic_cast<PlusExp*>(exp); plus_exp != nullptr) {
+        } else if (dynamic_cast<MinusExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<MulExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<DivExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<ModExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<IndirectAddrExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
+        } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
+            log()->debug("success cast {}", type(imm_exp));
+
+            this->Delete<Factor>(imm_exp->factor_);
+
+            log()->debug("delete {}", type(imm_exp->factor_));
+            delete(imm_exp->factor_);
+        }
+    } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
+
+        log()->debug("success cast {}", type(factor));
+
+        if (auto f = dynamic_cast<NumberFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        } else if (auto f = dynamic_cast<HexFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+
+        } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        }
+    }
+
+    return;
+}
 
 template <class T>
 int Driver::Eval(T *parse_tree, const char* assembly_dst) {
@@ -292,12 +387,12 @@ int Driver::Eval(T *parse_tree, const char* assembly_dst) {
     return 0;
 }
 
+
 void Driver::visitProg(Prog *prog) {
 
     if (prog->liststatement_) {
         prog->liststatement_->accept(this);
     }
-    std::cerr << "visitProg end" << std::endl;
 }
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {

@@ -6,8 +6,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
 
-// Init stuff
-auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
+auto logger = spdlog::stdout_logger_mt("opennask", "console");
 
 TEST_GROUP(day01_suite)
 {
@@ -29,9 +28,12 @@ DB	0xeb
         0xeb
 	};
     CHECK_EQUAL(expected.size(), d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));}
+    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+
+}
 
 int main(int argc, char** argv) {
+    spdlog::set_level(spdlog::level::debug);
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
