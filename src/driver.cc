@@ -4,6 +4,7 @@
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
+#include "string_util.hpp"
 
 
 using namespace std::placeholders;
@@ -514,14 +515,26 @@ void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
 
 void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
-    if (mnemonic_args.size() == 1) {
-        auto arg = mnemonic_args[0];
-        arg.MustBe(TParaToken::ttInteger);
-        log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    auto arg = mnemonic_args[0];
+    const std::string suffix = "-$";
 
-        std::vector<uint8_t> resb(arg.AsLong(), 0);
+    if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
+        log()->debug("type: {}, value: {}", type(arg), arg.to_string());
+        auto resb_size = range.substr(0, range.length() - suffix.length());
+        auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
+
+        std::vector<uint8_t> resb(resb_token.AsLong() - dollar_position - binout_container.size(), 0);
+        log()->debug("padding upto: {}(={}), current: {}",
+                     resb_token.AsString(), resb_token.AsLong(), binout_container.size());
         binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
+        return;
     }
+
+    arg.MustBe(TParaToken::ttInteger);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+
+    std::vector<uint8_t> resb(arg.AsLong(), 0);
+    binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
 void Driver::processORG(std::vector<TParaToken>& memonic_args) {

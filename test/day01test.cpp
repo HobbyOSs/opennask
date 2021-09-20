@@ -123,16 +123,16 @@ TEST(day01_suite, helloos2) {
 		DB		0x0a			; 改行
 		DB		0
 
-		;RESB	0x1fe-$			; 0x001feまでを0x00で埋める命令
+		RESB	0x1fe-$			; 0x001feまでを0x00で埋める命令
 
-		;DB		0x55, 0xaa
+		DB		0x55, 0xaa
 
 ; 以下はブートセクタ以外の部分の記述
 
-		;DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-		;RESB	4600
-		;DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
-		;RESB	1469432
+		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
+		RESB	4600
+		DB		0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
+		RESB	1469432
 )";
 
     std::unique_ptr<Driver> d(new Driver(true, true));
@@ -140,6 +140,9 @@ TEST(day01_suite, helloos2) {
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
+    std::vector<uint8_t> resb378(378, 0);
+	std::vector<uint8_t> resb4600(4600, 0);
+    std::vector<uint8_t> resb1469432(1469432, 0);
 
     expected.insert(expected.end(), {0xeb, 0x4e, 0x90});
     expected.insert(expected.end(), {0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x49, 0x50, 0x4c});
@@ -171,6 +174,13 @@ TEST(day01_suite, helloos2) {
     expected.insert(expected.end(), {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64});
     expected.insert(expected.end(), {0x0a});
     expected.insert(expected.end(), {0x00});
+
+    expected.insert(expected.end(), std::begin(resb378), std::end(resb378));
+    expected.insert(expected.end(), {0x55, 0xaa});
+    expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), std::begin(resb4600), std::end(resb4600));
+    expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
     CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
