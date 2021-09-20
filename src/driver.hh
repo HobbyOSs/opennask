@@ -101,12 +101,14 @@ public:
     // opcodeの読み取り
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
+    void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
     void visitOpcodesORG(OpcodesORG *opcodes_org) override;
 
     // opcodeの処理
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
+    void processDD(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
 

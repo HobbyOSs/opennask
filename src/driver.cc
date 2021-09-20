@@ -438,6 +438,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     funcs_type funcs {
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
+        std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
@@ -487,6 +488,30 @@ void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
+    // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
+        if (e.IsInteger() || e.IsHex()) {
+            uint32_t dword = e.AsLong();
+            std::vector<uint8_t> bytes = {
+                static_cast<uint8_t>( (dword >> 24) & 0xff ),
+                static_cast<uint8_t>( (dword >> 16) & 0xff ),
+                static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+                static_cast<uint8_t>( dword & 0xff ),
+            };
+            // リトルエンディアンなので逆順コピー
+            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
+
+        } else if (e.IsIdentifier()) {
+            throw std::runtime_error("not implemented");
+            // std::string s = e.AsString();
+            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+        }
+    }
+}
+
 void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
     if (mnemonic_args.size() == 1) {
@@ -513,6 +538,10 @@ void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
 }
 
 void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {
     // NOP
 }
 
@@ -710,7 +739,7 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
                << std::setfill('0')
                << std::setw(2)
                << std::hex
-               << array[i].AsInt();
+               << array[i].AsLong();
 
         } else if (array[i].IsIdentifier()) {
             std::stringstream str_ss;
