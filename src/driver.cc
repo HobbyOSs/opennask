@@ -255,9 +255,9 @@ void Driver::Delete(T *pt) {
 
     if (auto prog = dynamic_cast<Prog*>(pt); prog != nullptr) {
 
-        log()->debug("success cast {}", type(prog));
+        log()->trace("success cast {}", type(prog));
         for (auto stmt : *prog->liststatement_) {
-            log()->debug("iterate under prog {}", type(stmt));
+            log()->trace("iterate under prog {}", type(stmt));
             this->Delete<Statement>(stmt);
         }
         delete(prog->liststatement_); //deleteできない
@@ -265,7 +265,7 @@ void Driver::Delete(T *pt) {
 
     } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
 
-        log()->debug("success cast {}", type(stmt));
+        log()->trace("success cast {}", type(stmt));
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
             // NOP
@@ -274,39 +274,39 @@ void Driver::Delete(T *pt) {
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
-            log()->debug("success cast {}", type(t));
+            log()->trace("success cast {}", type(t));
 
             delete(t->opcode_);
-            log()->debug("delete {}", type(t->opcode_));
+            log()->trace("delete {}", type(t->opcode_));
             for (auto arg : *t->listmnemonicargs_) {
-                log()->debug("iterate under mnemonic_stmt {}", type(arg));
+                log()->trace("iterate under mnemonic_stmt {}", type(arg));
                 this->Delete<MnemonicArgs>(arg);
                 delete(arg);
             }
-            log()->debug("delete {}", type(t->listmnemonicargs_));
+            log()->trace("delete {}", type(t->listmnemonicargs_));
             delete(t->listmnemonicargs_);
-            log()->debug("delete {}", type(t));
+            log()->trace("delete {}", type(t));
             delete(t);
 
         } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
-            log()->debug("success cast {}", type(t));
+            log()->trace("success cast {}", type(t));
             delete(t->opcode_);
-            log()->debug("delete {}", type(t->opcode_));
+            log()->trace("delete {}", type(t->opcode_));
         }
 
     } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
 
         if (auto arg = dynamic_cast<MnemoArg*>(args); arg != nullptr) {
-            log()->debug("success cast {}", type(arg));
+            log()->trace("success cast {}", type(arg));
 
             this->Delete<Exp>(arg->exp_);
 
-            log()->debug("delete {}", type(arg->exp_));
+            log()->trace("delete {}", type(arg->exp_));
             delete(arg->exp_);
         }
     } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
 
-        log()->debug("success cast {}", type(exp));
+        log()->trace("success cast {}", type(exp));
 
         if (auto plus_exp = dynamic_cast<PlusExp*>(exp); plus_exp != nullptr) {
         } else if (dynamic_cast<MinusExp*>(exp) != nullptr) {
@@ -318,25 +318,25 @@ void Driver::Delete(T *pt) {
         } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
         } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
         } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
-            log()->debug("success cast {}", type(imm_exp));
+            log()->trace("success cast {}", type(imm_exp));
 
             this->Delete<Factor>(imm_exp->factor_);
 
-            log()->debug("delete {}", type(imm_exp->factor_));
+            log()->trace("delete {}", type(imm_exp->factor_));
             delete(imm_exp->factor_);
         }
     } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
 
-        log()->debug("success cast {}", type(factor));
+        log()->trace("success cast {}", type(factor));
 
         if (auto f = dynamic_cast<NumberFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<HexFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         }
     }
 
@@ -453,9 +453,13 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
 void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
         if (e.IsInteger() || e.IsHex()) {
-            log()->debug("type: {}, value: {}", type(e), e.AsInt());
             this->binout_container.push_back(e.AsInt());
+        } else if (e.IsIdentifier()) {
+            std::string s = e.AsString();
+            std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
@@ -673,11 +677,24 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
         if(i != 0) {
             ss << sep;
         }
-        ss << "0x"
-           << std::setfill('0')
-           << std::setw(2)
-           << std::hex
-           << array[i].AsInt();
+
+        if (array[i].IsInteger() || array[i].IsHex()){
+            ss << "0x"
+               << std::setfill('0')
+               << std::setw(2)
+               << std::hex
+               << array[i].AsInt();
+
+        } else if (array[i].IsIdentifier()) {
+            std::stringstream str_ss;
+            if(i != 0) {
+                str_ss << sep;
+            }
+            for (auto hex : array[i].AsString()) {
+                str_ss << sep << "'" << hex << "'";
+            }
+            ss << str_ss.str();
+        }
     }
     return ss.str();
 }

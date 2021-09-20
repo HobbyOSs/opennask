@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 TParaToken::TParaToken(void) {
     _type = ttEmpty;
 }
@@ -30,6 +29,12 @@ TParaToken::TParaToken(const TParaToken& token) {
 }
 
 TParaToken::~TParaToken() {
+}
+
+std::string TParaToken::to_string() const {
+    std::ostringstream oss;
+    oss << "token_type: " << TTokenNames[_type] << ", token_string: " << _token_string;
+    return oss.str();
 }
 
 TParaToken& TParaToken::operator=(const TParaToken& token) {
