@@ -335,7 +335,6 @@ void Driver::Delete(T *pt) {
             log()->debug("success cast {}", type(f));
         } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
             log()->debug("success cast {}", type(f));
-
         } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
             log()->debug("success cast {}", type(f));
         }
@@ -431,7 +430,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     std::reverse(mnemonic_args.begin(), mnemonic_args.end());
     std::string debug_str = this->join(mnemonic_args, ",");
-    log()->debug("visitMnemonicStmt: result {}", debug_str);
+    log()->debug("visitMnemonicStmt: args = [{}]", debug_str);
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -454,7 +453,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 void Driver::processDB(std::vector<TParaToken>& memonic_args) {
     for (const auto& e : memonic_args) {
         if (e.IsInteger() || e.IsHex()) {
-            log()->info("type: {}, value: {}", type(e), e.AsInt());
+            log()->debug("type: {}, value: {}", type(e), e.AsInt());
             this->binout_container.push_back(e.AsInt());
         }
     }
@@ -651,16 +650,17 @@ void Driver::visitLabel(Label x) {
 }
 
 const std::string Driver::join(std::vector<TParaToken>& array, const std::string& sep) {
-    std::stringstream ss;
-    ss << std::hex
-       << std::setw(2)
-       << std::setfill('0');
 
+    std::stringstream ss;
     for(size_t i = 0; i < array.size(); ++i) {
         if(i != 0) {
             ss << sep;
         }
-        ss << array[i].AsInt();
+        ss << "0x"
+           << std::setfill('0')
+           << std::setw(2)
+           << std::hex
+           << array[i].AsInt();
     }
     return ss.str();
 }
