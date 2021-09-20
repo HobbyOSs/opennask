@@ -90,16 +90,16 @@ TEST(day01_suite, helloos2) {
 
 		DB		0xeb, 0x4e, 0x90
 		DB		"HELLOIPL"		; ブートセクタの名前を自由に書いてよい（8バイト）
-		;DW		512				; 1セクタの大きさ（512にしなければいけない）
-		;DB		1				; クラスタの大きさ（1セクタにしなければいけない）
-		;DW		1				; FATがどこから始まるか（普通は1セクタ目からにする）
-		;DB		2				; FATの個数（2にしなければいけない）
-		;DW		224				; ルートディレクトリ領域の大きさ（普通は224エントリにする）
-		;DW		2880			; このドライブの大きさ（2880セクタにしなければいけない）
-		;DB		0xf0			; メディアのタイプ（0xf0にしなければいけない）
-		;DW		9				; FAT領域の長さ（9セクタにしなければいけない）
-		;DW		18				; 1トラックにいくつのセクタがあるか（18にしなければいけない）
-		;DW		2				; ヘッドの数（2にしなければいけない）
+		DW		512				; 1セクタの大きさ（512にしなければいけない）
+		DB		1				; クラスタの大きさ（1セクタにしなければいけない）
+		DW		1				; FATがどこから始まるか（普通は1セクタ目からにする）
+		DB		2				; FATの個数（2にしなければいけない）
+		DW		224				; ルートディレクトリ領域の大きさ（普通は224エントリにする）
+		DW		2880			; このドライブの大きさ（2880セクタにしなければいけない）
+		DB		0xf0			; メディアのタイプ（0xf0にしなければいけない）
+		DW		9				; FAT領域の長さ（9セクタにしなければいけない）
+		DW		18				; 1トラックにいくつのセクタがあるか（18にしなければいけない）
+		DW		2				; ヘッドの数（2にしなければいけない）
 		;DD		0				; パーティションを使ってないのでここは必ず0
 		;DD		2880			; このドライブ大きさをもう一度書く
 		;DB		0,0,0x29		; よくわからないけどこの値にしておくといいらしい
@@ -142,6 +142,16 @@ TEST(day01_suite, helloos2) {
 
     expected.insert(expected.end(), {0xeb, 0x4e, 0x90});
     expected.insert(expected.end(), {0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x49, 0x50, 0x4c});
+    expected.insert(expected.end(), {0x00, 0x02});
+    expected.insert(expected.end(), {0x01});
+    expected.insert(expected.end(), {0x01, 0x00});
+    expected.insert(expected.end(), {0x02});
+    expected.insert(expected.end(), {0xe0, 0x00});
+    expected.insert(expected.end(), {0x40, 0x0b});
+    expected.insert(expected.end(), {0xf0});
+    expected.insert(expected.end(), {0x09, 0x00});
+    expected.insert(expected.end(), {0x12, 0x00});
+    expected.insert(expected.end(), {0x02, 0x00});
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
     CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
@@ -153,7 +163,7 @@ int main(int argc, char** argv) {
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day01_suite, helloos2)");
+    args.push_back("TEST(day01_suite, helloos2)");
 
     // Run all tests
     int i = RUN_ALL_TESTS(args.size(), &args[0]);

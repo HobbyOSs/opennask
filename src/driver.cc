@@ -437,6 +437,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
+        std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
@@ -464,6 +465,28 @@ void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
+    // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
+        if (e.IsInteger() || e.IsHex()) {
+            uint16_t word = e.AsInt();
+            std::vector<uint8_t> bytes = {
+                static_cast<uint8_t>( (word >> 8) & 0xff ),
+                static_cast<uint8_t>( word & 0xff ),
+            };
+            // リトルエンディアンなので逆順コピー
+            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
+
+        } else if (e.IsIdentifier()) {
+            throw std::runtime_error("not implemented");
+            // std::string s = e.AsString();
+            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+        }
+    }
+}
+
 void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
     if (mnemonic_args.size() == 1) {
@@ -486,6 +509,10 @@ void Driver::processORG(std::vector<TParaToken>& memonic_args) {
 // Visit Opcode系の処理
 //
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {
     // NOP
 }
 
