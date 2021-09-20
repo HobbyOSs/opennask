@@ -437,6 +437,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
 
@@ -450,12 +451,24 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     }
 }
 
-void Driver::processDB(std::vector<TParaToken>& memonic_args) {
-    for (const auto& e : memonic_args) {
+void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
+    for (const auto& e : mnemonic_args) {
         if (e.IsInteger() || e.IsHex()) {
             log()->debug("type: {}, value: {}", type(e), e.AsInt());
             this->binout_container.push_back(e.AsInt());
         }
+    }
+}
+
+void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
+
+    if (mnemonic_args.size() == 1) {
+        auto arg = mnemonic_args[0];
+        arg.MustBe(TParaToken::ttInteger);
+        log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+
+        std::vector<uint8_t> resb(arg.AsLong(), 0);
+        binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
     }
 }
 
@@ -469,6 +482,10 @@ void Driver::processORG(std::vector<TParaToken>& memonic_args) {
 // Visit Opcode系の処理
 //
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {
     // NOP
 }
 

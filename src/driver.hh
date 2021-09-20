@@ -99,11 +99,13 @@ public:
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
     // opcodeの読み取り
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
+    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
+    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
 
     // opcodeの処理
     void processDB(std::vector<TParaToken>& memonic_args);
+    void processRESB(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
 
     // expression
