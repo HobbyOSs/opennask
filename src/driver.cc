@@ -4,6 +4,7 @@
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
+#include "string_util.hpp"
 
 
 using namespace std::placeholders;
@@ -255,9 +256,9 @@ void Driver::Delete(T *pt) {
 
     if (auto prog = dynamic_cast<Prog*>(pt); prog != nullptr) {
 
-        log()->debug("success cast {}", type(prog));
+        log()->trace("success cast {}", type(prog));
         for (auto stmt : *prog->liststatement_) {
-            log()->debug("iterate under prog {}", type(stmt));
+            log()->trace("iterate under prog {}", type(stmt));
             this->Delete<Statement>(stmt);
         }
         delete(prog->liststatement_); //deleteできない
@@ -265,7 +266,7 @@ void Driver::Delete(T *pt) {
 
     } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
 
-        log()->debug("success cast {}", type(stmt));
+        log()->trace("success cast {}", type(stmt));
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
             // NOP
@@ -274,39 +275,39 @@ void Driver::Delete(T *pt) {
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
-            log()->debug("success cast {}", type(t));
+            log()->trace("success cast {}", type(t));
 
             delete(t->opcode_);
-            log()->debug("delete {}", type(t->opcode_));
+            log()->trace("delete {}", type(t->opcode_));
             for (auto arg : *t->listmnemonicargs_) {
-                log()->debug("iterate under mnemonic_stmt {}", type(arg));
+                log()->trace("iterate under mnemonic_stmt {}", type(arg));
                 this->Delete<MnemonicArgs>(arg);
                 delete(arg);
             }
-            log()->debug("delete {}", type(t->listmnemonicargs_));
+            log()->trace("delete {}", type(t->listmnemonicargs_));
             delete(t->listmnemonicargs_);
-            log()->debug("delete {}", type(t));
+            log()->trace("delete {}", type(t));
             delete(t);
 
         } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
-            log()->debug("success cast {}", type(t));
+            log()->trace("success cast {}", type(t));
             delete(t->opcode_);
-            log()->debug("delete {}", type(t->opcode_));
+            log()->trace("delete {}", type(t->opcode_));
         }
 
     } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
 
         if (auto arg = dynamic_cast<MnemoArg*>(args); arg != nullptr) {
-            log()->debug("success cast {}", type(arg));
+            log()->trace("success cast {}", type(arg));
 
             this->Delete<Exp>(arg->exp_);
 
-            log()->debug("delete {}", type(arg->exp_));
+            log()->trace("delete {}", type(arg->exp_));
             delete(arg->exp_);
         }
     } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
 
-        log()->debug("success cast {}", type(exp));
+        log()->trace("success cast {}", type(exp));
 
         if (auto plus_exp = dynamic_cast<PlusExp*>(exp); plus_exp != nullptr) {
         } else if (dynamic_cast<MinusExp*>(exp) != nullptr) {
@@ -318,25 +319,25 @@ void Driver::Delete(T *pt) {
         } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
         } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
         } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
-            log()->debug("success cast {}", type(imm_exp));
+            log()->trace("success cast {}", type(imm_exp));
 
             this->Delete<Factor>(imm_exp->factor_);
 
-            log()->debug("delete {}", type(imm_exp->factor_));
+            log()->trace("delete {}", type(imm_exp->factor_));
             delete(imm_exp->factor_);
         }
     } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
 
-        log()->debug("success cast {}", type(factor));
+        log()->trace("success cast {}", type(factor));
 
         if (auto f = dynamic_cast<NumberFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<HexFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
-            log()->debug("success cast {}", type(f));
+            log()->trace("success cast {}", type(f));
         }
     }
 
@@ -437,6 +438,8 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
+        std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
+        std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
@@ -453,23 +456,85 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
 void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
         if (e.IsInteger() || e.IsHex()) {
-            log()->debug("type: {}, value: {}", type(e), e.AsInt());
             this->binout_container.push_back(e.AsInt());
+        } else if (e.IsIdentifier()) {
+            std::string s = e.AsString();
+            std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+        }
+    }
+}
+
+void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
+    // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
+        if (e.IsInteger() || e.IsHex()) {
+            uint16_t word = e.AsInt();
+            std::vector<uint8_t> bytes = {
+                static_cast<uint8_t>( (word >> 8) & 0xff ),
+                static_cast<uint8_t>( word & 0xff ),
+            };
+            // リトルエンディアンなので逆順コピー
+            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
+
+        } else if (e.IsIdentifier()) {
+            throw std::runtime_error("not implemented");
+            // std::string s = e.AsString();
+            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+        }
+    }
+}
+
+void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
+    // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    for (const auto& e : mnemonic_args) {
+        log()->debug("{}", e.to_string());
+
+        if (e.IsInteger() || e.IsHex()) {
+            uint32_t dword = e.AsLong();
+            std::vector<uint8_t> bytes = {
+                static_cast<uint8_t>( (dword >> 24) & 0xff ),
+                static_cast<uint8_t>( (dword >> 16) & 0xff ),
+                static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+                static_cast<uint8_t>( dword & 0xff ),
+            };
+            // リトルエンディアンなので逆順コピー
+            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
+
+        } else if (e.IsIdentifier()) {
+            throw std::runtime_error("not implemented");
+            // std::string s = e.AsString();
+            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
 
 void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
-    if (mnemonic_args.size() == 1) {
-        auto arg = mnemonic_args[0];
-        arg.MustBe(TParaToken::ttInteger);
-        log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    auto arg = mnemonic_args[0];
+    const std::string suffix = "-$";
 
-        std::vector<uint8_t> resb(arg.AsLong(), 0);
+    if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
+        log()->debug("type: {}, value: {}", type(arg), arg.to_string());
+        auto resb_size = range.substr(0, range.length() - suffix.length());
+        auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
+
+        std::vector<uint8_t> resb(resb_token.AsLong() - dollar_position - binout_container.size(), 0);
+        log()->debug("padding upto: {}(={}), current: {}",
+                     resb_token.AsString(), resb_token.AsLong(), binout_container.size());
         binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
+        return;
     }
+
+    arg.MustBe(TParaToken::ttInteger);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+
+    std::vector<uint8_t> resb(arg.AsLong(), 0);
+    binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
 void Driver::processORG(std::vector<TParaToken>& memonic_args) {
@@ -482,6 +547,14 @@ void Driver::processORG(std::vector<TParaToken>& memonic_args) {
 // Visit Opcode系の処理
 //
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {
     // NOP
 }
 
@@ -673,11 +746,24 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
         if(i != 0) {
             ss << sep;
         }
-        ss << "0x"
-           << std::setfill('0')
-           << std::setw(2)
-           << std::hex
-           << array[i].AsInt();
+
+        if (array[i].IsInteger() || array[i].IsHex()){
+            ss << "0x"
+               << std::setfill('0')
+               << std::setw(2)
+               << std::hex
+               << array[i].AsLong();
+
+        } else if (array[i].IsIdentifier()) {
+            std::stringstream str_ss;
+            if(i != 0) {
+                str_ss << sep;
+            }
+            for (auto hex : array[i].AsString()) {
+                str_ss << sep << "'" << hex << "'";
+            }
+            ss << str_ss.str();
+        }
     }
     return ss.str();
 }

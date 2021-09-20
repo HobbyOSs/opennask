@@ -24,13 +24,34 @@ public:
         ttComment,
         ttWhiteSpace,
         ttEmpty,
-        ttUnknown
+        ttUnknown,
+        ttSizeOfEnum,
     };
+
+    static constexpr const char* TTokenNames[] = {
+        "ttKeyword",
+        "ttIdentifier",
+        "ttInteger",
+        "ttHex",
+        "ttFloating",
+        "ttSeparator",
+        "ttOperator",
+        "ttQuote",
+        "ttComment",
+        "ttWhiteSpace",
+        "ttEmpty",
+        "ttUnknown",
+    };
+
+    static_assert(sizeof(TParaToken::TTokenNames)/sizeof(char*) == TParaToken::ttSizeOfEnum
+                  , "sizes dont match");
+
 public:
     TParaToken(void);
     TParaToken(const std::string& token_string, TTokenType type);
     TParaToken(const TParaToken& token);
     ~TParaToken();
+    std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;
     bool IsIdentifier(void) const;
