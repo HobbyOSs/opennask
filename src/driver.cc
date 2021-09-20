@@ -5,6 +5,7 @@
 #include "parser.hh"
 #include "demangle.hpp"
 
+
 using namespace std::placeholders;
 
 Driver::Driver(bool trace_scanning, bool trace_parsing) {
@@ -241,12 +242,106 @@ int Driver::Parse(IN input, const char* assembly_dst) {
         this->Eval<T>(parse_tree, assembly_dst);
         log()->debug("parse_tree is: {}", type(parse_tree));
 
-        delete(parse_tree);
+        this->Delete<T>(parse_tree);
+
         return 0;
     }
     return 1;
 }
 
+
+template <class T>
+void Driver::Delete(T *pt) {
+
+    if (auto prog = dynamic_cast<Prog*>(pt); prog != nullptr) {
+
+        log()->debug("success cast {}", type(prog));
+        for (auto stmt : *prog->liststatement_) {
+            log()->debug("iterate under prog {}", type(stmt));
+            this->Delete<Statement>(stmt);
+        }
+        delete(prog->liststatement_); //deleteできない
+        delete(prog);
+
+    } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
+
+        log()->debug("success cast {}", type(stmt));
+
+        if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
+            // NOP
+        } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
+            log()->debug("success cast {}", type(t));
+
+            delete(t->opcode_);
+            log()->debug("delete {}", type(t->opcode_));
+            for (auto arg : *t->listmnemonicargs_) {
+                log()->debug("iterate under mnemonic_stmt {}", type(arg));
+                this->Delete<MnemonicArgs>(arg);
+                delete(arg);
+            }
+            log()->debug("delete {}", type(t->listmnemonicargs_));
+            delete(t->listmnemonicargs_);
+            log()->debug("delete {}", type(t));
+            delete(t);
+
+        } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
+            log()->debug("success cast {}", type(t));
+            delete(t->opcode_);
+            log()->debug("delete {}", type(t->opcode_));
+        }
+
+    } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
+
+        if (auto arg = dynamic_cast<MnemoArg*>(args); arg != nullptr) {
+            log()->debug("success cast {}", type(arg));
+
+            this->Delete<Exp>(arg->exp_);
+
+            log()->debug("delete {}", type(arg->exp_));
+            delete(arg->exp_);
+        }
+    } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
+
+        log()->debug("success cast {}", type(exp));
+
+        if (auto plus_exp = dynamic_cast<PlusExp*>(exp); plus_exp != nullptr) {
+        } else if (dynamic_cast<MinusExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<MulExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<DivExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<ModExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<IndirectAddrExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
+        } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
+        } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
+            log()->debug("success cast {}", type(imm_exp));
+
+            this->Delete<Factor>(imm_exp->factor_);
+
+            log()->debug("delete {}", type(imm_exp->factor_));
+            delete(imm_exp->factor_);
+        }
+    } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
+
+        log()->debug("success cast {}", type(factor));
+
+        if (auto f = dynamic_cast<NumberFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        } else if (auto f = dynamic_cast<HexFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
+            log()->debug("success cast {}", type(f));
+        }
+    }
+
+    return;
+}
 
 template <class T>
 int Driver::Eval(T *parse_tree, const char* assembly_dst) {
@@ -291,12 +386,12 @@ int Driver::Eval(T *parse_tree, const char* assembly_dst) {
     return 0;
 }
 
+
 void Driver::visitProg(Prog *prog) {
 
     if (prog->liststatement_) {
         prog->liststatement_->accept(this);
     }
-    std::cerr << "visitProg end" << std::endl;
 }
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {
@@ -316,7 +411,6 @@ void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
 void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
-    log()->debug("visitMnemonicStmt start");
     if (mnemonic_stmt->opcode_) {
         mnemonic_stmt->opcode_->accept(this);
     }
@@ -325,15 +419,25 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     }
 
     std::vector<TParaToken> mnemonic_args;
-    for (TParaToken t = this->ctx.top(); ! this->ctx.empty() ; this->ctx.pop() ) {
+    size_t size = this->ctx.size();
+    mnemonic_args.reserve(size);
+
+    for (int i = 0; i < size; i++ ) {
+        TParaToken t = this->ctx.top();
         mnemonic_args.push_back(t);
+        this->ctx.pop();
     }
+
+    std::reverse(mnemonic_args.begin(), mnemonic_args.end());
+    std::string debug_str = this->join(mnemonic_args, ",");
+    log()->debug("visitMnemonicStmt: args = [{}]", debug_str);
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
     };
 
@@ -345,12 +449,26 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     } else {
         std::cout << "not implemented..." << std::endl;
     }
-    log()->debug("visitMnemonicStmt end");
 }
 
-void Driver::processDB(std::vector<TParaToken>& memonic_args) {
-    for (const auto& e : memonic_args) {
-        std::cout << "processDB: args " << type(e) << " -> " << std::endl;
+void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
+    for (const auto& e : mnemonic_args) {
+        if (e.IsInteger() || e.IsHex()) {
+            log()->debug("type: {}, value: {}", type(e), e.AsInt());
+            this->binout_container.push_back(e.AsInt());
+        }
+    }
+}
+
+void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
+
+    if (mnemonic_args.size() == 1) {
+        auto arg = mnemonic_args[0];
+        arg.MustBe(TParaToken::ttInteger);
+        log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+
+        std::vector<uint8_t> resb(arg.AsLong(), 0);
+        binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
     }
 }
 
@@ -364,6 +482,10 @@ void Driver::processORG(std::vector<TParaToken>& memonic_args) {
 // Visit Opcode系の処理
 //
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
+    // NOP
+}
+
+void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {
     // NOP
 }
 
@@ -542,4 +664,20 @@ void Driver::visitLabel(Label x) {
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
+}
+
+const std::string Driver::join(std::vector<TParaToken>& array, const std::string& sep) {
+
+    std::stringstream ss;
+    for(size_t i = 0; i < array.size(); ++i) {
+        if(i != 0) {
+            ss << sep;
+        }
+        ss << "0x"
+           << std::setfill('0')
+           << std::setw(2)
+           << std::hex
+           << array[i].AsInt();
+    }
+    return ss.str();
 }

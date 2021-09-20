@@ -96,8 +96,8 @@ string TParaToken::AsString(void) const {
 }
 
 int TParaToken::AsInt(void) const noexcept(false) {
-    if (! IsInteger()) {
-        throw std::runtime_error("integer is expected.");
+    if (! IsInteger() && ! IsHex() ) {
+        ThrowUnexpected("integer");
     }
 
     int int_value;
@@ -105,13 +105,13 @@ int TParaToken::AsInt(void) const noexcept(false) {
         // Hex Number
         istringstream value_stream(_token_string.substr(2, string::npos));
         if (! (value_stream >> hex >> int_value)) {
-            throw std::runtime_error("integer is expected.");
+            ThrowUnexpected("integer");
         }
     } else {
         // Dec Number
         istringstream value_stream(_token_string);
         if (! (value_stream >> int_value)) {
-            throw std::runtime_error("integer is expected.");
+            ThrowUnexpected("integer");
         }
     }
 
@@ -119,8 +119,8 @@ int TParaToken::AsInt(void) const noexcept(false) {
 }
 
 long TParaToken::AsLong(void) const noexcept(false) {
-    if (! IsInteger()) {
-        throw std::runtime_error("integer is expected.");
+    if (! IsInteger() && ! IsHex() ) {
+        ThrowUnexpected("integer");
     }
 
     long long_value;
@@ -128,13 +128,13 @@ long TParaToken::AsLong(void) const noexcept(false) {
         // Hex Number
         istringstream value_stream(_token_string.substr(2, string::npos));
         if (! (value_stream >> hex >> long_value)) {
-            throw std::runtime_error("integer is expected.");
+            ThrowUnexpected("integer");
         }
     } else {
         // Dec Number
         istringstream value_stream(_token_string);
         if (! (value_stream >> long_value)) {
-            throw std::runtime_error("integer is expected.");
+            ThrowUnexpected("integer");
         }
     }
 
@@ -143,9 +143,7 @@ long TParaToken::AsLong(void) const noexcept(false) {
 
 double TParaToken::AsDouble(void) const noexcept(false) {
     if ((! IsInteger()) && (! IsFloating())) {
-        throw std::runtime_error(
-            "floating number is expected."
-        );
+        ThrowUnexpected("floating number");
     }
 
     double double_value;
@@ -155,9 +153,7 @@ double TParaToken::AsDouble(void) const noexcept(false) {
     } else {
         istringstream value_stream(_token_string);
         if (! (value_stream >> double_value)) {
-            throw std::runtime_error(
-                "floating number is expected."
-            );
+            ThrowUnexpected("floating number");
         }
     }
 
@@ -239,14 +235,13 @@ TParaToken& TParaToken::MustBe(TTokenType expected_token_type) noexcept(false) {
     return *this;
 }
 
-void TParaToken::ThrowUnexpected(const string& expected) noexcept(false) {
+void TParaToken::ThrowUnexpected(const string& expected) const noexcept(false) {
 
     string message = "";
 
     if (! IsEmpty()) {
         message += "unexpected token: \"" + AsString() + "\"";
-    }
-    else {
+    } else {
         message += "unexpected end-of-file";
     }
 

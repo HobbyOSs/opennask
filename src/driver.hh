@@ -54,8 +54,6 @@ private:
     bool trace_parsing;
     bool trace_scanning;
 
-    // 出力するバイナリ情報
-    std::vector<uint8_t> binout_container;
     static LABEL_DST_STACK label_dst_stack;
     static LABEL_SRC_STACK label_src_stack;
     // EQUで設定された変数情報
@@ -66,6 +64,8 @@ private:
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
+    // 出力するバイナリ情報
+    std::vector<uint8_t> binout_container;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -76,6 +76,9 @@ public:
     // ASTを評価し結果をファイルに書き込む
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
+
+    template <class T>
+    void Delete(T* parse_tree);
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
@@ -96,11 +99,13 @@ public:
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
     // opcodeの読み取り
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
+    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
+    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
 
     // opcodeの処理
     void processDB(std::vector<TParaToken>& memonic_args);
+    void processRESB(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
 
     // expression
@@ -127,6 +132,9 @@ public:
     void visitIdent(Ident x) override;
     void visitHex(Hex x) override;
     void visitLabel(Label x) override;
+
+    // 以下、整理後にstring_utilに移動
+    const std::string join(std::vector<TParaToken>& array, const std::string& sep = "");
 
 };
 

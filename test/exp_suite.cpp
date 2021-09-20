@@ -175,15 +175,16 @@ TEST(exp_suite, testMnemoArgs)
     }
 }
 
-/**
-
 TEST(exp_suite, testSimpleMnemonic)
 {
-
     std::unique_ptr<Driver> d(new Driver(false, false));
-    d->Parse<Program>("DB 10, 20, 30", "test.img");
-
+    auto expected = std::vector<uint8_t>{10,20,30};
+    d->Parse<Program>("DB 10,20,30", "test.img");
+    CHECK_EQUAL(3, d->binout_container.size());
+    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
+
+/**
 
 TEST(exp_suite, testInt)
 {
