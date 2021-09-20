@@ -15,14 +15,12 @@ TEST_GROUP(day01_suite)
 
 TEST(day01_suite, helloos) {
 
-    char nask_statements[] = R"(
+    const char nask_statements[] = R"(
 DB	0xeb
 )";
 
     std::unique_ptr<Driver> d(new Driver(true, true));
-    FILE* stream = fmemopen(nask_statements, strlen(nask_statements), "r");
-    d->Parse<Program>(stream, "test.img");
-    fclose(stream);
+    d->Parse<Program>(nask_statements, "test.img");
 
     std::vector<uint8_t> expected = {
         0xeb
