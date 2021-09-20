@@ -78,8 +78,9 @@ set(day01test_SRCS
   ../src/para_token.cc
   ../src/para_token.hh)
 
-add_executable(day01test ${day01test_SRCS})
+add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day01test Threads::Threads ${CPPUTEST_LIBRARY})
+add_backward(day01test)
 
 set_property(TARGET day01test PROPERTY CXX_STANDARD 17)
 set_property(TARGET day01test PROPERTY CXX_STANDARD_REQUIRED ON)
