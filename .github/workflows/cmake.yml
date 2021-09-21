@@ -23,7 +23,7 @@ jobs:
         ninja: 1.9.0
 
     - name: Install build tools
-      run: sudo apt-get install cpputest gcc g++ libc6-dev-i386 linux-headers-generic
+      run: sudo apt-get install cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -G Ninja
