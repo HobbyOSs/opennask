@@ -1,0 +1,38 @@
+name: CMake
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  # BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # focal
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install-cmake
+      uses: Symbitic/install-cmake@v0.1.0
+      with:
+        cmake: 3.17.2
+        ninja: 1.9.0
+
+    - name: Install build tools
+      run: sudo apt-get install cpputest gcc g++ libc6-dev-i386 linux-headers-generic
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -G Ninja
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      run: ninja && ninja images
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest
