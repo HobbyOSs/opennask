@@ -14,7 +14,18 @@ jobs:
     runs-on: ubuntu-latest # focal
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout source
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Update submodules
+      id: update
+      run: git submodule update --remote --recursive 
+
+    - name: Run git status
+      id: status
+      run: echo "::set-output name=status::$(git status -s)"
 
     - name: install-cmake
       uses: Symbitic/install-cmake@v0.1.0
