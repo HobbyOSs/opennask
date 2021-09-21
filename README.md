@@ -1,11 +1,11 @@
-# opennask [![Build Status](https://travis-ci.com/HobbyOSs/opennask.svg?branch=master)](https://travis-ci.com/HobbyOSs/opennask) [![Build status](https://ci.appveyor.com/api/projects/status/3y5g0uyrixr7ivgd?svg=true)](https://ci.appveyor.com/project/HobbyOSs/opennask) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+# opennask [![Build Status](https://github.com/HobbyOSs/opennask/actions/workflows/cmake.yml/badge.svg)](https://github.com/HobbyOSs/opennask/actions/workflows/cmake.yml) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 An 80x86 assembler like MASM/NASM for the tiny OS
 
 # Build (debian)
 * You need to install cmake, and ninja / make
 ```
 // example
-# apt-get install cmake ninja* libc6-dev-i386 cpputest*
+# apt-get install cmake ninja-build cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic
 
 $ mkdir build
 $ cd build
@@ -19,7 +19,7 @@ $ cmake -G Ninja ..
 $ ninja
 
 # or, you may want to specify compiler
-$ cmake -G Ninja  -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
+$ cmake -G Ninja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
 ```
 
 # Build osask project files (debian)
