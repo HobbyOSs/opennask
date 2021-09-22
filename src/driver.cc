@@ -269,7 +269,10 @@ void Driver::Delete(T *pt) {
         log()->trace("success cast {}", type(stmt));
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
-            // NOP
+            log()->trace("success cast {}", type(t));
+            log()->trace("delete {}", type(t->label_));
+            delete(t);
+
         } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
@@ -440,8 +443,9 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
-        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
+        std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
@@ -537,34 +541,37 @@ void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
-void Driver::processORG(std::vector<TParaToken>& memonic_args) {
-    for (const auto& e : memonic_args) {
-        std::cout << type(e) << std::endl;
-    }
+void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    binout_container.push_back(0xeb);
+    binout_container.push_back(0x00);
+
+    std::string label = arg.AsString().substr(0, arg.AsString().find(":", 0));
+    auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
+    log()->debug("JMP label: {}", label);
+    label_calc_stack.push(label_calc);
+}
+
+void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttHex);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    dollar_position = arg.AsLong();
 }
 
 //
 // Visit Opcode系の処理
 //
-void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
-    // NOP
-}
-
-void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {
-    // NOP
-}
-
-void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {
-    // NOP
-}
-
-void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {
-    // NOP
-}
-
-void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
-    // NOP
-}
+void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
+void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
+void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
+void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {}
+void Driver::visitOpcodesJMP(OpcodesJMP *opcodes_jmp) {}
+void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {}
 
 
 void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
@@ -724,16 +731,20 @@ void Driver::visitHex(Hex x) {
 }
 
 void Driver::visitLabel(Label x) {
-    // label: (label_dstと呼ぶ)
-    // 1) label_dstの位置を記録する → label_dst_stack
-    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
 
-    std::string label_dst = x.substr(0, x.find(":", 0));
-    log()->debug("coming another label: {} bin[{}]",
-                 label_dst, std::to_string(this->binout_container.size()));
+    std::string label = x.substr(0, x.find(":", 0));
+    log()->debug("label='{}' binout_container[{}]",
+                 label, std::to_string(this->binout_container.size()));
 
-    //inst.store_label_dst(label_dst, binout_container);
-    //inst.update_label_dst_offset(label_dst, binout_container);
+    if (LabelCalc l = label_calc_stack.top(); l.label == label) {
+        l.dst_index = this->binout_container.size();
+        const size_t offset = l.get_offset();
+        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
+        binout_container[l.src_index - 1] = offset;
+        label_calc_stack.pop();
+    } else {
+        log()->debug("unmatch!!! in={}, stack size={}", label, label_calc_stack.size());
+    }
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);

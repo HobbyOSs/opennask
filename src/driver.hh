@@ -15,37 +15,15 @@
 #include "skeleton.hh"
 
 
-struct LABEL_DST_ELEMENT {
-    std::string label; // ex) entry:
-    long src_index;  // JMPのオペコードが始まる場所
-    long dst_index;  // JMPの飛び先のラベルが始まる場所
-    long rel_index;  // rel_offsetを格納する場所
-    long rel_offset() {
-        // offset = rel - dst
-        spdlog::get("opennask")->info("dst_offs: {} - {} - 1", std::to_string(src_index), std::to_string(rel_index));
-        return src_index - rel_index - 1;
-    };
-};
-
-struct LABEL_SRC_ELEMENT {
+struct LabelCalc {
     std::string label;   // ex) entry
-    OPERAND_KINDS operand;
-    bool abs = false;
-    long src_index;  // JMPのオペコードが始まる場所
-    long dst_index;  // JMPの飛び先のラベルが始まる場所
-    long rel_index;  // rel_offsetを格納する場所
-    size_t offset_size; // オフセットの格納サイズを指定する
-    long rel_offset() {
-        // offset = rel - dst
-        spdlog::get("opennask")->info("src_offs: {} - {} - 1", std::to_string(dst_index), std::to_string(rel_index));
-        return dst_index - rel_index - 1;
+    size_t src_index;
+    size_t dst_index;
+
+    size_t get_offset() {
+        return dst_index - src_index;
     };
 };
-
-// 処理の中でlabel情報の収集をする
-typedef std::vector<LABEL_DST_ELEMENT> LABEL_DST_STACK;
-typedef std::vector<LABEL_SRC_ELEMENT> LABEL_SRC_STACK;
-
 
 class Driver : public Skeleton {
 
@@ -53,9 +31,8 @@ private:
     // 字句解析, 構文解析のフラグ
     bool trace_parsing;
     bool trace_scanning;
-
-    static LABEL_DST_STACK label_dst_stack;
-    static LABEL_SRC_STACK label_src_stack;
+    // ラベルによるオフセットの計算をする
+    std::stack<LabelCalc> label_calc_stack;
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
     // $ の位置
@@ -102,15 +79,17 @@ public:
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
     void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
-    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
+    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override;
     void visitOpcodesORG(OpcodesORG *opcodes_org) override;
+    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
 
     // opcodeの処理
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
-    void processRESB(std::vector<TParaToken>& memonic_args);
+    void processJMP(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
+    void processRESB(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
