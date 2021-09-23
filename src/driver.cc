@@ -555,6 +555,41 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
     std::string debug_str = this->join(mnemonic_args, ",");
     log()->debug("processMOV: args = [{}]", debug_str);
+
+    //         0x88 /r	MOV r/m8   , r8
+    // REX   + 0x88 /r	MOV r/m8   , r8
+    //         0x89 /r	MOV r/m16  , r16
+    //         0x89 /r	MOV r/m32  , r32
+    // REX.W + 0x89 /r	MOV r/m64  , r64
+    //         0x8A /r	MOV r8     , r/m8
+    // REX   + 0x8A /r	MOV r8     , r/m8
+    //         0x8B /r	MOV r16    , r/m16
+    //         0x8B /r	MOV r32    , r/m32
+    // REX.W + 0x8B /r	MOV r64    , r/m64
+    //         0x8C /r	MOV r/m16  , Sreg
+    // REX.W + 0x8C /r	MOV r/m16  , Sreg
+    //         0x8E /r	MOV Sreg   , r/m16
+    // REX.W + 0x8E /r	MOV Sreg   , r/m64
+    //         0xA0	    MOV AL     , moffs8
+    // REX.W + 0xA0	    MOV AL     , moffs8
+    //         0xA1	    MOV AX     , moffs16
+    //         0xA1	    MOV EAX    , moffs32
+    // REX.W + 0xA1	    MOV RAX    , moffs64
+    //         0xA2	    MOV moffs8 , AL
+    // REX.W + 0xA2	    MOV moffs8 , AL
+    //         0xA3	    MOV moffs16, AX
+	//		   0xA3		MOV moffs32, EAX
+	// REX.W + 0xA3		MOV moffs64, RAX
+    //         0xB0+rb	MOV r8     , imm8
+    // REX   + 0xB0+rb	MOV r8     , imm8
+    //         0xB8+rw	MOV r16    , imm16
+    //         0xB8+rd	MOV r32    , imm32
+    // REX.W + 0xB8+rd	MOV r64    , imm64
+    //         0xC6 /0	MOV r/m8   , imm8
+    // REX.W + 0xC6 /0	MOV r/m8   , imm8
+    //         0xC7 /0	MOV r/m16  , imm16
+    //         0xC7 /0	MOV r/m32  , imm32
+    // REX.W + 0xC7 /0	MOV r/m64  , imm64
 }
 
 void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {

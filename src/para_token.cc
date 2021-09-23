@@ -21,20 +21,12 @@ TParaToken::TParaToken(void) {
 TParaToken::TParaToken(const string& token_string, TTokenType type) {
     _token_string = token_string;
     _type = type;
-
-    if (_type != TTokenType::ttIdentifier) {
-        return;
-    }
     SetAttribute();
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
     _token_string = token._token_string;
     _type = token._type;
-
-    if (_type != TTokenType::ttIdentifier) {
-        return;
-    }
     SetAttribute();
 }
 
@@ -42,28 +34,35 @@ TParaToken::~TParaToken() {
 }
 
 void TParaToken::SetAttribute() {
-    std::regex registers(R"(AL|BL|CL|DL|EAX|EBX|ECX|EDX|AX|BX|CX|DX|AH|BH|CH|DH|ESP|EDI|EBP|ESI|SP|DI|BP|SI)");
+    // https://ja.wikibooks.org/wiki/X86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%A9/x86%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3
+    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
+    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
+    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
+    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
     std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
 
-    if (std::regex_match(_token_string, registers)) {
-        _attr = TIdentiferAttribute::ttReg;
+    if (std::regex_match(_token_string, registers8)) {
+        _attr = TIdentiferAttribute::ttReg8;
+    } else if (std::regex_match(_token_string, registers16)) {
+        _attr = TIdentiferAttribute::ttReg16;
+    } else if (std::regex_match(_token_string, registers32)) {
+        _attr = TIdentiferAttribute::ttReg32;
     } else if (std::regex_match(_token_string, segment_registers)) {
         _attr = TIdentiferAttribute::ttSegReg;
-    } else {
+    } else if (IsIdentifier()) {
         _attr = TIdentiferAttribute::ttRel;
+    } else if (IsImmediate()) {
+        _attr = TIdentiferAttribute::ttImm;
+    } else {
+        _attr = TIdentiferAttribute::ttAttrUnknown;
     }
 }
 
 std::string TParaToken::to_string() const {
     std::ostringstream oss;
     oss << "token_type: " << TTokenNames[_type]
-        << ", token_string: " << _token_string;
-
-    if (_type != TTokenType::ttIdentifier) {
-        return oss.str();
-    }
-
-    oss << ", token_attribute: " << TIAttributeNames[_attr];
+        << ", token_string: " << _token_string
+        << ", token_attribute: " << TIAttributeNames[_attr];
     return oss.str();
 }
 
@@ -80,6 +79,10 @@ bool TParaToken::IsKeyword(void) const {
 
 bool TParaToken::IsIdentifier(void) const {
     return (_type == TParaToken::ttIdentifier);
+}
+
+bool TParaToken::IsImmediate(void) const {
+    return IsInteger() || IsHex() || IsFloating();
 }
 
 bool TParaToken::IsInteger(void) const {

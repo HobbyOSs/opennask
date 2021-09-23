@@ -49,21 +49,29 @@ public:
 
     // オペランドの種類
     enum TIdentiferAttribute {
-        ttReg = 0,
+        ttReg8 = 0,
+        ttReg16,
+        ttReg32,
+        ttReg64,
         ttSegReg,
         ttMem,
         ttAcc,
         ttImm,
         ttRel,
+        ttAttrUnknown,
     };
 
     static constexpr const char* TIAttributeNames[] = {
-        "ttReg",
+        "ttReg8",
+        "ttReg16",
+        "ttReg32",
+        "ttReg64",
         "ttSegReg",
         "ttMem",
         "ttAcc",
         "ttImm",
         "ttRel",
+        "ttAttrUnknown",
     };
 
 public:
@@ -76,6 +84,7 @@ public:
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;
     bool IsIdentifier(void) const;
+    bool IsImmediate(void) const;
     bool IsInteger(void) const;
     bool IsHex(void) const;
     bool IsFloating(void) const;
