@@ -21,14 +21,35 @@ TParaToken::TParaToken(void) {
 TParaToken::TParaToken(const string& token_string, TTokenType type) {
     _token_string = token_string;
     _type = type;
+
+    if (_type != TTokenType::ttIdentifier) {
+        return;
+    }
+    SetAttribute();
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
     _token_string = token._token_string;
     _type = token._type;
+
+    if (_type != TTokenType::ttIdentifier) {
+        return;
+    }
+    SetAttribute();
 }
 
 TParaToken::~TParaToken() {
+}
+
+void TParaToken::SetAttribute() {
+    std::regex registers(R"(AL|BL|CL|DL|EAX|EBX|ECX|EDX|AX|BX|CX|DX|AH|BH|CH|DH|ESP|EDI|EBP|ESI|SP|DI|BP|SI)");
+    std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
+
+    if (std::regex_match(_token_string, registers)) {
+        _attr = TIdentiferAttribute::ttReg;
+    } else if (std::regex_match(_token_string, segment_registers)) {
+        _attr = TIdentiferAttribute::ttSegReg;
+    }
 }
 
 std::string TParaToken::to_string() const {

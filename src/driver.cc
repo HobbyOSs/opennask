@@ -72,8 +72,6 @@ void Driver::visitExp(Exp *t) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
     } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
         this->visitRangeExp(dynamic_cast<RangeExp*>(t));
-    } else if (dynamic_cast<LabelExp*>(t) != nullptr) {
-        this->visitLabelExp(dynamic_cast<LabelExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     }
@@ -320,7 +318,6 @@ void Driver::Delete(T *pt) {
         } else if (dynamic_cast<IndirectAddrExp*>(exp) != nullptr) {
         } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
         } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
         } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
             log()->trace("success cast {}", type(imm_exp));
 
@@ -400,6 +397,10 @@ void Driver::visitProg(Prog *prog) {
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
+
+    TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    log()->debug("visitLabelStmt: args = {}", t.to_string());
 }
 
 
@@ -736,12 +737,15 @@ void Driver::visitLabel(Label x) {
     log()->debug("label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
-    if (LabelCalc l = label_calc_stack.top(); l.label == label) {
-        l.dst_index = this->binout_container.size();
-        const size_t offset = l.get_offset();
-        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
-        binout_container[l.src_index - 1] = offset;
-        label_calc_stack.pop();
+    if (label_calc_stack.size() > 0) {
+        LabelCalc l = label_calc_stack.top();
+        if (l.label == label) {
+            l.dst_index = this->binout_container.size();
+            const size_t offset = l.get_offset();
+            log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
+            binout_container[l.src_index - 1] = offset;
+            label_calc_stack.pop();
+        }
     } else {
         log()->debug("unmatch!!! in={}, stack size={}", label, label_calc_stack.size());
     }
@@ -767,11 +771,12 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
 
         } else if (array[i].IsIdentifier()) {
             std::stringstream str_ss;
-            if(i != 0) {
-                str_ss << sep;
-            }
-            for (auto hex : array[i].AsString()) {
-                str_ss << sep << "'" << hex << "'";
+            for (size_t i = 0; i < array.size(); i++) {
+                auto hex = array[i].AsString();
+                if (i!=0) {
+                    str_ss << sep;
+                }
+                str_ss << "'" << hex << "'";
             }
             ss << str_ss.str();
         }

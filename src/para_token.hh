@@ -8,9 +8,11 @@
 
 
 #include <string>
+#include <regex>
 
 
 class TParaToken {
+
 public:
     enum TTokenType {
         ttKeyword,
@@ -43,14 +45,24 @@ public:
         "ttUnknown",
     };
 
-    static_assert(sizeof(TParaToken::TTokenNames)/sizeof(char*) == TParaToken::ttSizeOfEnum
-                  , "sizes dont match");
+    static_assert(sizeof(TParaToken::TTokenNames)/sizeof(char*) == TParaToken::ttSizeOfEnum, "sizes dont match");
+
+    // オペランドの種類
+    enum TIdentiferAttribute {
+        ttReg = 0,
+        ttSegReg,
+        ttMem,
+        ttAcc,
+        ttImm,
+        ttRel,
+    };
 
 public:
     TParaToken(void);
     TParaToken(const std::string& token_string, TTokenType type);
     TParaToken(const TParaToken& token);
     ~TParaToken();
+    void SetAttribute();
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;
@@ -77,6 +89,7 @@ public:
 protected:
     std::string _token_string;
     TTokenType _type;
+    TIdentiferAttribute _attr;
 };
 
 
