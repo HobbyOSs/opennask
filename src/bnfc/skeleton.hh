@@ -31,7 +31,6 @@ public:
   void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitDatatypeExp(DatatypeExp *p);
   void visitRangeExp(RangeExp *p);
-  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);
