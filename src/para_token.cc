@@ -49,12 +49,21 @@ void TParaToken::SetAttribute() {
         _attr = TIdentiferAttribute::ttReg;
     } else if (std::regex_match(_token_string, segment_registers)) {
         _attr = TIdentiferAttribute::ttSegReg;
+    } else {
+        _attr = TIdentiferAttribute::ttRel;
     }
 }
 
 std::string TParaToken::to_string() const {
     std::ostringstream oss;
-    oss << "token_type: " << TTokenNames[_type] << ", token_string: " << _token_string;
+    oss << "token_type: " << TTokenNames[_type]
+        << ", token_string: " << _token_string;
+
+    if (_type != TTokenType::ttIdentifier) {
+        return oss.str();
+    }
+
+    oss << ", token_attribute: " << TIAttributeNames[_attr];
     return oss.str();
 }
 

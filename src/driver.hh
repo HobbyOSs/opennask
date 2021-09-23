@@ -80,6 +80,7 @@ public:
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
     void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override;
+    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override;
     void visitOpcodesORG(OpcodesORG *opcodes_org) override;
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
 
@@ -88,6 +89,7 @@ public:
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processMOV(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
 

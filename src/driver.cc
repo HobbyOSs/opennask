@@ -425,7 +425,6 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     std::vector<TParaToken> mnemonic_args;
     size_t size = this->ctx.size();
-    mnemonic_args.reserve(size);
 
     for (int i = 0; i < size; i++ ) {
         TParaToken t = this->ctx.top();
@@ -435,7 +434,6 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     std::reverse(mnemonic_args.begin(), mnemonic_args.end());
     std::string debug_str = this->join(mnemonic_args, ",");
-    log()->debug("visitMnemonicStmt: args = [{}]", debug_str);
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -445,6 +443,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
+        std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
     };
@@ -488,8 +487,6 @@ void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
 
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
-            // std::string s = e.AsString();
-            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
@@ -512,8 +509,6 @@ void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
 
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
-            // std::string s = e.AsString();
-            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
@@ -556,6 +551,12 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     label_calc_stack.push(label_calc);
 }
 
+void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
+
+    std::string debug_str = this->join(mnemonic_args, ",");
+    log()->debug("processMOV: args = [{}]", debug_str);
+}
+
 void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
@@ -572,6 +573,7 @@ void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
 void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
 void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {}
 void Driver::visitOpcodesJMP(OpcodesJMP *opcodes_jmp) {}
+void Driver::visitOpcodesMOV(OpcodesMOV *opcodes_mov) {}
 void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {}
 
 
@@ -587,6 +589,7 @@ void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
         mnemo_arg->exp_->accept(this);
     }
     TParaToken t = this->ctx.top();
+    log()->debug("visitMnemoArg: {}", t.to_string());
     this->ctx.pop();
     this->ctx.push(t);
 }
@@ -770,15 +773,7 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
                << array[i].AsLong();
 
         } else if (array[i].IsIdentifier()) {
-            std::stringstream str_ss;
-            for (size_t i = 0; i < array.size(); i++) {
-                auto hex = array[i].AsString();
-                if (i!=0) {
-                    str_ss << sep;
-                }
-                str_ss << "'" << hex << "'";
-            }
-            ss << str_ss.str();
+            ss << "'" << array[i].AsString() << "'";
         }
     }
     return ss.str();

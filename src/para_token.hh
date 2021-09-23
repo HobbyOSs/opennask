@@ -57,6 +57,15 @@ public:
         ttRel,
     };
 
+    static constexpr const char* TIAttributeNames[] = {
+        "ttReg",
+        "ttSegReg",
+        "ttMem",
+        "ttAcc",
+        "ttImm",
+        "ttRel",
+    };
+
 public:
     TParaToken(void);
     TParaToken(const std::string& token_string, TTokenType type);
