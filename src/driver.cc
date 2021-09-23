@@ -1,6 +1,7 @@
 #include <fstream>
 #include <typeinfo>
 #include <type_traits>
+#include "matchit.h"
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"

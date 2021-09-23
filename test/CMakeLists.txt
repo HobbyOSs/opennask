@@ -5,10 +5,11 @@ find_package(CppUTest REQUIRED)
 ########### next target ###############
 
 # general settings
-include_directories(${root_SOURCE_DIR}/parasol)
-include_directories(${root_SOURCE_DIR}/src)
-include_directories(${root_SOURCE_DIR}/src/bnfc)
-include_directories(${CPPUTEST_INCLUDE_DIR})
+include_directories(${root_SOURCE_DIR}/parasol
+  ${root_SOURCE_DIR}/src
+  ${root_SOURCE_DIR}/src/bnfc
+  ${CPPUTEST_INCLUDE_DIR}
+  ${matchit_SOURCE_DIR}/include)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
