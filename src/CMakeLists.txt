@@ -1,7 +1,7 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(opennask CXX)
-set(opennask_VERSION \"1.0.0\")
+set(opennask_VERSION \"1.0.1\")
 
 include_directories(
   ${root_SOURCE_DIR}/parasol
