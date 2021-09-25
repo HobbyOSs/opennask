@@ -198,6 +198,14 @@ double TParaToken::AsDouble(void) const noexcept(false) {
     return double_value;
 }
 
+TParaToken::TTokenType TParaToken::AsType() const {
+    return _type;
+}
+
+TParaToken::TIdentiferAttribute TParaToken::AsAttr() const {
+    return _attr;
+}
+
 TParaToken& TParaToken::RemoveQuotation(char quoter) {
 
     if (_token_string.size() > 1) {

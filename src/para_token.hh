@@ -100,6 +100,8 @@ public:
     int AsInt(void) const noexcept(false);
     long AsLong(void) const noexcept(false);
     double AsDouble(void) const noexcept(false);
+    TTokenType AsType() const;
+    TIdentiferAttribute AsAttr() const;
     TParaToken& RemoveQuotation(char quoter = '\0');
     TParaToken& MustBe(const std::string& expected_string) noexcept(false);
     TParaToken& MustBe(TTokenType expected_token_type) noexcept(false);
