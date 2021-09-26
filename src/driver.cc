@@ -595,15 +595,20 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
             const uint8_t base = 0xb0;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
-            std::vector<uint8_t> b = {0xb0, 0x00}; return b;
+            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            return b;
         },
 		pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            const uint8_t base = 0xb0;
-            std::vector<uint8_t> b = {0xb8, 0x00}; return b;
+            const uint8_t base = 0xb8;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
+            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            return b;
         },
 		pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            const uint8_t base = 0xb0;
-            std::vector<uint8_t> b = {0xb8, 0x00}; return b;
+            const uint8_t base = 0xb8;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
+            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            return b;
         },
 
         // REX.W + 0xB8+rd	MOV r64    , imm64
@@ -614,6 +619,10 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
         pattern | _ = [&] { log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>(); }
     );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
 }
 
 void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {

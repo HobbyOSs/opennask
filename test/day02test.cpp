@@ -48,12 +48,12 @@ TEST(day02_suite, helloos3) {
 
 entry:
 		MOV		AX,0			; レジスタ初期化
-		MOV		SS,AX
-		MOV		SP,0x7c00
-		MOV		DS,AX
-		MOV		ES,AX
+		;MOV		SS,AX
+		;MOV		SP,0x7c00
+		;MOV		DS,AX
+		;MOV		ES,AX
 
-		MOV		SI,msg
+		;MOV		SI,msg
 ;putloop:
 		;MOV		AL,[SI]
 		;ADD		SI,1			; SIに1を足す
@@ -111,6 +111,9 @@ entry:
     expected.insert(expected.end(), {0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x2d, 0x4f, 0x53, 0x20, 0x20, 0x20});
     expected.insert(expected.end(), {0x46, 0x41, 0x54, 0x31, 0x32, 0x20, 0x20, 0x20});
 	expected.insert(expected.end(), std::begin(resb18), std::end(resb18));
+
+    expected.insert(expected.end(), {0xb8, 0x00, 0x00});
+
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
     CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
