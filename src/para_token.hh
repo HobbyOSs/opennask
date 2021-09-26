@@ -100,6 +100,9 @@ public:
     int AsInt(void) const noexcept(false);
     long AsLong(void) const noexcept(false);
     double AsDouble(void) const noexcept(false);
+    std::array<uint8_t, 1> AsUInt8t(void) const noexcept(false);
+    std::array<uint8_t, 2> AsUInt16t(void) const noexcept(false);
+    std::array<uint8_t, 4> AsUInt32t(void) const noexcept(false);
     TTokenType AsType() const;
     TIdentiferAttribute AsAttr() const;
     TParaToken& RemoveQuotation(char quoter = '\0');

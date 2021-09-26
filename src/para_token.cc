@@ -198,6 +198,29 @@ double TParaToken::AsDouble(void) const noexcept(false) {
     return double_value;
 }
 
+std::array<uint8_t, 1> TParaToken::AsUInt8t() const {
+    const int v = AsInt();
+    return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
+}
+
+std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
+    const int word = AsInt();
+    return std::array<uint8_t, 2>{
+        static_cast<uint8_t>( word & 0xff ),
+        static_cast<uint8_t>( (word >> 8) & 0xff ),
+    };
+}
+
+std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
+    const long dword = AsLong();
+    return std::array<uint8_t, 4>{
+        static_cast<uint8_t>( dword & 0xff ),
+        static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+        static_cast<uint8_t>( (dword >> 16) & 0xff ),
+        static_cast<uint8_t>( (dword >> 24) & 0xff ),
+    };
+}
+
 TParaToken::TTokenType TParaToken::AsType() const {
     return _type;
 }

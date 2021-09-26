@@ -595,19 +595,25 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
             const uint8_t base = 0xb0;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
-            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
 		pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
-            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
 		pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
-            std::vector<uint8_t> b = {opcode, static_cast<uint8_t>(mnemonic_args[1].AsInt())};
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
 
