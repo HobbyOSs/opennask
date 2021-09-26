@@ -21,7 +21,7 @@ namespace ModRM {
             const std::string supplied_hex = (hex_string.substr(2).size() % 2 == 0) ?
                 hex_string.substr(2) : "0" + hex_string.substr(2);
             const size_t s = supplied_hex.size() / 2;
-            log()->info("check imm size: {} => {}", hex_string, s);
+            log()->debug("check imm size: {} => {}", hex_string, s);
             return s;
         } else {
             return 0;
@@ -39,7 +39,7 @@ namespace ModRM {
     }
 
     const std::string get_rm_from_reg(const std::string& src_reg) {
-        log()->info("ModR/M bit detecting... {}", src_reg);
+        log()->debug("ModR/M bit detecting... {}", src_reg);
         std::smatch match;
 
         const size_t imm = get_imm_size_evenif_bracket(src_reg);
@@ -128,7 +128,7 @@ namespace ModRM {
         }
 
         std::bitset<8> bs(modrm);
-        log()->info("Generate ModR/M: bitset:{}", modrm);
+        log()->debug("Generate ModR/M: bitset:{}", modrm);
         return bs.to_ulong();
     };
 
@@ -177,7 +177,7 @@ namespace ModRM {
         }
         modrm += get_rm_from_reg(dst_reg);
         std::bitset<8> bs(modrm);
-        log()->info("Generate ModR/M: bitset:{}", modrm);
+        log()->debug("Generate ModR/M: bitset:{}", modrm);
         return bs.to_ulong();
     };
 
@@ -193,7 +193,7 @@ namespace ModRM {
         // [r/m] 3bit
         //
         std::bitset<8> bsl(op);
-        log()->info("Generate ModR/M: d bit:{} dst:{}, src:{}", bsl[3], dst_reg, src_reg);
+        log()->debug("Generate ModR/M: d bit:{} dst:{}, src:{}", bsl[3], dst_reg, src_reg);
         std::string modrm = ModRM::MOD_TO_STR.at(m);
 
         //        hgfedcba
@@ -204,15 +204,15 @@ namespace ModRM {
         // The d bit in the opcode determines which operand is the source,
         // and which is the destination
         if (bsl[3]) { // d=0 or 1
-            log()->info("d=1: REG <- MOD R/M, REG is the destination");
+            log()->debug("d=1: REG <- MOD R/M, REG is the destination");
             modrm += get_rm_from_reg(dst_reg);
             modrm += get_rm_from_reg(src_reg);
         } else {
-            log()->info("d=0: MOD R/M <- REG, REG is the source");
+            log()->debug("d=0: MOD R/M <- REG, REG is the source");
             modrm += get_rm_from_reg(src_reg);
             modrm += get_rm_from_reg(dst_reg);
         }
-        log()->info("Generate ModR/M: bitset:{}", modrm);
+        log()->debug("Generate ModR/M: bitset:{}", modrm);
         std::bitset<8> bs(modrm);
         return bs.to_ulong();
     };
@@ -224,10 +224,10 @@ namespace ModRM {
         // [index] 3bit
         // [base ] 3bit
         //
-        log()->info("Generate SIB byte: scale:{} index:{}, base:{}", scale, index_reg, base_reg);
+        log()->debug("Generate SIB byte: scale:{} index:{}, base:{}", scale, index_reg, base_reg);
         const std::string sib = "00" + get_rm_from_reg(base_reg) + get_rm_from_reg(base_reg);
         std::bitset<8> bsl(sib);
-        log()->info("SIB byte: {}", sib);
+        log()->debug("SIB byte: {}", sib);
         return bsl.to_ulong();
     }
 
