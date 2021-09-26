@@ -74,6 +74,8 @@ namespace nask_utility {
     bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token);
     bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
     template<size_t N> bool is_registers_with_args(const TParaToken& token, const std::array<std::string, N>& regs);
+    // FIXME: tinyexprは削除予定なのでここに移動
+    std::string expr_math_op(const std::string& subject);
 
     bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
 
@@ -209,6 +211,7 @@ namespace nask_utility {
         void set_nimonic_with_register(const std::string& reg,
                                        NIMONIC_INFO* nim_info,
                                        TParaTokenizer& tokenizer);
+
     };
 }
 

@@ -33,7 +33,6 @@ namespace nask_utility {
 
     bool is_contains_math_op(const std::string& subject);
     std::string replace_hex2dec(const std::string& subject);
-    std::string expr_math_op(const std::string& subject);
 };
 
 #endif /* STRING_UTIL_HPP_ */

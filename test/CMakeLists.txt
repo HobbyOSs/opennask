@@ -55,7 +55,7 @@ set(modrmtest_SRCS
 add_executable(modrmtest ${modrmtest_SRCS})
 target_link_libraries(modrmtest parasol Threads::Threads ${CPPUTEST_LIBRARY})
 
-set_property(TARGET modrmtest PROPERTY CXX_STANDARD 11)
+set_property(TARGET modrmtest PROPERTY CXX_STANDARD 17)
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD_REQUIRED ON)
 
 add_test(
