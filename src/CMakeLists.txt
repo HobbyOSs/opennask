@@ -32,6 +32,10 @@ set(nask_parse_SRCS
   para_token.hh
   demangle.hpp
   demangle.cpp
+  mod_rm.cpp
+  mod_rm.hpp
+  string_util.cpp
+  string_util.hpp
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc

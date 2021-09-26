@@ -5,7 +5,7 @@
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
-#include "string_util.hpp"
+#include "mod_rm.hpp"
 
 
 using namespace std::placeholders;
@@ -593,12 +593,16 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xB8+rw	MOV r16    , imm16
         //         0xB8+rd	MOV r32    , imm32
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            const uint8_t base = 0xb0;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, mnemonic_args[0].AsString());
             std::vector<uint8_t> b = {0xb0, 0x00}; return b;
         },
 		pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+            const uint8_t base = 0xb0;
             std::vector<uint8_t> b = {0xb8, 0x00}; return b;
         },
 		pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+            const uint8_t base = 0xb0;
             std::vector<uint8_t> b = {0xb8, 0x00}; return b;
         },
 
