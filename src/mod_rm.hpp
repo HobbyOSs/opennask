@@ -154,6 +154,8 @@ namespace nask_utility {
         uint8_t generate_modrm(const uint8_t op, enum mods m, const std::string& src_reg, const std::string& dst_reg);
         uint8_t generate_sib(const std::string& base_reg, const std::string& index_reg, int scale = 0);
         bool is_accumulator(const std::string& reg);
+        size_t get_imm_size(const std::string& hex_string);
+        size_t get_imm_size_evenif_bracket(const std::string& hex_string);
     };
 };
 
