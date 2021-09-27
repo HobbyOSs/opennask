@@ -55,7 +55,7 @@ entry:
 
 		;MOV		SI,msg
 putloop:
-		;MOV		AL,[SI]
+		MOV		AL,[SI]
 		;ADD		SI,1			; SIに1を足す
 		;CMP		AL,0
 		;JE		fin
@@ -117,6 +117,8 @@ putloop:
     expected.insert(expected.end(), {0xbc, 0x00, 0x7c});
     expected.insert(expected.end(), {0x8e, 0xd8});
     expected.insert(expected.end(), {0x8e, 0xc0});
+
+    expected.insert(expected.end(), {0x8a, 0x04});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());

@@ -316,7 +316,14 @@ void Driver::Delete(T *pt) {
         } else if (dynamic_cast<MulExp*>(exp) != nullptr) {
         } else if (dynamic_cast<DivExp*>(exp) != nullptr) {
         } else if (dynamic_cast<ModExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<IndirectAddrExp*>(exp) != nullptr) {
+        } else if (auto indirect_addr_exp = dynamic_cast<IndirectAddrExp*>(exp); indirect_addr_exp != nullptr) {
+            log()->trace("success cast {}", type(indirect_addr_exp));
+
+            this->Delete<Exp>(indirect_addr_exp->exp_);
+
+            log()->trace("delete {}", type(indirect_addr_exp->exp_));
+            delete(indirect_addr_exp->exp_);
+
         } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
         } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
         } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
@@ -558,8 +565,6 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
-    const std::string src = mnemonic_args[0].AsString();
-    const std::string dst = mnemonic_args[1].AsString();
 
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
@@ -567,17 +572,48 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0x89 /r	MOV r/m16  , r16
         //         0x89 /r	MOV r/m32  , r32
         // REX.W + 0x89 /r	MOV r/m64  , r64
+
         //         0x8A /r	MOV r8     , r/m8
         // REX   + 0x8A /r	MOV r8     , r/m8
         //         0x8B /r	MOV r16    , r/m16
         //         0x8B /r	MOV r32    , r/m32
         // REX.W + 0x8B /r	MOV r64    , r/m64
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8a;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8b;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8b;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+
         //         0x8C /r	MOV r/m16  , Sreg
         // REX.W + 0x8C /r	MOV r/m16  , Sreg
-
         //         0x8E /r	MOV Sreg   , r/m16
         // REX.W + 0x8E /r	MOV Sreg   , r/m64
         pattern | ds(TParaToken::ttSegReg , _) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
             const uint8_t base = 0x8e;
             const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG, dst, src);
             std::vector<uint8_t> b = {base, modrm};
@@ -600,6 +636,9 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xB8+rw	MOV r16    , imm16
         //         0xB8+rd	MOV r32    , imm32
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
             const uint8_t base = 0xb0;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
@@ -607,7 +646,10 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-		pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
@@ -615,7 +657,10 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-		pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
@@ -683,6 +728,17 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
         imm_exp->factor_->accept(this);
     }
     TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(t);
+}
+
+void Driver::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
+    if (indirect_addr_exp->exp_) {
+        indirect_addr_exp->exp_->accept(this);
+    }
+    // [SI] のような間接アドレス表現を読み取る
+    TParaToken t = this->ctx.top();
+    t.SetAttribute(TParaToken::ttMem);
     this->ctx.pop();
     this->ctx.push(t);
 }

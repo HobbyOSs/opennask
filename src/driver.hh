@@ -95,6 +95,7 @@ public:
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitIndirectAddrExp(IndirectAddrExp *p) override;
     void visitPlusExp(PlusExp *p) override;
     void visitMinusExp(MinusExp *p) override;
     void visitMulExp(MulExp *p) override;

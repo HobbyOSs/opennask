@@ -80,6 +80,7 @@ public:
     TParaToken(const TParaToken& token);
     ~TParaToken();
     void SetAttribute();
+    void SetAttribute(TIdentiferAttribute attr);
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;

@@ -212,9 +212,10 @@ namespace ModRM {
             modrm += get_rm_from_reg(src_reg);
             modrm += get_rm_from_reg(dst_reg);
         }
-        log()->debug("Generate ModR/M: bitset:{}", modrm);
         std::bitset<8> bs(modrm);
-        return bs.to_ulong();
+        const uint8_t b = bs.to_ulong();
+        log()->debug("Generate ModR/M: bin:0x{0:02x}, bitset:{1}", b, modrm);
+        return b;
     };
 
     uint8_t generate_sib(const std::string& base_reg, const std::string& index_reg, int scale) {

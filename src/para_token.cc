@@ -27,7 +27,7 @@ TParaToken::TParaToken(const string& token_string, TTokenType type) {
 TParaToken::TParaToken(const TParaToken& token) {
     _token_string = token._token_string;
     _type = token._type;
-    SetAttribute();
+    _attr = token._attr;
 }
 
 TParaToken::~TParaToken() {
@@ -56,6 +56,10 @@ void TParaToken::SetAttribute() {
     } else {
         _attr = TIdentiferAttribute::ttAttrUnknown;
     }
+}
+
+void TParaToken::SetAttribute(TIdentiferAttribute attr) {
+    _attr = attr;
 }
 
 std::string TParaToken::to_string() const {
