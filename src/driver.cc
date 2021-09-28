@@ -448,6 +448,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesADD", std::bind(&Driver::processADD, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
@@ -478,6 +479,69 @@ void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
             std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
+}
+
+void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+    std::string dst = mnemonic_args[0].AsString();
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0x04 ib		ADD AL, imm8		imm8をALに加算する
+        // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
+        // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
+        // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+        // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
+        // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
+
+        // 0x81 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+        // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
+        // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x81;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
+        // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
+        // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
+        // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
+        // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
+        // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
+        // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
+
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
 }
 
 void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
@@ -675,7 +739,9 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m16  , imm16
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
-        pattern | _ = [&] { log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>(); }
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
     );
 
     // 結果を投入
@@ -694,6 +760,7 @@ void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
 //
 // Visit Opcode系の処理
 //
+void Driver::visitOpcodesADD(OpcodesADD *opcodes_add) {}
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
 void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
 void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}

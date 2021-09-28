@@ -56,7 +56,7 @@ entry:
 		;MOV		SI,msg
 putloop:
 		MOV		AL,[SI]
-		;ADD		SI,1			; SIに1を足す
+		ADD		SI,1			; SIに1を足す
 		;CMP		AL,0
 		;JE		fin
 		;MOV		AH,0x0e			; 一文字表示ファンクション
@@ -119,6 +119,7 @@ putloop:
     expected.insert(expected.end(), {0x8e, 0xc0});
 
     expected.insert(expected.end(), {0x8a, 0x04});
+    expected.insert(expected.end(), {0x83, 0xc6, 0x01});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
