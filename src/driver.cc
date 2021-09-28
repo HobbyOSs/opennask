@@ -453,6 +453,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
@@ -573,7 +574,7 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
 			const uint8_t base = 0x3d;
 			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt8t();
+			auto imm = mnemonic_args[1].AsUInt16t();
 			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
 			return b;
 		},
@@ -581,7 +582,7 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
 			const uint8_t base = 0x3d;
 			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt8t();
+			auto imm = mnemonic_args[1].AsUInt32t();
 			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
 			return b;
 		},
@@ -672,6 +673,20 @@ void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
     std::vector<uint8_t> resb(arg.AsLong(), 0);
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
+}
+
+void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    binout_container.push_back(0x74);
+    binout_container.push_back(0x00);
+
+    std::string label = arg.AsString().substr(0, arg.AsString().find(":", 0));
+    auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
+    log()->debug("JE label: {}", label);
+    label_calc_stack.push(label_calc);
 }
 
 void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
@@ -830,6 +845,7 @@ void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
 void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
 void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
 void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {}
+void Driver::visitOpcodesJE(OpcodesJE *opcodes_je) {}
 void Driver::visitOpcodesJMP(OpcodesJMP *opcodes_jmp) {}
 void Driver::visitOpcodesMOV(OpcodesMOV *opcodes_mov) {}
 void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {}

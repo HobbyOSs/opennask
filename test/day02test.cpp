@@ -58,9 +58,9 @@ putloop:
 		MOV		AL,[SI]
 		ADD		SI,1			; SIに1を足す
 		CMP		AL,0
-		;JE		fin
-		;MOV		AH,0x0e			; 一文字表示ファンクション
-		;MOV		BX,15			; カラーコード
+		JE		fin
+		MOV		AH,0x0e			; 一文字表示ファンクション
+		MOV		BX,15			; カラーコード
 		;INT		0x10			; ビデオBIOS呼び出し
 		;JMP		putloop
 ;fin:
@@ -121,6 +121,9 @@ putloop:
     expected.insert(expected.end(), {0x8a, 0x04});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});
     expected.insert(expected.end(), {0x3c, 0x00});
+    expected.insert(expected.end(), {0x74, 0x00});
+    expected.insert(expected.end(), {0xb4, 0x0e});
+    expected.insert(expected.end(), {0xbb, 0x0f, 0x00});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
