@@ -57,7 +57,7 @@ entry:
 putloop:
 		MOV		AL,[SI]
 		ADD		SI,1			; SIに1を足す
-		;CMP		AL,0
+		CMP		AL,0
 		;JE		fin
 		;MOV		AH,0x0e			; 一文字表示ファンクション
 		;MOV		BX,15			; カラーコード
@@ -120,6 +120,7 @@ putloop:
 
     expected.insert(expected.end(), {0x8a, 0x04});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});
+    expected.insert(expected.end(), {0x3c, 0x00});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());

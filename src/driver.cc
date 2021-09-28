@@ -449,6 +449,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&Driver::processADD, this, _1)),
+        std::make_pair("OpcodesCMP", std::bind(&Driver::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
@@ -533,6 +534,69 @@ void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
         // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
         // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
         // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
+
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
+}
+
+void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    std::string dst = mnemonic_args[0].AsString();
+    log()->debug("processCMP dst={}", dst);
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0x3C ib		CMP AL, imm8		imm8をALと比較します
+        // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
+        // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+        pattern | ds("AL", TParaToken::ttReg8, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x3c;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+			const uint8_t base = 0x3d;
+			std::vector<uint8_t> b = {base};
+			auto imm = mnemonic_args[1].AsUInt8t();
+			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+			return b;
+		},
+		pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+			const uint8_t base = 0x3d;
+			std::vector<uint8_t> b = {base};
+			auto imm = mnemonic_args[1].AsUInt8t();
+			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+			return b;
+		},
+
+        // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
+        // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します
+        // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します
+        // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
+        // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
+        // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
+        // 0x39 /r		CMP r/m16, r16		r16をr/m16と比較します
+        // 0x39 /r		CMP r/m32, r32		r32をr/m32と比較します
+        // 0x3A /r		CMP r8, r/m8		r/m8をr8と比較します
+        // 0x3B /r		CMP r16, r/m16		r/m16をr16と比較します
+        // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
 
         pattern | _ = [&] {
             log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
@@ -761,6 +825,7 @@ void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
 // Visit Opcode系の処理
 //
 void Driver::visitOpcodesADD(OpcodesADD *opcodes_add) {}
+void Driver::visitOpcodesCMP(OpcodesCMP *opcodes_cmp) {}
 void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
 void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
 void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
