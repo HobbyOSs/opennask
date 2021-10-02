@@ -18,8 +18,8 @@ sed -i 's/%pure_parser/%define api.pure/g' nask.y
 sed -i 's/ p\(.*const\)/ ps\1/g' parser.hh
 
 # flexでdebugログ出す設定
-# sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.l
-# sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l
+#sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.l
+#sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l
 
 # commentのstate設定の修正
 sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g' nask.l
@@ -28,6 +28,9 @@ sed -i 's/^<COMMENT>\[/<COMMENT>\[^/g' nask.l
 sed -i 's/<COMMENT1>\".*\"/<COMMENT1>\\n/g' nask.l
 sed -i '/^<COMMENT1>\./d' nask.l
 sed -i 's/^<COMMENT1>\[/<COMMENT1>\[^/g' nask.l
+
+# memory leakの原因のdeleteをコメントアウト
+sed -i 's/delete(/\/\/delete(/g' absyn.cc
 
 
 make

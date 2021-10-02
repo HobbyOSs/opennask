@@ -1,6 +1,5 @@
 #include "string_util.hpp"
 #include "mod_rm.hpp"
-#include "tinyexpr.h"
 #include "nask_defs.hpp"
 
 namespace nask_utility {
@@ -15,7 +14,7 @@ namespace nask_utility {
 
     bool is_imm8(const std::string& token) {
         if (is_hex_notation(token)) {
-            bool t = (get_imm_size(token) == imm8) ? true : false;
+            bool t = (ModRM::get_imm_size(token) == imm8) ? true : false;
             log()->info("{} is imm8 ? : {}", token, t);
             return t;
         } else {
@@ -71,27 +70,6 @@ namespace nask_utility {
         return "";
     }
 
-    std::string expr_math_op(const std::string& subject) {
-
-        const std::regex reg_numeric("([^0-9]*)([-\\*/+0-9]*)([^0-9]*)");
-
-        try {
-            std::smatch match;
-            if (std::regex_search(subject, match, reg_numeric) && match.size() > 1) {
-                int error;
-                const int process = te_interp(match[2].str().c_str(), &error);
-                const std::string cat = match[1].str() + match[2].str() + match[3].str();
-                const std::string empty = "";
-
-                std::string result = replace(subject, cat, empty);
-                return match[1].str() + std::to_string(process) + match[3].str() + result;
-            }
-        } catch (std::regex_error& e) {
-            log()->info(e.what());
-        }
-        return "";
-    }
-
     bool is_integer(const std::string& s) {
         if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
         char * p ;
@@ -103,30 +81,6 @@ namespace nask_utility {
         return s.compare(0, 2, "0x") == 0
             && s.size() > 2
             && s.find_first_not_of("0123456789abcdefABCDEF", 2) == std::string::npos;
-    }
-
-    size_t get_imm_size_evenif_bracket(const std::string& hex_string) {
-        if (starts_with(hex_string, "[") && ends_with(hex_string, "]")) {
-            std::string reg = hex_string;
-            reg = reg.erase(0, 1);
-            reg = reg.erase(reg.size() - 1);
-            return get_imm_size(reg);
-        } else {
-            return get_imm_size(hex_string);
-        }
-    }
-
-    size_t get_imm_size(const std::string& hex_string) {
-        if (is_hex_notation(hex_string)) {
-            // サイズが偶数じゃないような場合の調整 ex) 0xffc => 0x0ffc
-            const std::string supplied_hex = (hex_string.substr(2).size() % 2 == 0) ?
-                hex_string.substr(2) : "0" + hex_string.substr(2);
-            const size_t s = supplied_hex.size() / 2;
-            log()->info("check imm size: {} => {}", hex_string, s);
-            return s;
-        } else {
-            return 0;
-        }
     }
 
     std::ifstream::pos_type filesize(const char* filename) {

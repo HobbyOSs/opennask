@@ -99,6 +99,27 @@ namespace nask_utility {
         }
     }
 
+    std::string expr_math_op(const std::string& subject) {
+
+        const std::regex reg_numeric("([^0-9]*)([-\\*/+0-9]*)([^0-9]*)");
+
+        try {
+            std::smatch match;
+            if (std::regex_search(subject, match, reg_numeric) && match.size() > 1) {
+                int error;
+                const int process = te_interp(match[2].str().c_str(), &error);
+                const std::string cat = match[1].str() + match[2].str() + match[3].str();
+                const std::string empty = "";
+
+                std::string result = replace(subject, cat, empty);
+                return match[1].str() + std::to_string(process) + match[3].str() + result;
+            }
+        } catch (std::regex_error& e) {
+            log()->info(e.what());
+        }
+        return "";
+    }
+
     // Instructionクラスの定数を初期化
     Instructions::Instructions() {
         // デフォルトのトークンテーブル
@@ -1449,7 +1470,7 @@ namespace nask_utility {
                 // JMP rel32 | 0xE9 cd
 
                 // offset = dst - src - current_pos
-                if (is_between_bytesize(token.AsLong()) && imm8 == get_imm_size(token.AsString())) {
+                if (is_between_bytesize(token.AsLong()) && imm8 == ModRM::get_imm_size(token.AsString())) {
                     // 0xEB
                     const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 2;
                     log()->debug("JMP: {}", token.AsString());
@@ -1460,11 +1481,11 @@ namespace nask_utility {
                     // 0xE9
                     log()->debug("JMP: ", token.AsString());
                     const long jmp_offset = (token.AsLong() - dollar_position - binout_container.size()) - 3;
-                    if (get_imm_size(token.AsString()) == imm16) {
+                    if (ModRM::get_imm_size(token.AsString()) == imm16) {
                         log()->debug("0xe9 with Word {}", jmp_offset);
                         binout_container.push_back(0xe9);
                         set_word_into_binout(jmp_offset, binout_container);
-                    } else if (get_imm_size(token.AsString()) == imm32) {
+                    } else if (ModRM::get_imm_size(token.AsString()) == imm32) {
                         log()->debug("0xe9 with Dword {}", jmp_offset);
                         binout_container.push_back(0xe9);
                         set_dword_into_binout(jmp_offset, binout_container);
@@ -1868,7 +1889,7 @@ namespace nask_utility {
                     log()->debug("{} + {}", dst_reg, src_imm);
                     std::tuple<std::string, std::string> tp_dst = ModRM::REGISTERS_RRR_MAP.at(dst_reg);
                     // Imm8 or Imm16
-                    const size_t imm_size = get_imm_size(src_token.AsString());
+                    const size_t imm_size = ModRM::get_imm_size(src_token.AsString());
                     log()->debug("imm size: {}", imm_size);
 
                     if (ModRM::is_accumulator(dst_reg)) {

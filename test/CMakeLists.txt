@@ -5,10 +5,11 @@ find_package(CppUTest REQUIRED)
 ########### next target ###############
 
 # general settings
-include_directories(${root_SOURCE_DIR}/parasol)
-include_directories(${root_SOURCE_DIR}/src)
-include_directories(${root_SOURCE_DIR}/src/bnfc)
-include_directories(${CPPUTEST_INCLUDE_DIR})
+include_directories(${root_SOURCE_DIR}/parasol
+  ${root_SOURCE_DIR}/src
+  ${root_SOURCE_DIR}/src/bnfc
+  ${CPPUTEST_INCLUDE_DIR}
+  ${matchit_SOURCE_DIR}/include)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -26,7 +27,8 @@ set(parsertest_SRCS
   ../src/driver.cc
   ../src/demangle.cpp
   ../src/para_token.cc
-  ../src/para_token.hh)
+  ../src/mod_rm.cpp
+  ../src/string_util.cpp)
 
 add_executable(parsertest ${parsertest_SRCS})
 target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
@@ -54,7 +56,7 @@ set(modrmtest_SRCS
 add_executable(modrmtest ${modrmtest_SRCS})
 target_link_libraries(modrmtest parasol Threads::Threads ${CPPUTEST_LIBRARY})
 
-set_property(TARGET modrmtest PROPERTY CXX_STANDARD 11)
+set_property(TARGET modrmtest PROPERTY CXX_STANDARD 17)
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD_REQUIRED ON)
 
 add_test(
@@ -76,7 +78,8 @@ set(day01test_SRCS
   ../src/driver.cc
   ../src/demangle.cpp
   ../src/para_token.cc
-  ../src/para_token.hh)
+  ../src/mod_rm.cpp
+  ../src/string_util.cpp)
 
 add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day01test Threads::Threads ${CPPUTEST_LIBRARY})
@@ -91,6 +94,35 @@ add_test(
 )
 
 set_tests_properties(day01test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
+# `ctest -R day02`
+set(day02test_SRCS
+  day02test.cpp
+  ../src/bnfc/skeleton.cc
+  ../src/bnfc/absyn.cc
+  ../src/bnfc/parser.cc
+  ../src/bnfc/printer.cc
+  ../src/bnfc/lexer.cc
+  ../src/bnfc/buffer.cc
+  ../src/driver.cc
+  ../src/demangle.cpp
+  ../src/para_token.cc
+  ../src/mod_rm.cpp
+  ../src/string_util.cpp)
+
+add_executable(day02test ${day02test_SRCS} ${BACKWARD_ENABLE})
+target_link_libraries(day02test Threads::Threads ${CPPUTEST_LIBRARY})
+add_backward(day02test)
+
+set_property(TARGET day02test PROPERTY CXX_STANDARD 17)
+set_property(TARGET day02test PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(
+  NAME day02test
+  COMMAND $<TARGET_FILE:day02test>
+)
+
+set_tests_properties(day02test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
 # `ctest -R day04`
 set(day04test_SRCS

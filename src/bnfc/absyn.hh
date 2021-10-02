@@ -45,7 +45,6 @@ class ModExp;
 class IndirectAddrExp;
 class DatatypeExp;
 class RangeExp;
-class LabelExp;
 class ImmExp;
 class NumberFactor;
 class HexFactor;
@@ -415,7 +414,6 @@ public:
   virtual void visitIndirectAddrExp(IndirectAddrExp *p) = 0;
   virtual void visitDatatypeExp(DatatypeExp *p) = 0;
   virtual void visitRangeExp(RangeExp *p) = 0;
-  virtual void visitLabelExp(LabelExp *p) = 0;
   virtual void visitImmExp(ImmExp *p) = 0;
   virtual void visitNumberFactor(NumberFactor *p) = 0;
   virtual void visitHexFactor(HexFactor *p) = 0;
@@ -1055,20 +1053,6 @@ public:
   virtual void accept(Visitor *v);
   virtual RangeExp *clone() const;
   void swap(RangeExp &);
-};
-
-class LabelExp : public Exp
-{
-public:
-  Label label_;
-
-  LabelExp(const LabelExp &);
-  LabelExp &operator=(const LabelExp &);
-  LabelExp(Label p1);
-  ~LabelExp();
-  virtual void accept(Visitor *v);
-  virtual LabelExp *clone() const;
-  void swap(LabelExp &);
 };
 
 class ImmExp : public Exp

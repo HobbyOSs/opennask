@@ -705,49 +705,6 @@ RangeExp *RangeExp::clone() const
 
 
 
-/********************   LabelExp    ********************/
-LabelExp::LabelExp(Label p1)
-{
-  label_ = p1;
-
-}
-
-LabelExp::LabelExp(const LabelExp & other)
-{
-  label_ = other.label_;
-
-}
-
-LabelExp &LabelExp::operator=(const LabelExp & other)
-{
-  LabelExp tmp(other);
-  swap(tmp);
-  return *this;
-}
-
-void LabelExp::swap(LabelExp & other)
-{
-  std::swap(label_, other.label_);
-
-}
-
-LabelExp::~LabelExp()
-{
-
-}
-
-void LabelExp::accept(Visitor *v)
-{
-  v->visitLabelExp(this);
-}
-
-LabelExp *LabelExp::clone() const
-{
-  return new LabelExp(*this);
-}
-
-
-
 /********************   ImmExp    ********************/
 ImmExp::ImmExp(Factor *p1)
 {
@@ -14279,3 +14236,8 @@ ListMnemonicArgs* consListMnemonicArgs(MnemonicArgs* x, ListMnemonicArgs* xs) {
   xs->insert(xs->begin(), x);
   return xs;
 }
+
+
+
+
+

@@ -8,9 +8,11 @@
 
 
 #include <string>
+#include <regex>
 
 
 class TParaToken {
+
 public:
     enum TTokenType {
         ttKeyword,
@@ -43,18 +45,47 @@ public:
         "ttUnknown",
     };
 
-    static_assert(sizeof(TParaToken::TTokenNames)/sizeof(char*) == TParaToken::ttSizeOfEnum
-                  , "sizes dont match");
+    static_assert(sizeof(TParaToken::TTokenNames)/sizeof(char*) == TParaToken::ttSizeOfEnum, "sizes dont match");
+
+    // オペランドの種類
+    enum TIdentiferAttribute {
+        ttReg8 = 0,
+        ttReg16,
+        ttReg32,
+        ttReg64,
+        ttSegReg,
+        ttMem,
+        ttAcc,
+        ttImm,
+        ttRel,
+        ttAttrUnknown,
+    };
+
+    static constexpr const char* TIAttributeNames[] = {
+        "ttReg8",
+        "ttReg16",
+        "ttReg32",
+        "ttReg64",
+        "ttSegReg",
+        "ttMem",
+        "ttAcc",
+        "ttImm",
+        "ttRel",
+        "ttAttrUnknown",
+    };
 
 public:
     TParaToken(void);
     TParaToken(const std::string& token_string, TTokenType type);
     TParaToken(const TParaToken& token);
     ~TParaToken();
+    void SetAttribute();
+    void SetAttribute(TIdentiferAttribute attr);
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;
     bool IsIdentifier(void) const;
+    bool IsImmediate(void) const;
     bool IsInteger(void) const;
     bool IsHex(void) const;
     bool IsFloating(void) const;
@@ -70,6 +101,11 @@ public:
     int AsInt(void) const noexcept(false);
     long AsLong(void) const noexcept(false);
     double AsDouble(void) const noexcept(false);
+    std::array<uint8_t, 1> AsUInt8t(void) const noexcept(false);
+    std::array<uint8_t, 2> AsUInt16t(void) const noexcept(false);
+    std::array<uint8_t, 4> AsUInt32t(void) const noexcept(false);
+    TTokenType AsType() const;
+    TIdentiferAttribute AsAttr() const;
     TParaToken& RemoveQuotation(char quoter = '\0');
     TParaToken& MustBe(const std::string& expected_string) noexcept(false);
     TParaToken& MustBe(TTokenType expected_token_type) noexcept(false);
@@ -77,6 +113,7 @@ public:
 protected:
     std::string _token_string;
     TTokenType _type;
+    TIdentiferAttribute _attr;
 };
 
 

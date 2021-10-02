@@ -55,7 +55,6 @@ class PrintAbsyn : public Visitor
   void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitDatatypeExp(DatatypeExp *p);
   void visitRangeExp(RangeExp *p);
-  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
@@ -499,7 +498,6 @@ class ShowAbsyn : public Visitor
   void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitDatatypeExp(DatatypeExp *p);
   void visitRangeExp(RangeExp *p);
-  void visitLabelExp(LabelExp *p);
   void visitImmExp(ImmExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);

@@ -1,13 +1,16 @@
 #include <fstream>
 #include <typeinfo>
 #include <type_traits>
+#include "matchit.h"
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
-#include "string_util.hpp"
+#include "mod_rm.hpp"
 
 
 using namespace std::placeholders;
+
+
 
 Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
@@ -23,6 +26,19 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
     // nask
     this->dollar_position = 0;
 }
+
+Driver::~Driver() {
+    //if (demangle(m_parse_tree.type().name()) == "Program*") {
+    //    log()->trace("parse_tree is: Program!");
+    //    Program* parse_tree = std::any_cast<Program*>(m_parse_tree);
+    //    Delete<Program>(parse_tree);
+    //}
+
+    this->label_calc_map.clear();
+};
+
+std::map<std::string, LabelCalc>
+Driver::label_calc_map = std::map<std::string, LabelCalc>{};
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
 void Driver::visitProgram(Program *t) {
@@ -72,8 +88,6 @@ void Driver::visitExp(Exp *t) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
     } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
         this->visitRangeExp(dynamic_cast<RangeExp*>(t));
-    } else if (dynamic_cast<LabelExp*>(t) != nullptr) {
-        this->visitLabelExp(dynamic_cast<LabelExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     }
@@ -241,9 +255,8 @@ int Driver::Parse(IN input, const char* assembly_dst) {
         }
 
         this->Eval<T>(parse_tree, assembly_dst);
-        log()->debug("parse_tree is: {}", type(parse_tree));
-
-        this->Delete<T>(parse_tree);
+        //m_parse_tree = parse_tree;
+        Delete<T>(parse_tree);
 
         return 0;
     }
@@ -261,7 +274,7 @@ void Driver::Delete(T *pt) {
             log()->trace("iterate under prog {}", type(stmt));
             this->Delete<Statement>(stmt);
         }
-        delete(prog->liststatement_); //deleteできない
+        delete(prog->liststatement_);
         delete(prog);
 
     } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
@@ -269,7 +282,10 @@ void Driver::Delete(T *pt) {
         log()->trace("success cast {}", type(stmt));
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
-            // NOP
+            log()->trace("success cast {}", type(t));
+            log()->trace("delete {}", type(t->label_));
+            delete(t);
+
         } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
@@ -314,10 +330,16 @@ void Driver::Delete(T *pt) {
         } else if (dynamic_cast<MulExp*>(exp) != nullptr) {
         } else if (dynamic_cast<DivExp*>(exp) != nullptr) {
         } else if (dynamic_cast<ModExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<IndirectAddrExp*>(exp) != nullptr) {
+        } else if (auto indirect_addr_exp = dynamic_cast<IndirectAddrExp*>(exp); indirect_addr_exp != nullptr) {
+            log()->trace("success cast {}", type(indirect_addr_exp));
+
+            this->Delete<Exp>(indirect_addr_exp->exp_);
+
+            log()->trace("delete {}", type(indirect_addr_exp->exp_));
+            delete(indirect_addr_exp->exp_);
+
         } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
         } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<LabelExp*>(exp) != nullptr) {
         } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
             log()->trace("success cast {}", type(imm_exp));
 
@@ -341,6 +363,7 @@ void Driver::Delete(T *pt) {
         }
     }
 
+    //this->label_calc_map.clear();
     return;
 }
 
@@ -397,6 +420,10 @@ void Driver::visitProg(Prog *prog) {
 
 void Driver::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
+
+    TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    log()->debug("visitLabelStmt: args = {}", t.to_string());
 }
 
 
@@ -421,27 +448,32 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     std::vector<TParaToken> mnemonic_args;
     size_t size = this->ctx.size();
-    mnemonic_args.reserve(size);
 
     for (int i = 0; i < size; i++ ) {
+        // stackなので上から順に取得している
         TParaToken t = this->ctx.top();
-        mnemonic_args.push_back(t);
+        mnemonic_args.insert(mnemonic_args.begin(), t);
         this->ctx.pop();
     }
 
-    std::reverse(mnemonic_args.begin(), mnemonic_args.end());
     std::string debug_str = this->join(mnemonic_args, ",");
-    log()->debug("visitMnemonicStmt: args = [{}]", debug_str);
+    log()->debug("mnemonic_args={}", debug_str);
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesADD", std::bind(&Driver::processADD, this, _1)),
+        std::make_pair("OpcodesCMP", std::bind(&Driver::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
-        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
+        std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
+        std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
+        std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
@@ -467,6 +499,132 @@ void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+    std::string dst = mnemonic_args[0].AsString();
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0x04 ib		ADD AL, imm8		imm8をALに加算する
+        // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
+        // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
+        // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+        // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
+        // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
+
+        // 0x81 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+        // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
+        // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x81;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
+        // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
+        // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
+        // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
+        // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
+        // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
+        // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
+
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
+}
+
+void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    std::string dst = mnemonic_args[0].AsString();
+    log()->debug("processCMP dst={}", dst);
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0x3C ib		CMP AL, imm8		imm8をALと比較します
+        // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
+        // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+        pattern | ds("AL", TParaToken::ttReg8, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x3c;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+			const uint8_t base = 0x3d;
+			std::vector<uint8_t> b = {base};
+			auto imm = mnemonic_args[1].AsUInt16t();
+			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+			return b;
+		},
+		pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+			const uint8_t base = 0x3d;
+			std::vector<uint8_t> b = {base};
+			auto imm = mnemonic_args[1].AsUInt32t();
+			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+			return b;
+		},
+
+        // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
+        // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します
+        // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します
+        // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
+        // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
+        // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
+        // 0x39 /r		CMP r/m16, r16		r16をr/m16と比較します
+        // 0x39 /r		CMP r/m32, r32		r32をr/m32と比較します
+        // 0x3A /r		CMP r8, r/m8		r/m8をr8と比較します
+        // 0x3B /r		CMP r16, r/m16		r/m16をr16と比較します
+        // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
+
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
+}
+
 void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
@@ -483,8 +641,6 @@ void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
 
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
-            // std::string s = e.AsString();
-            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
@@ -507,8 +663,6 @@ void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
 
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
-            // std::string s = e.AsString();
-            // std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
         }
     }
 }
@@ -537,34 +691,208 @@ void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
-void Driver::processORG(std::vector<TParaToken>& memonic_args) {
-    for (const auto& e : memonic_args) {
-        std::cout << type(e) << std::endl;
+void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttHex);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    binout_container.push_back(0xcd);
+    binout_container.push_back(arg.AsInt());
+}
+
+void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    binout_container.push_back(0x74);
+    binout_container.push_back(0x00);
+
+    std::string label = arg.AsString();
+
+    if (label_calc_map.count(label) > 0) {
+        // ラベルのoffset計算が必要
+        LabelCalc l = label_calc_map[label];
+        l.dst_index = this->binout_container.size();
+        const size_t offset = l.get_offset();
+        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
+        binout_container[l.src_index - 1] = offset;
+    } else {
+        //LabelCalc* label_calc = &LabelCalc{label: label, src_index: binout_container.size()};
+        //label_calc_map[label] = label_calc->clone();
     }
+}
+
+void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    binout_container.push_back(0xeb);
+    binout_container.push_back(0x00);
+
+    std::string label = arg.AsString();
+
+    if (label_calc_map.count(label) > 0) {
+		// ラベルのoffset計算が必要
+	    auto l = label_calc_map[label];
+		l.dst_index = this->binout_container.size();
+		const size_t offset = l.get_offset();
+		log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
+		binout_container[l.src_index - 1] = offset;
+	} else {
+    	auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
+		label_calc_map[label] = label_calc;
+    }
+}
+
+void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        //         0x88 /r	MOV r/m8   , r8
+        // REX   + 0x88 /r	MOV r/m8   , r8
+        //         0x89 /r	MOV r/m16  , r16
+        //         0x89 /r	MOV r/m32  , r32
+        // REX.W + 0x89 /r	MOV r/m64  , r64
+
+        //         0x8A /r	MOV r8     , r/m8
+        // REX   + 0x8A /r	MOV r8     , r/m8
+        //         0x8B /r	MOV r16    , r/m16
+        //         0x8B /r	MOV r32    , r/m32
+        // REX.W + 0x8B /r	MOV r64    , r/m64
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8a;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8b;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem) = [&] {
+            const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
+            const std::string dst_reg = mnemonic_args[0].AsString();
+
+            const uint8_t base = 0x8b;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+
+        //         0x8C /r	MOV r/m16  , Sreg
+        // REX.W + 0x8C /r	MOV r/m16  , Sreg
+        //         0x8E /r	MOV Sreg   , r/m16
+        // REX.W + 0x8E /r	MOV Sreg   , r/m64
+        pattern | ds(TParaToken::ttSegReg , _) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0x8e;
+            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG, dst, src);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+
+        //         0xA0	    MOV AL     , moffs8
+        // REX.W + 0xA0	    MOV AL     , moffs8
+        //         0xA1	    MOV AX     , moffs16
+        //         0xA1	    MOV EAX    , moffs32
+        // REX.W + 0xA1	    MOV RAX    , moffs64
+        //         0xA2	    MOV moffs8 , AL
+        // REX.W + 0xA2	    MOV moffs8 , AL
+        //         0xA3	    MOV moffs16, AX
+        //		   0xA3		MOV moffs32, EAX
+        // REX.W + 0xA3		MOV moffs64, RAX
+
+        //         0xB0+rb	MOV r8     , imm8
+        // REX   + 0xB0+rb	MOV r8     , imm8
+        //         0xB8+rw	MOV r16    , imm16
+        //         0xB8+rd	MOV r32    , imm32
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0xb0;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0xb8;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0xb8;
+            const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
+            std::vector<uint8_t> b = {opcode};
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
+        // REX.W + 0xB8+rd	MOV r64    , imm64
+        //         0xC6 /0	MOV r/m8   , imm8
+        // REX.W + 0xC6 /0	MOV r/m8   , imm8
+        //         0xC7 /0	MOV r/m16  , imm16
+        //         0xC7 /0	MOV r/m32  , imm32
+        // REX.W + 0xC7 /0	MOV r/m64  , imm64
+        pattern | _ = [&] {
+            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
+}
+
+void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttHex);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    dollar_position = arg.AsLong();
 }
 
 //
 // Visit Opcode系の処理
 //
-void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {
-    // NOP
-}
-
-void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {
-    // NOP
-}
-
-void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {
-    // NOP
-}
-
-void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {
-    // NOP
-}
-
-void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {
-    // NOP
-}
+void Driver::visitOpcodesADD(OpcodesADD *opcodes_add) {}
+void Driver::visitOpcodesCMP(OpcodesCMP *opcodes_cmp) {}
+void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
+void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
+void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
+void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {}
+void Driver::visitOpcodesINT(OpcodesINT *opcodes_int) {}
+void Driver::visitOpcodesJE(OpcodesJE *opcodes_je) {}
+void Driver::visitOpcodesJMP(OpcodesJMP *opcodes_jmp) {}
+void Driver::visitOpcodesMOV(OpcodesMOV *opcodes_mov) {}
+void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {}
 
 
 void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
@@ -579,6 +907,7 @@ void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
         mnemo_arg->exp_->accept(this);
     }
     TParaToken t = this->ctx.top();
+    log()->debug("visitMnemoArg: {}", t.to_string());
     this->ctx.pop();
     this->ctx.push(t);
 }
@@ -591,6 +920,17 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
         imm_exp->factor_->accept(this);
     }
     TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    this->ctx.push(t);
+}
+
+void Driver::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
+    if (indirect_addr_exp->exp_) {
+        indirect_addr_exp->exp_->accept(this);
+    }
+    // [SI] のような間接アドレス表現を読み取る
+    TParaToken t = this->ctx.top();
+    t.SetAttribute(TParaToken::ttMem);
     this->ctx.pop();
     this->ctx.push(t);
 }
@@ -724,16 +1064,23 @@ void Driver::visitHex(Hex x) {
 }
 
 void Driver::visitLabel(Label x) {
-    // label: (label_dstと呼ぶ)
-    // 1) label_dstの位置を記録する → label_dst_stack
-    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
 
-    std::string label_dst = x.substr(0, x.find(":", 0));
-    log()->debug("coming another label: {} bin[{}]",
-                 label_dst, std::to_string(this->binout_container.size()));
+    std::string label = x.substr(0, x.find(":", 0));
+    log()->debug("label='{}' binout_container[{}]",
+                 label, std::to_string(this->binout_container.size()));
 
-    //inst.store_label_dst(label_dst, binout_container);
-    //inst.update_label_dst_offset(label_dst, binout_container);
+    if (label_calc_map.count(label) > 0) {
+        // ラベルのoffset計算が必要
+        auto l = label_calc_map[label];
+        l.dst_index = this->binout_container.size();
+        const size_t offset = l.get_offset();
+        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
+        binout_container[l.src_index - 1] = offset;
+    } else {
+        //LabelCalc label_calc = LabelCalc{label: label, dst_index: binout_container.size()};
+        //label_calc_map.emplace(label, label_calc);
+        label_calc_map.emplace(label, LabelCalc{label: label, dst_index: binout_container.size()});
+    }
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
@@ -755,14 +1102,7 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
                << array[i].AsLong();
 
         } else if (array[i].IsIdentifier()) {
-            std::stringstream str_ss;
-            if(i != 0) {
-                str_ss << sep;
-            }
-            for (auto hex : array[i].AsString()) {
-                str_ss << sep << "'" << hex << "'";
-            }
-            ss << str_ss.str();
+            ss << "'" << array[i].AsString() << "'";
         }
     }
     return ss.str();

@@ -365,17 +365,6 @@ void PrintAbsyn::visitRangeExp(RangeExp *p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitLabelExp(LabelExp *p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  visitLabel(p->label_);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitImmExp(ImmExp *p)
 {
   int oldi = _i_;
@@ -4345,14 +4334,6 @@ void ShowAbsyn::visitRangeExp(RangeExp *p)
   p->exp_1->accept(this);
   bufAppend(' ');
   p->exp_2->accept(this);
-  bufAppend(')');
-}
-void ShowAbsyn::visitLabelExp(LabelExp *p)
-{
-  bufAppend('(');
-  bufAppend("LabelExp");
-  bufAppend(' ');
-  visitLabel(p->label_);
   bufAppend(')');
 }
 void ShowAbsyn::visitImmExp(ImmExp *p)

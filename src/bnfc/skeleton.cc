@@ -148,14 +148,6 @@ void Skeleton::visitRangeExp(RangeExp *range_exp)
 
 }
 
-void Skeleton::visitLabelExp(LabelExp *label_exp)
-{
-  /* Code For LabelExp Goes Here */
-
-  visitLabel(label_exp->label_);
-
-}
-
 void Skeleton::visitImmExp(ImmExp *imm_exp)
 {
   /* Code For ImmExp Goes Here */

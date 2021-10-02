@@ -461,7 +461,6 @@ Exp : Exp _PLUS Exp { $$ = new PlusExp($1, $3); result->exp_ = $$; }
   | _LBRACK Exp _RBRACK { $$ = new IndirectAddrExp($2); result->exp_ = $$; }
   | DataType _LBRACK Exp _RBRACK { $$ = new DatatypeExp($1, $3); result->exp_ = $$; }
   | DataType Exp _COLON Exp { $$ = new RangeExp($1, $2, $4); result->exp_ = $$; }
-  | T_Label { $$ = new LabelExp($1); result->exp_ = $$; }
   | Factor { $$ = new ImmExp($1); result->exp_ = $$; }
 ;
 Factor : _INTEGER_ { $$ = new NumberFactor($1); result->factor_ = $$; }

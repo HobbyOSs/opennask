@@ -21,19 +21,52 @@ TParaToken::TParaToken(void) {
 TParaToken::TParaToken(const string& token_string, TTokenType type) {
     _token_string = token_string;
     _type = type;
+    SetAttribute();
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
     _token_string = token._token_string;
     _type = token._type;
+    _attr = token._attr;
 }
 
 TParaToken::~TParaToken() {
 }
 
+void TParaToken::SetAttribute() {
+    // https://ja.wikibooks.org/wiki/X86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%A9/x86%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3
+    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
+    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
+    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
+    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
+    std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
+
+    if (std::regex_match(_token_string, registers8)) {
+        _attr = TIdentiferAttribute::ttReg8;
+    } else if (std::regex_match(_token_string, registers16)) {
+        _attr = TIdentiferAttribute::ttReg16;
+    } else if (std::regex_match(_token_string, registers32)) {
+        _attr = TIdentiferAttribute::ttReg32;
+    } else if (std::regex_match(_token_string, segment_registers)) {
+        _attr = TIdentiferAttribute::ttSegReg;
+    } else if (IsIdentifier()) {
+        _attr = TIdentiferAttribute::ttRel;
+    } else if (IsImmediate()) {
+        _attr = TIdentiferAttribute::ttImm;
+    } else {
+        _attr = TIdentiferAttribute::ttAttrUnknown;
+    }
+}
+
+void TParaToken::SetAttribute(TIdentiferAttribute attr) {
+    _attr = attr;
+}
+
 std::string TParaToken::to_string() const {
     std::ostringstream oss;
-    oss << "token_type: " << TTokenNames[_type] << ", token_string: " << _token_string;
+    oss << "token_type: " << TTokenNames[_type]
+        << ", token_string: " << _token_string
+        << ", token_attribute: " << TIAttributeNames[_attr];
     return oss.str();
 }
 
@@ -50,6 +83,10 @@ bool TParaToken::IsKeyword(void) const {
 
 bool TParaToken::IsIdentifier(void) const {
     return (_type == TParaToken::ttIdentifier);
+}
+
+bool TParaToken::IsImmediate(void) const {
+    return IsInteger() || IsHex() || IsFloating();
 }
 
 bool TParaToken::IsInteger(void) const {
@@ -163,6 +200,37 @@ double TParaToken::AsDouble(void) const noexcept(false) {
     }
 
     return double_value;
+}
+
+std::array<uint8_t, 1> TParaToken::AsUInt8t() const {
+    const int v = AsInt();
+    return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
+}
+
+std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
+    const int word = AsInt();
+    return std::array<uint8_t, 2>{
+        static_cast<uint8_t>( word & 0xff ),
+        static_cast<uint8_t>( (word >> 8) & 0xff ),
+    };
+}
+
+std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
+    const long dword = AsLong();
+    return std::array<uint8_t, 4>{
+        static_cast<uint8_t>( dword & 0xff ),
+        static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+        static_cast<uint8_t>( (dword >> 16) & 0xff ),
+        static_cast<uint8_t>( (dword >> 24) & 0xff ),
+    };
+}
+
+TParaToken::TTokenType TParaToken::AsType() const {
+    return _type;
+}
+
+TParaToken::TIdentiferAttribute TParaToken::AsAttr() const {
+    return _attr;
 }
 
 TParaToken& TParaToken::RemoveQuotation(char quoter) {

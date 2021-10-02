@@ -18,6 +18,7 @@ int main (int argc, char *argv[]) {
     char *filename = NULL;
 
     struct option long_options[] = {
+        { "version", no_argument, NULL, 'V' },
         { "parse",   no_argument, NULL, 'p' },
         { "scan",    no_argument, NULL, 's' },
         { "verbose", no_argument, NULL, 'v' },
@@ -29,7 +30,7 @@ int main (int argc, char *argv[]) {
 
         switch(opt){
         case 'V':
-            printf("opennask \n");
+            printf("opennask %s \n", OPENNASK_VERSION);
             printf("Copyright (C) 2021 Hiroyuki Nagata.\n"
                    "ライセンス GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.\n"
                    "This is free software: you are free to change and redistribute it.\n"
