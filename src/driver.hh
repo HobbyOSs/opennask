@@ -17,10 +17,10 @@
 
 struct LabelCalc {
     std::string label;   // ex) entry
-    size_t src_index;
-    size_t dst_index;
+    int src_index;
+    int dst_index;
 
-    size_t get_offset() {
+    int get_offset() {
         return dst_index - src_index;
     };
 };
@@ -77,21 +77,23 @@ public:
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
+    void visitOpcodeStmt(OpcodeStmt *opcode_stmt) override;
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
-    // opcodeの読み取り
-    void visitOpcodesADD(OpcodesADD *opcodes_add) override;
-    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override;
-    void visitOpcodesDB(OpcodesDB *opcodes_db) override;
-    void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
-    void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
-    void visitOpcodesINT(OpcodesINT *opcodes_int) override;
-    void visitOpcodesJE(OpcodesJE *opcodes_je) override;
-    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override;
-    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override;
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
-    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
+    // opcodeの読み取り(空の実装)
+    void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
+    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
+    void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
+    void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
+    void visitOpcodesDD(OpcodesDD *opcodes_dd) override {};
+    void visitOpcodesHLT(OpcodesHLT *opcodes_hlt) override {};
+    void visitOpcodesINT(OpcodesINT *opcodes_int) override {};
+    void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
+    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
+    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
+    void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
+    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
 
     // opcodeの処理
     void processADD(std::vector<TParaToken>& memonic_args);
@@ -99,6 +101,7 @@ public:
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
+    void processHLT();
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);

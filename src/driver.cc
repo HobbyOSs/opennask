@@ -34,7 +34,9 @@ Driver::~Driver() {
     //    Delete<Program>(parse_tree);
     //}
 
-    this->label_calc_map.clear();
+    label_calc_map.clear();
+    //binout_container.clear();
+    //binout_container.shrink_to_fit();
 };
 
 std::map<std::string, LabelCalc>
@@ -255,7 +257,6 @@ int Driver::Parse(IN input, const char* assembly_dst) {
         }
 
         this->Eval<T>(parse_tree, assembly_dst);
-        //m_parse_tree = parse_tree;
         Delete<T>(parse_tree);
 
         return 0;
@@ -309,6 +310,7 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(t));
             delete(t->opcode_);
             log()->trace("delete {}", type(t->opcode_));
+            delete(t);
         }
 
     } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
@@ -363,7 +365,6 @@ void Driver::Delete(T *pt) {
         }
     }
 
-    //this->label_calc_map.clear();
     return;
 }
 
@@ -481,6 +482,28 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     funcs_type::iterator it = funcs.find(opcode);
     if (it != funcs.end()) {
         it->second(mnemonic_args);
+    } else {
+        std::cout << "not implemented..." << std::endl;
+    }
+}
+
+void Driver::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
+    if (opcode_stmt->opcode_) {
+        opcode_stmt->opcode_->accept(this);
+    }
+
+    typedef std::function<void()> nim_callback;
+    typedef std::map<std::string, nim_callback> funcs_type;
+
+    funcs_type funcs {
+        std::make_pair("OpcodesHLT", std::bind(&Driver::processHLT, this)),
+    };
+
+    const std::string opcode = type(*opcode_stmt->opcode_);
+
+    funcs_type::iterator it = funcs.find(opcode);
+    if (it != funcs.end()) {
+        it->second();
     } else {
         std::cout << "not implemented..." << std::endl;
     }
@@ -691,6 +714,10 @@ void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
+void Driver::processHLT() {
+    binout_container.push_back(0xf4);
+}
+
 void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
@@ -736,13 +763,13 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     if (label_calc_map.count(label) > 0) {
 		// ラベルのoffset計算が必要
 	    auto l = label_calc_map[label];
-		l.dst_index = this->binout_container.size();
-		const size_t offset = l.get_offset();
+		l.src_index = this->binout_container.size();
+		const int offset = l.get_offset();
 		log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
 		binout_container[l.src_index - 1] = offset;
 	} else {
-    	auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
-		label_calc_map[label] = label_calc;
+    	//auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
+		//label_calc_map[label] = label_calc;
     }
 }
 
@@ -882,19 +909,6 @@ void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
 //
 // Visit Opcode系の処理
 //
-void Driver::visitOpcodesADD(OpcodesADD *opcodes_add) {}
-void Driver::visitOpcodesCMP(OpcodesCMP *opcodes_cmp) {}
-void Driver::visitOpcodesDB(OpcodesDB *opcodes_db) {}
-void Driver::visitOpcodesDW(OpcodesDW *opcodes_db) {}
-void Driver::visitOpcodesDD(OpcodesDD *opcodes_dd) {}
-void Driver::visitOpcodesRESB(OpcodesRESB *opcodes_resb) {}
-void Driver::visitOpcodesINT(OpcodesINT *opcodes_int) {}
-void Driver::visitOpcodesJE(OpcodesJE *opcodes_je) {}
-void Driver::visitOpcodesJMP(OpcodesJMP *opcodes_jmp) {}
-void Driver::visitOpcodesMOV(OpcodesMOV *opcodes_mov) {}
-void Driver::visitOpcodesORG(OpcodesORG *opcodes_org) {}
-
-
 void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
 
     for (ListMnemonicArgs::iterator i = list_mnemonic_args->begin() ; i != list_mnemonic_args->end() ; ++i) {
@@ -1073,13 +1087,12 @@ void Driver::visitLabel(Label x) {
         // ラベルのoffset計算が必要
         auto l = label_calc_map[label];
         l.dst_index = this->binout_container.size();
-        const size_t offset = l.get_offset();
+        const int offset = l.get_offset();
         log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
         binout_container[l.src_index - 1] = offset;
     } else {
-        //LabelCalc label_calc = LabelCalc{label: label, dst_index: binout_container.size()};
-        //label_calc_map.emplace(label, label_calc);
-        label_calc_map.emplace(label, LabelCalc{label: label, dst_index: binout_container.size()});
+        auto label_calc = LabelCalc{label: label, dst_index: static_cast<int>(binout_container.size())};
+        label_calc_map.emplace(label, label_calc);
     }
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);

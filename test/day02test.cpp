@@ -62,9 +62,9 @@ putloop:
 		MOV		AH,0x0e			; 一文字表示ファンクション
 		MOV		BX,15			; カラーコード
 		INT		0x10			; ビデオBIOS呼び出し
-		;JMP		putloop
-;fin:
-		;HLT						; 何かあるまでCPUを停止させる
+		JMP		putloop
+fin:
+		HLT						; 何かあるまでCPUを停止させる
 		;JMP		fin				; 無限ループ
 
 ;msg:
@@ -85,10 +85,7 @@ putloop:
 		;RESB	1469432
 )";
 
-    //Driver* d = new Driver(false, false);
-    //delete d;
-
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<Driver> d(new Driver(true, true));
     d->Parse<Program>(nask_statements, "test.img");
 
     std::vector<uint8_t> expected = {};
@@ -128,7 +125,8 @@ putloop:
     expected.insert(expected.end(), {0xb4, 0x0e});
     expected.insert(expected.end(), {0xbb, 0x0f, 0x00});
     expected.insert(expected.end(), {0xcd, 0x10});
-    //expected.insert(expected.end(), {0xeb, 0xee});
+    expected.insert(expected.end(), {0xeb, 0xee});
+    expected.insert(expected.end(), {0xf4});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
