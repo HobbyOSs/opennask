@@ -27,14 +27,17 @@ struct LabelCalc {
 
 class Driver : public Skeleton {
 
+public:
+    virtual ~Driver();
+
 private:
     // 字句解析, 構文解析のフラグ
     bool trace_parsing;
     bool trace_scanning;
-    // ラベルによるオフセットの計算をする
-    std::stack<LabelCalc> label_calc_stack;
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
+    // ラベルによるオフセットの計算をする
+    static std::map<std::string, LabelCalc> label_calc_map;
     // $ の位置
     uint32_t dollar_position = 0;
 
@@ -50,6 +53,8 @@ public:
     template <class T, class IN>
     int Parse(IN input, const char* assembly_dst);
 
+    // 構文木
+    //std::any m_parse_tree;
     // ASTを評価し結果をファイルに書き込む
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
@@ -81,6 +86,7 @@ public:
     void visitOpcodesDB(OpcodesDB *opcodes_db) override;
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
     void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
+    void visitOpcodesINT(OpcodesINT *opcodes_int) override;
     void visitOpcodesJE(OpcodesJE *opcodes_je) override;
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override;
     void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override;
@@ -93,6 +99,7 @@ public:
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
+    void processINT(std::vector<TParaToken>& memonic_args);
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
