@@ -100,11 +100,11 @@ namespace LabelJmp {
         return it != std::end(label_dst_list);
     }
 
-    void store_label_src(std::string label_src,
-                         LabelSrcList& label_src_list,
-                         std::vector<uint8_t>& binout_container,
-                         bool abs,
-                         size_t offset_size) {
+    void store_label_src(std::string label_src,                  // ラベル
+                         LabelSrcList& label_src_list,           // 処理対象ラベルのリスト
+                         std::vector<uint8_t>& binout_container, // 出力するバイナリ
+                         bool abs,                               // オフセットを絶対位置で計算するか
+                         size_t offset_size) {                   // オフセットのサイズ(imm8/imm16/imm32)
 
         LabelSrcElement elem;
         elem.abs = abs;

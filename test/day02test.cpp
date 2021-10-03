@@ -85,6 +85,7 @@ msg:
 		RESB	1469432
 )";
 
+    // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
     std::unique_ptr<Driver> d(new Driver(true, true));
     d->Parse<Program>(nask_statements, "test.img");
 

@@ -834,6 +834,8 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //		   0xA3		MOV moffs32, EAX
         // REX.W + 0xA3		MOV moffs64, RAX
 
+
+
         //         0xB0+rb	MOV r8     , imm8
         // REX   + 0xB0+rb	MOV r8     , imm8
         //         0xB8+rw	MOV r16    , imm16
@@ -845,8 +847,20 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
             const uint8_t base = 0xb0;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+
+            if (std::get<1>(operands) == TParaToken::ttLabel) {
+                // immがラベルだった場合は後でオフセットを計算する
+                if (LabelJmp::dst_is_stored(dst)) {
+                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
+                } else {
+                    LabelJmp::store_label_src(dst, label_src_list, binout_container);
+                }
+                auto imm = std::array<uint8_t, 1>{0x00};
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            } else {
+                auto imm = mnemonic_args[1].AsUInt8t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            }
             return b;
         },
         pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel)) = [&] {
@@ -858,10 +872,13 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
                 // immがラベルだった場合は後でオフセットを計算する
-                //auto l = label_calc_map[dst];
-                //l.dst_index = this->binout_container.size();
-                //auto imm = {0x00, 0x00};
-				//std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                if (LabelJmp::dst_is_stored(dst)) {
+                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
+                } else {
+                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm16);
+                }
+                auto imm = std::array<uint8_t, 2>{0x00, 0x00};
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt16t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -876,8 +893,20 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
-            auto imm = mnemonic_args[1].AsUInt32t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+
+            if (std::get<1>(operands) == TParaToken::ttLabel) {
+                // immがラベルだった場合は後でオフセットを計算する
+                if (LabelJmp::dst_is_stored(dst)) {
+                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
+                } else {
+                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm32);
+                }
+                auto imm = std::array<uint8_t, 4>{0x00, 0x00};
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            } else {
+                auto imm = mnemonic_args[1].AsUInt32t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            }
             return b;
         },
 
