@@ -51,18 +51,12 @@ namespace LabelJmp {
     void update_label_dst_offset(std::string, LabelSrcList&, uint32_t, std::vector<uint8_t>&);
     bool dst_is_stored(std::string label_dst);
 
-    void set_word_into_binout(const uint16_t& word,
-                              std::vector<uint8_t>& binout_container,
-                              size_t start_index = 0);
-    void set_dword_into_binout(const uint32_t& dword,
-                               std::vector<uint8_t>& binout_container,
-                               size_t start_index = 0);
-
     // ":"がついてないラベルがジャンプ元(src)を扱う関数
-    //void store_label_src(std::string label_src,std::vector<uint8_t>& binout_container, bool abs = false, size_t offset_size = imm8);
-    //const long get_label_src_offset(std::string label_src); // DB, DW, DD用
-    //bool update_label_src_offset(std::string label_src, std::vector<uint8_t>& binout_container, uint8_t nim);
-    //bool update_label_src_offset(std::string label_src, std::vector<uint8_t>& binout_container);
+    void store_label_src(std::string, LabelSrcList& ,std::vector<uint8_t>&, bool abs = false, size_t offset_size = imm8);
+    void update_label_src_offset(std::string, LabelDstList&, uint8_t, std::vector<uint8_t>&);
+
+    void set_word_into_binout(const uint16_t&, std::vector<uint8_t>&, size_t start_index = 0);
+    void set_dword_into_binout(const uint32_t&, std::vector<uint8_t>&, size_t start_index = 0);
 };
 
 #endif // ! LABEL_HPP

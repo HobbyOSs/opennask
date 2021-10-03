@@ -100,6 +100,45 @@ namespace LabelJmp {
         return it != std::end(label_dst_list);
     }
 
+    void store_label_src(std::string label_src,
+                         LabelSrcList& label_src_list,
+                         std::vector<uint8_t>& binout_container,
+                         bool abs,
+                         size_t offset_size) {
+
+        LabelSrcElement elem;
+        elem.abs = abs;
+        elem.offset_size = offset_size;
+        elem.label = label_src;
+        elem.src_index = binout_container.size();
+        elem.rel_index = binout_container.size() + 1;
+        label_src_list.push_back(elem);
+    }
+
+    void update_label_src_offset(std::string label_src,
+                                 LabelDstList& label_dst_list,
+                                 uint8_t nim,
+                                 std::vector<uint8_t>& binout_container) {
+
+        auto it = std::find_if(std::begin(label_dst_list), std::end(label_dst_list),
+                               [&](const LabelDstElement& elem)
+                               { return elem.label == label_src; });
+
+        if (it != std::end(label_dst_list)) {
+            LabelDstElement elem(*it);
+            elem.dst_index = binout_container.size();
+            elem.rel_index = binout_container.size() + 1;
+            log()->debug("update_label_src_offset bin[{}] = {}",
+                         std::to_string(elem.rel_index),
+                         elem.rel_offset());
+
+            binout_container.push_back(nim);
+            binout_container.push_back(elem.rel_offset());
+        }
+
+        return;
+    }
+
     // uint16_tで数値を読み取った後uint8_t型にデータを分けて、リトルエンディアンで格納する
     //
     // @param word             格納するWORDサイズのバイナリ
@@ -125,7 +164,6 @@ namespace LabelJmp {
     }
 
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    // nask的にはDDは0x00を普通に詰めるらしい（仕様ブレブレすぎだろ…）
     void set_dword_into_binout(const uint32_t& dword,
                                std::vector<uint8_t>& binout_container,
                                size_t start_index) {
@@ -170,47 +208,5 @@ namespace LabelJmp {
         return 0;
     }
 
-    // OPECODE label (label_srcと呼ぶ)
-    // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
-    //    処理対象があれば true, 処理対象がなければ false
-    bool update_label_src_offset(std::string label_src,
-                                               std::vector<uint8_t>& binout_container,
-                                               uint8_t nim) {
-
-        auto it = std::find_if(std::begin(label_dst_list), std::end(label_dst_list),
-                               [&](const LabelDstElement& elem)
-                               { return elem.label == label_src; });
-
-        if (it != std::end(label_dst_list)) {
-            LabelDstElement elem(*it);
-            elem.dst_index = binout_container.size();
-            elem.rel_index = binout_container.size() + 1;
-            log()->debug("update_label_src_offset bin[{}] = {}",
-                         std::to_string(elem.rel_index),
-                         elem.rel_offset());
-
-            binout_container.push_back(nim);
-            binout_container.push_back(elem.rel_offset());
-            return true;
-        }
-
-        return false;
-    }
-
-    // OPECODE label (label_srcと呼ぶ)
-    // 1) 同名のlabel_dstが保存されていれば、オフセット値を計算して終了
-    //    処理対象があれば true, 処理対象がなければ false
-    bool update_label_src_offset(std::string label_src,
-                                               std::vector<uint8_t>& binout_container) {
-
-        auto it = std::find_if(std::begin(label_dst_list), std::end(label_dst_list),
-                               [&](const LabelDstElement& elem)
-                               { return elem.label == label_src; });
-
-        if (it != std::end(label_dst_list)) {
-            return true;
-        }
-
-        return false;
-    }**/
+    **/
 }

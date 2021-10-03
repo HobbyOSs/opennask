@@ -734,23 +734,16 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
-    binout_container.push_back(0x74);
-    binout_container.push_back(0x00);
-
     std::string label = arg.AsString();
 
-    /**
-    if (label_calc_map.count(label) > 0) {
-        // ラベルのoffset計算が必要
-        LabelCalc l = label_calc_map[label];
-        l.dst_index = this->binout_container.size();
-        const size_t offset = l.get_offset();
-        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
-        binout_container[l.src_index - 1] = offset;
+    if (LabelJmp::dst_is_stored(label)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x74, binout_container);
     } else {
-        //LabelCalc* label_calc = &LabelCalc{label: label, src_index: binout_container.size()};
-        //label_calc_map[label] = label_calc->clone();
-    }*/
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x74);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
 }
 
 void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
@@ -758,22 +751,16 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
-    binout_container.push_back(0xeb);
-    binout_container.push_back(0x00);
-
     std::string label = arg.AsString();
-    /**
-    if (label_calc_map.count(label) > 0) {
-		// ラベルのoffset計算が必要
-	    auto l = label_calc_map[label];
-		l.src_index = this->binout_container.size();
-		const int offset = l.get_offset();
-		log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
-		binout_container[l.src_index - 1] = offset;
-	} else {
-    	//auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
-		//label_calc_map[label] = label_calc;
-    }*/
+
+    if (LabelJmp::dst_is_stored(label)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0xeb);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
 }
 
 void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
