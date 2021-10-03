@@ -34,13 +34,13 @@ Driver::~Driver() {
     //    Delete<Program>(parse_tree);
     //}
 
-    label_calc_map.clear();
+    //label_calc_map.clear();
     //binout_container.clear();
     //binout_container.shrink_to_fit();
 };
 
-std::map<std::string, LabelCalc>
-Driver::label_calc_map = std::map<std::string, LabelCalc>{};
+LabelDstList Driver::label_dst_list = LabelDstList{};
+LabelSrcList Driver::label_src_list = LabelSrcList{};
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
 void Driver::visitProgram(Program *t) {
@@ -737,6 +737,7 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
 
     std::string label = arg.AsString();
 
+    /**
     if (label_calc_map.count(label) > 0) {
         // ラベルのoffset計算が必要
         LabelCalc l = label_calc_map[label];
@@ -747,7 +748,7 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
     } else {
         //LabelCalc* label_calc = &LabelCalc{label: label, src_index: binout_container.size()};
         //label_calc_map[label] = label_calc->clone();
-    }
+    }*/
 }
 
 void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
@@ -759,7 +760,7 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     binout_container.push_back(0x00);
 
     std::string label = arg.AsString();
-
+    /**
     if (label_calc_map.count(label) > 0) {
 		// ラベルのoffset計算が必要
 	    auto l = label_calc_map[label];
@@ -770,7 +771,7 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
 	} else {
     	//auto label_calc = LabelCalc{label: label, src_index: binout_container.size()};
 		//label_calc_map[label] = label_calc;
-    }
+    }*/
 }
 
 void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
@@ -859,15 +860,24 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel)) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
-
             const uint8_t base = 0xb8;
             const uint8_t opcode = ModRM::get_opecode_from_reg(base, src);
             std::vector<uint8_t> b = {opcode};
-            auto imm = mnemonic_args[1].AsUInt16t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+
+            if (std::get<1>(operands) == TParaToken::ttLabel) {
+                // immがラベルだった場合は後でオフセットを計算する
+                //auto l = label_calc_map[dst];
+                //l.dst_index = this->binout_container.size();
+                //auto imm = {0x00, 0x00};
+				//std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            } else {
+                auto imm = mnemonic_args[1].AsUInt16t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            }
+
             return b;
         },
         pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
@@ -1083,6 +1093,7 @@ void Driver::visitLabel(Label x) {
     log()->debug("label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
+    /**
     if (label_calc_map.count(label) > 0) {
         // ラベルのoffset計算が必要
         auto l = label_calc_map[label];
@@ -1093,7 +1104,7 @@ void Driver::visitLabel(Label x) {
     } else {
         auto label_calc = LabelCalc{label: label, dst_index: static_cast<int>(binout_container.size())};
         label_calc_map.emplace(label, label_calc);
-    }
+    }*/
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);

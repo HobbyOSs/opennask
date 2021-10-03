@@ -53,7 +53,7 @@ entry:
 		MOV		DS,AX
 		MOV		ES,AX
 
-		;MOV		SI,msg
+		MOV		SI,msg
 putloop:
 		MOV		AL,[SI]
 		ADD		SI,1			; SIに1を足す

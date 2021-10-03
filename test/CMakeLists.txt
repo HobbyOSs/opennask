@@ -28,7 +28,8 @@ set(parsertest_SRCS
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
-  ../src/string_util.cpp)
+  ../src/string_util.cpp
+  ../src/label.cpp)
 
 add_executable(parsertest ${parsertest_SRCS})
 target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
@@ -79,7 +80,8 @@ set(day01test_SRCS
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
-  ../src/string_util.cpp)
+  ../src/string_util.cpp
+  ../src/label.cpp)
 
 add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day01test Threads::Threads ${CPPUTEST_LIBRARY})
@@ -108,7 +110,8 @@ set(day02test_SRCS
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
-  ../src/string_util.cpp)
+  ../src/string_util.cpp
+  ../src/label.cpp)
 
 add_executable(day02test ${day02test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day02test Threads::Threads ${CPPUTEST_LIBRARY})

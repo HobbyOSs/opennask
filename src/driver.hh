@@ -13,17 +13,10 @@
 #include "parsererror.hh"
 #include "nask_defs.hpp"
 #include "skeleton.hh"
+#include "label.hpp"
 
 
-struct LabelCalc {
-    std::string label;   // ex) entry
-    int src_index;
-    int dst_index;
 
-    int get_offset() {
-        return dst_index - src_index;
-    };
-};
 
 class Driver : public Skeleton {
 
@@ -36,8 +29,6 @@ private:
     bool trace_scanning;
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
-    // ラベルによるオフセットの計算をする
-    static std::map<std::string, LabelCalc> label_calc_map;
     // $ の位置
     uint32_t dollar_position = 0;
 
@@ -46,6 +37,9 @@ public:
     std::stack<TParaToken> ctx;
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
+    // ラベルによるオフセットの計算をする
+    static LabelDstList label_dst_list;
+    static LabelSrcList label_src_list;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -53,8 +47,6 @@ public:
     template <class T, class IN>
     int Parse(IN input, const char* assembly_dst);
 
-    // 構文木
-    //std::any m_parse_tree;
     // ASTを評価し結果をファイルに書き込む
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);

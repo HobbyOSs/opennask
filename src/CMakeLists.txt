@@ -36,6 +36,8 @@ set(nask_parse_SRCS
   mod_rm.hpp
   string_util.cpp
   string_util.hpp
+  label.cpp
+  label.hpp
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc
