@@ -1,43 +1,39 @@
 #include "label.hpp"
+#include "matchit.h"
 
 namespace LabelJmp {
+    using namespace matchit; // パターンマッチ
+
     // label: (label_dstと呼ぶ)
     // 1) label_dstの位置を記録する → label_dst_list
-    void store_label_dst(
-        std::string label_dst,
-        std::vector<uint8_t>& binout_container
-    ) {
+    void store_label_dst(std::string label_dst, LabelDstList& label_dst_list, std::vector<uint8_t>& binout_container) {
         log()->debug("stored label: {} bin[{}]", label_dst, binout_container.size());
         LabelDstElement elem;
         elem.label = label_dst;
         elem.src_index = binout_container.size();
-        //label_dst_list.push_back(elem);
+        label_dst_list.push_back(elem);
     }
 
     // label: (label_dstと呼ぶ)
     // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
     void update_label_dst_offset(
         std::string label_dst,
+        LabelSrcList& label_src_list,
+        uint32_t dollar_position, // $ の位置
         std::vector<uint8_t>& binout_container
     ) {
 
-        // $ の位置(引数で渡す)
-        uint32_t dollar_position = 0;
-        LabelSrcList label_src_list = LabelSrcList{};
-
         for (auto it = std::begin(label_src_list); it != std::end(label_src_list); ++it) {
-            // C++って::selectみたいなことできんのかい
             LabelSrcElement elem(*it);
-            //log()->debug("update target: {}, stored info {}", label_dst, elem.label);
             if (elem.label != label_dst)
                 continue;
 
             // 処理の開始
             elem.dst_index = binout_container.size();
-            if (elem.abs) {
+
+            match(std::make_tuple(elem.abs, elem.offset_size))(
                 // ORGからの絶対値でオフセットを設定する
-                switch (elem.offset_size) {
-                case imm32:
+                pattern | ds(true, imm32) = [&] {
                     log()->debug("imm32: update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
                                  elem.rel_index,
                                  elem.rel_index + 1,
@@ -47,9 +43,8 @@ namespace LabelJmp {
 
                     set_dword_into_binout(dollar_position + elem.dst_index,
                                           binout_container, elem.rel_index);
-                    break;
-
-                case imm16:
+                },
+                pattern | ds(true, imm16) = [&] {
                     log()->debug("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
                                  elem.rel_index,
                                  elem.rel_index + 1,
@@ -57,31 +52,15 @@ namespace LabelJmp {
 
                     set_word_into_binout(dollar_position + elem.dst_index,
                                          binout_container, elem.rel_index);
-                    break;
-
-                case imm8:
-                default:
+                },
+                pattern | ds(true, imm8 ) = [&] {
                     log()->debug("imm8: update_label_dst_offset bin[{}] = {}, bin[{}] = {}",
                                  elem.rel_index - 1, elem.dst_index, elem.rel_index, 0x7c);
                     binout_container[elem.rel_index - 1] = elem.dst_index;
                     binout_container[elem.rel_index] = 0x7c;
-                    break;
-                }
-            } else {
+                },
                 // ラベルからの相対値でオフセットを設定する
-                switch (elem.offset_size) {
-                case imm16:
-                    log()->debug("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
-                                 std::to_string(elem.rel_index),
-                                 std::to_string(elem.rel_index + 1),
-                                 elem.rel_offset() - 1);
-
-                    set_word_into_binout(elem.rel_offset() - 1,
-                                         binout_container,
-                                         elem.rel_index);
-                    break;
-
-                case imm32:
+                pattern | ds(false, imm32) = [&] {
                     log()->debug("imm32: update_label_dst_offset bin[{}, {}, {}, {}] = 0x{:02x}",
                                  std::to_string(elem.rel_index),
                                  std::to_string(elem.rel_index + 1),
@@ -92,17 +71,24 @@ namespace LabelJmp {
                     set_dword_into_binout(elem.rel_offset(),
                                           binout_container,
                                           elem.rel_index);
-                    break;
+                },
+                pattern | ds(false, imm16) = [&] {
+                    log()->debug("imm16: update_label_dst_offset bin[{}, {}] = 0x{:02x}",
+                                 std::to_string(elem.rel_index),
+                                 std::to_string(elem.rel_index + 1),
+                                 elem.rel_offset() - 1);
 
-                case imm8:
-                default:
+                    set_word_into_binout(elem.rel_offset() - 1,
+                                         binout_container,
+                                         elem.rel_index);
+                },
+                pattern | ds(false, imm8 ) = [&] {
                     log()->debug("imm8: update_label_dst_offset bin[{}] = 0x{:02x}",
                                  std::to_string(elem.rel_index + 1),
                                  elem.rel_offset());
                     binout_container[elem.rel_index] = elem.rel_offset();
-                    break;
                 }
-            }
+            );
         }
     }
 

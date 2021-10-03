@@ -47,8 +47,8 @@ typedef std::vector<LabelSrcElement> LabelSrcList;
 
 namespace LabelJmp {
     // ":"がついたラベルがジャンプ先(dst)を扱う関数
-    void store_label_dst(std::string label_dst, std::vector<uint8_t>& binout_container);
-    void update_label_dst_offset(std::string label_dst, std::vector<uint8_t>& binout_container);
+    void store_label_dst(std::string, LabelDstList&, std::vector<uint8_t>&);
+    void update_label_dst_offset(std::string, LabelSrcList&, uint32_t, std::vector<uint8_t>&);
     bool dst_is_stored(std::string label_dst);
 
     void set_word_into_binout(const uint16_t& word,

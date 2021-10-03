@@ -34,9 +34,11 @@ Driver::~Driver() {
     //    Delete<Program>(parse_tree);
     //}
 
-    //label_calc_map.clear();
-    //binout_container.clear();
-    //binout_container.shrink_to_fit();
+    // メモリの開放
+    label_dst_list.clear();
+    label_dst_list.shrink_to_fit();
+    label_src_list.clear();
+    label_src_list.shrink_to_fit();
 };
 
 LabelDstList Driver::label_dst_list = LabelDstList{};
@@ -1093,18 +1095,11 @@ void Driver::visitLabel(Label x) {
     log()->debug("label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
-    /**
-    if (label_calc_map.count(label) > 0) {
-        // ラベルのoffset計算が必要
-        auto l = label_calc_map[label];
-        l.dst_index = this->binout_container.size();
-        const int offset = l.get_offset();
-        log()->debug("offset: {} := {} - {}", offset, l.dst_index, l.src_index);
-        binout_container[l.src_index - 1] = offset;
-    } else {
-        auto label_calc = LabelCalc{label: label, dst_index: static_cast<int>(binout_container.size())};
-        label_calc_map.emplace(label, label_calc);
-    }*/
+    // label: (label_dstと呼ぶ)
+    // 1) label_dstの位置を記録する → label_dst_list
+    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
+    LabelJmp::store_label_dst(label, label_dst_list, binout_container);
+    LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
 
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
