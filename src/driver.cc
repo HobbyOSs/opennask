@@ -736,7 +736,7 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
-    if (LabelJmp::dst_is_stored(label)) {
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
         LabelJmp::update_label_src_offset(label, label_dst_list, 0x74, binout_container);
     } else {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
@@ -753,7 +753,7 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
-    if (LabelJmp::dst_is_stored(label)) {
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
         LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
     } else {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
@@ -850,7 +850,7 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
                 // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst)) {
+                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
                     LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
                 } else {
                     LabelJmp::store_label_src(dst, label_src_list, binout_container);
@@ -872,7 +872,7 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
                 // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst)) {
+                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
                     LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
                 } else {
                     LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm16);
@@ -896,7 +896,7 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
                 // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst)) {
+                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
                     LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
                 } else {
                     LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm32);

@@ -92,8 +92,7 @@ namespace LabelJmp {
         }
     }
 
-    bool dst_is_stored(std::string label_src) {
-        LabelDstList label_dst_list = LabelDstList{};
+    bool dst_is_stored(std::string label_src, LabelDstList& label_dst_list) {
         auto it = std::find_if(std::begin(label_dst_list), std::end(label_dst_list),
                                [&](const LabelDstElement& elem)
                                { return elem.label.find(label_src) != std::string::npos; });

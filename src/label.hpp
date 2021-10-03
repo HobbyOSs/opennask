@@ -49,7 +49,7 @@ namespace LabelJmp {
     // ":"がついたラベルがジャンプ先(dst)を扱う関数
     void store_label_dst(std::string, LabelDstList&, std::vector<uint8_t>&);
     void update_label_dst_offset(std::string, LabelSrcList&, uint32_t, std::vector<uint8_t>&);
-    bool dst_is_stored(std::string label_dst);
+    bool dst_is_stored(std::string label_dst, LabelDstList&);
 
     // ":"がついてないラベルがジャンプ元(src)を扱う関数
     void store_label_src(std::string, LabelSrcList& ,std::vector<uint8_t>&, bool abs = false, size_t offset_size = imm8);
