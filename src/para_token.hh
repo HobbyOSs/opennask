@@ -57,7 +57,7 @@ public:
         ttMem,
         ttAcc,
         ttImm,
-        ttRel,
+        ttLabel,
         ttAttrUnknown,
     };
 
@@ -70,7 +70,7 @@ public:
         "ttMem",
         "ttAcc",
         "ttImm",
-        "ttRel",
+        "ttLabel",
         "ttAttrUnknown",
     };
 

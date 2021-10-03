@@ -49,10 +49,10 @@ void TParaToken::SetAttribute() {
         _attr = TIdentiferAttribute::ttReg32;
     } else if (std::regex_match(_token_string, segment_registers)) {
         _attr = TIdentiferAttribute::ttSegReg;
-    } else if (IsIdentifier()) {
-        _attr = TIdentiferAttribute::ttRel;
     } else if (IsImmediate()) {
-        _attr = TIdentiferAttribute::ttImm;
+        _attr = TIdentiferAttribute::ttImm; // 即値
+    } else if (IsIdentifier()) {
+        _attr = TIdentiferAttribute::ttLabel; // レジスタ以外のidentなのでラベルと判定
     } else {
         _attr = TIdentiferAttribute::ttAttrUnknown;
     }

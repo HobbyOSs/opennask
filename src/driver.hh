@@ -13,17 +13,10 @@
 #include "parsererror.hh"
 #include "nask_defs.hpp"
 #include "skeleton.hh"
+#include "label.hpp"
 
 
-struct LabelCalc {
-    std::string label;   // ex) entry
-    size_t src_index;
-    size_t dst_index;
 
-    size_t get_offset() {
-        return dst_index - src_index;
-    };
-};
 
 class Driver : public Skeleton {
 
@@ -36,8 +29,6 @@ private:
     bool trace_scanning;
     // EQUで設定された変数情報
     static std::map<std::string, std::string> equ_map;
-    // ラベルによるオフセットの計算をする
-    static std::map<std::string, LabelCalc> label_calc_map;
     // $ の位置
     uint32_t dollar_position = 0;
 
@@ -46,6 +37,9 @@ public:
     std::stack<TParaToken> ctx;
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
+    // ラベルによるオフセットの計算をする
+    static LabelDstList label_dst_list;
+    static LabelSrcList label_src_list;
 
     Driver(bool trace_scanning, bool trace_parsing);
 
@@ -53,8 +47,6 @@ public:
     template <class T, class IN>
     int Parse(IN input, const char* assembly_dst);
 
-    // 構文木
-    //std::any m_parse_tree;
     // ASTを評価し結果をファイルに書き込む
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
@@ -77,21 +69,23 @@ public:
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
+    void visitOpcodeStmt(OpcodeStmt *opcode_stmt) override;
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
-    // opcodeの読み取り
-    void visitOpcodesADD(OpcodesADD *opcodes_add) override;
-    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override;
-    void visitOpcodesDB(OpcodesDB *opcodes_db) override;
-    void visitOpcodesDW(OpcodesDW *opcodes_dw) override;
-    void visitOpcodesDD(OpcodesDD *opcodes_dd) override;
-    void visitOpcodesINT(OpcodesINT *opcodes_int) override;
-    void visitOpcodesJE(OpcodesJE *opcodes_je) override;
-    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override;
-    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override;
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override;
-    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override;
+    // opcodeの読み取り(空の実装)
+    void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
+    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
+    void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
+    void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
+    void visitOpcodesDD(OpcodesDD *opcodes_dd) override {};
+    void visitOpcodesHLT(OpcodesHLT *opcodes_hlt) override {};
+    void visitOpcodesINT(OpcodesINT *opcodes_int) override {};
+    void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
+    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
+    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
+    void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
+    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
 
     // opcodeの処理
     void processADD(std::vector<TParaToken>& memonic_args);
@@ -99,6 +93,7 @@ public:
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
+    void processHLT();
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
