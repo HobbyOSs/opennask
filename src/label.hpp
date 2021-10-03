@@ -5,11 +5,17 @@
 #include "spdlog/spdlog.h"
 #include "nask_defs.hpp"
 
+// 名付け的にsource, destinationが逆な気もしたが
+// gotoでジャンプするときをイメージした際に;
+// ":"がついたラベルがジャンプ先(dst)
+// ":"がついてないラベルがジャンプ元(src)
+// と考えてこの命名
+
 struct LabelDstElement {
     std::string label; // ex) entry:
-    long src_index;  // JMPのオペコードが始まる場所
-    long dst_index;  // JMPの飛び先のラベルが始まる場所
-    long rel_index;  // rel_offsetを格納する場所
+    long src_index;    // JMPのオペコードが始まる場所
+    long dst_index;    // JMPの飛び先のラベルが始まる場所
+    long rel_index;    // rel_offsetを格納する場所
     long rel_offset() {
         // offset = rel - dst
         log()->debug("dst_offs: {} - {} - 1",
@@ -21,11 +27,11 @@ struct LabelDstElement {
 struct LabelSrcElement {
     std::string label;   // ex) entry
     //OPERAND_KINDS operand;
-    bool abs = false;
-    long src_index;  // JMPのオペコードが始まる場所
-    long dst_index;  // JMPの飛び先のラベルが始まる場所
-    long rel_index;  // rel_offsetを格納する場所
-    size_t offset_size; // オフセットの格納サイズを指定する
+    bool abs = false;    // オフセットの計算時に相対ではなく絶対位置の場合true
+    long src_index;      // JMPのオペコードが始まる場所
+    long dst_index;      // JMPの飛び先のラベルが始まる場所
+    long rel_index;      // rel_offsetを格納する場所
+    size_t offset_size;  // オフセットの格納サイズを指定する
     long rel_offset() {
         // offset = rel - dst
         log()->debug("src_offs: {} - {} - 1",
@@ -38,5 +44,25 @@ struct LabelSrcElement {
 typedef std::vector<LabelDstElement> LabelDstList;
 typedef std::vector<LabelSrcElement> LabelSrcList;
 
+
+namespace LabelJmp {
+    // ":"がついたラベルがジャンプ先(dst)を扱う関数
+    void store_label_dst(std::string label_dst, std::vector<uint8_t>& binout_container);
+    void update_label_dst_offset(std::string label_dst, std::vector<uint8_t>& binout_container);
+    bool dst_is_stored(std::string label_dst);
+
+    void set_word_into_binout(const uint16_t& word,
+                              std::vector<uint8_t>& binout_container,
+                              size_t start_index = 0);
+    void set_dword_into_binout(const uint32_t& dword,
+                               std::vector<uint8_t>& binout_container,
+                               size_t start_index = 0);
+
+    // ":"がついてないラベルがジャンプ元(src)を扱う関数
+    //void store_label_src(std::string label_src,std::vector<uint8_t>& binout_container, bool abs = false, size_t offset_size = imm8);
+    //const long get_label_src_offset(std::string label_src); // DB, DW, DD用
+    //bool update_label_src_offset(std::string label_src, std::vector<uint8_t>& binout_container, uint8_t nim);
+    //bool update_label_src_offset(std::string label_src, std::vector<uint8_t>& binout_container);
+};
 
 #endif // ! LABEL_HPP
