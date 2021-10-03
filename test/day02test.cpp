@@ -90,10 +90,11 @@ msg:
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
-    std::vector<uint8_t> resb381(381, 0);
+    std::vector<uint8_t> resb378(378, 0);
 	std::vector<uint8_t> resb4600(4600, 0);
     std::vector<uint8_t> resb1469432(1469432, 0);
 
+    // 以下は標準的なFAT12フォーマットフロッピーディスクのための記述
     expected.insert(expected.end(), {0xeb, 0x4e});
     expected.insert(expected.end(), {0x90});
     expected.insert(expected.end(), {0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x49, 0x50, 0x4c});
@@ -115,16 +116,17 @@ msg:
     expected.insert(expected.end(), {0x46, 0x41, 0x54, 0x31, 0x32, 0x20, 0x20, 0x20});
 	expected.insert(expected.end(), std::begin(resb18), std::end(resb18));
 
+    // プログラム本体
     expected.insert(expected.end(), {0xb8, 0x00, 0x00});
     expected.insert(expected.end(), {0x8e, 0xd0});
     expected.insert(expected.end(), {0xbc, 0x00, 0x7c});
     expected.insert(expected.end(), {0x8e, 0xd8});
     expected.insert(expected.end(), {0x8e, 0xc0});
-
+    expected.insert(expected.end(), {0xbe, 0x74, 0x7c});
     expected.insert(expected.end(), {0x8a, 0x04});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});
     expected.insert(expected.end(), {0x3c, 0x00});
-    expected.insert(expected.end(), {0x74, 0x00});
+    expected.insert(expected.end(), {0x74, 0x09});
     expected.insert(expected.end(), {0xb4, 0x0e});
     expected.insert(expected.end(), {0xbb, 0x0f, 0x00});
     expected.insert(expected.end(), {0xcd, 0x10});
@@ -136,7 +138,7 @@ msg:
     expected.insert(expected.end(), {0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64});
     expected.insert(expected.end(), {0x0a});
     expected.insert(expected.end(), {0x00});
-    expected.insert(expected.end(), std::begin(resb381), std::end(resb381));
+    expected.insert(expected.end(), std::begin(resb378), std::end(resb378));
 
     expected.insert(expected.end(), {0x55, 0xaa});
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
@@ -145,7 +147,7 @@ msg:
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
-    //CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
 int main(int argc, char** argv) {
