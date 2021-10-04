@@ -190,22 +190,4 @@ namespace LabelJmp {
                      bytes[3], bytes[2], bytes[1], bytes[0]);
     }
 
-    /**
-    const long get_label_src_offset(std::string label_src) {
-
-        auto it = std::find_if(std::begin(label_dst_list), std::end(label_dst_list),
-                               [&](const LabelDstElement& elem)
-                               { return elem.label == label_src; });
-
-        if (it != std::end(label_dst_list)) {
-            LabelDstElement elem(*it);
-            log()->debug("matched label: {} with {}", elem.label, label_src);
-            const long abs_size = elem.src_index + dollar_position;
-            return abs_size;
-        }
-
-        return 0;
-    }
-
-    **/
 }

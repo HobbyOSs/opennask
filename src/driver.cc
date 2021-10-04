@@ -28,12 +28,6 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 }
 
 Driver::~Driver() {
-    //if (demangle(m_parse_tree.type().name()) == "Program*") {
-    //    log()->trace("parse_tree is: Program!");
-    //    Program* parse_tree = std::any_cast<Program*>(m_parse_tree);
-    //    Delete<Program>(parse_tree);
-    //}
-
     // メモリの開放
     label_dst_list.clear();
     label_dst_list.shrink_to_fit();
@@ -472,6 +466,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
+        std::make_pair("OpcodesJC", std::bind(&Driver::processJC, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
@@ -727,6 +722,23 @@ void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
     binout_container.push_back(0xcd);
     binout_container.push_back(arg.AsInt());
+}
+
+void Driver::processJC(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x72);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
 }
 
 void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
