@@ -127,6 +127,36 @@ add_test(
 
 set_tests_properties(day02test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
+# `ctest -R day03`
+set(day03test_SRCS
+  day03test.cpp
+  ../src/bnfc/skeleton.cc
+  ../src/bnfc/absyn.cc
+  ../src/bnfc/parser.cc
+  ../src/bnfc/printer.cc
+  ../src/bnfc/lexer.cc
+  ../src/bnfc/buffer.cc
+  ../src/driver.cc
+  ../src/demangle.cpp
+  ../src/para_token.cc
+  ../src/mod_rm.cpp
+  ../src/string_util.cpp
+  ../src/label.cpp)
+
+add_executable(day03test ${day03test_SRCS} ${BACKWARD_ENABLE})
+target_link_libraries(day03test Threads::Threads ${CPPUTEST_LIBRARY})
+add_backward(day03test)
+
+set_property(TARGET day03test PROPERTY CXX_STANDARD 17)
+set_property(TARGET day03test PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(
+  NAME day03test
+  COMMAND $<TARGET_FILE:day03test>
+)
+
+set_tests_properties(day03test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
 # `ctest -R day04`
 set(day04test_SRCS
     day04test.cpp

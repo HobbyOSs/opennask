@@ -28,12 +28,6 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 }
 
 Driver::~Driver() {
-    //if (demangle(m_parse_tree.type().name()) == "Program*") {
-    //    log()->trace("parse_tree is: Program!");
-    //    Program* parse_tree = std::any_cast<Program*>(m_parse_tree);
-    //    Delete<Program>(parse_tree);
-    //}
-
     // メモリの開放
     label_dst_list.clear();
     label_dst_list.shrink_to_fit();
@@ -472,8 +466,11 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
+        std::make_pair("OpcodesJAE", std::bind(&Driver::processJAE, this, _1)),
+        std::make_pair("OpcodesJC", std::bind(&Driver::processJC, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
+        std::make_pair("OpcodesJNC", std::bind(&Driver::processJNC, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
@@ -485,7 +482,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     if (it != funcs.end()) {
         it->second(mnemonic_args);
     } else {
-        std::cout << "not implemented..." << std::endl;
+        throw std::runtime_error(opcode + " is not implemented!!!");
     }
 }
 
@@ -507,7 +504,7 @@ void Driver::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     if (it != funcs.end()) {
         it->second();
     } else {
-        std::cout << "not implemented..." << std::endl;
+        throw std::runtime_error(opcode + " is not implemented!!!");
     }
 }
 
@@ -578,7 +575,8 @@ void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
         // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
 
         pattern | _ = [&] {
-            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+            throw std::runtime_error("ADD, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
         }
     );
 
@@ -629,10 +627,41 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
 		},
 
         // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
-        // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します
-        // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します
+        // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
+        // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します <-- ?
         // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
         // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
+        pattern | ds(_, TParaToken::ttReg8, TParaToken::ttImm) = [&] {
+
+            const std::string src = mnemonic_args[0].AsString();
+            const uint8_t base = 0x80;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+            const std::string src = mnemonic_args[0].AsString();
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+            const std::string src = mnemonic_args[0].AsString();
+            const uint8_t base = 0x83;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
         // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
         // 0x39 /r		CMP r/m16, r16		r16をr/m16と比較します
         // 0x39 /r		CMP r/m32, r32		r32をr/m32と比較します
@@ -641,7 +670,8 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
         // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
 
         pattern | _ = [&] {
-            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+            throw std::runtime_error("CMP, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
         }
     );
 
@@ -729,6 +759,40 @@ void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
     binout_container.push_back(arg.AsInt());
 }
 
+void Driver::processJAE(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x73, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x73);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
+void Driver::processJC(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x72);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
 void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
@@ -742,7 +806,7 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x74);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("bin[{}] = 0x74, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -760,6 +824,23 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
         binout_container.push_back(0xeb);
         binout_container.push_back(0x00);
         log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
+void Driver::processJNC(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x73, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x73);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -917,7 +998,8 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
         pattern | _ = [&] {
-            log()->debug("Not implemented or not matched..."); return std::vector<uint8_t>();
+            throw std::runtime_error("MOV, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
         }
     );
 
