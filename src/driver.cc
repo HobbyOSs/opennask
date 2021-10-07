@@ -663,20 +663,20 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
 
-			const uint8_t base = 0x3d;
-			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt16t();
-			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-			return b;
-		},
-		pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+            const uint8_t base = 0x3d;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
 
-			const uint8_t base = 0x3d;
-			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt32t();
-			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-			return b;
-		},
+            const uint8_t base = 0x3d;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
 
         // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
         // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
@@ -1219,7 +1219,6 @@ void Driver::visitHexFactor(HexFactor *hex_factor) {
 void Driver::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
     TParaToken t = this->ctx.top();
-    t.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
     this->ctx.push(t);
 }
@@ -1260,7 +1259,7 @@ void Driver::visitIdent(Ident x) {
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
         log()->debug("EQU {} = {}", x, equ_map[x].AsString());
-        TParaToken t = equ_map[x];
+        TParaToken t = TParaToken(equ_map[x]);
         this->ctx.push(t);
         return;
     }
