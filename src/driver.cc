@@ -29,12 +29,14 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
 Driver::~Driver() {
     // メモリの開放
+    equ_map.clear();
     label_dst_list.clear();
     label_dst_list.shrink_to_fit();
     label_src_list.clear();
     label_src_list.shrink_to_fit();
 };
 
+std::map<std::string, TParaToken> Driver::equ_map = std::map<std::string, TParaToken>{};
 LabelDstList Driver::label_dst_list = LabelDstList{};
 LabelSrcList Driver::label_src_list = LabelSrcList{};
 
@@ -280,32 +282,30 @@ void Driver::Delete(T *pt) {
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
-            log()->trace("delete {}", type(t->label_));
             delete(t);
 
         } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
-            // NOP
+            log()->trace("success cast {}", type(t));
+            this->Delete<Exp>(t->exp_);
+            delete(t->exp_);
+            delete(t);
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
 
             delete(t->opcode_);
-            log()->trace("delete {}", type(t->opcode_));
             for (auto arg : *t->listmnemonicargs_) {
                 log()->trace("iterate under mnemonic_stmt {}", type(arg));
                 this->Delete<MnemonicArgs>(arg);
                 delete(arg);
             }
-            log()->trace("delete {}", type(t->listmnemonicargs_));
             delete(t->listmnemonicargs_);
-            log()->trace("delete {}", type(t));
             delete(t);
 
         } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
             delete(t->opcode_);
-            log()->trace("delete {}", type(t->opcode_));
             delete(t);
         }
 
@@ -315,8 +315,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(arg));
 
             this->Delete<Exp>(arg->exp_);
-
-            log()->trace("delete {}", type(arg->exp_));
             delete(arg->exp_);
         }
     } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
@@ -332,8 +330,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(indirect_addr_exp));
 
             this->Delete<Exp>(indirect_addr_exp->exp_);
-
-            log()->trace("delete {}", type(indirect_addr_exp->exp_));
             delete(indirect_addr_exp->exp_);
 
         } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
@@ -342,8 +338,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(imm_exp));
 
             this->Delete<Factor>(imm_exp->factor_);
-
-            log()->trace("delete {}", type(imm_exp->factor_));
             delete(imm_exp->factor_);
         }
     } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
@@ -428,9 +422,18 @@ void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("visitDeclareStmt start");
     visitIdent(declare_stmt->ident_);
+    TParaToken key = this->ctx.top();
+    this->ctx.pop();
+
     if (declare_stmt->exp_) {
         declare_stmt->exp_->accept(this);
     }
+    TParaToken value = this->ctx.top();
+    this->ctx.pop();
+
+    log()->debug("declare {} = {}", key.AsString(), value.AsString());
+    equ_map[key.AsString()] = value;
+
     log()->debug("visitDeclareStmt end");
 }
 
@@ -1254,6 +1257,13 @@ void Driver::visitString(String x) {
 }
 
 void Driver::visitIdent(Ident x) {
+    if (equ_map.count(x) > 0) {
+        // 変数定義があれば展開する
+        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        TParaToken t = equ_map[x];
+        this->ctx.push(t);
+        return;
+    }
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

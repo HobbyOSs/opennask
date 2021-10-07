@@ -28,7 +28,7 @@ private:
     bool trace_parsing;
     bool trace_scanning;
     // EQUで設定された変数情報
-    static std::map<std::string, std::string> equ_map;
+    static std::map<std::string, TParaToken> equ_map;
     // $ の位置
     uint32_t dollar_position = 0;
 
