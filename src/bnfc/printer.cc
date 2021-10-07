@@ -4126,6 +4126,12 @@ void PrintAbsyn::visitLabel(String s)
 }
 
 
+void PrintAbsyn::visitNL(String s)
+{
+  render(s);
+}
+
+
 ShowAbsyn::ShowAbsyn(void)
 {
   buf_ = 0;
@@ -5754,6 +5760,14 @@ void ShowAbsyn::visitHex(String s)
 
 
 void ShowAbsyn::visitLabel(String s)
+{
+  bufAppend('\"');
+  bufAppend(s);
+  bufAppend('\"');
+}
+
+
+void ShowAbsyn::visitNL(String s)
 {
   bufAppend('\"');
   bufAppend(s);

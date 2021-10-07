@@ -378,6 +378,7 @@ public:
   void visitIdent(Ident x);
   void visitHex(Hex x);
   void visitLabel(Label x);
+  void visitNL(NL x);
 
 };
 

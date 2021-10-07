@@ -2565,5 +2565,10 @@ void Skeleton::visitLabel(Label x)
   /* Code for Label Goes Here */
 }
 
+void Skeleton::visitNL(NL x)
+{
+  /* Code for NL Goes Here */
+}
+
 
 

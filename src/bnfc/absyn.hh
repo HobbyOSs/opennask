@@ -18,6 +18,7 @@ typedef std::string Ident;
 
 typedef std::string Hex;
 typedef std::string Label;
+typedef std::string NL;
 
 
 /********************   Forward Declarations    ********************/
@@ -762,6 +763,7 @@ public:
   virtual void visitIdent(Ident x) = 0;
   virtual void visitHex(Hex x) = 0;
   virtual void visitLabel(Label x) = 0;
+  virtual void visitNL(NL x) = 0;
 
 };
 
