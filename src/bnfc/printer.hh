@@ -404,7 +404,6 @@ class PrintAbsyn : public Visitor
   void visitIdent(String s);
   void visitHex(String s);
   void visitLabel(String s);
-  void visitNL(String s);
  protected:
   char *buf_;
   int cur_, buf_size;
@@ -848,7 +847,6 @@ class ShowAbsyn : public Visitor
   void visitIdent(String s);
   void visitHex(String s);
   void visitLabel(String s);
-  void visitNL(String s);
  protected:
   char *buf_;
   int cur_, buf_size;

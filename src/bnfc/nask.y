@@ -418,7 +418,6 @@ extern int yylex(YYSTYPE *lvalp, YYLTYPE *llocp, yyscan_t scanner);
 %token          _RBRACK       /* ] */
 %token<_string> T_Hex         /* Hex */
 %token<_string> T_Label       /* Label */
-%token<_string> T_NL          /* NL */
 %token<_string> _STRING_
 %token<_int>    _INTEGER_
 %token<_string> _IDENT_

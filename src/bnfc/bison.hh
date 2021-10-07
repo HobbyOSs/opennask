@@ -399,10 +399,9 @@ extern int nask_debug;
     _RBRACK = 600,                 /* _RBRACK  */
     T_Hex = 601,                   /* T_Hex  */
     T_Label = 602,                 /* T_Label  */
-    T_NL = 603,                    /* T_NL  */
-    _STRING_ = 604,                /* _STRING_  */
-    _INTEGER_ = 605,               /* _INTEGER_  */
-    _IDENT_ = 606                  /* _IDENT_  */
+    _STRING_ = 603,                /* _STRING_  */
+    _INTEGER_ = 604,               /* _INTEGER_  */
+    _IDENT_ = 605                  /* _IDENT_  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -428,7 +427,7 @@ union YYSTYPE
   DataType* datatype_;
   Opcode* opcode_;
 
-#line 432 "bison.hh"
+#line 431 "bison.hh"
 
 };
 typedef union YYSTYPE YYSTYPE;
