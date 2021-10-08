@@ -470,6 +470,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&Driver::processJAE, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&Driver::processJB, this, _1)),
         std::make_pair("OpcodesJBE", std::bind(&Driver::processJBE, this, _1)),
         std::make_pair("OpcodesJC", std::bind(&Driver::processJC, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
@@ -825,6 +826,23 @@ void Driver::processJAE(std::vector<TParaToken>& mnemonic_args) {
         binout_container.push_back(0x73);
         binout_container.push_back(0x00);
         log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
+void Driver::processJB(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x72);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -1259,7 +1277,7 @@ void Driver::visitIdent(Ident x) {
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
         log()->debug("EQU {} = {}", x, equ_map[x].AsString());
-        TParaToken t = TParaToken(equ_map[x]);
+        TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
         this->ctx.push(t);
         return;
     }

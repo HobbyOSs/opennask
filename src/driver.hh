@@ -27,14 +27,14 @@ private:
     // 字句解析, 構文解析のフラグ
     bool trace_parsing;
     bool trace_scanning;
-    // EQUで設定された変数情報
-    static std::map<std::string, TParaToken> equ_map;
     // $ の位置
     uint32_t dollar_position = 0;
 
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
+    // EQUで設定された変数情報
+    static std::map<std::string, TParaToken> equ_map;
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
     // ラベルによるオフセットの計算をする
@@ -82,6 +82,7 @@ public:
     void visitOpcodesHLT(OpcodesHLT *opcodes_hlt) override {};
     void visitOpcodesINT(OpcodesINT *opcodes_int) override {};
     void visitOpcodesJAE(OpcodesJAE *opcodes_jae) override {};
+    void visitOpcodesJB(OpcodesJB *opcodes_jb) override {};
     void visitOpcodesJBE(OpcodesJBE *opcodes_jbe) override {};
     void visitOpcodesJC(OpcodesJC *opcodes_jc) override {};
     void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
@@ -100,6 +101,7 @@ public:
     void processHLT();
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJAE(std::vector<TParaToken>& memonic_args);
+    void processJB(std::vector<TParaToken>& memonic_args);
     void processJBE(std::vector<TParaToken>& memonic_args);
     void processJC(std::vector<TParaToken>& memonic_args);
     void processJE(std::vector<TParaToken>& memonic_args);
