@@ -1,3 +1,6 @@
 [submodule "backward-cpp"]
 	path = backward-cpp
 	url = https://github.com/bombela/backward-cpp.git
+[submodule "test/diff-match-patch-cpp-stl"]
+	path = test/diff-match-patch-cpp-stl
+	url = https://github.com/leutloff/diff-match-patch-cpp-stl.git
