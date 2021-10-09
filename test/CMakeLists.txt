@@ -31,8 +31,9 @@ set(parsertest_SRCS
   ../src/string_util.cpp
   ../src/label.cpp)
 
-add_executable(parsertest ${parsertest_SRCS})
+add_executable(parsertest ${parsertest_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
+add_backward(parsertest)
 
 set_target_properties(parsertest PROPERTIES
   CXX_STANDARD 17

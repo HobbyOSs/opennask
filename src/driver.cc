@@ -29,12 +29,14 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
 
 Driver::~Driver() {
     // メモリの開放
+    equ_map.clear();
     label_dst_list.clear();
     label_dst_list.shrink_to_fit();
     label_src_list.clear();
     label_src_list.shrink_to_fit();
 };
 
+std::map<std::string, TParaToken> Driver::equ_map = std::map<std::string, TParaToken>{};
 LabelDstList Driver::label_dst_list = LabelDstList{};
 LabelSrcList Driver::label_src_list = LabelSrcList{};
 
@@ -280,32 +282,30 @@ void Driver::Delete(T *pt) {
 
         if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
-            log()->trace("delete {}", type(t->label_));
             delete(t);
 
         } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
-            // NOP
+            log()->trace("success cast {}", type(t));
+            this->Delete<Exp>(t->exp_);
+            delete(t->exp_);
+            delete(t);
         } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
             // NOP
         } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
 
             delete(t->opcode_);
-            log()->trace("delete {}", type(t->opcode_));
             for (auto arg : *t->listmnemonicargs_) {
                 log()->trace("iterate under mnemonic_stmt {}", type(arg));
                 this->Delete<MnemonicArgs>(arg);
                 delete(arg);
             }
-            log()->trace("delete {}", type(t->listmnemonicargs_));
             delete(t->listmnemonicargs_);
-            log()->trace("delete {}", type(t));
             delete(t);
 
         } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
             log()->trace("success cast {}", type(t));
             delete(t->opcode_);
-            log()->trace("delete {}", type(t->opcode_));
             delete(t);
         }
 
@@ -315,8 +315,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(arg));
 
             this->Delete<Exp>(arg->exp_);
-
-            log()->trace("delete {}", type(arg->exp_));
             delete(arg->exp_);
         }
     } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
@@ -332,8 +330,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(indirect_addr_exp));
 
             this->Delete<Exp>(indirect_addr_exp->exp_);
-
-            log()->trace("delete {}", type(indirect_addr_exp->exp_));
             delete(indirect_addr_exp->exp_);
 
         } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
@@ -342,8 +338,6 @@ void Driver::Delete(T *pt) {
             log()->trace("success cast {}", type(imm_exp));
 
             this->Delete<Factor>(imm_exp->factor_);
-
-            log()->trace("delete {}", type(imm_exp->factor_));
             delete(imm_exp->factor_);
         }
     } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
@@ -428,9 +422,18 @@ void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("visitDeclareStmt start");
     visitIdent(declare_stmt->ident_);
+    TParaToken key = this->ctx.top();
+    this->ctx.pop();
+
     if (declare_stmt->exp_) {
         declare_stmt->exp_->accept(this);
     }
+    TParaToken value = this->ctx.top();
+    this->ctx.pop();
+
+    log()->debug("declare {} = {}", key.AsString(), value.AsString());
+    equ_map[key.AsString()] = value;
+
     log()->debug("visitDeclareStmt end");
 }
 
@@ -467,6 +470,8 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&Driver::processJAE, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&Driver::processJB, this, _1)),
+        std::make_pair("OpcodesJBE", std::bind(&Driver::processJBE, this, _1)),
         std::make_pair("OpcodesJC", std::bind(&Driver::processJC, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
@@ -525,47 +530,95 @@ void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
-    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
     std::string dst = mnemonic_args[0].AsString();
 
     std::vector<uint8_t> machine_codes = match(operands)(
         // 0x04 ib		ADD AL, imm8		imm8をALに加算する
         // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
         // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
+        pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x04;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x05;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x05;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
         // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+        pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+
+            const uint8_t base = 0x80;
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
         // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
-        // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
-
-        // 0x81 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
         // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
+        pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+
+            uint8_t base = 0x81;
+            uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
+
+            if (mnemonic_args[1].AsLong() <= 255) {
+                base = 0x83;
+                std::vector<uint8_t> b = {base, modrm};
+                auto imm = mnemonic_args[1].AsUInt8t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                return b;
+            } else {
+                base = 0x81;
+                std::vector<uint8_t> b = {base, modrm};
+                auto imm = mnemonic_args[1].AsUInt16t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                return b;
+            }
+        },
+        // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
         // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+        pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
 
-            const uint8_t base = 0x81;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        pattern | ds(TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+            uint8_t base = 0x00;
+            uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
 
-            const uint8_t base = 0x83;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            if (mnemonic_args[1].AsLong() <= 255) {
+                base = 0x83;
+                std::vector<uint8_t> b = {base, modrm};
+                auto imm = mnemonic_args[1].AsUInt8t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                return b;
+            } else {
+                base = 0x81;
+                std::vector<uint8_t> b = {base, modrm};
+                auto imm = mnemonic_args[1].AsUInt32t();
+                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                return b;
+            }
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
 
-            const uint8_t base = 0x83;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
 
         // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
         // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
@@ -611,20 +664,20 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
 
-			const uint8_t base = 0x3d;
-			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt16t();
-			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-			return b;
-		},
-		pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+            const uint8_t base = 0x3d;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
 
-			const uint8_t base = 0x3d;
-			std::vector<uint8_t> b = {base};
-			auto imm = mnemonic_args[1].AsUInt32t();
-			std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-			return b;
-		},
+            const uint8_t base = 0x3d;
+            std::vector<uint8_t> b = {base};
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
 
         // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
         // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
@@ -776,6 +829,40 @@ void Driver::processJAE(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void Driver::processJB(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x72);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
+void Driver::processJBE(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    std::string label = arg.AsString();
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, 0x76, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(0x76);
+        binout_container.push_back(0x00);
+        log()->debug("bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+    }
+}
+
 void Driver::processJC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
@@ -892,6 +979,16 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8C /r	MOV r/m16  , Sreg
         // REX.W + 0x8C /r	MOV r/m16  , Sreg
+        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg) = [&] {
+            const std::string src = mnemonic_args[0].AsString();
+            const std::string dst = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0x8c;
+            const uint8_t modrm = ModRM::generate_modrm(0x8c, ModRM::REG, dst, src);
+            std::vector<uint8_t> b = {base, modrm};
+            return b;
+        },
+
         //         0x8E /r	MOV Sreg   , r/m16
         // REX.W + 0x8E /r	MOV Sreg   , r/m64
         pattern | ds(TParaToken::ttSegReg , _) = [&] {
@@ -1140,7 +1237,6 @@ void Driver::visitHexFactor(HexFactor *hex_factor) {
 void Driver::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
     TParaToken t = this->ctx.top();
-    t.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
     this->ctx.push(t);
 }
@@ -1178,6 +1274,13 @@ void Driver::visitString(String x) {
 }
 
 void Driver::visitIdent(Ident x) {
+    if (equ_map.count(x) > 0) {
+        // 変数定義があれば展開する
+        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
+        this->ctx.push(t);
+        return;
+    }
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

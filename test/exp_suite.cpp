@@ -184,31 +184,30 @@ TEST(exp_suite, testSimpleMnemonic)
     CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
-/**
-
-TEST(exp_suite, testInt)
+TEST(exp_suite, testDeclareStmt)
 {
-    int error;
+    std::unique_ptr<Driver> d(new Driver(false, false));
+    {
+        auto numberFactor = NumberFactor(10);
+        auto immExp = ImmExp(numberFactor.clone());
+        auto declareStmt = DeclareStmt("CYLS", immExp.clone());
 
-    const double a = te_interp("(5+5)", 0);
-    CHECK_EQUAL(10, a);
+        d->visitDeclareStmt(&declareStmt);
+        CHECK_EQUAL(10, d->equ_map["CYLS"].AsInt());
 
-    const double b = te_interp("(5+5)", &error);
-    CHECK_EQUAL(10, b);
-    CHECK_EQUAL(0, error);
-
-    const double c = te_interp("(5+5", &error);
-    CHECK(std::isnan(c));
-    CHECK_EQUAL(4, error);
+        d->visitIdent("CYLS");
+        CHECK_EQUAL("10", d->ctx.top().AsString());
+        CHECK_EQUAL(10, d->ctx.top().AsInt());
+        d->ctx.pop();
+    }
 }
-*/
 
 int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::debug);
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(exp_suite, testToken)");
+    //args.push_back("TEST(exp_suite, testDeclareStmt)");
 
     // TODO: bnfc側のメモリリーク修正する https://github.com/HobbyOSs/opennask/issues/42
     MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
