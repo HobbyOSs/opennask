@@ -17,10 +17,16 @@ struct LabelDstElement {
     long dst_index;    // JMPの飛び先のラベルが始まる場所
     long rel_index;    // rel_offsetを格納する場所
     long rel_offset() {
-        // offset = rel - dst
-        log()->debug("dst_offs: {} - {} - 1",
-                     std::to_string(src_index), std::to_string(rel_index));
-        return src_index - rel_index - 1;
+        long offset = src_index - rel_index - 1;
+        log()->debug("dst_offs = {}({:x}) - {}({:x}) - 1 => {}({:x})",
+                     std::to_string(src_index),
+                     src_index,
+                     std::to_string(rel_index),
+                     rel_index,
+                     std::to_string(offset),
+                     offset
+                    );
+        return offset;
     };
 };
 
@@ -34,9 +40,16 @@ struct LabelSrcElement {
     size_t offset_size;  // オフセットの格納サイズを指定する
     long rel_offset() {
         // offset = rel - dst
-        log()->debug("src_offs: {} - {} - 1",
-                     std::to_string(dst_index), std::to_string(rel_index));
-        return dst_index - rel_index - 1;
+        long offset = dst_index - rel_index - 1;
+        log()->debug("src_offs = {}({:x}) - {}({:x}) - 1 => {}({:x})",
+                     std::to_string(dst_index),
+                     dst_index,
+                     std::to_string(rel_index),
+                     rel_index,
+                     std::to_string(offset),
+                     offset
+                    );
+        return offset;
     };
 };
 

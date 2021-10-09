@@ -685,7 +685,7 @@ msg:
     expected.insert(expected.end(), {0x73, 0x10});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});
     expected.insert(expected.end(), {0x83, 0xfe, 0x05});
-    expected.insert(expected.end(), {0x73, 0x1a});
+    expected.insert(expected.end(), {0x73, 0x2e});
     expected.insert(expected.end(), {0xb4, 0x00});
     expected.insert(expected.end(), {0xb2, 0x00});
     expected.insert(expected.end(), {0xcd, 0x13});
@@ -708,7 +708,7 @@ msg:
     // 読み終わったけどとりあえずやることないので寝る
     expected.insert(expected.end(), {0xf4});
     expected.insert(expected.end(), {0xeb, 0xfd});
-    expected.insert(expected.end(), {0xbe, 0xac, 0x7c}); // 0xbeac7c
+    expected.insert(expected.end(), {0xbe, 0xc0, 0x7c}); // 0xbeac7c
     expected.insert(expected.end(), {0x8a, 0x04});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});
     expected.insert(expected.end(), {0x3c, 0x00});
@@ -741,7 +741,7 @@ int main(int argc, char** argv) {
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    args.push_back("TEST(day03_suite, harib00d)");
+    //args.push_back("TEST(day03_suite, harib00d)");
 
     // Run all tests
     int i = RUN_ALL_TESTS(args.size(), &args[0]);
