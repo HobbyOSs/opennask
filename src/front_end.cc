@@ -10,7 +10,7 @@
 
 
 using namespace std::placeholders;
-
+using namespace matchit;
 
 
 FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
@@ -613,7 +613,17 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
+    // 0xEB cb	JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
+    // 0xE9 cw	JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xE9 cd	JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
     auto arg = mnemonic_args[0];
+    //match()(
+    //)
+    //if (arg.Is(TParaToken::ttHex)) {
+    //    binout_container.push_back(0xeb);
+    //    return;
+    //}
+
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
@@ -647,13 +657,27 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
-    using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
-    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
 
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
+       pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+            const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
+            const std::string src_reg = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0x88;
+            const uint8_t modrm = ModRM::generate_modrm(base, ModRM::REG_REG, dst_mem, src_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[0].AsUInt16t(); // TODO: int16で返しているが実際は可変なのでちゃんと処理する
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
         //         0x89 /r	MOV r/m16  , r16
         //         0x89 /r	MOV r/m32  , r32
         // REX.W + 0x89 /r	MOV r/m64  , r64
