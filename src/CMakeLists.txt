@@ -11,7 +11,7 @@ include_directories(
   ${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
   ${matchit_SOURCE_DIR}/include
-  ${FLEX_INCLUDE_DIRS})
+  ${FLEX_INCLUDE_DIR})
 
 ########### next target ###############
 
