@@ -453,6 +453,8 @@ NaskScanner::NaskScanner(std::istream *in)
 
 NaskScanner::~NaskScanner()
 {
+    delete loc;
+    delete yylval;
 }
 
 /* This implementation of NaskFlexLexer::yylex() is required to fill the

@@ -4,6 +4,10 @@ find_package(CppUTest REQUIRED)
 
 ########### next target ###############
 
+# memory leak detection, see "Conflicts with operator new macros (STL!)"
+# https://cpputest.github.io/manual.html
+add_definitions(-DCPPUTEST_USE_MEM_LEAK_DETECTION)
+
 # general settings
 include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src

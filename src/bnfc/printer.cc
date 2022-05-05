@@ -124,6 +124,10 @@ PrintAbsyn::PrintAbsyn(void)
 
 PrintAbsyn::~PrintAbsyn(void)
 {
+  if (buf_ && strlen(buf_) > 0)
+  {
+    delete[] buf_;
+  }
 }
 
 char *PrintAbsyn::print(Visitable *v)
@@ -4138,6 +4142,10 @@ ShowAbsyn::ShowAbsyn(void)
 
 ShowAbsyn::~ShowAbsyn(void)
 {
+  if (buf_ && strlen(buf_) > 0)
+  {
+    delete[] buf_;
+  }
 }
 
 char *ShowAbsyn::show(Visitable *v)

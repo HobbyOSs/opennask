@@ -99,7 +99,7 @@ msg:
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
     ss << nask_statements;
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
@@ -266,7 +266,7 @@ msg:
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
     ss << nask_statements;
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
@@ -446,7 +446,7 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     ss << nask_statements;
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
@@ -645,7 +645,7 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     ss << nask_statements;
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");

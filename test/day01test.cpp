@@ -3,6 +3,8 @@
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
 
+#include <CppUTest/MemoryLeakDetectorNewMacros.h>
+#include <CppUTest/MemoryLeakDetectorMallocMacros.h>
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
 
@@ -42,7 +44,7 @@ TEST(day01_suite, helloos1) {
 )";
 
     ss << nask_statements;
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
@@ -140,7 +142,7 @@ TEST(day01_suite, helloos2) {
 )";
 
     ss << nask_statements;
-    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
