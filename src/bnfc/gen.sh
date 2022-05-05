@@ -1,36 +1,32 @@
 #!/bin/bash
 
-bnfc -m -cpp_stl nask.cf
+CF_FILE=$HOME/git/opennask/src/bnfc/nask.cf
+BNFC_OPT="--cpp -l"
+OUTPUT_DIR=$HOME/git/opennask/src/bnfc/
+
 rm -f *.bak *.cc *.hh Makefile
-rename 's/\.C$/.cc/' *.C
-rename 's/\.H$/.hh/' *.H
+cd ~/git/bnfc/ && cabal run bnfc -- -mMakefile $BNFC_OPT $CF_FILE --outputdir=$OUTPUT_DIR
+cd -
+
 rename 'y/A-Z/a-z/' *
-rm -f *.c *.h
+sed -e 's/Test/test/g' -e 's/Absyn/absyn/g' \
+    -e 's/Buffer/buffer/g' -e 's/Parser/parser/g' \
+    -e 's/Driver/driver/g' -e 's/Printer/printer/g' \
+    -e 's/Scanner/scanner/g' -e 's/Lexer/lexer/g' \
+    -e 's/Skeleton/skeleton/g'  -i makefile
 
-# sed -i 's/Absyn.H/absyn.hh/g'
-find . -name \*.cc -or -name \*.hh -or -name \*.l -or -name \*.y | xargs sed -i 's/"\(.\+\)\.H"/"\L\1\.hh"/'
-
-# https://github.com/BNFC/bnfc/issues/377
-sed -i '6i #include<algorithm>' absyn.hh
-sed -i 's/%pure_parser/%define api.pure/g' nask.y
-
-# entrypointの定義と実装のメソッド名が一致していない
-sed -i 's/ p\(.*const\)/ ps\1/g' parser.hh
+find . -name \*.cc -or -name \*.hh -or -name \*.ll -or -name \*.yy | xargs sed -i 's/"\(.\+\)\.hh"/"\L\1\.hh"/'
 
 # flexでdebugログ出す設定
 # sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.l
 # sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l
 
 # commentのstate設定の修正
-sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g' nask.l
-sed -i '/^<COMMENT>\./d' nask.l
-sed -i 's/^<COMMENT>\[/<COMMENT>\[^/g' nask.l
-sed -i 's/<COMMENT1>\".*\"/<COMMENT1>\\n/g' nask.l
-sed -i '/^<COMMENT1>\./d' nask.l
-sed -i 's/^<COMMENT1>\[/<COMMENT1>\[^/g' nask.l
-
-# memory leakの原因のdeleteをコメントアウト
-sed -i 's/delete(/\/\/delete(/g' absyn.cc
-
+sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g'   nask.ll
+sed -i '/^<COMMENT>\./d'                    nask.ll
+sed -i 's/^<COMMENT>\[/<COMMENT>\[^/g'      nask.ll
+sed -i 's/<COMMENT1>\".*\"/<COMMENT1>\\n/g' nask.ll
+sed -i '/^<COMMENT1>\./d'                   nask.ll
+sed -i 's/^<COMMENT1>\[/<COMMENT1>\[^/g'    nask.ll
 
 make

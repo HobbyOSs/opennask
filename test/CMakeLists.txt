@@ -4,6 +4,10 @@ find_package(CppUTest REQUIRED)
 
 ########### next target ###############
 
+# memory leak detection, see "Conflicts with operator new macros (STL!)"
+# https://cpputest.github.io/manual.html
+add_definitions(-DCPPUTEST_USE_MEM_LEAK_DETECTION)
+
 # general settings
 include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
@@ -23,8 +27,9 @@ set(parsertest_SRCS
   ../src/bnfc/parser.cc
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
+  ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -76,8 +81,9 @@ set(day01test_SRCS
   ../src/bnfc/parser.cc
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
+  ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -107,7 +113,8 @@ set(day02test_SRCS
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/bnfc/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -137,7 +144,8 @@ set(day03test_SRCS
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/bnfc/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp

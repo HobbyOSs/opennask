@@ -1,9 +1,10 @@
-#ifndef DRIVER_HH
-#define DRIVER_HH
+#ifndef FRONT_END_HH
+#define FRONT_END_HH
 
 #include <string>
 #include <memory>
 #include <iostream>
+#include <fstream>
 #include <any>
 #include "spdlog/spdlog.h"
 #include "para_token.hh"
@@ -16,12 +17,10 @@
 #include "label.hpp"
 
 
-
-
-class Driver : public Skeleton {
+class FrontEnd : public Skeleton {
 
 public:
-    virtual ~Driver();
+    virtual ~FrontEnd();
 
 private:
     // 字句解析, 構文解析のフラグ
@@ -41,18 +40,7 @@ public:
     static LabelDstList label_dst_list;
     static LabelSrcList label_src_list;
 
-    Driver(bool trace_scanning, bool trace_parsing);
-
-    // FILE* f / const char* in をパースする, 成功時は0を返す
-    template <class T, class IN>
-    int Parse(IN input, const char* assembly_dst);
-
-    // ASTを評価し結果をファイルに書き込む
-    template <class T>
-    int Eval(T* parse_tree, const char* assembly_dst);
-
-    template <class T>
-    void Delete(T* parse_tree);
+    FrontEnd(bool trace_scanning, bool trace_parsing);
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
@@ -140,9 +128,16 @@ public:
     // 以下、整理後にstring_utilに移動
     const std::string join(std::vector<TParaToken>& array, const std::string& sep = "");
 
+    // パースする
+    template <class T>
+    std::shared_ptr<T> Parse(std::istream &input);
+
+    // ASTを評価し結果をファイルに書き込む
+    template <class T>
+    int Eval(T* parse_tree, const char* assembly_dst);
 };
 
 template <typename T>
 constexpr bool false_v = false;
 
-#endif // ! DRIVER_HH
+#endif // ! FRONT_END_HH

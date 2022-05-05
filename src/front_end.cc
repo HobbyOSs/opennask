@@ -2,6 +2,7 @@
 #include <typeinfo>
 #include <type_traits>
 #include "matchit.h"
+#include "front_end.hh"
 #include "driver.hh"
 #include "parser.hh"
 #include "demangle.hpp"
@@ -12,7 +13,7 @@ using namespace std::placeholders;
 
 
 
-Driver::Driver(bool trace_scanning, bool trace_parsing) {
+FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
 
     // spdlog
     if(!spdlog::get("opennask")) {
@@ -27,7 +28,7 @@ Driver::Driver(bool trace_scanning, bool trace_parsing) {
     this->dollar_position = 0;
 }
 
-Driver::~Driver() {
+FrontEnd::~FrontEnd() {
     // メモリの開放
     equ_map.clear();
     label_dst_list.clear();
@@ -36,19 +37,19 @@ Driver::~Driver() {
     label_src_list.shrink_to_fit();
 };
 
-std::map<std::string, TParaToken> Driver::equ_map = std::map<std::string, TParaToken>{};
-LabelDstList Driver::label_dst_list = LabelDstList{};
-LabelSrcList Driver::label_src_list = LabelSrcList{};
+std::map<std::string, TParaToken> FrontEnd::equ_map = std::map<std::string, TParaToken>{};
+LabelDstList FrontEnd::label_dst_list = LabelDstList{};
+LabelSrcList FrontEnd::label_src_list = LabelSrcList{};
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
-void Driver::visitProgram(Program *t) {
+void FrontEnd::visitProgram(Program *t) {
 
     if (dynamic_cast<Prog*>(t) != nullptr) {
         this->visitProg(dynamic_cast<Prog*>(t));
     }
 }
 
-void Driver::visitStatement(Statement *t) {
+void FrontEnd::visitStatement(Statement *t) {
 
     if (dynamic_cast<LabelStmt*>(t) != nullptr) {
         this->visitLabelStmt(dynamic_cast<LabelStmt*>(t));
@@ -63,14 +64,14 @@ void Driver::visitStatement(Statement *t) {
     }
 }
 
-void Driver::visitMnemonicArgs(MnemonicArgs *t) {
+void FrontEnd::visitMnemonicArgs(MnemonicArgs *t) {
 
     if (dynamic_cast<MnemoArg*>(t) != nullptr) {
         this->visitMnemoArg(dynamic_cast<MnemoArg*>(t));
     }
 }
 
-void Driver::visitExp(Exp *t) {
+void FrontEnd::visitExp(Exp *t) {
 
     if (dynamic_cast<PlusExp*>(t) != nullptr) {
         this->visitPlusExp(dynamic_cast<PlusExp*>(t));
@@ -93,7 +94,7 @@ void Driver::visitExp(Exp *t) {
     }
 }
 
-void Driver::visitFactor(Factor *t) {
+void FrontEnd::visitFactor(Factor *t) {
 
     if (dynamic_cast<NumberFactor*>(t) != nullptr) {
         this->visitNumberFactor(dynamic_cast<NumberFactor*>(t));
@@ -106,310 +107,23 @@ void Driver::visitFactor(Factor *t) {
     }
 }
 
-void Driver::visitConfigType(ConfigType *t) {
+void FrontEnd::visitConfigType(ConfigType *t) {
 }
 
-void Driver::visitDataType(DataType *t) {
+void FrontEnd::visitDataType(DataType *t) {
 }
 
-void Driver::visitOpcode(Opcode *t) {
+void FrontEnd::visitOpcode(Opcode *t) {
 }
 
-// テストのため各種の型をエントリーポイントとしてパースできるようにしている
-template int Driver::Parse<Program>(FILE* in, char const* dst);
-template int Driver::Parse<Program>(const char* in, char const* dst);
-template int Driver::Parse<ListStatement>(FILE* in, char const* dst);
-template int Driver::Parse<ListStatement>(const char* in, char const* dst);
-template int Driver::Parse<Statement>(FILE* in, char const* dst);
-template int Driver::Parse<Statement>(const char* in, char const* dst);
-template int Driver::Parse<ListMnemonicArgs>(FILE* in, char const* dst);
-template int Driver::Parse<ListMnemonicArgs>(const char* in, char const* dst);
-template int Driver::Parse<MnemonicArgs>(FILE* in, char const* dst);
-template int Driver::Parse<MnemonicArgs>(const char* in, char const* dst);
-template int Driver::Parse<Exp>(FILE* in, char const* dst);
-template int Driver::Parse<Exp>(const char* in, char const* dst);
-template int Driver::Parse<Factor>(FILE* in, char const* dst);
-template int Driver::Parse<Factor>(const char* in, char const* dst);
-template int Driver::Parse<ConfigType>(FILE* in, char const* dst);
-template int Driver::Parse<ConfigType>(const char* in, char const* dst);
-template int Driver::Parse<DataType>(FILE* in, char const* dst);
-template int Driver::Parse<DataType>(const char* in, char const* dst);
-template int Driver::Parse<Opcode>(FILE* in, char const* dst);
-template int Driver::Parse<Opcode>(const char* in, char const* dst);
-
-
-template <class T, class IN>
-int Driver::Parse(IN input, const char* assembly_dst) {
-
-    T* parse_tree = NULL;
-
-    try {
-        if constexpr (std::is_same_v<T, Program>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pProgram(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psProgram(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, ListStatement>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pListStatement(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psListStatement(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, Statement>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pStatement(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psStatement(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pListMnemonicArgs(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psListMnemonicArgs(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, MnemonicArgs>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pMnemonicArgs(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psMnemonicArgs(input);
-            }
-        }
-        else if constexpr (std::is_same_v<T, Exp>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pExp(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psExp(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, Factor>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pFactor(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psFactor(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, ConfigType>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pConfigType(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psConfigType(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, DataType>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pDataType(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psDataType(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else if constexpr (std::is_same_v<T, Opcode>) {
-            if constexpr (std::is_same_v<IN, FILE*>) {
-                parse_tree = pOpcode(input);
-            } else if constexpr (std::is_same_v<IN, const char*>) {
-                parse_tree = psOpcode(input);
-            } else {
-                static_assert(false_v<IN>, "Bad IN!!!! Failed to dedution!!!");
-            }
-        }
-        else {
-            static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
-        }
-
-    } catch( parse_error &e) {
-        std::cerr << "Parse error on line " << e.getLine() << "\n";
-    }
-
-    if (parse_tree) {
-        printf("\nParse Successful!\n");
-
-        if (trace_scanning) {
-            printf("\n[Abstract Syntax]\n");
-            std::unique_ptr<ShowAbsyn> s(new ShowAbsyn());
-            printf("%s\n\n", s->show(parse_tree));
-        }
-        if (trace_parsing) {
-            printf("[Linearized Tree]\n");
-            std::unique_ptr<PrintAbsyn> p(new PrintAbsyn());
-            printf("%s\n\n", p->print(parse_tree));
-        }
-
-        this->Eval<T>(parse_tree, assembly_dst);
-        Delete<T>(parse_tree);
-
-        return 0;
-    }
-    return 1;
-}
-
-
-template <class T>
-void Driver::Delete(T *pt) {
-
-    if (auto prog = dynamic_cast<Prog*>(pt); prog != nullptr) {
-
-        log()->trace("success cast {}", type(prog));
-        for (auto stmt : *prog->liststatement_) {
-            log()->trace("iterate under prog {}", type(stmt));
-            this->Delete<Statement>(stmt);
-        }
-        delete(prog->liststatement_);
-        delete(prog);
-
-    } else if (auto stmt = dynamic_cast<Statement*>(pt); stmt != nullptr) {
-
-        log()->trace("success cast {}", type(stmt));
-
-        if (auto t = dynamic_cast<LabelStmt*>(stmt); t != nullptr) {
-            log()->trace("success cast {}", type(t));
-            delete(t);
-
-        } else if (auto t = dynamic_cast<DeclareStmt*>(stmt); t != nullptr) {
-            log()->trace("success cast {}", type(t));
-            this->Delete<Exp>(t->exp_);
-            delete(t->exp_);
-            delete(t);
-        } else if (auto t = dynamic_cast<ConfigStmt*>(stmt); t != nullptr) {
-            // NOP
-        } else if (auto t = dynamic_cast<MnemonicStmt*>(stmt); t != nullptr) {
-            log()->trace("success cast {}", type(t));
-
-            delete(t->opcode_);
-            for (auto arg : *t->listmnemonicargs_) {
-                log()->trace("iterate under mnemonic_stmt {}", type(arg));
-                this->Delete<MnemonicArgs>(arg);
-                delete(arg);
-            }
-            delete(t->listmnemonicargs_);
-            delete(t);
-
-        } else if (auto t = dynamic_cast<OpcodeStmt*>(stmt); t != nullptr) {
-            log()->trace("success cast {}", type(t));
-            delete(t->opcode_);
-            delete(t);
-        }
-
-    } else if (auto args = dynamic_cast<MnemonicArgs*>(pt); args != nullptr) {
-
-        if (auto arg = dynamic_cast<MnemoArg*>(args); arg != nullptr) {
-            log()->trace("success cast {}", type(arg));
-
-            this->Delete<Exp>(arg->exp_);
-            delete(arg->exp_);
-        }
-    } else if (auto exp = dynamic_cast<Exp*>(pt); exp != nullptr) {
-
-        log()->trace("success cast {}", type(exp));
-
-        if (auto plus_exp = dynamic_cast<PlusExp*>(exp); plus_exp != nullptr) {
-        } else if (dynamic_cast<MinusExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<MulExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<DivExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<ModExp*>(exp) != nullptr) {
-        } else if (auto indirect_addr_exp = dynamic_cast<IndirectAddrExp*>(exp); indirect_addr_exp != nullptr) {
-            log()->trace("success cast {}", type(indirect_addr_exp));
-
-            this->Delete<Exp>(indirect_addr_exp->exp_);
-            delete(indirect_addr_exp->exp_);
-
-        } else if (dynamic_cast<DatatypeExp*>(exp) != nullptr) {
-        } else if (dynamic_cast<RangeExp*>(exp) != nullptr) {
-        } else if (auto imm_exp = dynamic_cast<ImmExp*>(exp); imm_exp != nullptr) {
-            log()->trace("success cast {}", type(imm_exp));
-
-            this->Delete<Factor>(imm_exp->factor_);
-            delete(imm_exp->factor_);
-        }
-    } else if (auto factor = dynamic_cast<Factor*>(pt); factor != nullptr) {
-
-        log()->trace("success cast {}", type(factor));
-
-        if (auto f = dynamic_cast<NumberFactor*>(factor); f != nullptr) {
-            log()->trace("success cast {}", type(f));
-        } else if (auto f = dynamic_cast<HexFactor*>(factor); f != nullptr) {
-            log()->trace("success cast {}", type(f));
-        } else if (auto f = dynamic_cast<IdentFactor*>(factor); f != nullptr) {
-            log()->trace("success cast {}", type(f));
-        } else if (auto f = dynamic_cast<StringFactor*>(factor); f != nullptr) {
-            log()->trace("success cast {}", type(f));
-        }
-    }
-
-    return;
-}
-
-template <class T>
-int Driver::Eval(T *parse_tree, const char* assembly_dst) {
-
-    std::ofstream binout(assembly_dst, std::ios::trunc | std::ios::binary);
-    if ( binout.bad() || binout.fail() ) {
-        std::cerr << "NASK : can't open " << assembly_dst << std::endl;
-        return 17;
-    }
-
-    // Eval開始
-    if constexpr (std::is_same_v<T, Program>) {
-        this->visitProgram(parse_tree);
-    } else if constexpr (std::is_same_v<T, ListStatement>) {
-        this->visitListStatement(parse_tree);
-    } else if constexpr (std::is_same_v<T, Statement>) {
-        this->visitStatement(parse_tree);
-    } else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
-        this->visitListMnemonicArgs(parse_tree);
-    } else if constexpr (std::is_same_v<T, MnemonicArgs>) {
-        this->visitMnemonicArgs(parse_tree);
-    } else if constexpr (std::is_same_v<T, Exp>) {
-        this->visitExp(parse_tree);
-    } else if constexpr (std::is_same_v<T, Factor>) {
-        this->visitFactor(parse_tree);
-    } else if constexpr (std::is_same_v<T, ConfigType>) {
-        this->visitConfigType(parse_tree);
-    } else if constexpr (std::is_same_v<T, DataType>) {
-        this->visitDataType(parse_tree);
-    } else if constexpr (std::is_same_v<T, Opcode>) {
-        this->visitOpcode(parse_tree);
-    } else {
-        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
-    }
-
-    // output binary
-    binout.write(
-        reinterpret_cast<char*>(binout_container.data()), binout_container.size()
-    );
-    binout.close();
-
-    return 0;
-}
-
-
-void Driver::visitProg(Prog *prog) {
+void FrontEnd::visitProg(Prog *prog) {
 
     if (prog->liststatement_) {
         prog->liststatement_->accept(this);
     }
 }
 
-void Driver::visitLabelStmt(LabelStmt *label_stmt) {
+void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
 
     TParaToken t = this->ctx.top();
@@ -418,7 +132,7 @@ void Driver::visitLabelStmt(LabelStmt *label_stmt) {
 }
 
 
-void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
+void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("visitDeclareStmt start");
     visitIdent(declare_stmt->ident_);
@@ -437,7 +151,7 @@ void Driver::visitDeclareStmt(DeclareStmt *declare_stmt) {
     log()->debug("visitDeclareStmt end");
 }
 
-void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
+void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     if (mnemonic_stmt->opcode_) {
         mnemonic_stmt->opcode_->accept(this);
@@ -463,22 +177,22 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
-        std::make_pair("OpcodesADD", std::bind(&Driver::processADD, this, _1)),
-        std::make_pair("OpcodesCMP", std::bind(&Driver::processCMP, this, _1)),
-        std::make_pair("OpcodesDB", std::bind(&Driver::processDB, this, _1)),
-        std::make_pair("OpcodesDW", std::bind(&Driver::processDW, this, _1)),
-        std::make_pair("OpcodesDD", std::bind(&Driver::processDD, this, _1)),
-        std::make_pair("OpcodesINT", std::bind(&Driver::processINT, this, _1)),
-        std::make_pair("OpcodesJAE", std::bind(&Driver::processJAE, this, _1)),
-        std::make_pair("OpcodesJB", std::bind(&Driver::processJB, this, _1)),
-        std::make_pair("OpcodesJBE", std::bind(&Driver::processJBE, this, _1)),
-        std::make_pair("OpcodesJC", std::bind(&Driver::processJC, this, _1)),
-        std::make_pair("OpcodesJE", std::bind(&Driver::processJE, this, _1)),
-        std::make_pair("OpcodesJMP", std::bind(&Driver::processJMP, this, _1)),
-        std::make_pair("OpcodesJNC", std::bind(&Driver::processJNC, this, _1)),
-        std::make_pair("OpcodesMOV", std::bind(&Driver::processMOV, this, _1)),
-        std::make_pair("OpcodesORG", std::bind(&Driver::processORG, this, _1)),
-        std::make_pair("OpcodesRESB", std::bind(&Driver::processRESB, this, _1)),
+        std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
+        std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
+        std::make_pair("OpcodesDW", std::bind(&FrontEnd::processDW, this, _1)),
+        std::make_pair("OpcodesDD", std::bind(&FrontEnd::processDD, this, _1)),
+        std::make_pair("OpcodesINT", std::bind(&FrontEnd::processINT, this, _1)),
+        std::make_pair("OpcodesJAE", std::bind(&FrontEnd::processJAE, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&FrontEnd::processJB, this, _1)),
+        std::make_pair("OpcodesJBE", std::bind(&FrontEnd::processJBE, this, _1)),
+        std::make_pair("OpcodesJC", std::bind(&FrontEnd::processJC, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&FrontEnd::processJE, this, _1)),
+        std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
+        std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
+        std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
+        std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
@@ -491,7 +205,7 @@ void Driver::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     }
 }
 
-void Driver::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
+void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     if (opcode_stmt->opcode_) {
         opcode_stmt->opcode_->accept(this);
     }
@@ -500,7 +214,7 @@ void Driver::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
-        std::make_pair("OpcodesHLT", std::bind(&Driver::processHLT, this)),
+        std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -513,7 +227,7 @@ void Driver::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     }
 }
 
-void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
         log()->debug("{}", e.to_string());
 
@@ -526,7 +240,7 @@ void Driver::processDB(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
@@ -638,7 +352,7 @@ void Driver::processADD(std::vector<TParaToken>& mnemonic_args) {
     return;
 }
 
-void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
@@ -733,7 +447,7 @@ void Driver::processCMP(std::vector<TParaToken>& mnemonic_args) {
     return;
 }
 
-void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
         log()->debug("{}", e.to_string());
@@ -753,7 +467,7 @@ void Driver::processDW(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
         log()->debug("{}", e.to_string());
@@ -775,7 +489,7 @@ void Driver::processDD(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     const std::string suffix = "-$";
@@ -799,11 +513,11 @@ void Driver::processRESB(std::vector<TParaToken>& mnemonic_args) {
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
-void Driver::processHLT() {
+void FrontEnd::processHLT() {
     binout_container.push_back(0xf4);
 }
 
-void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
@@ -812,7 +526,7 @@ void Driver::processINT(std::vector<TParaToken>& mnemonic_args) {
     binout_container.push_back(arg.AsInt());
 }
 
-void Driver::processJAE(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -829,7 +543,7 @@ void Driver::processJAE(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJB(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -846,7 +560,7 @@ void Driver::processJB(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJBE(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -863,7 +577,7 @@ void Driver::processJBE(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJC(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -880,7 +594,7 @@ void Driver::processJC(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -897,7 +611,7 @@ void Driver::processJE(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -914,7 +628,7 @@ void Driver::processJMP(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processJNC(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -931,7 +645,7 @@ void Driver::processJNC(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
-void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
@@ -1105,7 +819,7 @@ void Driver::processMOV(std::vector<TParaToken>& mnemonic_args) {
     return;
 }
 
-void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
+void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
@@ -1116,14 +830,14 @@ void Driver::processORG(std::vector<TParaToken>& mnemonic_args) {
 //
 // Visit Opcode系の処理
 //
-void Driver::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
+void FrontEnd::visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) {
 
     for (ListMnemonicArgs::iterator i = list_mnemonic_args->begin() ; i != list_mnemonic_args->end() ; ++i) {
         (*i)->accept(this);
     }
 }
 
-void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
+void FrontEnd::visitMnemoArg(MnemoArg *mnemo_arg) {
     if (mnemo_arg->exp_) {
         mnemo_arg->exp_->accept(this);
     }
@@ -1136,7 +850,7 @@ void Driver::visitMnemoArg(MnemoArg *mnemo_arg) {
 //
 // expressionの処理
 //
-void Driver::visitImmExp(ImmExp *imm_exp) {
+void FrontEnd::visitImmExp(ImmExp *imm_exp) {
     if (imm_exp->factor_) {
         imm_exp->factor_->accept(this);
     }
@@ -1145,7 +859,7 @@ void Driver::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
-void Driver::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
+void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     if (indirect_addr_exp->exp_) {
         indirect_addr_exp->exp_->accept(this);
     }
@@ -1156,31 +870,31 @@ void Driver::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     this->ctx.push(t);
 }
 
-void Driver::visitPlusExp(PlusExp *p) {
+void FrontEnd::visitPlusExp(PlusExp *p) {
     visitArithmeticOperations(p);
 }
-void Driver::visitMinusExp(MinusExp *p) {
+void FrontEnd::visitMinusExp(MinusExp *p) {
     visitArithmeticOperations(p);
 }
-void Driver::visitMulExp(MulExp *p) {
+void FrontEnd::visitMulExp(MulExp *p) {
     visitArithmeticOperations(p);
 }
-void Driver::visitDivExp(DivExp *p) {
+void FrontEnd::visitDivExp(DivExp *p) {
     visitArithmeticOperations(p);
 }
-void Driver::visitModExp(ModExp *p) {
+void FrontEnd::visitModExp(ModExp *p) {
     visitArithmeticOperations(p);
 }
 
-template void Driver::visitArithmeticOperations<PlusExp>(PlusExp *p);
-template void Driver::visitArithmeticOperations<MinusExp>(MinusExp *p);
-template void Driver::visitArithmeticOperations<MulExp>(MulExp *p);
-template void Driver::visitArithmeticOperations<DivExp>(DivExp *p);
-template void Driver::visitArithmeticOperations<ModExp>(ModExp *p);
+template void FrontEnd::visitArithmeticOperations<PlusExp>(PlusExp *p);
+template void FrontEnd::visitArithmeticOperations<MinusExp>(MinusExp *p);
+template void FrontEnd::visitArithmeticOperations<MulExp>(MulExp *p);
+template void FrontEnd::visitArithmeticOperations<DivExp>(DivExp *p);
+template void FrontEnd::visitArithmeticOperations<ModExp>(ModExp *p);
 
 
 template <class T>
-void Driver::visitArithmeticOperations(T *exp) {
+void FrontEnd::visitArithmeticOperations(T *exp) {
 
     if (exp->exp_1) {
         exp->exp_1->accept(this);
@@ -1218,7 +932,7 @@ void Driver::visitArithmeticOperations(T *exp) {
 //
 // factorの処理
 //
-void Driver::visitNumberFactor(NumberFactor *number_factor) {
+void FrontEnd::visitNumberFactor(NumberFactor *number_factor) {
     visitInteger(number_factor->integer_);
     TParaToken t = this->ctx.top();
     t.MustBe(TParaToken::ttInteger);
@@ -1226,7 +940,7 @@ void Driver::visitNumberFactor(NumberFactor *number_factor) {
     this->ctx.push(t);
 }
 
-void Driver::visitHexFactor(HexFactor *hex_factor) {
+void FrontEnd::visitHexFactor(HexFactor *hex_factor) {
     visitHex(hex_factor->hex_);
     TParaToken t = this->ctx.top();
     t.MustBe(TParaToken::ttHex);
@@ -1234,14 +948,14 @@ void Driver::visitHexFactor(HexFactor *hex_factor) {
     this->ctx.push(t);
 }
 
-void Driver::visitIdentFactor(IdentFactor *ident_factor) {
+void FrontEnd::visitIdentFactor(IdentFactor *ident_factor) {
     visitIdent(ident_factor->ident_);
     TParaToken t = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(t);
 }
 
-void Driver::visitStringFactor(StringFactor *string_factor) {
+void FrontEnd::visitStringFactor(StringFactor *string_factor) {
     visitString(string_factor->string_);
     TParaToken t = this->ctx.top();
     t.MustBe(TParaToken::ttIdentifier);
@@ -1252,28 +966,28 @@ void Driver::visitStringFactor(StringFactor *string_factor) {
 //
 // tokenの処理
 //
-void Driver::visitInteger(Integer x) {
+void FrontEnd::visitInteger(Integer x) {
     TParaToken t = TParaToken(std::to_string(x), TParaToken::ttInteger);
     this->ctx.push(t);
 }
 
-void Driver::visitChar(Char x) {
+void FrontEnd::visitChar(Char x) {
     std::string str{x};
     TParaToken t = TParaToken(str, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }
 
-void Driver::visitDouble(Double x) {
+void FrontEnd::visitDouble(Double x) {
     TParaToken t = TParaToken(std::to_string(x), TParaToken::ttFloating);
     this->ctx.push(t);
 }
 
-void Driver::visitString(String x) {
+void FrontEnd::visitString(String x) {
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }
 
-void Driver::visitIdent(Ident x) {
+void FrontEnd::visitIdent(Ident x) {
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
         log()->debug("EQU {} = {}", x, equ_map[x].AsString());
@@ -1285,12 +999,12 @@ void Driver::visitIdent(Ident x) {
     this->ctx.push(t);
 }
 
-void Driver::visitHex(Hex x) {
+void FrontEnd::visitHex(Hex x) {
     TParaToken t = TParaToken(x, TParaToken::ttHex);
     this->ctx.push(t);
 }
 
-void Driver::visitLabel(Label x) {
+void FrontEnd::visitLabel(Label x) {
 
     std::string label = x.substr(0, x.find(":", 0));
     log()->debug("label='{}' binout_container[{}]",
@@ -1306,7 +1020,7 @@ void Driver::visitLabel(Label x) {
     this->ctx.push(t);
 }
 
-const std::string Driver::join(std::vector<TParaToken>& array, const std::string& sep) {
+const std::string FrontEnd::join(std::vector<TParaToken>& array, const std::string& sep) {
 
     std::stringstream ss;
     for(size_t i = 0; i < array.size(); ++i) {
@@ -1327,3 +1041,130 @@ const std::string Driver::join(std::vector<TParaToken>& array, const std::string
     }
     return ss.str();
 }
+
+template <class T>
+std::shared_ptr<T> FrontEnd::Parse(std::istream &input) {
+
+    std::shared_ptr<T> parse_tree = nullptr;
+    auto driver = std::make_unique<NaskDriver>();
+
+    try {
+        if constexpr (std::is_same_v<T, Program>) {
+            parse_tree = driver->pProgram(input);
+        }
+        else if constexpr (std::is_same_v<T, ListStatement>) {
+            parse_tree = driver->pListStatement(input);
+        }
+        else if constexpr (std::is_same_v<T, Statement>) {
+            parse_tree = driver->pStatement(input);
+        }
+        else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+            parse_tree = driver->pListMnemonicArgs(input);
+        }
+        else if constexpr (std::is_same_v<T, MnemonicArgs>) {
+            parse_tree = driver->pMnemonicArgs(input);
+        }
+        else if constexpr (std::is_same_v<T, Exp>) {
+            parse_tree = driver->pExp(input);
+        }
+        else if constexpr (std::is_same_v<T, Factor>) {
+            parse_tree = driver->pFactor(input);
+        }
+        else if constexpr (std::is_same_v<T, ConfigType>) {
+            parse_tree = driver->pConfigType(input);
+        }
+        else if constexpr (std::is_same_v<T, DataType>) {
+            parse_tree = driver->pDataType(input);
+        }
+        else if constexpr (std::is_same_v<T, Opcode>) {
+            parse_tree = driver->pOpcode(input);
+        }
+        else {
+            static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
+        }
+
+    } catch( parse_error &e) {
+        std::cerr << "Parse error on line " << e.getLine() << "\n";
+    }
+
+    if (parse_tree) {
+        printf("\nParse Successful!\n");
+        if (trace_scanning) {
+            printf("\n[Abstract Syntax]\n");
+            auto s = std::make_unique<ShowAbsyn>(ShowAbsyn());
+            printf("%s\n\n", s->show(parse_tree.get()));
+        }
+        if (trace_parsing) {
+            printf("[Linearized Tree]\n");
+            auto p = std::make_unique<PrintAbsyn>(PrintAbsyn());
+            printf("%s\n\n", p->print(parse_tree.get()));
+        }
+    }
+    return parse_tree;
+}
+
+template std::shared_ptr<Program> FrontEnd::Parse<Program>(std::istream &input);
+template std::shared_ptr<ListStatement> FrontEnd::Parse<ListStatement>(std::istream &input);
+template std::shared_ptr<Statement> FrontEnd::Parse<Statement>(std::istream &input);
+template std::shared_ptr<ListMnemonicArgs> FrontEnd::Parse<ListMnemonicArgs>(std::istream &input);
+template std::shared_ptr<MnemonicArgs> FrontEnd::Parse<MnemonicArgs>(std::istream &input);
+template std::shared_ptr<Exp> FrontEnd::Parse<Exp>(std::istream &input);
+template std::shared_ptr<Factor> FrontEnd::Parse<Factor>(std::istream &input);
+template std::shared_ptr<ConfigType> FrontEnd::Parse<ConfigType>(std::istream &input);
+template std::shared_ptr<DataType> FrontEnd::Parse<DataType>(std::istream &input);
+template std::shared_ptr<Opcode> FrontEnd::Parse<Opcode>(std::istream &input);
+
+
+template <class T>
+int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
+
+    std::ofstream binout(assembly_dst, std::ios::trunc | std::ios::binary);
+    if ( binout.bad() || binout.fail() ) {
+        std::cerr << "NASK : can't open " << assembly_dst << std::endl;
+        return 17;
+    }
+
+    // Eval開始
+    if constexpr (std::is_same_v<T, Program>) {
+        this->visitProgram(parse_tree);
+    } else if constexpr (std::is_same_v<T, ListStatement>) {
+        this->visitListStatement(parse_tree);
+    } else if constexpr (std::is_same_v<T, Statement>) {
+        this->visitStatement(parse_tree);
+    } else if constexpr (std::is_same_v<T, ListMnemonicArgs>) {
+        this->visitListMnemonicArgs(parse_tree);
+    } else if constexpr (std::is_same_v<T, MnemonicArgs>) {
+        this->visitMnemonicArgs(parse_tree);
+    } else if constexpr (std::is_same_v<T, Exp>) {
+        this->visitExp(parse_tree);
+    } else if constexpr (std::is_same_v<T, Factor>) {
+        this->visitFactor(parse_tree);
+    } else if constexpr (std::is_same_v<T, ConfigType>) {
+        this->visitConfigType(parse_tree);
+    } else if constexpr (std::is_same_v<T, DataType>) {
+        this->visitDataType(parse_tree);
+    } else if constexpr (std::is_same_v<T, Opcode>) {
+        this->visitOpcode(parse_tree);
+    } else {
+        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
+    }
+
+    // output binary
+    binout.write(
+        reinterpret_cast<char*>(binout_container.data()), binout_container.size()
+    );
+    binout.close();
+
+    return 0;
+}
+
+template int FrontEnd::Eval<Program>(Program* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<ListStatement>(ListStatement* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<Statement>(Statement* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<ListMnemonicArgs>(ListMnemonicArgs* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<MnemonicArgs>(MnemonicArgs* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<Exp>(Exp* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<Factor>(Factor* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<ConfigType>(ConfigType* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<DataType>(DataType* parse_tree, const char* assembly_dst);
+template int FrontEnd::Eval<Opcode>(Opcode* parse_tree, const char* assembly_dst);

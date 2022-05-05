@@ -1,8 +1,10 @@
-#include "driver.hh"
+#include "front_end.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
 
+#include <CppUTest/MemoryLeakDetectorNewMacros.h>
+#include <CppUTest/MemoryLeakDetectorMallocMacros.h>
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
 
@@ -15,6 +17,7 @@ TEST_GROUP(day01_suite)
 
 TEST(day01_suite, helloos1) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 	DB	0xeb, 0x4e, 0x90, 0x48, 0x45, 0x4c, 0x4c, 0x4f
 	DB	0x49, 0x50, 0x4c, 0x00, 0x02, 0x01, 0x01, 0x00
@@ -40,13 +43,15 @@ TEST(day01_suite, helloos1) {
 	RESB	1469432
 )";
 
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb16(16, 0);
-	std::vector<uint8_t> resb368(368, 0);
-	std::vector<uint8_t> resb4600(4600, 0);
+    std::vector<uint8_t> resb368(368, 0);
+    std::vector<uint8_t> resb4600(4600, 0);
     std::vector<uint8_t> resb1469432(1469432, 0);
 
     expected.insert(expected.end(), {
@@ -82,6 +87,7 @@ TEST(day01_suite, helloos1) {
 
 TEST(day01_suite, helloos2) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; hello-os
 ; TAB=4
@@ -135,13 +141,15 @@ TEST(day01_suite, helloos2) {
 		RESB	1469432
 )";
 
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
     std::vector<uint8_t> resb378(378, 0);
-	std::vector<uint8_t> resb4600(4600, 0);
+    std::vector<uint8_t> resb4600(4600, 0);
     std::vector<uint8_t> resb1469432(1469432, 0);
 
     expected.insert(expected.end(), {0xeb, 0x4e, 0x90});

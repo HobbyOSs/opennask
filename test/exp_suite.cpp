@@ -1,4 +1,4 @@
-#include "driver.hh"
+#include "front_end.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
@@ -18,7 +18,7 @@ TEST_GROUP(exp_suite)
 
 TEST(exp_suite, testToken)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
 
     d->visitInteger(30);
     CHECK_EQUAL(30, d->ctx.top().AsInt());
@@ -48,7 +48,7 @@ TEST(exp_suite, testToken)
 
 TEST(exp_suite, testFactor)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto numberFactor = NumberFactor(30);
     d->visitNumberFactor(&numberFactor);
     CHECK_EQUAL(30, d->ctx.top().AsInt());
@@ -72,7 +72,7 @@ TEST(exp_suite, testFactor)
 
 TEST(exp_suite, testImmExp)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
 
     auto numberFactor = NumberFactor(30);
     auto hexFactor = HexFactor("hello1");
@@ -107,7 +107,7 @@ TEST(exp_suite, testImmExp)
 
 TEST(exp_suite, testArithmeticOperations)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto numberFactor1 = NumberFactor(7);
     auto numberFactor2 = NumberFactor(3);
     auto immExp1 = ImmExp(numberFactor1.clone());
@@ -147,7 +147,7 @@ TEST(exp_suite, testArithmeticOperations)
 
 TEST(exp_suite, testMnemoArgs)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     {
         auto numberFactor = NumberFactor(12);
         auto immExp = ImmExp(numberFactor.clone());
@@ -162,8 +162,8 @@ TEST(exp_suite, testMnemoArgs)
         auto mnemoArg2 = MnemoArg(ImmExp(NumberFactor(13).clone()).clone());
         auto mnemoArgs = ListMnemonicArgs();
 
-        mnemoArgs.push_back(mnemoArg1.clone());
-        mnemoArgs.push_back(mnemoArg2.clone());
+        mnemoArgs.cons(mnemoArg1.clone());
+        mnemoArgs.cons(mnemoArg2.clone());
 
         d->visitListMnemonicArgs(&mnemoArgs);
         CHECK_EQUAL(2, d->ctx.size());
@@ -177,16 +177,20 @@ TEST(exp_suite, testMnemoArgs)
 
 TEST(exp_suite, testSimpleMnemonic)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto expected = std::vector<uint8_t>{10,20,30};
-    d->Parse<Program>("DB 10,20,30", "test.img");
+    std::stringstream ss;
+    ss << "DB 10,20,30";
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
+
     CHECK_EQUAL(3, d->binout_container.size());
     CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
 TEST(exp_suite, testDeclareStmt)
 {
-    std::unique_ptr<Driver> d(new Driver(false, false));
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     {
         auto numberFactor = NumberFactor(10);
         auto immExp = ImmExp(numberFactor.clone());
