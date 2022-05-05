@@ -1,4 +1,4 @@
-#include "driver.hh"
+#include "front_end.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
@@ -15,6 +15,7 @@ TEST_GROUP(day02_suite)
 
 TEST(day02_suite, helloos3) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; hello-os
 ; TAB=4
@@ -86,13 +87,15 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
     std::vector<uint8_t> resb378(378, 0);
-	std::vector<uint8_t> resb4600(4600, 0);
+    std::vector<uint8_t> resb4600(4600, 0);
     std::vector<uint8_t> resb1469432(1469432, 0);
 
     // 以下は標準的なFAT12フォーマットフロッピーディスクのための記述

@@ -417,13 +417,11 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"XOR"      	 return token::_KW_XOR;
 
 <INITIAL>"#" BEGIN COMMENT; /* BNFC: block comment "#" "\\n" */
-<COMMENT>"\\n" BEGIN INITIAL;
-<COMMENT>.    /* skip */;
-<COMMENT>[\n] /* skip */;
+<COMMENT>\n BEGIN INITIAL;
+<COMMENT>[^\n] /* skip */;
 <INITIAL>";" BEGIN COMMENT1; /* BNFC: block comment ";" "\\n" */
-<COMMENT1>"\\n" BEGIN INITIAL;
-<COMMENT1>.    /* skip */;
-<COMMENT1>[\n] /* skip */;
+<COMMENT1>\n BEGIN INITIAL;
+<COMMENT1>[^\n] /* skip */;
 
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
 <INITIAL>(\_|{LETTER})(\_|({DIGIT}|{LETTER}))*\:\r?\n    	 yylval->emplace<std::string>(yytext); return token::T_Label;

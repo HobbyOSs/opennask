@@ -1,4 +1,4 @@
-#include "driver.hh"
+#include "front_end.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
@@ -16,6 +16,7 @@ TEST_GROUP(day03_suite)
 
 TEST(day03_suite, harib00a) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; haribote-ipl
 ; TAB=4
@@ -97,8 +98,10 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
@@ -171,6 +174,7 @@ msg:
 
 TEST(day03_suite, harib00b) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; haribote-ipl
 ; TAB=4
@@ -261,8 +265,10 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
@@ -342,6 +348,7 @@ msg:
 
 TEST(day03_suite, harib00c) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; haribote-ipl
 ; TAB=4
@@ -439,8 +446,10 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    ss << nask_statements;
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
@@ -528,6 +537,7 @@ msg:
 
 TEST(day03_suite, harib00d) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; haribote-ipl
 ; TAB=4
@@ -635,8 +645,10 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    std::unique_ptr<FrontEnd> d(new FrontEnd(true, true));
+    ss << nask_statements;
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);

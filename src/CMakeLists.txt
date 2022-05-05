@@ -26,8 +26,8 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 set(nask_parse_SRCS
   nask_parse.cpp
-  driver.cc
-  driver.hh
+  front_end.cc
+  front_end.hh
   para_token.cc
   para_token.hh
   demangle.hpp
@@ -42,6 +42,8 @@ set(nask_parse_SRCS
   bnfc/absyn.hh
   bnfc/buffer.cc
   bnfc/buffer.hh
+  bnfc/driver.cc
+  bnfc/driver.hh
   bnfc/lexer.cc
   bnfc/parser.cc
   bnfc/parser.hh

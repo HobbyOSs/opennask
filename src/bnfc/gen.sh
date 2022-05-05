@@ -22,11 +22,11 @@ find . -name \*.cc -or -name \*.hh -or -name \*.ll -or -name \*.yy | xargs sed -
 # sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l
 
 # commentのstate設定の修正
-# sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g' nask.l
-# sed -i '/^<COMMENT>\./d' nask.l
-# sed -i 's/^<COMMENT>\[/<COMMENT>\[^/g' nask.l
-# sed -i 's/<COMMENT1>\".*\"/<COMMENT1>\\n/g' nask.l
-# sed -i '/^<COMMENT1>\./d' nask.l
-# sed -i 's/^<COMMENT1>\[/<COMMENT1>\[^/g' nask.l
+sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g'   nask.ll
+sed -i '/^<COMMENT>\./d'                    nask.ll
+sed -i 's/^<COMMENT>\[/<COMMENT>\[^/g'      nask.ll
+sed -i 's/<COMMENT1>\".*\"/<COMMENT1>\\n/g' nask.ll
+sed -i '/^<COMMENT1>\./d'                   nask.ll
+sed -i 's/^<COMMENT1>\[/<COMMENT1>\[^/g'    nask.ll
 
 make

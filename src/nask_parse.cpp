@@ -2,7 +2,7 @@
 #include <memory>
 #include <getopt.h>
 #include "spdlog/spdlog.h"
-#include "driver.hh"
+#include "front_end.hh"
 
 void usage() {
     printf("Usage:  [--help | --parse | --scan] source \n");
@@ -14,7 +14,6 @@ int main (int argc, char *argv[]) {
     int opt, i, option_index;
     bool trace_parsing = false;
     bool trace_scanning = false;
-    FILE *input;
     char *filename = NULL;
 
     struct option long_options[] = {
@@ -62,27 +61,25 @@ int main (int argc, char *argv[]) {
     // argv[optind] がオプションでない最初のコマンドラインパラメータ
     const char* assembly_src;
     const char* assembly_dst;
+    std::unique_ptr<FrontEnd> d(new FrontEnd(trace_scanning, trace_parsing));
 
-    // 入力するアセンブラ情報, inputをFILE*で設定しているのはflex/bisonのIFが古く改修が困難なため
     if (argv[optind+1] != NULL) {
         assembly_src = argv[optind];
         assembly_dst = argv[optind + 1];
 
-        input = fopen(assembly_src, "r");
-        if (!input) {
+        std::ifstream input(assembly_src);
+        if (! input.good()) {
             std::string out = assembly_src ? std::string(assembly_src) : std::string("");
             std::cerr << "NASK : can't read "
                       << out // srcがNULLの場合がある
                       << std::endl;
             return 17;
         }
-    } else {
-        assembly_dst = argv[optind];
-        input = stdin;
+        auto parse_tree = d->Parse<Program>(input);
+        return d->Eval<Program>(parse_tree.get(), assembly_dst);
     }
 
-    std::unique_ptr<Driver> d(new Driver(trace_scanning, trace_parsing));
-    d->Parse<Program>(input, assembly_dst);
-
-    return 0;
+    assembly_dst = argv[optind];
+    auto parse_tree = d->Parse<Program>(std::cin);
+    return d->Eval<Program>(parse_tree.get(), assembly_dst);
 }

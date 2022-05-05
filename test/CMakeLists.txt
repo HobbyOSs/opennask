@@ -23,8 +23,9 @@ set(parsertest_SRCS
   ../src/bnfc/parser.cc
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
+  ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -76,8 +77,9 @@ set(day01test_SRCS
   ../src/bnfc/parser.cc
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
+  ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -107,7 +109,8 @@ set(day02test_SRCS
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/bnfc/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -137,7 +140,8 @@ set(day03test_SRCS
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
   ../src/bnfc/buffer.cc
-  ../src/driver.cc
+  ../src/bnfc/driver.cc
+  ../src/front_end.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
