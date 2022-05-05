@@ -37,7 +37,7 @@ jobs:
       run: sudo apt-get update -y
 
     - name: Install build tools
-      run: sudo apt-get install -y cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex
+      run: sudo apt-get install -y cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -G Ninja
