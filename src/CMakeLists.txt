@@ -3,10 +3,15 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(opennask CXX)
 set(opennask_VERSION \"1.0.1\")
 
+find_package(Threads REQUIRED)
+find_package(FLEX REQUIRED)
+find_package(BISON REQUIRED)
+
 include_directories(
   ${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
-  ${matchit_SOURCE_DIR}/include)
+  ${matchit_SOURCE_DIR}/include
+  ${FLEX_INCLUDE_DIRS})
 
 ########### next target ###############
 
@@ -92,11 +97,9 @@ if (WIN32)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
 add_executable(opennask ${opennask_SRCS})
 target_link_libraries(opennask parasol Threads::Threads)
 
-set_property(TARGET opennask PROPERTY CXX_STANDARD 11)
+set_property(TARGET opennask PROPERTY CXX_STANDARD 17)
 set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET opennask PROPERTY APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
