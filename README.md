@@ -25,7 +25,7 @@ $ cmake -G Ninja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
 # Build osask project files (debian)
 
 * You need to install mtools to build these files
-* You need to install QEMU to test it
+* You need to install QEMU (> 3.1) to test it
 
 'wine' will be very helpful for you to debug original nask
 
