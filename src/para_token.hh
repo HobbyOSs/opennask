@@ -104,6 +104,7 @@ public:
     std::array<uint8_t, 1> AsUInt8t(void) const noexcept(false);
     std::array<uint8_t, 2> AsUInt16t(void) const noexcept(false);
     std::array<uint8_t, 4> AsUInt32t(void) const noexcept(false);
+    size_t GetImmSize() const;
     TTokenType AsType() const;
     TIdentiferAttribute AsAttr() const;
     TParaToken& RemoveQuotation(char quoter = '\0');
