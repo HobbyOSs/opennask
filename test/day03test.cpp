@@ -749,6 +749,7 @@ msg:
 
 TEST(day03_suite, harib00g) {
 
+    std::stringstream ss;
     const char nask_statements[] = R"(
 ; haribote-ipl
 ; TAB=4
@@ -858,8 +859,10 @@ msg:
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
-    std::unique_ptr<Driver> d(new Driver(true, true));
-    d->Parse<Program>(nask_statements, "test.img");
+    ss << nask_statements;
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
