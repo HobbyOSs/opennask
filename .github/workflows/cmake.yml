@@ -34,7 +34,7 @@ jobs:
         ninja: 1.9.0
 
     - name: Install build tools
-      uses: awalsh128/cache-apt-pkgs-action@v1
+      uses: awalsh128/cache-apt-pkgs-action@v1.1.0
       with:
         packages: cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
         version: 1.0

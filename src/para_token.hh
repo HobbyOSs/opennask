@@ -75,6 +75,7 @@ public:
     };
 
 public:
+
     TParaToken(void);
     TParaToken(const std::string& token_string, TTokenType type);
     TParaToken(const TParaToken& token);
@@ -111,6 +112,7 @@ public:
     TParaToken& MustBe(const std::string& expected_string) noexcept(false);
     TParaToken& MustBe(TTokenType expected_token_type) noexcept(false);
     void ThrowUnexpected(const std::string& expected = "") const noexcept(false);
+
 protected:
     std::string _token_string;
     TTokenType _type;

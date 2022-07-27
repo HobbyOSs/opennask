@@ -127,6 +127,9 @@ public:
 
     // 以下、整理後にstring_utilに移動
     const std::string join(std::vector<TParaToken>& array, const std::string& sep = "");
+    const std::array<uint8_t, 1> IntAsByte(const int);
+    const std::array<uint8_t, 2> IntAsWord(const int);
+    const std::array<uint8_t, 4> LongAsDword(const long);
 
     // パースする
     template <class T>

@@ -629,21 +629,23 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         // 即値処理
         pattern | ds(TParaToken::ttImm, 1) = [&] {
             std::vector<uint8_t> b = {0xeb};
-            const long jmp_offset = (arg.AsLong() - dollar_position - binout_container.size()) - 2;
-            // TODO: それぞれのバイト単位での std::vector<uint8_t> を作る
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            const auto byte = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = IntAsByte(byte);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
         },
         pattern | ds(TParaToken::ttImm, 2) = [&] {
-            std::vector<uint8_t> b = {0xef};
-            const long jmp_offset = (arg.AsLong() - dollar_position - binout_container.size()) - 2;
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            std::vector<uint8_t> b = {0xe9};
+            const auto word = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = IntAsWord(word);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
         },
         pattern | ds(TParaToken::ttImm, 4) = [&] {
-            std::vector<uint8_t> b = {0xee};
-            const long jmp_offset = (arg.AsLong() - dollar_position - binout_container.size()) - 2;
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            std::vector<uint8_t> b = {0xe9};
+            const auto dword = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = LongAsDword(dword);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
         },
         // ラベル処理
@@ -1102,6 +1104,26 @@ const std::string FrontEnd::join(std::vector<TParaToken>& array, const std::stri
         }
     }
     return ss.str();
+}
+
+const std::array<uint8_t, 1> FrontEnd::IntAsByte(const int v) {
+    return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
+}
+
+const std::array<uint8_t, 2> FrontEnd::IntAsWord(const int word) {
+    return std::array<uint8_t, 2>{
+        static_cast<uint8_t>( word & 0xff ),
+        static_cast<uint8_t>( (word >> 8) & 0xff ),
+    };
+}
+
+const std::array<uint8_t, 4> FrontEnd::LongAsDword(const long dword) {
+    return std::array<uint8_t, 4>{
+        static_cast<uint8_t>( dword & 0xff ),
+        static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+        static_cast<uint8_t>( (dword >> 16) & 0xff ),
+        static_cast<uint8_t>( (dword >> 24) & 0xff ),
+    };
 }
 
 template <class T>
