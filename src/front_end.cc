@@ -650,7 +650,6 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         },
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            auto arg = mnemonic_args[0];
             log()->debug("type: {}, value: {}", type(arg), arg.AsString());
             std::string label = arg.AsString();
 
