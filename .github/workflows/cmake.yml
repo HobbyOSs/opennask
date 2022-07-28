@@ -33,11 +33,11 @@ jobs:
         cmake: 3.17.2
         ninja: 1.9.0
 
-    - name: Update packages
-      run: sudo apt-get update -y
-
     - name: Install build tools
-      run: sudo apt-get install -y cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+      uses: awalsh128/cache-apt-pkgs-action@v1.1.0
+      with:
+        packages: cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+        version: 1.0
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -G Ninja

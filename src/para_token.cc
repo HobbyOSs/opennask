@@ -225,6 +225,14 @@ std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
     };
 }
 
+size_t TParaToken::GetImmSize() const {
+    const std::string supplied_hex = (_token_string.substr(2).size() % 2 == 0) ?
+        _token_string.substr(2) : "0" + _token_string.substr(2);
+    const size_t s = supplied_hex.size() / 2;
+
+    return s;
+}
+
 TParaToken::TTokenType TParaToken::AsType() const {
     return _type;
 }

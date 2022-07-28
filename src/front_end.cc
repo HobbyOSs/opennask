@@ -10,7 +10,7 @@
 
 
 using namespace std::placeholders;
-
+using namespace matchit;
 
 
 FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
@@ -613,19 +613,68 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
-    std::string label = arg.AsString();
+    // 0xEB cb	JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
+    // 0xE9 cw	JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xE9 cd	JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0xeb);
-        binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].GetImmSize()
+    );
+    auto arg = mnemonic_args[0];
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 即値処理
+        pattern | ds(TParaToken::ttImm, 1) = [&] {
+            std::vector<uint8_t> b = {0xeb};
+            const auto byte = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = IntAsByte(byte);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttImm, 2) = [&] {
+            std::vector<uint8_t> b = {0xe9};
+            const auto word = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = IntAsWord(word);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttImm, 4) = [&] {
+            std::vector<uint8_t> b = {0xe9};
+            const auto dword = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            auto jmp_offset = LongAsDword(dword);
+            std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
+            return b;
+        },
+        // ラベル処理
+        pattern | ds(TParaToken::ttLabel, _) = [&] {
+            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            std::string label = arg.AsString();
+
+            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+                LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
+            } else {
+                LabelJmp::store_label_src(label, label_src_list, binout_container);
+                binout_container.push_back(0xeb);
+                binout_container.push_back(0x00);
+                log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+            }
+
+            return std::vector<uint8_t>();
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
@@ -647,13 +696,27 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
-    using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
-    auto operands = std::make_tuple(mnemonic_args[0].AsAttr(), mnemonic_args[1].AsAttr());
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
 
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
+       pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+            const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
+            const std::string src_reg = mnemonic_args[1].AsString();
+
+            const uint8_t base = 0x88;
+            const uint8_t modrm = ModRM::generate_modrm(base, ModRM::REG_REG, dst_mem, src_reg);
+            std::vector<uint8_t> b = {base, modrm};
+            auto imm = mnemonic_args[0].AsUInt16t(); // TODO: int16で返しているが実際は可変なのでちゃんと処理する
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+
         //         0x89 /r	MOV r/m16  , r16
         //         0x89 /r	MOV r/m32  , r32
         // REX.W + 0x89 /r	MOV r/m64  , r64
@@ -1040,6 +1103,26 @@ const std::string FrontEnd::join(std::vector<TParaToken>& array, const std::stri
         }
     }
     return ss.str();
+}
+
+const std::array<uint8_t, 1> FrontEnd::IntAsByte(const int v) {
+    return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
+}
+
+const std::array<uint8_t, 2> FrontEnd::IntAsWord(const int word) {
+    return std::array<uint8_t, 2>{
+        static_cast<uint8_t>( word & 0xff ),
+        static_cast<uint8_t>( (word >> 8) & 0xff ),
+    };
+}
+
+const std::array<uint8_t, 4> FrontEnd::LongAsDword(const long dword) {
+    return std::array<uint8_t, 4>{
+        static_cast<uint8_t>( dword & 0xff ),
+        static_cast<uint8_t>( (dword >> 8)  & 0xff ),
+        static_cast<uint8_t>( (dword >> 16) & 0xff ),
+        static_cast<uint8_t>( (dword >> 24) & 0xff ),
+    };
 }
 
 template <class T>
