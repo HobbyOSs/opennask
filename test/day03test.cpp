@@ -966,12 +966,73 @@ msg:
 }
 
 
+TEST(day03_suite, harib00h) {
+
+    std::stringstream ss;
+    const char nask_statements[] = R"(
+; haribote-os
+; TAB=4
+
+; BOOT_INFO関係
+CYLS	EQU		0x0ff0			; ブートセクタが設定する
+LEDS	EQU		0x0ff1
+VMODE	EQU		0x0ff2			; 色数に関する情報。何ビットカラーか？
+SCRNX	EQU		0x0ff4			; 解像度のX
+SCRNY	EQU		0x0ff6			; 解像度のY
+VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
+
+		ORG		0xc200			; このプログラムがどこに読み込まれるのか
+
+		MOV		AL,0x13			; VGAグラフィックス、320x200x8bitカラー
+		MOV		AH,0x00
+		INT		0x10
+		;MOV		BYTE [VMODE],8	; 画面モードをメモする
+		;MOV		WORD [SCRNX],320
+		;MOV		WORD [SCRNY],200
+		;MOV		DWORD [VRAM],0x000a0000
+
+; キーボードのLED状態をBIOSに教えてもらう
+
+		;MOV		AH,0x02
+		;INT		0x16 			; keyboard BIOS
+		;MOV		[LEDS],AL
+
+fin:
+		;HLT
+		;JMP		fin
+)";
+
+    // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
+    ss << nask_statements;
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
+
+    std::vector<uint8_t> expected = {};
+    std::vector<uint8_t> resb18(18, 0);
+    //std::vector<uint8_t> padding(297, 0);
+
+    // haribote.nas
+    expected.insert(expected.end(), {0xb0, 0x13});
+    expected.insert(expected.end(), {0xb4, 0x00});
+    expected.insert(expected.end(), {0xcd, 0x10});
+
+    CHECK_EQUAL(expected.size(), d->binout_container.size());
+    std::string msg = "[diff]\n" + diff(expected, d->binout_container);
+    CHECK_TEXT(
+        std::equal(expected.begin(),
+                   expected.end(),
+                   d->binout_container.begin()), msg.c_str()
+    );
+}
+
+
 int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::debug);
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day03_suite, harib00g)");
+    args.push_back("TEST(day03_suite, harib00h)");
 
     // Run all tests
     int i = RUN_ALL_TESTS(args.size(), &args[0]);
