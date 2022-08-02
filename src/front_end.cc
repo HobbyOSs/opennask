@@ -880,16 +880,39 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
         pattern | ds(TParaToken::ttMem8, TParaToken::ttImm) = [&] {
-            throw std::runtime_error("ttMem8!!!");
-            return std::vector<uint8_t>();
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            std::vector<uint8_t> b = {0xc6, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
         },
         pattern | ds(TParaToken::ttMem16, TParaToken::ttImm) = [&] {
-            throw std::runtime_error("ttMem16!!!");
-            return std::vector<uint8_t>();
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            std::vector<uint8_t> b = {0xc7, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
         },
         pattern | ds(TParaToken::ttMem32, TParaToken::ttImm) = [&] {
-            throw std::runtime_error("ttMem32!!!");
-            return std::vector<uint8_t>();
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            // Override prefixes(0x66)
+            // TODO: 16bit命令モードで動作中のみ0x66を付与するようにする
+            std::vector<uint8_t> b = {0x66, 0xc7, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
         },
         pattern | _ = [&] {
             throw std::runtime_error("MOV, Not implemented or not matched!!!");

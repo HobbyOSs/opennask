@@ -987,19 +987,19 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 		MOV		AH,0x00
 		INT		0x10
 		MOV		BYTE [VMODE],8	; 画面モードをメモする
-		;MOV		WORD [SCRNX],320
-		;MOV		WORD [SCRNY],200
-		;MOV		DWORD [VRAM],0x000a0000
+		MOV		WORD [SCRNX],320
+		MOV		WORD [SCRNY],200
+		MOV		DWORD [VRAM],0x000a0000
 
 ; キーボードのLED状態をBIOSに教えてもらう
 
-		;MOV		AH,0x02
-		;INT		0x16 			; keyboard BIOS
-		;MOV		[LEDS],AL
+		MOV		AH,0x02
+		INT		0x16 			; keyboard BIOS
+		MOV		[LEDS],AL
 
 fin:
-		;HLT
-		;JMP		fin
+		HLT
+		JMP		fin
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
@@ -1016,7 +1016,17 @@ fin:
     expected.insert(expected.end(), {0xb0, 0x13});
     expected.insert(expected.end(), {0xb4, 0x00});
     expected.insert(expected.end(), {0xcd, 0x10});
-    expected.insert(expected.end(), {0xc6, 0x06});
+    expected.insert(expected.end(), {0xc6, 0x06, 0xf2, 0x0f, 0x08}); // BYTE [VMODE],8
+    expected.insert(expected.end(), {0xc7, 0x06, 0xf4, 0x0f, 0x40, 0x01}); // WORD [SCRNX],320
+    expected.insert(expected.end(), {0xc7, 0x06, 0xf6, 0x0f, 0xc8, 0x00}); // WORD [SCRNY],200
+    expected.insert(expected.end(), {0x66, 0xc7, 0x06, 0xf8, 0x0f, 0x00, 0x00, 0x0a, 0x00}); // DWORD [VRAM],0x000a0000
+
+    expected.insert(expected.end(), {0xb4, 0x02});
+    expected.insert(expected.end(), {0xcd, 0x16});
+    expected.insert(expected.end(), {0x88, 0x06});
+    expected.insert(expected.end(), {0xf1, 0x0f});
+    expected.insert(expected.end(), {0xf4});
+    expected.insert(expected.end(), {0xeb, 0xfd});
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
     std::string msg = "[diff]\n" + diff(expected, d->binout_container);
