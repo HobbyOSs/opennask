@@ -713,7 +713,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
-       pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
             const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
             const std::string src_reg = mnemonic_args[1].AsString();
 
@@ -873,19 +873,28 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return b;
         },
 
-       // REX.W + 0xB8+rd	MOV r64    , imm64
-       //         0xC6 /0	MOV r/m8   , imm8
-       // REX.W + 0xC6 /0	MOV r/m8   , imm8
-       //         0xC7 /0	MOV r/m16  , imm16
-       //         0xC7 /0	MOV r/m32  , imm32
-       // REX.W + 0xC7 /0	MOV r/m64  , imm64
-
-
-
-       pattern | _ = [&] {
-           throw std::runtime_error("MOV, Not implemented or not matched!!!");
-           return std::vector<uint8_t>();
-       }
+        // REX.W + 0xB8+rd	MOV r64    , imm64
+        //         0xC6 /0	MOV r/m8   , imm8
+        // REX.W + 0xC6 /0	MOV r/m8   , imm8
+        //         0xC7 /0	MOV r/m16  , imm16
+        //         0xC7 /0	MOV r/m32  , imm32
+        // REX.W + 0xC7 /0	MOV r/m64  , imm64
+        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm) = [&] {
+            throw std::runtime_error("ttMem8!!!");
+            return std::vector<uint8_t>();
+        },
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm) = [&] {
+            throw std::runtime_error("ttMem16!!!");
+            return std::vector<uint8_t>();
+        },
+        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm) = [&] {
+            throw std::runtime_error("ttMem32!!!");
+            return std::vector<uint8_t>();
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("MOV, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
     );
 
     // 結果を投入
@@ -915,11 +924,6 @@ void FrontEnd::visitMnemoArg(MnemoArg *mnemo_arg) {
     if (mnemo_arg->exp_) {
         mnemo_arg->exp_->accept(this);
     }
-
-    //TParaToken t = this->ctx.top();
-    //log()->debug("visitMnemoArg: {}", t.to_string());
-    //this->ctx.pop();
-    //this->ctx.push(t);
 }
 
 //
@@ -947,6 +951,8 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
 
 void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
 
+    // DataType "[" Exp "]" ; という間接アドレス表現を読み取る
+    // left "[" right "]" ; と変数をおいて、属性をTParaTokenに設定する
     if (datatype_exp->datatype_) {
         datatype_exp->datatype_->accept(this);
     }
@@ -960,7 +966,15 @@ void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
     TParaToken right = this->ctx.top();
     this->ctx.pop();
 
-    this->ctx.push(left);
+    match(left.AsString())(
+        pattern | "BYTE" = [&]{ right.SetAttribute(TParaToken::ttMem8); },
+        pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
+        pattern | "DWORD" = [&]{ right.SetAttribute(TParaToken::ttMem32); },
+        pattern | _ = [&] {
+            throw std::runtime_error("datatype, Not implemented or not matched!!!");
+        }
+    );
+
     this->ctx.push(right);
 }
 
@@ -971,7 +985,6 @@ template void FrontEnd::visitDataTypes<DwordDataType>(DwordDataType *p);
 template <class T>
 void FrontEnd::visitDataTypes(T *t) {
 
-    log()->debug("visitDataTypes start");
     std::string literal;
     if constexpr (std::is_same_v<T, ByteDataType>) {
         literal = "BYTE";
@@ -985,7 +998,6 @@ void FrontEnd::visitDataTypes(T *t) {
 
     log()->debug("datatype {}", literal);
     this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
-    log()->debug("visitDataTypes end");
 }
 
 void FrontEnd::visitByteDataType(ByteDataType *p) {
