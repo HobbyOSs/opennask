@@ -108,12 +108,15 @@ void FrontEnd::visitFactor(Factor *t) {
 }
 
 void FrontEnd::visitConfigType(ConfigType *t) {
-}
-
-void FrontEnd::visitDataType(DataType *t) {
+    // NOP
 }
 
 void FrontEnd::visitOpcode(Opcode *t) {
+    // NOP
+}
+
+void FrontEnd::visitDataType(DataType *t) {
+    // NOP
 }
 
 void FrontEnd::visitProg(Prog *prog) {
@@ -170,8 +173,13 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         this->ctx.pop();
     }
 
-    std::string debug_str = this->join(mnemonic_args, ",");
-    log()->debug("mnemonic_args={}", debug_str);
+    //std::string debug_str = this->join(mnemonic_args->to_string(), ",");
+    std::vector<std::string> debug_args;
+    std::transform(mnemonic_args.begin(), mnemonic_args.end(),
+                   std::back_inserter(debug_args),
+                   [](TParaToken x) { return "{ " + x.to_string() + " }"; });
+
+    log()->debug("mnemonic_args=[{}]", this->join(debug_args, ","));
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -705,7 +713,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
-       pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
             const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
             const std::string src_reg = mnemonic_args[1].AsString();
 
@@ -871,6 +879,41 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m16  , imm16
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
+        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm) = [&] {
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            std::vector<uint8_t> b = {0xc6, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm) = [&] {
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            std::vector<uint8_t> b = {0xc7, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt16t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm) = [&] {
+            std::string dst = "[" + mnemonic_args[0].AsString() + "]";
+            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
+
+            // Override prefixes(0x66)
+            // TODO: 16bit命令モードで動作中のみ0x66を付与するようにする
+            std::vector<uint8_t> b = {0x66, 0xc7, modrm};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            auto imm = mnemonic_args[1].AsUInt32t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
         pattern | _ = [&] {
             throw std::runtime_error("MOV, Not implemented or not matched!!!");
             return std::vector<uint8_t>();
@@ -904,10 +947,6 @@ void FrontEnd::visitMnemoArg(MnemoArg *mnemo_arg) {
     if (mnemo_arg->exp_) {
         mnemo_arg->exp_->accept(this);
     }
-    TParaToken t = this->ctx.top();
-    log()->debug("visitMnemoArg: {}", t.to_string());
-    this->ctx.pop();
-    this->ctx.push(t);
 }
 
 //
@@ -931,6 +970,67 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     t.SetAttribute(TParaToken::ttMem);
     this->ctx.pop();
     this->ctx.push(t);
+}
+
+void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
+
+    // DataType "[" Exp "]" ; という間接アドレス表現を読み取る
+    // left "[" right "]" ; と変数をおいて、属性をTParaTokenに設定する
+    if (datatype_exp->datatype_) {
+        datatype_exp->datatype_->accept(this);
+    }
+    TParaToken left = this->ctx.top();
+    left.MustBe(TParaToken::ttKeyword);
+    this->ctx.pop();
+
+    if (datatype_exp->exp_) {
+        datatype_exp->exp_->accept(this);
+    }
+    TParaToken right = this->ctx.top();
+    this->ctx.pop();
+
+    match(left.AsString())(
+        pattern | "BYTE" = [&]{ right.SetAttribute(TParaToken::ttMem8); },
+        pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
+        pattern | "DWORD" = [&]{ right.SetAttribute(TParaToken::ttMem32); },
+        pattern | _ = [&] {
+            throw std::runtime_error("datatype, Not implemented or not matched!!!");
+        }
+    );
+
+    this->ctx.push(right);
+}
+
+template void FrontEnd::visitDataTypes<ByteDataType>(ByteDataType *p);
+template void FrontEnd::visitDataTypes<WordDataType>(WordDataType *p);
+template void FrontEnd::visitDataTypes<DwordDataType>(DwordDataType *p);
+
+template <class T>
+void FrontEnd::visitDataTypes(T *t) {
+
+    std::string literal;
+    if constexpr (std::is_same_v<T, ByteDataType>) {
+        literal = "BYTE";
+    } else if constexpr (std::is_same_v<T, WordDataType>) {
+        literal = "WORD";
+    } else if constexpr (std::is_same_v<T, DwordDataType>) {
+        literal = "DWORD";
+    } else {
+        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
+    }
+
+    log()->debug("datatype {}", literal);
+    this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
+}
+
+void FrontEnd::visitByteDataType(ByteDataType *p) {
+    visitDataTypes(p);
+}
+void FrontEnd::visitWordDataType(WordDataType *p) {
+    visitDataTypes(p);
+}
+void FrontEnd::visitDwordDataType(DwordDataType *p) {
+    visitDataTypes(p);
 }
 
 void FrontEnd::visitPlusExp(PlusExp *p) {
@@ -1083,24 +1183,14 @@ void FrontEnd::visitLabel(Label x) {
     this->ctx.push(t);
 }
 
-const std::string FrontEnd::join(std::vector<TParaToken>& array, const std::string& sep) {
+const std::string FrontEnd::join(std::vector<std::string>& array, const std::string& sep) {
 
     std::stringstream ss;
     for(size_t i = 0; i < array.size(); ++i) {
         if(i != 0) {
             ss << sep;
         }
-
-        if (array[i].IsInteger() || array[i].IsHex()){
-            ss << "0x"
-               << std::setfill('0')
-               << std::setw(2)
-               << std::hex
-               << array[i].AsLong();
-
-        } else if (array[i].IsIdentifier()) {
-            ss << "'" << array[i].AsString() << "'";
-        }
+        ss << array[i];
     }
     return ss.str();
 }

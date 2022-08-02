@@ -102,6 +102,14 @@ public:
     // expression
     void visitImmExp(ImmExp *p) override;
     void visitIndirectAddrExp(IndirectAddrExp *p) override;
+
+    void visitDatatypeExp(DatatypeExp *p) override;
+    void visitByteDataType(ByteDataType *p) override;
+    void visitWordDataType(WordDataType *p) override;
+    void visitDwordDataType(DwordDataType *p) override;
+    template <class T>
+    void visitDataTypes(T *t);
+
     void visitPlusExp(PlusExp *p) override;
     void visitMinusExp(MinusExp *p) override;
     void visitMulExp(MulExp *p) override;
@@ -126,7 +134,7 @@ public:
     void visitLabel(Label x) override;
 
     // 以下、整理後にstring_utilに移動
-    const std::string join(std::vector<TParaToken>& array, const std::string& sep = "");
+    const std::string join(std::vector<std::string>&, const std::string& = "");
     const std::array<uint8_t, 1> IntAsByte(const int);
     const std::array<uint8_t, 2> IntAsWord(const int);
     const std::array<uint8_t, 4> LongAsDword(const long);

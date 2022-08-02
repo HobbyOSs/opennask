@@ -55,12 +55,17 @@ public:
         ttReg64,
         ttSegReg,
         ttMem,
+        ttMem8,
+        ttMem16,
+        ttMem32,
+        ttMem64,
         ttAcc,
         ttImm,
         ttLabel,
         ttAttrUnknown,
     };
 
+    // enumと同様の意味の文字列表現
     static constexpr const char* TIAttributeNames[] = {
         "ttReg8",
         "ttReg16",
@@ -68,6 +73,10 @@ public:
         "ttReg64",
         "ttSegReg",
         "ttMem",
+        "ttMem8",
+        "ttMem16",
+        "ttMem32",
+        "ttMem64",
         "ttAcc",
         "ttImm",
         "ttLabel",

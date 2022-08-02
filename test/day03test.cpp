@@ -966,12 +966,84 @@ msg:
 }
 
 
+TEST(day03_suite, harib00h) {
+
+    std::stringstream ss;
+    const char nask_statements[] = R"(
+; haribote-os
+; TAB=4
+
+; BOOT_INFO関係
+CYLS	EQU		0x0ff0			; ブートセクタが設定する
+LEDS	EQU		0x0ff1
+VMODE	EQU		0x0ff2			; 色数に関する情報。何ビットカラーか？
+SCRNX	EQU		0x0ff4			; 解像度のX
+SCRNY	EQU		0x0ff6			; 解像度のY
+VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
+
+		ORG		0xc200			; このプログラムがどこに読み込まれるのか
+
+		MOV		AL,0x13			; VGAグラフィックス、320x200x8bitカラー
+		MOV		AH,0x00
+		INT		0x10
+		MOV		BYTE [VMODE],8	; 画面モードをメモする
+		MOV		WORD [SCRNX],320
+		MOV		WORD [SCRNY],200
+		MOV		DWORD [VRAM],0x000a0000
+
+; キーボードのLED状態をBIOSに教えてもらう
+
+		MOV		AH,0x02
+		INT		0x16 			; keyboard BIOS
+		MOV		[LEDS],AL
+
+fin:
+		HLT
+		JMP		fin
+)";
+
+    // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
+    ss << nask_statements;
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
+
+    std::vector<uint8_t> expected = {};
+    std::vector<uint8_t> resb18(18, 0);
+    //std::vector<uint8_t> padding(297, 0);
+
+    // haribote.nas
+    expected.insert(expected.end(), {0xb0, 0x13});
+    expected.insert(expected.end(), {0xb4, 0x00});
+    expected.insert(expected.end(), {0xcd, 0x10});
+    expected.insert(expected.end(), {0xc6, 0x06, 0xf2, 0x0f, 0x08}); // BYTE [VMODE],8
+    expected.insert(expected.end(), {0xc7, 0x06, 0xf4, 0x0f, 0x40, 0x01}); // WORD [SCRNX],320
+    expected.insert(expected.end(), {0xc7, 0x06, 0xf6, 0x0f, 0xc8, 0x00}); // WORD [SCRNY],200
+    expected.insert(expected.end(), {0x66, 0xc7, 0x06, 0xf8, 0x0f, 0x00, 0x00, 0x0a, 0x00}); // DWORD [VRAM],0x000a0000
+
+    expected.insert(expected.end(), {0xb4, 0x02});
+    expected.insert(expected.end(), {0xcd, 0x16});
+    expected.insert(expected.end(), {0x88, 0x06});
+    expected.insert(expected.end(), {0xf1, 0x0f});
+    expected.insert(expected.end(), {0xf4});
+    expected.insert(expected.end(), {0xeb, 0xfd});
+
+    CHECK_EQUAL(expected.size(), d->binout_container.size());
+    std::string msg = "[diff]\n" + diff(expected, d->binout_container);
+    CHECK_TEXT(
+        std::equal(expected.begin(),
+                   expected.end(),
+                   d->binout_container.begin()), msg.c_str()
+    );
+}
+
+
 int main(int argc, char** argv) {
     spdlog::set_level(spdlog::level::debug);
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day03_suite, harib00g)");
+    args.push_back("TEST(day03_suite, harib00h)");
 
     // Run all tests
     int i = RUN_ALL_TESTS(args.size(), &args[0]);
