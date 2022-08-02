@@ -108,12 +108,15 @@ void FrontEnd::visitFactor(Factor *t) {
 }
 
 void FrontEnd::visitConfigType(ConfigType *t) {
-}
-
-void FrontEnd::visitDataType(DataType *t) {
+    // NOP
 }
 
 void FrontEnd::visitOpcode(Opcode *t) {
+    // NOP
+}
+
+void FrontEnd::visitDataType(DataType *t) {
+    // NOP
 }
 
 void FrontEnd::visitProg(Prog *prog) {
@@ -170,8 +173,13 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         this->ctx.pop();
     }
 
-    std::string debug_str = this->join(mnemonic_args, ",");
-    log()->debug("mnemonic_args={}", debug_str);
+    //std::string debug_str = this->join(mnemonic_args->to_string(), ",");
+    std::vector<std::string> debug_args;
+    std::transform(mnemonic_args.begin(), mnemonic_args.end(),
+                   std::back_inserter(debug_args),
+                   [](TParaToken x) { return "{ " + x.to_string() + " }"; });
+
+    log()->debug("mnemonic_args=[{}]", this->join(debug_args, ","));
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -865,16 +873,19 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return b;
         },
 
-        // REX.W + 0xB8+rd	MOV r64    , imm64
-        //         0xC6 /0	MOV r/m8   , imm8
-        // REX.W + 0xC6 /0	MOV r/m8   , imm8
-        //         0xC7 /0	MOV r/m16  , imm16
-        //         0xC7 /0	MOV r/m32  , imm32
-        // REX.W + 0xC7 /0	MOV r/m64  , imm64
-        pattern | _ = [&] {
-            throw std::runtime_error("MOV, Not implemented or not matched!!!");
-            return std::vector<uint8_t>();
-        }
+       // REX.W + 0xB8+rd	MOV r64    , imm64
+       //         0xC6 /0	MOV r/m8   , imm8
+       // REX.W + 0xC6 /0	MOV r/m8   , imm8
+       //         0xC7 /0	MOV r/m16  , imm16
+       //         0xC7 /0	MOV r/m32  , imm32
+       // REX.W + 0xC7 /0	MOV r/m64  , imm64
+
+
+
+       pattern | _ = [&] {
+           throw std::runtime_error("MOV, Not implemented or not matched!!!");
+           return std::vector<uint8_t>();
+       }
     );
 
     // 結果を投入
@@ -904,10 +915,11 @@ void FrontEnd::visitMnemoArg(MnemoArg *mnemo_arg) {
     if (mnemo_arg->exp_) {
         mnemo_arg->exp_->accept(this);
     }
-    TParaToken t = this->ctx.top();
-    log()->debug("visitMnemoArg: {}", t.to_string());
-    this->ctx.pop();
-    this->ctx.push(t);
+
+    //TParaToken t = this->ctx.top();
+    //log()->debug("visitMnemoArg: {}", t.to_string());
+    //this->ctx.pop();
+    //this->ctx.push(t);
 }
 
 //
@@ -931,6 +943,59 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     t.SetAttribute(TParaToken::ttMem);
     this->ctx.pop();
     this->ctx.push(t);
+}
+
+void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
+
+    if (datatype_exp->datatype_) {
+        datatype_exp->datatype_->accept(this);
+    }
+    TParaToken left = this->ctx.top();
+    left.MustBe(TParaToken::ttKeyword);
+    this->ctx.pop();
+
+    if (datatype_exp->exp_) {
+        datatype_exp->exp_->accept(this);
+    }
+    TParaToken right = this->ctx.top();
+    this->ctx.pop();
+
+    this->ctx.push(left);
+    this->ctx.push(right);
+}
+
+template void FrontEnd::visitDataTypes<ByteDataType>(ByteDataType *p);
+template void FrontEnd::visitDataTypes<WordDataType>(WordDataType *p);
+template void FrontEnd::visitDataTypes<DwordDataType>(DwordDataType *p);
+
+template <class T>
+void FrontEnd::visitDataTypes(T *t) {
+
+    log()->debug("visitDataTypes start");
+    std::string literal;
+    if constexpr (std::is_same_v<T, ByteDataType>) {
+        literal = "BYTE";
+    } else if constexpr (std::is_same_v<T, WordDataType>) {
+        literal = "WORD";
+    } else if constexpr (std::is_same_v<T, DwordDataType>) {
+        literal = "DWORD";
+    } else {
+        static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
+    }
+
+    log()->debug("datatype {}", literal);
+    this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
+    log()->debug("visitDataTypes end");
+}
+
+void FrontEnd::visitByteDataType(ByteDataType *p) {
+    visitDataTypes(p);
+}
+void FrontEnd::visitWordDataType(WordDataType *p) {
+    visitDataTypes(p);
+}
+void FrontEnd::visitDwordDataType(DwordDataType *p) {
+    visitDataTypes(p);
 }
 
 void FrontEnd::visitPlusExp(PlusExp *p) {
@@ -1083,24 +1148,14 @@ void FrontEnd::visitLabel(Label x) {
     this->ctx.push(t);
 }
 
-const std::string FrontEnd::join(std::vector<TParaToken>& array, const std::string& sep) {
+const std::string FrontEnd::join(std::vector<std::string>& array, const std::string& sep) {
 
     std::stringstream ss;
     for(size_t i = 0; i < array.size(); ++i) {
         if(i != 0) {
             ss << sep;
         }
-
-        if (array[i].IsInteger() || array[i].IsHex()){
-            ss << "0x"
-               << std::setfill('0')
-               << std::setw(2)
-               << std::hex
-               << array[i].AsLong();
-
-        } else if (array[i].IsIdentifier()) {
-            ss << "'" << array[i].AsString() << "'";
-        }
+        ss << array[i];
     }
     return ss.str();
 }
