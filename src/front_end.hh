@@ -78,6 +78,7 @@ public:
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
     void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
     void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
+    void visitOpcodesOUT(OpcodesOUT *opcodes_out) override {};
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
 
     // opcodeの処理
@@ -97,6 +98,7 @@ public:
     void processJMP(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
+    void processOUT(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
 
     // expression

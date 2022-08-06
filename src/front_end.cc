@@ -197,6 +197,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
+        std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
     };
 
@@ -953,6 +954,66 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttHex);
     log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
     dollar_position = arg.AsLong();
+}
+
+void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
+
+    //using namespace matchit;
+    //using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsString(),
+        mnemonic_args[1].AsAttr()
+    );
+    //std::string dst = mnemonic_args[0].AsString();
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
+        // 0xE7 ib	OUT imm8, AX	AXのワード値をI/Oポートアドレスimm8に出力します
+        // 0xE7 ib	OUT imm8, EAX	EAXのダブルワード値をI/Oポートアドレスimm8に出力します
+        pattern | ds(_, TParaToken::ttImm, "AL",  _) = [&] {
+            std::vector<uint8_t> b = {0xe6};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttImm, "AX",  _) = [&] {
+            std::vector<uint8_t> b = {0xe7};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttImm, "EAX", _) = [&] {
+            std::vector<uint8_t> b = {0xe7};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        // 0xEE	OUT DX, AL	ALのバイト値をDXの値にあるI/Oポートアドレスに出力します
+        // 0xEF	OUT DX, AX	AXのワード値をDXの値にあるI/Oポートアドレスに出力します
+        // 0xEF	OUT DX, EAX	EAXのダブルワード値をDXの値にあるI/Oポートアドレスに出力します
+        pattern | ds("DX", _, "AL", _) = [&] {
+            return std::vector<uint8_t>{0xee};
+        },
+        pattern | ds("DX", _, "AX", _) = [&] {
+            return std::vector<uint8_t>{0xef};
+        },
+        pattern | ds("DX", _, "EAX", _) = [&] {
+            return std::vector<uint8_t>{0xef};
+        },
+
+        pattern | _ = [&] {
+            throw std::runtime_error("OUT, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 //

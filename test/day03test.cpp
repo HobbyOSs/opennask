@@ -1079,8 +1079,8 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 ;	こいつをCLI前にやっておかないと、たまにハングアップする
 ;	PICの初期化はあとでやる
 
-		;MOV		AL,0xff
-		;OUT		0x21,AL
+		MOV		AL,0xff
+		OUT		0x21,AL
 		;NOP						; OUT命令を連続させるとうまくいかない機種があるらしいので
 		;OUT		0xa1,AL
 
@@ -1209,8 +1209,9 @@ bootpack:
     expected.insert(expected.end(), {0xb4, 0x02});
     expected.insert(expected.end(), {0xcd, 0x16});
     expected.insert(expected.end(), {0xa2, 0xf1, 0x0f});
-    //expected.insert(expected.end(), {0x00, 0x00, 0x00, 0x00});
 
+    expected.insert(expected.end(), {0xb0, 0xff});
+    expected.insert(expected.end(), {0xe6, 0x21});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
