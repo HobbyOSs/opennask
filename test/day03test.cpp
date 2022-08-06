@@ -1081,10 +1081,10 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 		MOV		AL,0xff
 		OUT		0x21,AL
-		;NOP						; OUT命令を連続させるとうまくいかない機種があるらしいので
-		;OUT		0xa1,AL
+		NOP						; OUT命令を連続させるとうまくいかない機種があるらしいので
+		OUT		0xa1,AL
 
-		;CLI						; さらにCPUレベルでも割り込み禁止
+		CLI						; さらにCPUレベルでも割り込み禁止
 
 ; CPUから1MB以上のメモリにアクセスできるように、A20GATEを設定
 
@@ -1098,7 +1098,7 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 ; プロテクトモード移行
 
-[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
+;[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 
 		;LGDT	[GDTR0]			; 暫定GDTを設定
 		;MOV		EAX,CR0
@@ -1212,6 +1212,8 @@ bootpack:
 
     expected.insert(expected.end(), {0xb0, 0xff});
     expected.insert(expected.end(), {0xe6, 0x21});
+    expected.insert(expected.end(), {0x90});
+    expected.insert(expected.end(), {0xe6, 0xa1});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());

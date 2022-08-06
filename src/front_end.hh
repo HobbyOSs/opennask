@@ -77,6 +77,7 @@ public:
     void visitOpcodesJNC(OpcodesJNC *opcodes_jnc) override {};
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
     void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
+    void visitOpcodesNOP(OpcodesNOP *opcodes_nop) override {};
     void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
     void visitOpcodesOUT(OpcodesOUT *opcodes_out) override {};
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
@@ -97,6 +98,7 @@ public:
     void processJNC(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
+    void processNOP();
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);

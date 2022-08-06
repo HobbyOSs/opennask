@@ -221,6 +221,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
     funcs_type funcs {
         std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
+        std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -946,6 +947,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 結果を投入
     binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
     return;
+}
+
+void FrontEnd::processNOP() {
+    binout_container.push_back(0x90);
 }
 
 void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
