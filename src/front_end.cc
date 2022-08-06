@@ -137,7 +137,6 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
 
 void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
-    log()->debug("visitDeclareStmt start");
     visitIdent(declare_stmt->ident_);
     TParaToken key = this->ctx.top();
     this->ctx.pop();
@@ -150,8 +149,6 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
-
-    log()->debug("visitDeclareStmt end");
 }
 
 void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -707,13 +704,15 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
-        mnemonic_args[1].AsAttr()
+        mnemonic_args[1].AsAttr(),
+        mnemonic_args[1].AsString()
     );
 
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
-        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+        //
+        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8, _ != "AL") = [&] {
             const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
             const std::string src_reg = mnemonic_args[1].AsString();
 
@@ -734,7 +733,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0x8B /r	MOV r16    , r/m16
         //         0x8B /r	MOV r32    , r/m32
         // REX.W + 0x8B /r	MOV r64    , r/m64
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -743,7 +742,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -752,7 +751,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -764,7 +763,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8C /r	MOV r/m16  , Sreg
         // REX.W + 0x8C /r	MOV r/m16  , Sreg
-        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg) = [&] {
+        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -776,7 +775,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8E /r	MOV Sreg   , r/m16
         // REX.W + 0x8E /r	MOV Sreg   , r/m64
-        pattern | ds(TParaToken::ttSegReg , _) = [&] {
+        pattern | ds(TParaToken::ttSegReg , _, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -791,19 +790,42 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xA1	    MOV AX     , moffs16
         //         0xA1	    MOV EAX    , moffs32
         // REX.W + 0xA1	    MOV RAX    , moffs64
+
         //         0xA2	    MOV moffs8 , AL
         // REX.W + 0xA2	    MOV moffs8 , AL
         //         0xA3	    MOV moffs16, AX
         //		   0xA3		MOV moffs32, EAX
         // REX.W + 0xA3		MOV moffs64, RAX
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg8, "AL") = [&] {
 
+            const uint8_t base = 0xa2;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg16, "AX") = [&] {
 
+            const uint8_t base = 0xa3;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg32, "EAX") = [&] {
+
+            const uint8_t base = 0xa3;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
 
         //         0xB0+rb	MOV r8     , imm8
         // REX   + 0xB0+rb	MOV r8     , imm8
         //         0xB8+rw	MOV r16    , imm16
         //         0xB8+rd	MOV r32    , imm32
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -826,7 +848,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             }
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel)) = [&] {
+        pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
             const uint8_t base = 0xb8;
@@ -849,7 +871,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             return b;
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -879,7 +901,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m16  , imm16
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
-        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
@@ -890,7 +912,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
@@ -901,7 +923,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
