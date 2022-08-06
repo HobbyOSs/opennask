@@ -220,6 +220,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
         std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
     };
@@ -357,6 +358,10 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     // 結果を投入
     binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
     return;
+}
+
+void FrontEnd::processCLI() {
+    binout_container.push_back(0xfa);
 }
 
 void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {

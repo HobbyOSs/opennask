@@ -63,6 +63,7 @@ public:
 
     // opcodeの読み取り(空の実装)
     void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
+    void visitOpcodesCLI(OpcodesCLI *opcodes_cli) override {};
     void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
     void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
@@ -84,6 +85,7 @@ public:
 
     // opcodeの処理
     void processADD(std::vector<TParaToken>& memonic_args);
+    void processCLI();
     void processCMP(std::vector<TParaToken>& memonic_args);
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);

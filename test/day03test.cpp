@@ -1214,6 +1214,7 @@ bootpack:
     expected.insert(expected.end(), {0xe6, 0x21});
     expected.insert(expected.end(), {0x90});
     expected.insert(expected.end(), {0xe6, 0xa1});
+    expected.insert(expected.end(), {0xfa});
 
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
