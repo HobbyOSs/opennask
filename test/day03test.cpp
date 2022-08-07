@@ -1088,13 +1088,13 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 ; CPUから1MB以上のメモリにアクセスできるように、A20GATEを設定
 
-		;CALL	waitkbdout
-		;MOV		AL,0xd1
-		;OUT		0x64,AL
-		;CALL	waitkbdout
-		;MOV		AL,0xdf			; enable A20
-		;OUT		0x60,AL
-		;CALL	waitkbdout
+		CALL	waitkbdout
+		MOV		AL,0xd1
+		OUT		0x64,AL
+		CALL	waitkbdout
+		MOV		AL,0xdf			; enable A20
+		OUT		0x60,AL
+		CALL	waitkbdout
 
 ; プロテクトモード移行
 
@@ -1215,7 +1215,13 @@ bootpack:
     expected.insert(expected.end(), {0x90});
     expected.insert(expected.end(), {0xe6, 0xa1});
     expected.insert(expected.end(), {0xfa});
-
+    expected.insert(expected.end(), {0xe8, 0x00, 0x00});
+    expected.insert(expected.end(), {0xb0, 0xd1});
+    expected.insert(expected.end(), {0xe6, 0x64});
+    expected.insert(expected.end(), {0xe8, 0x00, 0x00});
+    expected.insert(expected.end(), {0xb0, 0xdf});
+    expected.insert(expected.end(), {0xe6, 0x60});
+    expected.insert(expected.end(), {0xe8, 0x00, 0x00});
 
     CHECK_EQUAL(expected.size(), d->binout_container.size());
     std::string msg = "[diff]\n" + diff(expected, d->binout_container);

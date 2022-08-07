@@ -183,6 +183,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&FrontEnd::processDW, this, _1)),
@@ -362,6 +363,54 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processCLI() {
     binout_container.push_back(0xfa);
+}
+
+void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
+
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].GetImmSize()
+    );
+    auto arg = mnemonic_args[0];
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0xE8 cw 	CALL rel16 	相対ニアコール、次の命令とディスプレースメント相対
+        // 0xE8 cd 	CALL rel32 	相対ニアコール、次の命令とディスプレースメント相対
+        // 0xFF /2 	CALL r/m16 	絶対間接ニアコール、r/m16でアドレスを指定
+        // 0xFF /2 	CALL r/m32 	絶対間接ニアコール、r/m32でアドレスを指定
+        // 0x9A cd 	CALL ptr16:16 	絶対ファーコール、オペランドでアドレスを指定
+        // 0x9A cp 	CALL ptr16:32 	絶対ファーコール、オペランドでアドレスを指定
+        // 0xFF /3 	CALL m16:16 	絶対間接ファーコール、m16:16でアドレスを指定
+        // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
+
+        pattern | ds(TParaToken::ttLabel, _) = [&] {
+            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            std::string label = arg.AsString();
+
+            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+                LabelJmp::update_label_src_offset(label, label_dst_list, 0xe8, binout_container);
+            } else {
+                // TODO: rel16/rel32の２通りの値が入る可能性があるが、動的に出力に機械語を入れる仕組みがないので
+                // とりあえずrel16として処理している
+                LabelJmp::store_label_src(label, label_src_list, binout_container);
+                binout_container.push_back(0xe8);
+                binout_container.push_back(0x00);
+                binout_container.push_back(0x00);
+            }
+
+            return std::vector<uint8_t>();
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
