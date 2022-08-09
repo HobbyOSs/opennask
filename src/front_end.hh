@@ -55,6 +55,7 @@ public:
     // 以下、Parse/Evalのための実装
     void visitProg(Prog *prog) override;
     void visitLabelStmt(LabelStmt *label_stmt) override;
+    void visitConfigStmt(ConfigStmt *config_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
     void visitOpcodeStmt(OpcodeStmt *opcode_stmt) override;
@@ -78,6 +79,7 @@ public:
     void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
     void visitOpcodesJNC(OpcodesJNC *opcodes_jnc) override {};
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
+    void visitOpcodesLGDT(OpcodesLGDT *opcodes_lgdt) override {};
     void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
     void visitOpcodesNOP(OpcodesNOP *opcodes_nop) override {};
     void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
@@ -101,6 +103,7 @@ public:
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJNC(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();
     void processORG(std::vector<TParaToken>& memonic_args);

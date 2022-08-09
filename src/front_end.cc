@@ -126,6 +126,18 @@ void FrontEnd::visitProg(Prog *prog) {
     }
 }
 
+void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
+
+    // TODO: 必要な設定を行う
+    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
+    if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
+    visitString(config_stmt->string_);
+
+    TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    log()->debug("visitConfigStmt: args = {}", t.to_string());
+}
+
 void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
 
@@ -196,6 +208,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&FrontEnd::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
+        std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
@@ -755,9 +768,36 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
+    // 0x0F 01 /2	LGDT m16& 32	mをGDTRにロードします
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+
+    const std::string src_mem = "[" + arg.AsString() + "]";
+
+    std::vector<uint8_t> b = {0x0f, 0x01};
+
+    binout_container.insert(binout_container.end(),
+                            std::begin(b),
+                            std::end(b));
+
+    std::string label = arg.AsString();
+    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, src_mem, ModRM::SLASH_2);
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, modrm, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(modrm);
+        binout_container.push_back(0x00);
+        binout_container.push_back(0x00);
+    }
+
+    return;
+}
+
 void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
-    using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
         mnemonic_args[1].AsAttr(),
@@ -1293,6 +1333,7 @@ void FrontEnd::visitString(String x) {
 }
 
 void FrontEnd::visitIdent(Ident x) {
+    // TODO: ラベルの変数定義を先に作っておく必要がありそう
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
         log()->debug("EQU {} = {}", x, equ_map[x].AsString());
