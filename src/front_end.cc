@@ -126,6 +126,18 @@ void FrontEnd::visitProg(Prog *prog) {
     }
 }
 
+void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
+
+    // TODO: 必要な設定を行う
+    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
+    if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
+    visitString(config_stmt->string_);
+
+    TParaToken t = this->ctx.top();
+    this->ctx.pop();
+    log()->debug("visitConfigStmt: args = {}", t.to_string());
+}
+
 void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
 
@@ -137,7 +149,6 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
 
 void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
-    log()->debug("visitDeclareStmt start");
     visitIdent(declare_stmt->ident_);
     TParaToken key = this->ctx.top();
     this->ctx.pop();
@@ -150,8 +161,6 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
-
-    log()->debug("visitDeclareStmt end");
 }
 
 void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -186,6 +195,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&FrontEnd::processDW, this, _1)),
@@ -198,8 +208,10 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&FrontEnd::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
+        std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
+        std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
     };
 
@@ -222,7 +234,9 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
+        std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -357,6 +371,58 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     // 結果を投入
     binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    return;
+}
+
+void FrontEnd::processCLI() {
+    binout_container.push_back(0xfa);
+}
+
+void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
+
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].GetImmSize()
+    );
+    auto arg = mnemonic_args[0];
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0xE8 cw 	CALL rel16 	相対ニアコール、次の命令とディスプレースメント相対
+        // 0xE8 cd 	CALL rel32 	相対ニアコール、次の命令とディスプレースメント相対
+        // 0xFF /2 	CALL r/m16 	絶対間接ニアコール、r/m16でアドレスを指定
+        // 0xFF /2 	CALL r/m32 	絶対間接ニアコール、r/m32でアドレスを指定
+        // 0x9A cd 	CALL ptr16:16 	絶対ファーコール、オペランドでアドレスを指定
+        // 0x9A cp 	CALL ptr16:32 	絶対ファーコール、オペランドでアドレスを指定
+        // 0xFF /3 	CALL m16:16 	絶対間接ファーコール、m16:16でアドレスを指定
+        // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
+
+        pattern | ds(TParaToken::ttLabel, _) = [&] {
+            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            std::string label = arg.AsString();
+
+            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+                LabelJmp::update_label_src_offset(label, label_dst_list, 0xe8, binout_container);
+            } else {
+                // TODO: rel16/rel32の２通りの値が入る可能性があるが、動的に出力に機械語を入れる仕組みがないので
+                // とりあえずrel16として処理している
+                LabelJmp::store_label_src(label, label_src_list, binout_container);
+                binout_container.push_back(0xe8);
+                binout_container.push_back(0x00);
+                binout_container.push_back(0x00);
+            }
+
+            return std::vector<uint8_t>();
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
     return;
 }
 
@@ -702,18 +768,47 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
     }
 }
 
+void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
+    // 0x0F 01 /2	LGDT m16& 32	mをGDTRにロードします
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+
+    const std::string src_mem = "[" + arg.AsString() + "]";
+
+    std::vector<uint8_t> b = {0x0f, 0x01};
+
+    binout_container.insert(binout_container.end(),
+                            std::begin(b),
+                            std::end(b));
+
+    std::string label = arg.AsString();
+    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, src_mem, ModRM::SLASH_2);
+
+    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
+        LabelJmp::update_label_src_offset(label, label_dst_list, modrm, binout_container);
+    } else {
+        LabelJmp::store_label_src(label, label_src_list, binout_container);
+        binout_container.push_back(modrm);
+        binout_container.push_back(0x00);
+        binout_container.push_back(0x00);
+    }
+
+    return;
+}
+
 void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
-    using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
-        mnemonic_args[1].AsAttr()
+        mnemonic_args[1].AsAttr(),
+        mnemonic_args[1].AsString()
     );
 
     std::vector<uint8_t> machine_codes = match(operands)(
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
-        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8) = [&] {
+        //
+        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8, _ != "AL") = [&] {
             const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
             const std::string src_reg = mnemonic_args[1].AsString();
 
@@ -734,7 +829,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0x8B /r	MOV r16    , r/m16
         //         0x8B /r	MOV r32    , r/m32
         // REX.W + 0x8B /r	MOV r64    , r/m64
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -743,7 +838,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -752,7 +847,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -764,7 +859,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8C /r	MOV r/m16  , Sreg
         // REX.W + 0x8C /r	MOV r/m16  , Sreg
-        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg) = [&] {
+        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -776,7 +871,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8E /r	MOV Sreg   , r/m16
         // REX.W + 0x8E /r	MOV Sreg   , r/m64
-        pattern | ds(TParaToken::ttSegReg , _) = [&] {
+        pattern | ds(TParaToken::ttSegReg , _, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -791,19 +886,42 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xA1	    MOV AX     , moffs16
         //         0xA1	    MOV EAX    , moffs32
         // REX.W + 0xA1	    MOV RAX    , moffs64
+
         //         0xA2	    MOV moffs8 , AL
         // REX.W + 0xA2	    MOV moffs8 , AL
         //         0xA3	    MOV moffs16, AX
         //		   0xA3		MOV moffs32, EAX
         // REX.W + 0xA3		MOV moffs64, RAX
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg8, "AL") = [&] {
 
+            const uint8_t base = 0xa2;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg16, "AX") = [&] {
 
+            const uint8_t base = 0xa3;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(TParaToken::ttMem, TParaToken::ttReg32, "EAX") = [&] {
+
+            const uint8_t base = 0xa3;
+            std::vector<uint8_t> b = {base};
+            auto addr = mnemonic_args[0].AsUInt16t();
+            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            return b;
+        },
 
         //         0xB0+rb	MOV r8     , imm8
         // REX   + 0xB0+rb	MOV r8     , imm8
         //         0xB8+rw	MOV r16    , imm16
         //         0xB8+rd	MOV r32    , imm32
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -826,7 +944,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             }
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel)) = [&] {
+        pattern | ds(TParaToken::ttReg16, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
             const uint8_t base = 0xb8;
@@ -849,7 +967,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
             return b;
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -879,7 +997,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xC7 /0	MOV r/m16  , imm16
         //         0xC7 /0	MOV r/m32  , imm32
         // REX.W + 0xC7 /0	MOV r/m64  , imm64
-        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem8, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
@@ -890,7 +1008,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
@@ -901,7 +1019,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(imm.begin(), imm.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm) = [&] {
+        pattern | ds(TParaToken::ttMem32, TParaToken::ttImm, _) = [&] {
             std::string dst = "[" + mnemonic_args[0].AsString() + "]";
             const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst, ModRM::SLASH_0);
 
@@ -925,12 +1043,76 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     return;
 }
 
+void FrontEnd::processNOP() {
+    binout_container.push_back(0x90);
+}
+
 void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
     log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
     dollar_position = arg.AsLong();
+}
+
+void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
+
+    //using namespace matchit;
+    //using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsString(),
+        mnemonic_args[1].AsAttr()
+    );
+    //std::string dst = mnemonic_args[0].AsString();
+
+    std::vector<uint8_t> machine_codes = match(operands)(
+        // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
+        // 0xE7 ib	OUT imm8, AX	AXのワード値をI/Oポートアドレスimm8に出力します
+        // 0xE7 ib	OUT imm8, EAX	EAXのダブルワード値をI/Oポートアドレスimm8に出力します
+        pattern | ds(_, TParaToken::ttImm, "AL",  _) = [&] {
+            std::vector<uint8_t> b = {0xe6};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttImm, "AX",  _) = [&] {
+            std::vector<uint8_t> b = {0xe7};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        pattern | ds(_, TParaToken::ttImm, "EAX", _) = [&] {
+            std::vector<uint8_t> b = {0xe7};
+            auto imm = mnemonic_args[0].AsUInt8t();
+            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+            return b;
+        },
+        // 0xEE	OUT DX, AL	ALのバイト値をDXの値にあるI/Oポートアドレスに出力します
+        // 0xEF	OUT DX, AX	AXのワード値をDXの値にあるI/Oポートアドレスに出力します
+        // 0xEF	OUT DX, EAX	EAXのダブルワード値をDXの値にあるI/Oポートアドレスに出力します
+        pattern | ds("DX", _, "AL", _) = [&] {
+            return std::vector<uint8_t>{0xee};
+        },
+        pattern | ds("DX", _, "AX", _) = [&] {
+            return std::vector<uint8_t>{0xef};
+        },
+        pattern | ds("DX", _, "EAX", _) = [&] {
+            return std::vector<uint8_t>{0xef};
+        },
+
+        pattern | _ = [&] {
+            throw std::runtime_error("OUT, Not implemented or not matched!!!");
+            return std::vector<uint8_t>();
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 //
@@ -1151,6 +1333,7 @@ void FrontEnd::visitString(String x) {
 }
 
 void FrontEnd::visitIdent(Ident x) {
+    // TODO: ラベルの変数定義を先に作っておく必要がありそう
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
         log()->debug("EQU {} = {}", x, equ_map[x].AsString());

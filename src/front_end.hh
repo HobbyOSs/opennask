@@ -55,6 +55,7 @@ public:
     // 以下、Parse/Evalのための実装
     void visitProg(Prog *prog) override;
     void visitLabelStmt(LabelStmt *label_stmt) override;
+    void visitConfigStmt(ConfigStmt *config_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
     void visitOpcodeStmt(OpcodeStmt *opcode_stmt) override;
@@ -63,6 +64,8 @@ public:
 
     // opcodeの読み取り(空の実装)
     void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
+    void visitOpcodesCALL(OpcodesCALL *opcodes_call) override {};
+    void visitOpcodesCLI(OpcodesCLI *opcodes_cli) override {};
     void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
     void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
     void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
@@ -76,12 +79,17 @@ public:
     void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
     void visitOpcodesJNC(OpcodesJNC *opcodes_jnc) override {};
     void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
+    void visitOpcodesLGDT(OpcodesLGDT *opcodes_lgdt) override {};
     void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
+    void visitOpcodesNOP(OpcodesNOP *opcodes_nop) override {};
     void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
+    void visitOpcodesOUT(OpcodesOUT *opcodes_out) override {};
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
 
     // opcodeの処理
     void processADD(std::vector<TParaToken>& memonic_args);
+    void processCALL(std::vector<TParaToken>& memonic_args);
+    void processCLI();
     void processCMP(std::vector<TParaToken>& memonic_args);
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
@@ -95,8 +103,11 @@ public:
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJNC(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
+    void processNOP();
     void processORG(std::vector<TParaToken>& memonic_args);
+    void processOUT(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
 
     // expression

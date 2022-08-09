@@ -62,7 +62,7 @@ namespace ModRM {
         { mods::REG_REG    , "00"},
         { mods::REG_DISP8  , "01"},
         { mods::REG_DISP16 , "10"},
-        { mods::REG	  , "11"}
+        { mods::REG        , "11"}
     };
 
     // @see: https://courses.engr.illinois.edu/ece390/resources/opcodes.html

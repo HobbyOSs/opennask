@@ -118,7 +118,7 @@ namespace nask_utility {
     }
 
     bool starts_with(std::string const &full_string, std::string const &begining) {
-        log()->debug("starts_with ? {} & {}", begining, full_string.substr(0, begining.size()));
+        log()->debug("starts_with ? {}", begining);
         return full_string.substr(0, begining.size()) == begining;
     }
 
