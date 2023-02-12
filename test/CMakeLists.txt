@@ -30,6 +30,8 @@ set(parsertest_SRCS
   ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -84,6 +86,8 @@ set(day01test_SRCS
   ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -115,6 +119,8 @@ set(day02test_SRCS
   ../src/bnfc/buffer.cc
   ../src/bnfc/driver.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -146,6 +152,8 @@ set(day03test_SRCS
   ../src/bnfc/buffer.cc
   ../src/bnfc/driver.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
