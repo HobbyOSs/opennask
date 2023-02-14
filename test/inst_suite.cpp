@@ -1,3 +1,4 @@
+#include "spdlog/sinks/basic_file_sink.h"
 #include "nask_utility.hpp"
 #include "string_util.hpp"
 #include "ParaTokenizer.hh"

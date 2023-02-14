@@ -1,3 +1,5 @@
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "pass1_strategy.hh"
 #include "matchit.h"
 #include "demangle.hpp"
@@ -11,7 +13,7 @@ std::map<std::string, uint32_t> Pass1Strategy::lit_table = std::map<std::string,
 Pass1Strategy::Pass1Strategy() {
     // spdlog
     if(!spdlog::get("opennask")) {
-        auto logger = spdlog::stdout_logger_mt("opennask", "console");
+        auto logger = spdlog::stdout_color_mt("opennask");
     }
 
     this->loc = 0;

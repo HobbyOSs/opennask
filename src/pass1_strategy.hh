@@ -2,7 +2,6 @@
 #define PASS1_STRATEGY_HH
 
 #include <any>
-#include "spdlog/spdlog.h"
 #include "para_token.hh"
 #include "parser.hh"
 #include "printer.hh"

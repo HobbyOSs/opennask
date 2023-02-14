@@ -1,3 +1,5 @@
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "nask_utility.hpp"
 #include "mod_rm.hpp"
 #include "string_util.hpp"

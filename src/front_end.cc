@@ -1,6 +1,8 @@
 #include <fstream>
 #include <typeinfo>
 #include <type_traits>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "matchit.h"
 #include "pass1_strategy.hh"
 #include "front_end.hh"
@@ -18,7 +20,7 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
 
     // spdlog
     if(!spdlog::get("opennask")) {
-        auto logger = spdlog::stdout_logger_mt("opennask", "console");
+        auto logger = spdlog::stdout_color_mt("opennask");
     }
 
     // lexer, parser

@@ -10,6 +10,7 @@ find_package(BISON REQUIRED)
 include_directories(
   ${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
+  ${spdlog_SOURCE_DIR}/spdlog/include
   ${matchit_SOURCE_DIR}/include)
 
 ########### next target ###############
@@ -68,11 +69,9 @@ endif()
 
 add_executable(nask_parse ${nask_parse_SRCS})
 target_link_libraries(nask_parse Threads::Threads)
-target_include_directories(nask_parse
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
-set_property(TARGET nask_parse
-  PROPERTY CXX_STANDARD 17)
+target_link_libraries(nask_parse spdlog)
+target_include_directories(nask_parse PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
+set_property(TARGET nask_parse PROPERTY CXX_STANDARD 17)
 
 ########### next target ###############
 
@@ -103,7 +102,9 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 # debug
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -gstabs")
 add_executable(opennask ${opennask_SRCS})
-target_link_libraries(opennask parasol Threads::Threads)
+target_link_libraries(opennask Threads::Threads)
+target_link_libraries(opennask parasol)
+target_link_libraries(opennask spdlog)
 
 set_property(TARGET opennask PROPERTY CXX_STANDARD 17)
 set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)

@@ -4,7 +4,7 @@
 CMAKE=/usr/bin/cmake
 if [ ! $(type -P ${CMAKE} 2>/dev/null) ]; then CMAKE=/usr/local/bin/cmake; fi
 git submodule init
-git submodule update
+git submodule update --init --recursive
 if [ ! -e build ]; then mkdir build; fi
 cd build
 $CMAKE --version

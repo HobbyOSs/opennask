@@ -26,10 +26,25 @@ FetchContent_Declare(
 FetchContent_GetProperties(matchit)
 if(NOT matchit_POPULATED)
   FetchContent_Populate(matchit)
-  add_subdirectory(${matchit_SOURCE_DIR} ${matchit_BINARY_DIR}
-    EXCLUDE_FROM_ALL)
+  add_subdirectory(${matchit_SOURCE_DIR} ${matchit_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
-message(STATUS "Matchit header are present at ${matchit_SOURCE_DIR}")
+message(STATUS "matchit header are present at ${matchit_SOURCE_DIR}")
+
+#-----------------------------------------------------------------------
+# Fetch spdlog (logger library)
+#
+include(FetchContent)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog
+  GIT_TAG v1.11.0)
+
+FetchContent_GetProperties(spdlog)
+if(NOT spdlog_POPULATED)
+  FetchContent_Populate(spdlog)
+  add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+message(STATUS "spglog header are present at ${spdlog_SOURCE_DIR}")
 
 
 add_subdirectory(parasol)

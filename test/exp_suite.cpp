@@ -2,6 +2,7 @@
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include <list>
 #include <memory>
 #include <cmath>
@@ -9,7 +10,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 
 // メモリリーク扱いされるのでテストケース側でloggerを作る
-auto logger = spdlog::stdout_logger_mt("opennask", "console");
+auto logger = spdlog::stdout_color_mt("opennask");
 
 TEST_GROUP(exp_suite)
 {

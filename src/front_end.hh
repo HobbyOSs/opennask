@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 #include <any>
-#include "spdlog/spdlog.h"
 #include "para_token.hh"
 #include "parser.hh"
 #include "printer.hh"

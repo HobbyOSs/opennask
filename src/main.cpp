@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <getopt.h>
+#include "spdlog/sinks/basic_file_sink.h"
 #include "ParaTokenizer.hh"
 #include "ParaOperator.hh"
 #include "ParaExpression.hh"

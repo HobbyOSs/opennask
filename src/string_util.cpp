@@ -1,3 +1,4 @@
+#include <climits>
 #include "string_util.hpp"
 #include "mod_rm.hpp"
 #include "nask_defs.hpp"
