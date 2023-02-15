@@ -8,7 +8,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
 
-auto logger = spdlog::stdout_color_mt("opennask");
+auto logger = spdlog::stdout_color_st("opennask");
 
 TEST_GROUP(day02_suite)
 {

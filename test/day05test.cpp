@@ -11,7 +11,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 
 // Init stuff
-auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
+auto logger = spdlog::basic_logger_st("opennask", "debug.log");
 
 TEST_GROUP(day05test_suite) {};
 

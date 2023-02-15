@@ -10,7 +10,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 
 // メモリリーク扱いされるのでテストケース側でloggerを作る
-auto logger = spdlog::stdout_color_mt("opennask");
+auto logger = spdlog::stdout_color_st("opennask");
 
 TEST_GROUP(exp_suite)
 {

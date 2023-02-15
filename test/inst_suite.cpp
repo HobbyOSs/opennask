@@ -9,7 +9,7 @@
 #include <CppUTest/TestHarness.h>
 
 // Init stuff
-std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("opennask", "debug.log");
+std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("opennask", "debug.log");
 
 TEST_GROUP(inst_suite)
 {

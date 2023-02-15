@@ -318,7 +318,7 @@ int main(int argc, char** argv) {
     }
 
     // spdlog
-    auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
+    auto logger = spdlog::basic_logger_st("opennask", "debug.log");
 
     // 入力の読み込みと解析，評価のループ
     process_each_assembly_line(argv, nas_file, binout_container);

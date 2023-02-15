@@ -20,7 +20,7 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
 
     // spdlog
     if(!spdlog::get("opennask")) {
-        auto logger = spdlog::stdout_color_mt("opennask");
+        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     // lexer, parser

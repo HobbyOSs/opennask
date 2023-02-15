@@ -13,7 +13,7 @@ std::map<std::string, uint32_t> Pass1Strategy::lit_table = std::map<std::string,
 Pass1Strategy::Pass1Strategy() {
     // spdlog
     if(!spdlog::get("opennask")) {
-        auto logger = spdlog::stdout_color_mt("opennask");
+        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     this->loc = 0;
