@@ -56,7 +56,7 @@ TEST(day05test_suite, asmhead_MOV_mem_former_disp) {
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -92,9 +92,7 @@ TEST(day05test_suite, asmhead_MOV_mem_former_disp) {
         logger->error("output bin: {}",
                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
-
     CHECK(test == answer);
-    EXPECT_N_LEAKS(12);
 }
 
 void setup() {

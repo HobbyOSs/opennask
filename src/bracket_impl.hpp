@@ -491,7 +491,7 @@ namespace nask_utility {
         // ここでEXTERNなシンボルのサイズを足す
         std::for_each(inst.ex_symbol_list.begin(),
                       inst.ex_symbol_list.end(),
-                      [&long_symbols_size](const std::string ex_symbol) -> size_t {
+                      [&long_symbols_size](const std::string ex_symbol) -> void {
                           long_symbols_size += (ex_symbol.size() <= 8) ? 0 : ex_symbol.size() + 1;
                       });
         set_dword_into_binout(long_symbols_size, binout_container);

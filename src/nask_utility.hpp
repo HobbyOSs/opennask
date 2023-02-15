@@ -1,6 +1,7 @@
 #ifndef NASK_UTILITY_HPP_
 #define NASK_UTILITY_HPP_
 
+#include <memory>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -67,17 +68,17 @@ namespace nask_utility {
     typedef std::vector<uint8_t> VECTOR_BINOUT;
 
     size_t get_labelpos(std::ifstream& stream, std::string token);
-    bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token);
-    bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token);
-    bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token);
-    bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token);
-    bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token);
-    bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token);
+    bool is_comment_line(TParaCxxTokenTable* token_table, TParaToken& token);
+    bool is_line_terminated(TParaCxxTokenTable* token_table, TParaToken& token);
+    bool is_common_register(TParaCxxTokenTable* token_table, const TParaToken& token);
+    bool is_segment_register(TParaCxxTokenTable* token_table, const TParaToken& token);
+    bool is_control_register(TParaCxxTokenTable* token_table, const TParaToken& token);
+    bool is_register(TParaCxxTokenTable* token_table, const TParaToken& token);
     template<size_t N> bool is_registers_with_args(const TParaToken& token, const std::array<std::string, N>& regs);
     // FIXME: tinyexprは削除予定なのでここに移動
     std::string expr_math_op(const std::string& subject);
 
-    bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token);
+    bool is_datatype(TParaCxxTokenTable* token_table, const TParaToken& token);
 
     uint8_t plus_number_from_code(uint8_t byte, const std::string& reg);
 
@@ -117,8 +118,9 @@ namespace nask_utility {
     class Instructions {
     public:
         Instructions();
+        ~Instructions();
 
-        static TParaCxxTokenTable token_table;
+        TParaCxxTokenTable* token_table;
         static LABEL_DST_STACK label_dst_stack;
         static LABEL_SRC_STACK label_src_stack;
         static std::map<std::string, std::string> equ_map;
