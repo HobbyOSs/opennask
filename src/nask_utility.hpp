@@ -122,8 +122,8 @@ namespace nask_utility {
         static LABEL_DST_STACK label_dst_stack;
         static LABEL_SRC_STACK label_src_stack;
         static std::map<std::string, std::string> equ_map;
-        static std::vector<std::string> gl_symbol_list;
-        static std::vector<std::string> ex_symbol_list;
+        std::vector<std::string> gl_symbol_list;
+        std::vector<std::string> ex_symbol_list;
         static std::map<std::string, size_t> symbol_offsets;
         static std::string data_type;
         static std::map<uint32_t, std::string> support_cpus;

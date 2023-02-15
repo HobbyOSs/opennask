@@ -30,25 +30,9 @@ if(NOT matchit_POPULATED)
 endif()
 message(STATUS "matchit header are present at ${matchit_SOURCE_DIR}")
 
-#-----------------------------------------------------------------------
-# Fetch spdlog (logger library)
-#
-include(FetchContent)
-FetchContent_Declare(
-  spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog
-  GIT_TAG v1.11.0)
-
-FetchContent_GetProperties(spdlog)
-if(NOT spdlog_POPULATED)
-  FetchContent_Populate(spdlog)
-  add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-message(STATUS "spglog header are present at ${spdlog_SOURCE_DIR}")
-
-
 add_subdirectory(parasol)
 add_subdirectory(objconv)
+add_subdirectory(spdlog)
 add_subdirectory(src)
 add_subdirectory(golibc)
 add_subdirectory(projects)
