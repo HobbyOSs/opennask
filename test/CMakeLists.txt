@@ -13,6 +13,7 @@ include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/src/bnfc
   ${CPPUTEST_INCLUDE_DIR}
+  ${root_SOURCE_DIR}/spdlog/include
   ${matchit_SOURCE_DIR}/include)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -30,6 +31,8 @@ set(parsertest_SRCS
   ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -37,7 +40,8 @@ set(parsertest_SRCS
   ../src/label.cpp)
 
 add_executable(parsertest ${parsertest_SRCS} ${BACKWARD_ENABLE})
-target_link_libraries(parsertest Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(parsertest PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 add_backward(parsertest)
 
 set_target_properties(parsertest PROPERTIES
@@ -61,7 +65,8 @@ set(modrmtest_SRCS
     ../src/string_util.cpp)
 
 add_executable(modrmtest ${modrmtest_SRCS})
-target_link_libraries(modrmtest parasol Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(modrmtest PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD 17)
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -84,6 +89,8 @@ set(day01test_SRCS
   ../src/bnfc/driver.cc
   ../src/bnfc/buffer.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -91,7 +98,8 @@ set(day01test_SRCS
   ../src/label.cpp)
 
 add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
-target_link_libraries(day01test Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(day01test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 add_backward(day01test)
 
 set_property(TARGET day01test PROPERTY CXX_STANDARD 17)
@@ -115,6 +123,8 @@ set(day02test_SRCS
   ../src/bnfc/buffer.cc
   ../src/bnfc/driver.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -122,7 +132,8 @@ set(day02test_SRCS
   ../src/label.cpp)
 
 add_executable(day02test ${day02test_SRCS} ${BACKWARD_ENABLE})
-target_link_libraries(day02test Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(day02test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 add_backward(day02test)
 
 set_property(TARGET day02test PROPERTY CXX_STANDARD 17)
@@ -146,6 +157,8 @@ set(day03test_SRCS
   ../src/bnfc/buffer.cc
   ../src/bnfc/driver.cc
   ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc
   ../src/mod_rm.cpp
@@ -153,7 +166,8 @@ set(day03test_SRCS
   ../src/label.cpp)
 
 add_executable(day03test ${day03test_SRCS} ${BACKWARD_ENABLE})
-target_link_libraries(day03test Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(day03test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 add_backward(day03test)
 
 set_property(TARGET day03test PROPERTY CXX_STANDARD 17)
@@ -175,7 +189,8 @@ set(day04test_SRCS
     ../src/string_util.cpp)
 
 add_executable(day04test ${day04test_SRCS})
-target_link_libraries(day04test parasol Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(day04test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 
 set_property(TARGET day04test PROPERTY CXX_STANDARD 11)
 set_property(TARGET day04test PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -196,7 +211,8 @@ set(day05test_SRCS
     ../src/string_util.cpp)
 
 add_executable(day05test ${day05test_SRCS})
-target_link_libraries(day05test parasol Threads::Threads ${CPPUTEST_LIBRARY})
+target_link_libraries(day05test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
 
 set_property(TARGET day05test PROPERTY CXX_STANDARD 11)
 set_property(TARGET day05test PROPERTY CXX_STANDARD_REQUIRED ON)

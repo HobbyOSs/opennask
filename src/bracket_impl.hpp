@@ -348,9 +348,9 @@ namespace nask_utility {
                 std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
 
                 log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
-                log()->info("[value] 0x{:08}", func.value);
-                log()->info("[sNumb] 0x{:04}", func.sectionNumber);
-                log()->info("[_type] 0x{:04}", func.type);
+                log()->info("[value] 0x{:08}", static_cast<unsigned int>(func.value));
+                log()->info("[sNumb] 0x{:04}", static_cast<short unsigned int>(func.sectionNumber));
+                log()->info("[_type] 0x{:04}", static_cast<short unsigned int>(func.type));
                 log()->info("[class] 0x{:02}", func.storageClass);
                 log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
             } else {
@@ -381,9 +381,9 @@ namespace nask_utility {
                 auto fn_buffer = create_buffer(func);
                 std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
                 log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
-                log()->info("[value] 0x{:08}", func.value);
-                log()->info("[sNumb] 0x{:04}", func.sectionNumber);
-                log()->info("[_type] 0x{:04}", func.type);
+                log()->info("[value] 0x{:08}", static_cast<unsigned int>(func.value));
+                log()->info("[sNumb] 0x{:04}", static_cast<short unsigned int>(func.sectionNumber));
+                log()->info("[_type] 0x{:04}", static_cast<short unsigned int>(func.type));
                 log()->info("[class] 0x{:02}", func.storageClass);
                 log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
 
@@ -436,9 +436,9 @@ namespace nask_utility {
                 std::copy(fn_buffer.begin(), fn_buffer.end(), back_inserter(binout_container));
 
                 log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
-                log()->info("[value] 0x{:08}", func.value);
-                log()->info("[sNumb] 0x{:04}", func.sectionNumber);
-                log()->info("[_type] 0x{:04}", func.type);
+                log()->info("[value] 0x{:08}", static_cast<unsigned int>(func.value));
+                log()->info("[sNumb] 0x{:04}", static_cast<short unsigned int>(func.sectionNumber));
+                log()->info("[_type] 0x{:04}", static_cast<short unsigned int>(func.type));
                 log()->info("[class] 0x{:02}", func.storageClass);
                 log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
             } else {
@@ -458,9 +458,9 @@ namespace nask_utility {
                 func.shortName[5] = (long_symbols_size >> 8)  & 0xff;
                 func.shortName[4] = long_symbols_size & 0xff;
                 log()->info("[sName] {}", string_to_hex(std::string(reinterpret_cast<char*>(&func.shortName[0]), 8)));
-                log()->info("[value] 0x{:08}", func.value);
-                log()->info("[sNumb] 0x{:04}", func.sectionNumber);
-                log()->info("[_type] 0x{:04}", func.type);
+                log()->info("[value] 0x{:08}", static_cast<unsigned int>(func.value));
+                log()->info("[sNumb] 0x{:04}", static_cast<short unsigned int>(func.sectionNumber));
+                log()->info("[_type] 0x{:04}", static_cast<short unsigned int>(func.type));
                 log()->info("[class] 0x{:02}", func.storageClass);
                 log()->info("[axsym] 0x{:02}", func.numberOfAuxSymbols);
 
@@ -491,7 +491,7 @@ namespace nask_utility {
         // ここでEXTERNなシンボルのサイズを足す
         std::for_each(inst.ex_symbol_list.begin(),
                       inst.ex_symbol_list.end(),
-                      [&long_symbols_size](const std::string ex_symbol) -> size_t {
+                      [&long_symbols_size](const std::string ex_symbol) -> void {
                           long_symbols_size += (ex_symbol.size() <= 8) ? 0 : ex_symbol.size() + 1;
                       });
         set_dword_into_binout(long_symbols_size, binout_container);

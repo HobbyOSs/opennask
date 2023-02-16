@@ -1,7 +1,10 @@
 #include <fstream>
 #include <typeinfo>
 #include <type_traits>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "matchit.h"
+#include "pass1_strategy.hh"
 #include "front_end.hh"
 #include "driver.hh"
 #include "parser.hh"
@@ -17,7 +20,7 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
 
     // spdlog
     if(!spdlog::get("opennask")) {
-        auto logger = spdlog::stdout_logger_mt("opennask", "console");
+        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     // lexer, parser
@@ -1366,38 +1369,6 @@ void FrontEnd::visitLabel(Label x) {
     this->ctx.push(t);
 }
 
-const std::string FrontEnd::join(std::vector<std::string>& array, const std::string& sep) {
-
-    std::stringstream ss;
-    for(size_t i = 0; i < array.size(); ++i) {
-        if(i != 0) {
-            ss << sep;
-        }
-        ss << array[i];
-    }
-    return ss.str();
-}
-
-const std::array<uint8_t, 1> FrontEnd::IntAsByte(const int v) {
-    return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
-}
-
-const std::array<uint8_t, 2> FrontEnd::IntAsWord(const int word) {
-    return std::array<uint8_t, 2>{
-        static_cast<uint8_t>( word & 0xff ),
-        static_cast<uint8_t>( (word >> 8) & 0xff ),
-    };
-}
-
-const std::array<uint8_t, 4> FrontEnd::LongAsDword(const long dword) {
-    return std::array<uint8_t, 4>{
-        static_cast<uint8_t>( dword & 0xff ),
-        static_cast<uint8_t>( (dword >> 8)  & 0xff ),
-        static_cast<uint8_t>( (dword >> 16) & 0xff ),
-        static_cast<uint8_t>( (dword >> 24) & 0xff ),
-    };
-}
-
 template <class T>
 std::shared_ptr<T> FrontEnd::Parse(std::istream &input) {
 
@@ -1479,6 +1450,11 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
         std::cerr << "NASK : can't open " << assembly_dst << std::endl;
         return 17;
     }
+
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(parse_tree);
+
+    // TODO: ここでシンボルテーブル等をpass1からgetする
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

@@ -1,10 +1,6 @@
-#ifndef FRONT_END_HH
-#define FRONT_END_HH
+#ifndef PASS1_STRATEGY_HH
+#define PASS1_STRATEGY_HH
 
-#include <string>
-#include <memory>
-#include <iostream>
-#include <fstream>
 #include <any>
 #include "para_token.hh"
 #include "parser.hh"
@@ -14,33 +10,21 @@
 #include "nask_defs.hpp"
 #include "skeleton.hh"
 #include "bin_util.hh"
-#include "label.hpp"
 
-
-class FrontEnd : public Skeleton, public BinUtil {
+class Pass1Strategy : public Skeleton, public BinUtil {
 
 public:
-    virtual ~FrontEnd();
+    Pass1Strategy();
+    virtual ~Pass1Strategy();
 
-private:
-    // 字句解析, 構文解析のフラグ
-    bool trace_parsing;
-    bool trace_scanning;
-    // $ の位置
-    uint32_t dollar_position = 0;
-
-public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
-    // EQUで設定された変数情報
-    static std::map<std::string, TParaToken> equ_map;
-    // 出力するバイナリ情報
-    std::vector<uint8_t> binout_container;
-    // ラベルによるオフセットの計算をする
-    static LabelDstList label_dst_list;
-    static LabelSrcList label_src_list;
 
-    FrontEnd(bool trace_scanning, bool trace_parsing);
+    // LOC(location of counter)
+    uint32_t loc = 0;
+    // Pass1のシンボルテーブル, リテラルテーブル
+    static std::map<std::string, uint32_t> sym_table;
+    static std::map<std::string, uint32_t> lit_table;
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
@@ -144,16 +128,12 @@ public:
     void visitHex(Hex x) override;
     void visitLabel(Label x) override;
 
-    // パースする
+    // ASTを評価しPass1の結果をメンバーに保持する
     template <class T>
-    std::shared_ptr<T> Parse(std::istream &input);
-
-    // ASTを評価し結果をファイルに書き込む
-    template <class T>
-    int Eval(T* parse_tree, const char* assembly_dst);
+    int Eval(T* parse_tree);
 };
 
-//template <typename T>
-//constexpr bool false_v = false;
+template <typename T>
+constexpr bool false_v = false;
 
-#endif // ! FRONT_END_HH
+#endif // ! PASS1_STRATEGY_HH

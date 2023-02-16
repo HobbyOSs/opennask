@@ -28,7 +28,7 @@ static const char* CxxKeywordList[] = {
     "extern", "float", "for", "friend", "goto", "if", "inline",
     "int", "long", "namespace", "new", "operator", "private", "protected",
     "public", "register", "return", "short", "signed", "static",
-    "struct", "switch", "templete", "this", "throw", "try", "typedef", 
+    "struct", "switch", "templete", "this", "throw", "try", "typedef",
     "typename", "union", "unsigned", "virtual", "void", "volatile", "while"
 };
 
@@ -71,6 +71,12 @@ TParaTokenTable::TParaTokenTable(void)
 
 TParaTokenTable::~TParaTokenTable()
 {
+    _KeywordSet.clear();
+    _OperatorSet.clear();
+    _SeparatorSet.clear();
+    _AlphabetSet.clear();
+    _FollowerAlphabetSet.clear();
+    _CommentLimiterTable.clear();
 }
 
 void TParaTokenTable::Merge(TParaTokenTable* Source)
@@ -114,7 +120,7 @@ void TParaTokenTable::AddOperator(const string& Operator)
     //       OperatorCharacter
     //       Operator OperatorCharaceter
     //
-    // To let the tokenizer recognize long operators, 
+    // To let the tokenizer recognize long operators,
     // the following 'sub'-operators have to be registered.
 
     if (! isalpha(Operator[0]) && Operator[0] != '_') {
@@ -192,7 +198,7 @@ string TParaTokenTable::CommentDelimiterFor(const string& Limiter) const
 
 
 
-TParaCxxTokenTable::TParaCxxTokenTable(void)
+TParaCxxTokenTable::TParaCxxTokenTable()
 {
     int i;
     int NumberOfKeywords = sizeof(CxxKeywordList) / sizeof(CxxKeywordList[0]);
@@ -220,4 +226,10 @@ TParaCxxTokenTable::TParaCxxTokenTable(void)
 
 TParaCxxTokenTable::~TParaCxxTokenTable()
 {
+    _KeywordSet.clear();
+    _OperatorSet.clear();
+    _SeparatorSet.clear();
+    _AlphabetSet.clear();
+    _FollowerAlphabetSet.clear();
+    _CommentLimiterTable.clear();
 }

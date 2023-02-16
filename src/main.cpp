@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <fstream>
 #include <getopt.h>
+#include <functional>
+#include "spdlog/sinks/basic_file_sink.h"
 #include "ParaTokenizer.hh"
 #include "ParaOperator.hh"
 #include "ParaExpression.hh"
@@ -23,66 +25,65 @@ int process_each_assembly_line(char** argv,
     /* 以下，入力の読み込みと解析，評価のループ */
     long line_number = 1;
     std::string input;
-
-    static nask_utility::Instructions inst;
-    static std::string current_symbol = "";
+    std::string current_symbol = "";
     using InstAlias = nask_utility::Instructions;
+    nask_utility::Instructions inst;
 
-    static meta::funcs_type funcs {
-        std::make_pair("\["	  , std::bind(&InstAlias::process_token_BRACKET , inst, _1, _2)),
-        std::make_pair("ADD"	  , std::bind(&InstAlias::process_token_ADD	, inst, _1, _2)),
-        std::make_pair("ALIGNB" , std::bind(&InstAlias::process_token_ALIGNB  , inst, _1, _2)),
-        std::make_pair("AND"	  , std::bind(&InstAlias::process_token_AND	, inst, _1, _2)),
-        std::make_pair("CALL"	  , std::bind(&InstAlias::process_token_CALL	, inst, _1, _2)),
-        std::make_pair("CLI"	  , std::bind(&InstAlias::process_token_CLI	, inst, _1, _2)),
-        std::make_pair("CMP"	  , std::bind(&InstAlias::process_token_CMP	, inst, _1, _2)),
-        std::make_pair("DB"	  , std::bind(&InstAlias::process_token_DB	, inst, _1, _2)),
-        std::make_pair("DD"	  , std::bind(&InstAlias::process_token_DD	, inst, _1, _2)),
-        std::make_pair("DW"	  , std::bind(&InstAlias::process_token_DW	, inst, _1, _2)),
-        std::make_pair("EXTERN" , std::bind(&InstAlias::process_token_EXTERN  , inst, _1, _2)),
-        std::make_pair("GLOBAL" , std::bind(&InstAlias::process_token_GLOBAL  , inst, _1, _2)),
-        std::make_pair("HLT"	  , std::bind(&InstAlias::process_token_HLT	, inst, _1, _2)),
-        std::make_pair("IMUL"	  , std::bind(&InstAlias::process_token_IMUL	, inst, _1, _2)),
-        std::make_pair("IN"	  , std::bind(&InstAlias::process_token_IN	, inst, _1, _2)),
-        std::make_pair("INT"	  , std::bind(&InstAlias::process_token_INT	, inst, _1, _2)),
-        std::make_pair("IRET"	  , std::bind(&InstAlias::process_token_IRET	, inst, _1, _2)),
-        std::make_pair("IRETD"  , std::bind(&InstAlias::process_token_IRET	, inst, _1, _2)),
-        std::make_pair("JAE"	  , std::bind(&InstAlias::process_token_JAE	, inst, _1, _2)),
-        std::make_pair("JBE"	  , std::bind(&InstAlias::process_token_JBE	, inst, _1, _2)),
-        std::make_pair("JB"	  , std::bind(&InstAlias::process_token_JB	, inst, _1, _2)),
-        std::make_pair("JC"	  , std::bind(&InstAlias::process_token_JC	, inst, _1, _2)),
-        std::make_pair("JE"	  , std::bind(&InstAlias::process_token_JE	, inst, _1, _2)),
-        std::make_pair("JMP"	  , std::bind(&InstAlias::process_token_JMP	, inst, _1, _2)),
-        std::make_pair("JNC"	  , std::bind(&InstAlias::process_token_JNC	, inst, _1, _2)),
-        std::make_pair("JNE"	  , std::bind(&InstAlias::process_token_JNE	, inst, _1, _2)),
-        std::make_pair("JNZ"	  , std::bind(&InstAlias::process_token_JNZ	, inst, _1, _2)),
-        std::make_pair("JZ"	  , std::bind(&InstAlias::process_token_JZ	, inst, _1, _2)),
-        std::make_pair("LGDT"	  , std::bind(&InstAlias::process_token_LGDT	, inst, _1, _2)),
-        std::make_pair("LIDT"	  , std::bind(&InstAlias::process_token_LIDT	, inst, _1, _2)),
-        std::make_pair("LTR"	  , std::bind(&InstAlias::process_token_LTR	, inst, _1, _2)),
-        std::make_pair("MOV"	  , std::bind(&InstAlias::process_token_MOV	, inst, _1, _2)),
-        std::make_pair("NOP"	  , std::bind(&InstAlias::process_token_NOP	, inst, _1, _2)),
-        std::make_pair("OR"	  , std::bind(&InstAlias::process_token_OR	, inst, _1, _2)),
-        std::make_pair("ORG"	  , std::bind(&InstAlias::process_token_ORG	, inst, _1, _2)),
-        std::make_pair("OUT"	  , std::bind(&InstAlias::process_token_OUT	, inst, _1, _2)),
-        std::make_pair("POP"	  , std::bind(&InstAlias::process_token_POP	, inst, _1, _2)),
-        std::make_pair("POPA"	  , std::bind(&InstAlias::process_token_POPA	, inst, _1, _2)),
-        std::make_pair("POPAD"  , std::bind(&InstAlias::process_token_POPA	, inst, _1, _2)),
-        std::make_pair("POPF"	  , std::bind(&InstAlias::process_token_POPF 	, inst, _1, _2)),
-        std::make_pair("POPFD"  , std::bind(&InstAlias::process_token_POPF 	, inst, _1, _2)),
-        std::make_pair("PUSH"   , std::bind(&InstAlias::process_token_PUSH 	, inst, _1, _2)),
-        std::make_pair("PUSHA"  , std::bind(&InstAlias::process_token_PUSHA 	, inst, _1, _2)),
-        std::make_pair("PUSHAD" , std::bind(&InstAlias::process_token_PUSHA 	, inst, _1, _2)),
-        std::make_pair("PUSHF"  , std::bind(&InstAlias::process_token_PUSHF 	, inst, _1, _2)),
-        std::make_pair("PUSHFD" , std::bind(&InstAlias::process_token_PUSHF 	, inst, _1, _2)),
-        std::make_pair("RET"	  , std::bind(&InstAlias::process_token_RET	, inst, _1, _2)),
-        std::make_pair("RETF"	  , std::bind(&InstAlias::process_token_RETF    , inst, _1, _2)),
-        std::make_pair("RETN"	  , std::bind(&InstAlias::process_token_RET     , inst, _1, _2)),
-        std::make_pair("RESB"	  , std::bind(&InstAlias::process_token_RESB	, inst, _1, _2)),
-        std::make_pair("SHR"	  , std::bind(&InstAlias::process_token_SHR	, inst, _1, _2)),
-        std::make_pair("STI"	  , std::bind(&InstAlias::process_token_STI	, inst, _1, _2)),
-        std::make_pair("SUB"	  , std::bind(&InstAlias::process_token_SUB	, inst, _1, _2)),
-        std::make_pair("XOR"	  , std::bind(&InstAlias::process_token_XOR	, inst, _1, _2))
+    meta::funcs_type funcs {
+        std::make_pair("\["  , std::bind(&InstAlias::process_token_BRACKET , std::ref(inst), _1, _2)),
+        std::make_pair("ADD"  , std::bind(&InstAlias::process_token_ADD, std::ref(inst), _1, _2)),
+        std::make_pair("ALIGNB"  , std::bind(&InstAlias::process_token_ALIGNB, std::ref(inst), _1, _2)),
+        std::make_pair("AND"  , std::bind(&InstAlias::process_token_AND, std::ref(inst), _1, _2)),
+        std::make_pair("CALL"  , std::bind(&InstAlias::process_token_CALL, std::ref(inst), _1, _2)),
+        std::make_pair("CLI"  , std::bind(&InstAlias::process_token_CLI, std::ref(inst), _1, _2)),
+        std::make_pair("CMP"  , std::bind(&InstAlias::process_token_CMP, std::ref(inst), _1, _2)),
+        std::make_pair("DB"  , std::bind(&InstAlias::process_token_DB        , std::ref(inst), _1, _2)),
+        std::make_pair("DD"  , std::bind(&InstAlias::process_token_DD        , std::ref(inst), _1, _2)),
+        std::make_pair("DW"  , std::bind(&InstAlias::process_token_DW        , std::ref(inst), _1, _2)),
+        std::make_pair("EXTERN"  , std::bind(&InstAlias::process_token_EXTERN, std::ref(inst), _1, _2)),
+        std::make_pair("GLOBAL"  , std::bind(&InstAlias::process_token_GLOBAL, std::ref(inst), _1, _2)),
+        std::make_pair("HLT"  , std::bind(&InstAlias::process_token_HLT, std::ref(inst), _1, _2)),
+        std::make_pair("IMUL"  , std::bind(&InstAlias::process_token_IMUL, std::ref(inst), _1, _2)),
+        std::make_pair("IN"  , std::bind(&InstAlias::process_token_IN        , std::ref(inst), _1, _2)),
+        std::make_pair("INT"  , std::bind(&InstAlias::process_token_INT, std::ref(inst), _1, _2)),
+        std::make_pair("IRET"  , std::bind(&InstAlias::process_token_IRET, std::ref(inst), _1, _2)),
+        std::make_pair("IRETD"  , std::bind(&InstAlias::process_token_IRET, std::ref(inst), _1, _2)),
+        std::make_pair("JAE"  , std::bind(&InstAlias::process_token_JAE, std::ref(inst), _1, _2)),
+        std::make_pair("JBE"  , std::bind(&InstAlias::process_token_JBE, std::ref(inst), _1, _2)),
+        std::make_pair("JB"  , std::bind(&InstAlias::process_token_JB        , std::ref(inst), _1, _2)),
+        std::make_pair("JC"  , std::bind(&InstAlias::process_token_JC        , std::ref(inst), _1, _2)),
+        std::make_pair("JE"  , std::bind(&InstAlias::process_token_JE        , std::ref(inst), _1, _2)),
+        std::make_pair("JMP"  , std::bind(&InstAlias::process_token_JMP, std::ref(inst), _1, _2)),
+        std::make_pair("JNC"  , std::bind(&InstAlias::process_token_JNC, std::ref(inst), _1, _2)),
+        std::make_pair("JNE"  , std::bind(&InstAlias::process_token_JNE, std::ref(inst), _1, _2)),
+        std::make_pair("JNZ"  , std::bind(&InstAlias::process_token_JNZ, std::ref(inst), _1, _2)),
+        std::make_pair("JZ"  , std::bind(&InstAlias::process_token_JZ        , std::ref(inst), _1, _2)),
+        std::make_pair("LGDT"  , std::bind(&InstAlias::process_token_LGDT, std::ref(inst), _1, _2)),
+        std::make_pair("LIDT"  , std::bind(&InstAlias::process_token_LIDT, std::ref(inst), _1, _2)),
+        std::make_pair("LTR"  , std::bind(&InstAlias::process_token_LTR, std::ref(inst), _1, _2)),
+        std::make_pair("MOV"  , std::bind(&InstAlias::process_token_MOV, std::ref(inst), _1, _2)),
+        std::make_pair("NOP"  , std::bind(&InstAlias::process_token_NOP, std::ref(inst), _1, _2)),
+        std::make_pair("OR"  , std::bind(&InstAlias::process_token_OR        , std::ref(inst), _1, _2)),
+        std::make_pair("ORG"  , std::bind(&InstAlias::process_token_ORG, std::ref(inst), _1, _2)),
+        std::make_pair("OUT"  , std::bind(&InstAlias::process_token_OUT, std::ref(inst), _1, _2)),
+        std::make_pair("POP"  , std::bind(&InstAlias::process_token_POP, std::ref(inst), _1, _2)),
+        std::make_pair("POPA"  , std::bind(&InstAlias::process_token_POPA, std::ref(inst), _1, _2)),
+        std::make_pair("POPAD"  , std::bind(&InstAlias::process_token_POPA, std::ref(inst), _1, _2)),
+        std::make_pair("POPF"  , std::bind(&InstAlias::process_token_POPF, std::ref(inst), _1, _2)),
+        std::make_pair("POPFD"  , std::bind(&InstAlias::process_token_POPF, std::ref(inst), _1, _2)),
+        std::make_pair("PUSH"  , std::bind(&InstAlias::process_token_PUSH, std::ref(inst), _1, _2)),
+        std::make_pair("PUSHA"  , std::bind(&InstAlias::process_token_PUSHA, std::ref(inst), _1, _2)),
+        std::make_pair("PUSHAD"  , std::bind(&InstAlias::process_token_PUSHA, std::ref(inst), _1, _2)),
+        std::make_pair("PUSHF"  , std::bind(&InstAlias::process_token_PUSHF, std::ref(inst), _1, _2)),
+        std::make_pair("PUSHFD"  , std::bind(&InstAlias::process_token_PUSHF, std::ref(inst), _1, _2)),
+        std::make_pair("RET"  , std::bind(&InstAlias::process_token_RET, std::ref(inst), _1, _2)),
+        std::make_pair("RETF"  , std::bind(&InstAlias::process_token_RETF, std::ref(inst), _1, _2)),
+        std::make_pair("RETN"  , std::bind(&InstAlias::process_token_RET        , std::ref(inst), _1, _2)),
+        std::make_pair("RESB"  , std::bind(&InstAlias::process_token_RESB, std::ref(inst), _1, _2)),
+        std::make_pair("SHR"  , std::bind(&InstAlias::process_token_SHR, std::ref(inst), _1, _2)),
+        std::make_pair("STI"  , std::bind(&InstAlias::process_token_STI, std::ref(inst), _1, _2)),
+        std::make_pair("SUB"  , std::bind(&InstAlias::process_token_SUB, std::ref(inst), _1, _2)),
+        std::make_pair("XOR"  , std::bind(&InstAlias::process_token_XOR, std::ref(inst), _1, _2))
     };
 
     if (start_line != 0) {
@@ -139,7 +140,7 @@ int process_each_assembly_line(char** argv,
             if (found != std::string::npos && pre_process_word == "EQU") {
                 log()->debug("coming label EQU");
                 std::istringstream input_stream(input.c_str());
-                TParaTokenizer tokenizer(input_stream, &inst.token_table);
+                TParaTokenizer tokenizer(input_stream, inst.token_table);
                 inst.process_token_EQU(tokenizer, binout_container);
                 continue;
             }
@@ -169,7 +170,7 @@ int process_each_assembly_line(char** argv,
 
         /* 入力行を istream にしてトークナイザを生成 */
         std::istringstream input_stream(input.c_str());
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
         TParaToken token;
 
         if (nask_utility::starts_with(input, "\[")) {
@@ -317,7 +318,7 @@ int main(int argc, char** argv) {
     }
 
     // spdlog
-    auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
+    auto logger = spdlog::basic_logger_st("opennask", "debug.log");
 
     // 入力の読み込みと解析，評価のループ
     process_each_assembly_line(argv, nas_file, binout_container);

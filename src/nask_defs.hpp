@@ -1,6 +1,8 @@
 #ifndef NASK_DEFS_HPP_
 #define NASK_DEFS_HPP_
 
+#include "spdlog/spdlog.h"
+
 #include <cstdint>
 #include <array>
 #include <sstream>
@@ -8,7 +10,10 @@
 #include <bitset>
 #include <regex>
 #include <tuple>
-#include "spdlog/spdlog.h"
+
+//#include "spdlog/spdlog.h"
+//#include "spdlog/spdlog.h"
+//#include "spdlog/sinks/basic_file_sink.h"
 
 static const std::shared_ptr<spdlog::logger> log() {
     return spdlog::get("opennask");

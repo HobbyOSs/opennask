@@ -16,11 +16,11 @@ namespace nask_utility {
         return -1;
     }
 
-    bool is_comment_line(TParaCxxTokenTable& token_table, TParaToken& token) {
-        return token_table.IsCommentLimiter(token.AsString());
+    bool is_comment_line(TParaCxxTokenTable* token_table, TParaToken& token) {
+        return token_table->IsCommentLimiter(token.AsString());
     }
 
-    bool is_line_terminated(TParaCxxTokenTable& token_table, TParaToken& token) {
+    bool is_line_terminated(TParaCxxTokenTable* token_table, TParaToken& token) {
         return token.AsString() == "\n";
     }
 
@@ -42,29 +42,29 @@ namespace nask_utility {
         return it != std::end(regs);
     }
 
-    bool is_common_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+    bool is_common_register(TParaCxxTokenTable* token_table, const TParaToken& token) {
         return is_registers_with_args(token, REGISTERS);
     }
 
-    bool is_common_register(TParaCxxTokenTable& token_table, const std::string token) {
+    bool is_common_register(TParaCxxTokenTable* token_table, const std::string token) {
         return is_registers_with_args(token, REGISTERS);
     }
 
-    bool is_segment_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+    bool is_segment_register(TParaCxxTokenTable* token_table, const TParaToken& token) {
         return is_registers_with_args(token, SEGMENT_REGISTERS);
     }
 
-    bool is_control_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+    bool is_control_register(TParaCxxTokenTable* token_table, const TParaToken& token) {
         return is_registers_with_args(token, CONTROL_REGISTERS);
     }
 
-    bool is_register(TParaCxxTokenTable& token_table, const TParaToken& token) {
+    bool is_register(TParaCxxTokenTable* token_table, const TParaToken& token) {
         const bool r = is_common_register(token_table, token) || is_segment_register(token_table, token);
         log()->debug("{} is_register? -> {}", token.AsString(), r);
         return r;
     }
 
-    bool is_datatype(TParaCxxTokenTable& token_table, const TParaToken& token) {
+    bool is_datatype(TParaCxxTokenTable* token_table, const TParaToken& token) {
         // データ型一覧から検索してあれば true
         auto it = std::find_if(std::begin(DATA_TYPES), std::end(DATA_TYPES),
                                [&](const std::string& s)
@@ -123,16 +123,26 @@ namespace nask_utility {
     // Instructionクラスの定数を初期化
     Instructions::Instructions() {
         // デフォルトのトークンテーブル
-        TParaCxxTokenTable token_table;
-        token_table.AddCommentLimiter(";", "\n");
-        token_table.AddCommentLimiter("#", "\n");
-        this->token_table = token_table;
+        this->token_table = new TParaCxxTokenTable();
+        token_table->AddCommentLimiter(";", "\n");
+        token_table->AddCommentLimiter("#", "\n");
         this->support_cpus = meta::flip_map(SUPPORT_CPUS);
 
         // 基本的なオペレーター登録
         for (std::string op : PRE_PROCESS_OPERATORS) {
-            this->token_table.AddOperator(op);
+            token_table->AddOperator(op);
         }
+    }
+
+    Instructions::~Instructions() {
+        label_dst_stack.clear();
+        label_src_stack.clear();
+        equ_map.clear();
+        gl_symbol_list.clear();
+        ex_symbol_list.clear();
+        symbol_offsets.clear();
+        support_cpus.clear();
+        delete token_table;
     }
 
     void Instructions::set_nimonic_with_register(const std::string& reg,
@@ -550,12 +560,9 @@ namespace nask_utility {
     //
     // より網羅的な表: http://softwaretechnique.jp/OS_Development/Tips/IA32_Instructions/MOV.html
     //
-    TParaCxxTokenTable Instructions::token_table;
     LABEL_DST_STACK Instructions::label_dst_stack;
     LABEL_SRC_STACK Instructions::label_src_stack;
     std::map<std::string, std::string> Instructions::equ_map;
-    std::vector<std::string> Instructions::gl_symbol_list;
-    std::vector<std::string> Instructions::ex_symbol_list;
     std::map<std::string, size_t> Instructions::symbol_offsets;
     std::string Instructions::data_type;
     std::map<uint32_t, std::string> Instructions::support_cpus;

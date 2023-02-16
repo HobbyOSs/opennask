@@ -1,3 +1,5 @@
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "front_end.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
@@ -6,7 +8,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/CommandLineTestRunner.h>
 
-auto logger = spdlog::stdout_logger_mt("opennask", "console");
+auto logger = spdlog::stdout_color_st("opennask");
 
 TEST_GROUP(day02_suite)
 {
@@ -126,6 +128,8 @@ msg:
     expected.insert(expected.end(), {0xbc, 0x00, 0x7c});
     expected.insert(expected.end(), {0x8e, 0xd8});
     expected.insert(expected.end(), {0x8e, 0xc0});
+    // MOV命令からラベルまでの距離をWORD単位で格納(リトルエンディアン)
+    // 0x74(=116), 0x74は全体のバイト数の累積となる
     expected.insert(expected.end(), {0xbe, 0x74, 0x7c});
     expected.insert(expected.end(), {0x8a, 0x04});
     expected.insert(expected.end(), {0x83, 0xc6, 0x01});

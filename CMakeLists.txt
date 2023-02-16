@@ -26,14 +26,13 @@ FetchContent_Declare(
 FetchContent_GetProperties(matchit)
 if(NOT matchit_POPULATED)
   FetchContent_Populate(matchit)
-  add_subdirectory(${matchit_SOURCE_DIR} ${matchit_BINARY_DIR}
-    EXCLUDE_FROM_ALL)
+  add_subdirectory(${matchit_SOURCE_DIR} ${matchit_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
-message(STATUS "Matchit header are present at ${matchit_SOURCE_DIR}")
-
+message(STATUS "matchit header are present at ${matchit_SOURCE_DIR}")
 
 add_subdirectory(parasol)
 add_subdirectory(objconv)
+add_subdirectory(spdlog)
 add_subdirectory(src)
 add_subdirectory(golibc)
 add_subdirectory(projects)

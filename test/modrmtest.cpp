@@ -1,3 +1,5 @@
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include "nask_utility.hpp"
 #include "mod_rm.hpp"
 #include "string_util.hpp"
@@ -10,7 +12,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 
 // Init stuff
-std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_mt("opennask", "debug.log");
+std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("opennask", "debug.log");
 
 TEST_GROUP(modrmtest_suite)
 {

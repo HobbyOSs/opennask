@@ -1,3 +1,4 @@
+#include "spdlog/sinks/basic_file_sink.h"
 #include "nask_utility.hpp"
 #include "string_util.hpp"
 #include "bracket_utility.hpp"
@@ -10,7 +11,7 @@
 #include <CppUTest/CommandLineTestRunner.h>
 
 // Init stuff
-auto logger = spdlog::basic_logger_mt("opennask", "debug.log");
+auto logger = spdlog::basic_logger_st("opennask", "debug.log");
 
 TEST_GROUP(day04test_suite) {};
 
@@ -39,7 +40,7 @@ TEST(day04test_suite, asmhead_MOV_disp) {
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -55,7 +56,6 @@ TEST(day04test_suite, asmhead_MOV_disp) {
     }
 
     std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
-    EXPECT_N_LEAKS(10);
     if (test != answer) {
         logger->error("output bin: {}",
                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
@@ -84,7 +84,7 @@ TEST(day04test_suite, asmhead_MOV_mem_former) {
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -100,7 +100,6 @@ TEST(day04test_suite, asmhead_MOV_mem_former) {
     }
 
     std::vector<uint8_t> answer = { 0x67, 0x66, 0x89, 0x07 };
-    EXPECT_N_LEAKS(9);
     if (test != answer) {
         logger->error("output bin: {}",
                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
@@ -145,7 +144,7 @@ TEST(day04test_suite, asmhead_MOV_disp_plus) {
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -166,7 +165,6 @@ TEST(day04test_suite, asmhead_MOV_disp_plus) {
         0x67, 0x66, 0x8b, 0x7b, 0x0c
     };
 
-    EXPECT_N_LEAKS(9);
     if (test != answer) {
         logger->error("output bin: {}",
                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
@@ -187,16 +185,16 @@ TEST(day04test_suite, asmhead_MOV_later) {
     //
     nask_utility::Instructions inst;
     inst.OPENNASK_MODES = ID_16BIT_MODE;
+
     std::array<std::string, 2> naskfunc_src = {
         "[INSTRSET \"i486p\"]	  \r\n", // 0
         "MOV EAX,[ESI]	  \r\n"	 // 1
     };
-
     std::vector<uint8_t> test; // output
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -212,12 +210,11 @@ TEST(day04test_suite, asmhead_MOV_later) {
     }
 
     std::vector<uint8_t> answer = { 0x67, 0x66, 0x8b, 0x06 };
-    EXPECT_N_LEAKS(9);
+
     if (test != answer) {
         logger->error("output bin: {}",
                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
-
     CHECK(test == answer);
 }
 
@@ -249,7 +246,7 @@ TEST(day04test_suite, day04) {
 
     for (size_t l = 0; l < naskfunc_src.size(); l++) {
         std::istringstream input_stream(naskfunc_src.at(l));
-        TParaTokenizer tokenizer(input_stream, &inst.token_table);
+        TParaTokenizer tokenizer(input_stream, inst.token_table);
 
         switch (l) {
         case 0:
@@ -313,8 +310,6 @@ TEST(day04test_suite, day04) {
         0x00, 0x5F, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5F, 0x6D, 0x65, 0x6D, 0x38, 0x00
     };
 
-    // static member data "support" causes memory leak :<
-    EXPECT_N_LEAKS(15);
     if (test != answer && test.size() == answer.size()) {
         //logger->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
 
