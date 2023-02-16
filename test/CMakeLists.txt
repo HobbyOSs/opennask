@@ -12,6 +12,8 @@ add_definitions(-DCPPUTEST_USE_MEM_LEAK_DETECTION)
 include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/src/bnfc
+  ${root_SOURCE_DIR}/src/incbin
+  ${root_SOURCE_DIR}/src/jsoncons/include
   ${CPPUTEST_INCLUDE_DIR}
   ${root_SOURCE_DIR}/spdlog/include
   ${matchit_SOURCE_DIR}/include)
@@ -77,6 +79,24 @@ add_test(
 )
 
 set_tests_properties(modrmtest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
+# `ctest -R x86_table_test`
+set(x86_table_test_SRCS
+    x86_table_test.cpp)
+
+add_executable(x86_table_test ${x86_table_test_SRCS})
+target_link_libraries(x86_table_test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
+
+set_property(TARGET x86_table_test PROPERTY CXX_STANDARD 17)
+set_property(TARGET x86_table_test PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(
+  NAME x86_table_test
+  COMMAND $<TARGET_FILE:x86_table_test>
+)
+
+set_tests_properties(x86_table_test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
 # `ctest -R day01`
 set(day01test_SRCS

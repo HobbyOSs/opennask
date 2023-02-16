@@ -3,6 +3,7 @@
 #include "pass1_strategy.hh"
 #include "matchit.h"
 #include "demangle.hpp"
+#include "x86.hh"
 
 //using namespace std::placeholders;
 using namespace matchit;
