@@ -13,7 +13,7 @@ include_directories(
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/jsoncons/include
-  ${matchit_SOURCE_DIR}/include)
+  ${root_SOURCE_DIR}/matchit.cpp/include)
 
 ########### next target ###############
 

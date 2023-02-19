@@ -16,7 +16,7 @@ include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src/jsoncons/include
   ${CPPUTEST_INCLUDE_DIR}
   ${root_SOURCE_DIR}/spdlog/include
-  ${matchit_SOURCE_DIR}/include)
+  ${root_SOURCE_DIR}/matchit.cpp/include)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
