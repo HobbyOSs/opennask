@@ -9,8 +9,10 @@ find_package(BISON REQUIRED)
 
 include_directories(
   ${root_SOURCE_DIR}/parasol
+  ${root_SOURCE_DIR}/src/incbin
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/spdlog/include
+  ${root_SOURCE_DIR}/jsoncons/include
   ${matchit_SOURCE_DIR}/include)
 
 ########### next target ###############
@@ -60,16 +62,23 @@ set(nask_parse_SRCS
   bnfc/printer.hh
   bnfc/parsererror.hh
   bnfc/skeleton.cc
-  bnfc/skeleton.hh)
+  bnfc/skeleton.hh
+  incbin/incbin.h)
 
 if (WIN32)
   LIST(APPEND nask_parse_SRCS getopt.h getopt.c)
   add_definitions(-Dstrcasecmp=_stricmp)
 endif()
 
-add_executable(nask_parse ${nask_parse_SRCS})
-target_link_libraries(nask_parse PRIVATE Threads::Threads spdlog::spdlog)
-target_include_directories(nask_parse PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/bnfc)
+add_executable(nask_parse
+  ${nask_parse_SRCS})
+target_link_libraries(nask_parse PRIVATE
+  Threads::Threads
+  spdlog::spdlog)
+target_include_directories(nask_parse PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/bnfc
+  ${CMAKE_CURRENT_SOURCE_DIR}/incbin
+  ${CMAKE_CURRENT_SOURCE_DIR}/jsoncons/include)
 set_property(TARGET nask_parse PROPERTY CXX_STANDARD 17)
 
 ########### next target ###############
