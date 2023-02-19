@@ -1,6 +1,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "front_end.hh"
+#include "pass1_strategy.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
@@ -94,6 +95,10 @@ msg:
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(pt.get());
+    //CHECK_EQUAL(1474692, pass1->loc);
+
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
     std::vector<uint8_t> resb378(378, 0);
@@ -163,7 +168,8 @@ int main(int argc, char** argv) {
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day02_suite, helloos2)");
+
+    args.push_back("TEST(day02_suite, helloos3)");
 
     // Run all tests
     int i = RUN_ALL_TESTS(args.size(), &args[0]);

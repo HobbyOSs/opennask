@@ -1,4 +1,5 @@
 #include "front_end.hh"
+#include "pass1_strategy.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
@@ -46,6 +47,11 @@ TEST(day01_suite, helloos1) {
     ss << nask_statements;
     auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
+
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(pt.get());
+    CHECK_EQUAL(1474560, pass1->loc);
+
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
@@ -144,6 +150,11 @@ TEST(day01_suite, helloos2) {
     ss << nask_statements;
     auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
+
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(pt.get());
+    CHECK_EQUAL(1474692, pass1->loc);
+
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
@@ -200,6 +211,7 @@ int main(int argc, char** argv) {
     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
     args.push_back("-v"); // Set verbose mode
     args.push_back("-c"); // Set color output (OPTIONAL)
+
     //args.push_back("TEST(day01_suite, helloos2)");
 
     // Run all tests

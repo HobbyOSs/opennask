@@ -98,6 +98,39 @@ add_test(
 
 set_tests_properties(x86_table_test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
+# `ctest -R pass1_test`
+set(pass1_test_SRCS
+  pass1_test.cpp
+  ../src/bnfc/skeleton.cc
+  ../src/bnfc/absyn.cc
+  ../src/bnfc/parser.cc
+  ../src/bnfc/printer.cc
+  ../src/bnfc/lexer.cc
+  ../src/bnfc/driver.cc
+  ../src/bnfc/buffer.cc
+  ../src/front_end.cc
+  ../src/pass1_strategy.cc
+  ../src/bin_util.cc
+  ../src/demangle.cpp
+  ../src/para_token.cc
+  ../src/mod_rm.cpp
+  ../src/string_util.cpp
+  ../src/label.cpp)
+
+add_executable(pass1_test ${pass1_test_SRCS})
+target_link_libraries(pass1_test PRIVATE
+  parasol spdlog::spdlog Threads::Threads ${CPPUTEST_LIBRARY})
+
+set_property(TARGET pass1_test PROPERTY CXX_STANDARD 17)
+set_property(TARGET pass1_test PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(
+  NAME pass1_test
+  COMMAND $<TARGET_FILE:pass1_test>
+)
+
+set_tests_properties(pass1_test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
+
 # `ctest -R day01`
 set(day01test_SRCS
   day01test.cpp
