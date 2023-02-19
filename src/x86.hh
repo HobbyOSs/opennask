@@ -28,9 +28,51 @@ namespace x86_64 {
         }
     };
 
+    class DataOffset {
+        int size_;
+        std::string value_;
+    public:
+        DataOffset() {}
+        DataOffset(const int size,
+                   const std::string& value)
+            : size_(size),
+              value_(value)
+        {}
+
+        const int size() const
+        {
+            return size_;
+        }
+        const std::string& value() const
+        {
+            return value_;
+        }
+    };
+
+    class CodeOffset {
+        int size_;
+        std::string value_;
+    public:
+        CodeOffset() {}
+        CodeOffset(const int size,
+                   const std::string& value)
+            : size_(size),
+              value_(value)
+        {}
+
+        const int size() const
+        {
+            return size_;
+        }
+        const std::string& value() const
+        {
+            return value_;
+        }
+    };
+
     class Prefix {
-        bool mandatory_;
-        std::string byte_;
+      bool mandatory_;
+      std::string byte_;
     public:
         Prefix() {}
         Prefix(const bool mandatory, const std::string& byte)
@@ -80,6 +122,52 @@ namespace x86_64 {
         const std::optional<std::string>& B() const
         {
             return B_;
+        }
+        const std::optional<std::string>& X() const
+        {
+            return X_;
+        }
+    };
+
+    class VEX {
+        std::optional<std::string> mmmmm_;
+        std::optional<std::string> pp_;
+        std::optional<std::string> W_;
+        std::optional<std::string> L_;
+        std::optional<std::string> R_;
+        std::optional<std::string> X_;
+    public:
+        VEX() {}
+        VEX(const std::optional<std::string>& mmmmm,
+            const std::optional<std::string>& pp,
+            const std::optional<std::string>& W,
+            const std::optional<std::string>& L,
+            const std::optional<std::string>& R,
+            const std::optional<std::string>& X)
+            : mmmmm_(mmmmm),
+              pp_(pp),
+              W_(W), L_(L), R_(R), X_(X)
+        {}
+
+        const std::optional<std::string>& mmmmm() const
+        {
+            return mmmmm_;
+        }
+        const std::optional<std::string>& pp() const
+        {
+            return pp_;
+        }
+        const std::optional<std::string>& W() const
+        {
+            return W_;
+        }
+        const std::optional<std::string>& L() const
+        {
+            return L_;
+        }
+        const std::optional<std::string>& R() const
+        {
+            return R_;
         }
         const std::optional<std::string>& X() const
         {
@@ -190,32 +278,77 @@ namespace x86_64 {
         }
     };
 
+    // Prefix, REX, VEX, Opcode, ModRM, RegisterByte, Immediate, DataOffset, CodeOffset
     class Encoding {
         Opcode opcode_;
+        std::optional<Prefix> prefix_;
+        std::optional<REX> rex_;
+        std::optional<VEX> vex_;
+        std::optional<ModRM> mod_rm_;
         std::optional<Immediate> immediate_;
+        std::optional<DataOffset> data_offset_;
+        std::optional<CodeOffset> code_offset_;
 
     public:
         Encoding() {}
         Encoding(const Opcode& opcode,
-                 const std::optional<Immediate>& immediate)
+                 const std::optional<Prefix>& prefix,
+                 const std::optional<REX>& rex,
+                 const std::optional<VEX>& vex,
+                 const std::optional<ModRM>& mod_rm,
+                 const std::optional<Immediate>& immediate,
+                 const std::optional<DataOffset> data_offset,
+                 const std::optional<CodeOffset> code_offset)
             : opcode_(opcode),
-              immediate_(immediate)
+              prefix_(prefix),
+              rex_(rex),
+              vex_(vex),
+              mod_rm_(mod_rm),
+              immediate_(immediate),
+              data_offset_(data_offset),
+              code_offset_(code_offset)
         {}
 
         const Opcode& opcode() const
         {
             return opcode_;
         }
+        const std::optional<Prefix>& prefix() const
+        {
+            return prefix_;
+        }
+        const std::optional<REX>& rex() const
+        {
+            return rex_;
+        }
+        const std::optional<VEX>& vex() const
+        {
+            return vex_;
+        }
+        const std::optional<ModRM>& mod_rm() const
+        {
+            return mod_rm_;
+        }
         const std::optional<Immediate>& immediate() const
         {
             return immediate_;
+        }
+        const std::optional<CodeOffset>& code_offset() const
+        {
+            return code_offset_;
+        }
+        const std::optional<DataOffset>& data_offset() const
+        {
+            return data_offset_;
         }
     };
 
     class InstructionForm {
         std::vector<Operand> operands_;
         std::vector<Encoding> encodings_;
+        std::vector<Operand> implicit_operands_;
         std::optional<std::string> xmm_mode_;
+        std::optional<bool> cancelling_inputs_;
         std::optional<std::vector<Isa>> isa_;
 
     public:
@@ -223,11 +356,15 @@ namespace x86_64 {
         {}
         InstructionForm(const std::vector<Operand>& operands,
                         const std::vector<Encoding>& encodings,
+                        const std::vector<Operand>& implicit_operands,
                         const std::optional<std::string>& xmm_mode,
+                        const std::optional<bool> cancelling_inputs,
                         const std::optional<std::vector<Isa>>& isa)
             : operands_(operands),
               encodings_(encodings),
+              implicit_operands_(implicit_operands),
               xmm_mode_(xmm_mode),
+              cancelling_inputs_(cancelling_inputs),
               isa_(isa)
         {}
 
@@ -239,9 +376,17 @@ namespace x86_64 {
         {
             return encodings_;
         }
+        const std::vector<Operand>& implicit_operands() const
+        {
+            return implicit_operands_;
+        }
         const std::optional<std::string>& xmm_mode() const
         {
             return xmm_mode_;
+        }
+        const std::optional<bool>& cancelling_inputs() const
+        {
+            return cancelling_inputs_;
         }
         const std::optional<std::vector<Isa>>& isa() const
         {
@@ -298,12 +443,15 @@ namespace x86_64 {
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Isa, id)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Prefix, mandatory, byte)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::REX, 1, mandatory, W, R, B, X)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::VEX, 1, mmmmm, pp, W, L, R, X)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::ModRM, mode, rm, reg)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Operand, 1, type, input, output, extended_size)
+JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::DataOffset, size, value)
+JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::CodeOffset, size, value)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Immediate, size, value)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Opcode, 1, byte, addend)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Encoding, 1, opcode, immediate)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::InstructionForm, 2, operands, encodings, xmm_mode, isa)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Encoding, 1, opcode, prefix, rex, vex, mod_rm, immediate, data_offset, code_offset)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::InstructionForm, 2, operands, encodings, implicit_operands, xmm_mode, cancelling_inputs, isa)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::InstructionSet, instruction_set, instructions)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Instruction, summary, forms)
 

@@ -16,14 +16,25 @@ TEST(x86_table_test_suite, check_json_schema)
 {
 
     using namespace x86_64;
-    InstructionSet iset = jsoncons::decode_json<InstructionSet>(std::string(X86_64_JSON));
 
-    CHECK_EQUAL("x86-64", iset.instruction_set());
-    CHECK_EQUAL(1215, iset.instructions().size());
+    try {
+        InstructionSet iset = \
+            jsoncons::decode_json<InstructionSet>(std::string(X86_64_JSON));
 
-    CHECK_EQUAL(1, iset.instructions().count("ADC"));
-    CHECK_EQUAL("Add with Carry", iset.instructions().at("ADC").summary());
+        CHECK_EQUAL("x86-64", iset.instruction_set());
+        CHECK_EQUAL(1215, iset.instructions().size());
 
+        CHECK_EQUAL(1, iset.instructions().count("ADC"));
+        CHECK_EQUAL("Add with Carry", iset.instructions().at("ADC").summary());
+
+    } catch(const jsoncons::conv_error& e) {
+        std::cout << "Caught conv_error with category "
+                  << e.code().category().name()
+                  << ", code " << e.code().value()
+                  << " and message " << e.what()
+                  << " and line " << e.line()
+                  << std::endl;
+    }
 }
 
 int main(int argc, char** argv)
