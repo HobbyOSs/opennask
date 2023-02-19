@@ -16,14 +16,25 @@ TEST(x86_table_test_suite, check_json_schema)
 {
 
     using namespace x86_64;
+    using namespace jsoncons;
 
     try {
-        InstructionSet iset = \
+        json j = json::parse(std::string(X86_64_JSON));
+        const json& inst = j["instructions"];
+        for (const auto &item : inst.object_range()) {
+            // debug code
+            // std::string opcode = item.key();
+            // std::cout << pretty_print(item.value()) << std::endl;
+            // break;
+            Instruction inst = \
+                jsoncons::decode_json<Instruction>(item.value().to_string());
+        }
+
+        InstructionSet iset =                                           \
             jsoncons::decode_json<InstructionSet>(std::string(X86_64_JSON));
 
         CHECK_EQUAL("x86-64", iset.instruction_set());
         CHECK_EQUAL(1215, iset.instructions().size());
-
         CHECK_EQUAL(1, iset.instructions().count("ADC"));
         CHECK_EQUAL("Add with Carry", iset.instructions().at("ADC").summary());
 

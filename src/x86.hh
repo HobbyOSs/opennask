@@ -236,6 +236,34 @@ namespace x86_64 {
         }
     };
 
+    class ImplicitOperand {
+        std::string id_;
+        std::optional<bool> input_;
+        std::optional<bool> output_;
+    public:
+        ImplicitOperand() {}
+        ImplicitOperand(const std::string& id,
+                        const std::optional<bool> input,
+                        const std::optional<bool> output)
+            : id_(id),
+              input_(input),
+              output_(output)
+        {}
+
+        const std::string& id() const
+        {
+            return id_;
+        }
+        const std::optional<bool> input() const
+        {
+            return input_;
+        }
+        const std::optional<bool> output() const
+        {
+            return output_;
+        }
+    };
+
     class Immediate {
         int size_;
         std::string value_;
@@ -344,9 +372,9 @@ namespace x86_64 {
     };
 
     class InstructionForm {
-        std::vector<Operand> operands_;
         std::vector<Encoding> encodings_;
-        std::vector<Operand> implicit_operands_;
+        std::optional<std::vector<Operand>> operands_;
+        std::optional<std::vector<ImplicitOperand>> implicit_operands_;
         std::optional<std::string> xmm_mode_;
         std::optional<bool> cancelling_inputs_;
         std::optional<std::vector<Isa>> isa_;
@@ -354,29 +382,29 @@ namespace x86_64 {
     public:
         InstructionForm()
         {}
-        InstructionForm(const std::vector<Operand>& operands,
-                        const std::vector<Encoding>& encodings,
-                        const std::vector<Operand>& implicit_operands,
+        InstructionForm(const std::vector<Encoding>& encodings,
+                        const std::optional<std::vector<Operand>>& operands,
+                        const std::optional<std::vector<ImplicitOperand>>& implicit_operands,
                         const std::optional<std::string>& xmm_mode,
                         const std::optional<bool> cancelling_inputs,
                         const std::optional<std::vector<Isa>>& isa)
-            : operands_(operands),
-              encodings_(encodings),
+            : encodings_(encodings),
+              operands_(operands),
               implicit_operands_(implicit_operands),
               xmm_mode_(xmm_mode),
               cancelling_inputs_(cancelling_inputs),
               isa_(isa)
         {}
 
-        const std::vector<Operand>& operands() const
-        {
-            return operands_;
-        }
         const std::vector<Encoding>& encodings() const
         {
             return encodings_;
         }
-        const std::vector<Operand>& implicit_operands() const
+        const std::optional<std::vector<Operand>>& operands() const
+        {
+            return operands_;
+        }
+        const std::optional<std::vector<ImplicitOperand>>& implicit_operands() const
         {
             return implicit_operands_;
         }
@@ -445,13 +473,14 @@ JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Prefix, mandatory, byte)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::REX, 1, mandatory, W, R, B, X)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::VEX, 1, mmmmm, pp, W, L, R, X)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::ModRM, mode, rm, reg)
+JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::ImplicitOperand, id, input, output)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Operand, 1, type, input, output, extended_size)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::DataOffset, size, value)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::CodeOffset, size, value)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Immediate, size, value)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Opcode, 1, byte, addend)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Encoding, 1, opcode, prefix, rex, vex, mod_rm, immediate, data_offset, code_offset)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::InstructionForm, 2, operands, encodings, implicit_operands, xmm_mode, cancelling_inputs, isa)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::InstructionForm, 1, encodings, operands, implicit_operands, xmm_mode, cancelling_inputs, isa)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::InstructionSet, instruction_set, instructions)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Instruction, summary, forms)
 
