@@ -49,6 +49,8 @@ set(nask_parse_SRCS
   label.hpp
   bin_util.cc
   bin_util.hh
+  x86.cc
+  x86.hh
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc

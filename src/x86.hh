@@ -6,13 +6,11 @@
 #include <vector>
 #include <unordered_map>
 #include <optional>
-#include "incbin.h"
 #include <jsoncons/json.hpp>
 
-INCTXT(x86_json_, "json-x86-64/x86_64.json");
-static constexpr const char* const X86_64_JSON = gx86_json_Data;
 
 namespace x86_64 {
+    extern const char* X86_64_JSON;
 
     class Isa {
         std::string id_;

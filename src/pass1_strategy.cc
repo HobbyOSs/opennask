@@ -3,13 +3,9 @@
 #include "pass1_strategy.hh"
 #include "matchit.h"
 #include "demangle.hpp"
-#include "x86.hh"
 
 using namespace std::placeholders;
 using namespace matchit;
-
-std::map<std::string, uint32_t> Pass1Strategy::sym_table = std::map<std::string, uint32_t>{};
-std::map<std::string, uint32_t> Pass1Strategy::lit_table = std::map<std::string, uint32_t>{};
 
 Pass1Strategy::Pass1Strategy() {
     // spdlog
@@ -17,7 +13,9 @@ Pass1Strategy::Pass1Strategy() {
         auto logger = spdlog::stdout_color_st("opennask");
     }
 
-    this->loc = 0;
+    sym_table = std::map<std::string, uint32_t>{};
+    lit_table = std::map<std::string, uint32_t>{};
+    loc = 0;
 }
 
 Pass1Strategy::~Pass1Strategy() {

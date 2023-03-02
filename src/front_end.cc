@@ -4,7 +4,6 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "matchit.h"
-#include "pass1_strategy.hh"
 #include "front_end.hh"
 #include "driver.hh"
 #include "parser.hh"

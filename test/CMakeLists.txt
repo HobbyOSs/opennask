@@ -21,10 +21,7 @@ include_directories(${root_SOURCE_DIR}/parasol
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-# lexer, parser testing
-# `ctest -R parsertest`
-set(parsertest_SRCS
-  exp_suite.cpp
+set(nask_parse_SRCS
   ../src/bnfc/skeleton.cc
   ../src/bnfc/absyn.cc
   ../src/bnfc/parser.cc
@@ -39,7 +36,14 @@ set(parsertest_SRCS
   ../src/para_token.cc
   ../src/mod_rm.cpp
   ../src/string_util.cpp
-  ../src/label.cpp)
+  ../src/label.cpp
+  ../src/x86.cc)
+
+# lexer, parser testing
+# `ctest -R parsertest`
+set(parsertest_SRCS
+  exp_suite.cpp
+  ${nask_parse_SRCS})
 
 add_executable(parsertest ${parsertest_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(parsertest PRIVATE
@@ -82,7 +86,8 @@ set_tests_properties(modrmtest PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 
 # `ctest -R x86_table_test`
 set(x86_table_test_SRCS
-    x86_table_test.cpp)
+  x86_table_test.cpp
+  ../src/x86.cc)
 
 add_executable(x86_table_test ${x86_table_test_SRCS})
 target_link_libraries(x86_table_test PRIVATE
@@ -101,21 +106,7 @@ set_tests_properties(x86_table_test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 # `ctest -R pass1_test`
 set(pass1_test_SRCS
   pass1_test.cpp
-  ../src/bnfc/skeleton.cc
-  ../src/bnfc/absyn.cc
-  ../src/bnfc/parser.cc
-  ../src/bnfc/printer.cc
-  ../src/bnfc/lexer.cc
-  ../src/bnfc/driver.cc
-  ../src/bnfc/buffer.cc
-  ../src/front_end.cc
-  ../src/pass1_strategy.cc
-  ../src/bin_util.cc
-  ../src/demangle.cpp
-  ../src/para_token.cc
-  ../src/mod_rm.cpp
-  ../src/string_util.cpp
-  ../src/label.cpp)
+  ${nask_parse_SRCS})
 
 add_executable(pass1_test ${pass1_test_SRCS})
 target_link_libraries(pass1_test PRIVATE
@@ -134,21 +125,7 @@ set_tests_properties(pass1_test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 # `ctest -R day01`
 set(day01test_SRCS
   day01test.cpp
-  ../src/bnfc/skeleton.cc
-  ../src/bnfc/absyn.cc
-  ../src/bnfc/parser.cc
-  ../src/bnfc/printer.cc
-  ../src/bnfc/lexer.cc
-  ../src/bnfc/driver.cc
-  ../src/bnfc/buffer.cc
-  ../src/front_end.cc
-  ../src/pass1_strategy.cc
-  ../src/bin_util.cc
-  ../src/demangle.cpp
-  ../src/para_token.cc
-  ../src/mod_rm.cpp
-  ../src/string_util.cpp
-  ../src/label.cpp)
+  ${nask_parse_SRCS})
 
 add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day01test PRIVATE
@@ -168,21 +145,7 @@ set_tests_properties(day01test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 # `ctest -R day02`
 set(day02test_SRCS
   day02test.cpp
-  ../src/bnfc/skeleton.cc
-  ../src/bnfc/absyn.cc
-  ../src/bnfc/parser.cc
-  ../src/bnfc/printer.cc
-  ../src/bnfc/lexer.cc
-  ../src/bnfc/buffer.cc
-  ../src/bnfc/driver.cc
-  ../src/front_end.cc
-  ../src/pass1_strategy.cc
-  ../src/bin_util.cc
-  ../src/demangle.cpp
-  ../src/para_token.cc
-  ../src/mod_rm.cpp
-  ../src/string_util.cpp
-  ../src/label.cpp)
+  ${nask_parse_SRCS})
 
 add_executable(day02test ${day02test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day02test PRIVATE
@@ -202,21 +165,7 @@ set_tests_properties(day02test PROPERTIES ATTACHED_FILES_ON_FAIL 0)
 # `ctest -R day03`
 set(day03test_SRCS
   day03test.cpp
-  ../src/bnfc/skeleton.cc
-  ../src/bnfc/absyn.cc
-  ../src/bnfc/parser.cc
-  ../src/bnfc/printer.cc
-  ../src/bnfc/lexer.cc
-  ../src/bnfc/buffer.cc
-  ../src/bnfc/driver.cc
-  ../src/front_end.cc
-  ../src/pass1_strategy.cc
-  ../src/bin_util.cc
-  ../src/demangle.cpp
-  ../src/para_token.cc
-  ../src/mod_rm.cpp
-  ../src/string_util.cpp
-  ../src/label.cpp)
+  ${nask_parse_SRCS})
 
 add_executable(day03test ${day03test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day03test PRIVATE
