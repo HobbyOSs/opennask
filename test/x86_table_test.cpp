@@ -29,10 +29,6 @@ protected:
 
 TEST_F(X86TableSuite, CheckJsonSchema)
 {
-
-    using namespace x86_64;
-    using namespace jsoncons;
-
     try {
         json j = json::parse(std::string(X86_64_JSON));
         const json& inst = j["instructions"];

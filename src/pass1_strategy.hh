@@ -27,7 +27,7 @@ public:
     std::map<std::string, uint32_t> sym_table;
     std::map<std::string, uint32_t> lit_table;
     // x86命令セット
-    std::unique_ptr<x86_64::InstructionSet> inst_set;
+    std::unique_ptr<x86_64::InstructionSet> iset;
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;

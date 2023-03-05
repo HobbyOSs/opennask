@@ -74,7 +74,8 @@ gtest_discover_tests(modrmtest)
 # `ctest -R x86_table_test`
 set(x86_table_test_SRCS
   x86_table_test.cpp
-  ../src/x86.cc)
+  ../src/x86.cc
+  ../src/para_token.cc)
 
 add_executable(x86_table_test ${x86_table_test_SRCS})
 target_link_libraries(x86_table_test PRIVATE
