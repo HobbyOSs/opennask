@@ -16,3 +16,9 @@
 [submodule "src/jsoncons"]
 	path = src/jsoncons
 	url = https://github.com/danielaparker/jsoncons.git
+[submodule "matchit.cpp"]
+	path = matchit.cpp
+	url = https://github.com/BowenFu/matchit.cpp.git
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest.git

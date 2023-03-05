@@ -15,6 +15,7 @@
 #include "skeleton.hh"
 #include "bin_util.hh"
 #include "label.hpp"
+#include "pass1_strategy.hh"
 
 
 class FrontEnd : public Skeleton, public BinUtil {

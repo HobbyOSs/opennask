@@ -4,7 +4,6 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "matchit.h"
-#include "pass1_strategy.hh"
 #include "front_end.hh"
 #include "driver.hh"
 #include "parser.hh"
@@ -1451,10 +1450,9 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    auto pass1 = std::make_unique<Pass1Strategy>();
-    pass1->Eval(parse_tree);
-
     // TODO: ここでシンボルテーブル等をpass1からgetする
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    // pass1->Eval(parse_tree);
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

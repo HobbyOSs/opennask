@@ -2,22 +2,33 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "x86.hh"
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+#include <gtest/gtest.h>
 
-// Init stuff
-auto logger = spdlog::stdout_color_st("opennask");
+using namespace x86_64;
+using namespace jsoncons;
 
-TEST_GROUP(x86_table_test_suite)
-{
+class X86TableSuite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    X86TableSuite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
+
+    // 試験終了時に一回だけ実行
+    ~X86TableSuite() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(x86_table_test_suite, check_json_schema)
+TEST_F(X86TableSuite, CheckJsonSchema)
 {
-
-    using namespace x86_64;
-    using namespace jsoncons;
-
     try {
         json j = json::parse(std::string(X86_64_JSON));
         const json& inst = j["instructions"];
@@ -33,10 +44,10 @@ TEST(x86_table_test_suite, check_json_schema)
         InstructionSet iset =                                           \
             jsoncons::decode_json<InstructionSet>(std::string(X86_64_JSON));
 
-        CHECK_EQUAL("x86-64", iset.instruction_set());
-        CHECK_EQUAL(1215, iset.instructions().size());
-        CHECK_EQUAL(1, iset.instructions().count("ADC"));
-        CHECK_EQUAL("Add with Carry", iset.instructions().at("ADC").summary());
+        EXPECT_EQ("x86-64", iset.instruction_set());
+        EXPECT_EQ(1215, iset.instructions().size());
+        EXPECT_EQ(1, iset.instructions().count("ADC"));
+        EXPECT_EQ("Add with Carry", iset.instructions().at("ADC").summary());
 
     } catch(const jsoncons::conv_error& e) {
         std::cout << "Caught conv_error with category "
@@ -48,13 +59,11 @@ TEST(x86_table_test_suite, check_json_schema)
     }
 }
 
-int main(int argc, char** argv)
+TEST_F(X86TableSuite, GetOutputSize)
 {
-     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-     args.push_back("-v"); // Set verbose mode
-     args.push_back("-c"); // Set color output (OPTIONAL)
+    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
 
-     // Run all tests
-     int i = RUN_ALL_TESTS(args.size(), &args[0]);
-     return i;
+    EXPECT_EQ("x86-64", iset.instruction_set());
+    EXPECT_EQ(1215, iset.instructions().size());
+    EXPECT_EQ(1, iset.instructions().count("MOV"));
 }

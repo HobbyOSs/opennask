@@ -14,22 +14,7 @@ set(QEMUOPT "-m" "32" "-rtc" "base=localtime" "-vga" "std" "-fda" CACHE INTERNAL
 set(QEMU_DEBUG_OPT "-redir" "tcp:5555:127.0.0.1:1234" "&" CACHE INTERNAL "")
 set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-fno-pie" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
-#-----------------------------------------------------------------------
-# Fetch matchit (c++17 pattern matching library)
-#
-include(FetchContent)
-FetchContent_Declare(
-  matchit
-  GIT_REPOSITORY https://github.com/BowenFu/matchit.cpp.git
-  GIT_TAG main)
-
-FetchContent_GetProperties(matchit)
-if(NOT matchit_POPULATED)
-  FetchContent_Populate(matchit)
-  add_subdirectory(${matchit_SOURCE_DIR} ${matchit_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-message(STATUS "matchit header are present at ${matchit_SOURCE_DIR}")
-
+add_subdirectory(matchit.cpp)
 add_subdirectory(parasol)
 add_subdirectory(objconv)
 add_subdirectory(spdlog)
@@ -38,12 +23,13 @@ add_subdirectory(golibc)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------
-# Checks for CppUTest
+# GoogleTest
 #
-OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
-if (USE_CPPUTEST)
-  add_definitions(-DUSE_CPPUTEST)
+OPTION(USE_GTEST "Enable feature to test with googletest (Dev)" ON)
+if (USE_GTEST)
+  add_definitions(-DUSE_GTEST)
+  add_subdirectory(googletest)
   add_subdirectory(backward-cpp)
   add_subdirectory(test)
   add_subdirectory(data)
-endif(USE_CPPUTEST)
+endif(USE_GTEST)

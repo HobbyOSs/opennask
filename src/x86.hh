@@ -3,16 +3,18 @@
 
 #include <string>
 #include <cstdint>
+#include <tuple>
 #include <vector>
 #include <unordered_map>
 #include <optional>
-#include "incbin.h"
 #include <jsoncons/json.hpp>
-
-INCTXT(x86_json_, "json-x86-64/x86_64.json");
-static constexpr const char* const X86_64_JSON = gx86_json_Data;
+#include "para_token.hh"
 
 namespace x86_64 {
+
+    extern const char* X86_64_JSON;
+
+    const std::string token_to_x86_type(TParaToken&);
 
     class Isa {
         std::string id_;
@@ -443,6 +445,9 @@ namespace x86_64 {
         {
             return forms_;
         }
+
+        const uint32_t get_output_size(TParaToken& opr1,
+                                       TParaToken& opr2);
     };
 
     class InstructionSet {
@@ -450,21 +455,20 @@ namespace x86_64 {
         std::map<std::string, Instruction> instructions_;
 
     public:
-        InstructionSet(const std::string& instruction_set,
-                       const std::map<std::string, Instruction>& instructions)
-            : instruction_set_(instruction_set),
-              instructions_(instructions)
-        {}
+        InstructionSet(const InstructionSet &p)
+            : instruction_set_(p.instruction_set()), instructions_(p.instructions()) {}
 
-        const std::string& instruction_set() const
-        {
-            return instruction_set_;
-        }
+        InstructionSet(const std::string &instruction_set,
+                     const std::map<std::string, Instruction> &instructions)
+          : instruction_set_(instruction_set), instructions_(instructions) {}
 
-        const std::map<std::string, Instruction>& instructions() const
-        {
-            return instructions_;
-        }
+      const std::string &instruction_set() const {
+          return instruction_set_;
+      }
+
+      const std::map<std::string, Instruction> &instructions() const {
+          return instructions_;
+      }
     };
 };
 

@@ -13,7 +13,7 @@ include_directories(
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/jsoncons/include
-  ${matchit_SOURCE_DIR}/include)
+  ${root_SOURCE_DIR}/matchit.cpp/include)
 
 ########### next target ###############
 
@@ -49,6 +49,8 @@ set(nask_parse_SRCS
   label.hpp
   bin_util.cc
   bin_util.hh
+  x86.cc
+  x86.hh
   bnfc/absyn.cc
   bnfc/absyn.hh
   bnfc/buffer.cc
