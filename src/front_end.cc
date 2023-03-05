@@ -1450,10 +1450,9 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    auto pass1 = std::make_unique<Pass1Strategy>();
-    pass1->Eval(parse_tree);
-
     // TODO: ここでシンボルテーブル等をpass1からgetする
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    // pass1->Eval(parse_tree);
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

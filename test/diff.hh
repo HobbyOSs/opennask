@@ -7,6 +7,7 @@
 #include <iterator>
 #include <sstream>
 #include <fstream>
+#include <gtest/gtest.h>
 #include "diff-match-patch-cpp-stl/diff_match_patch.h"
 
 
@@ -94,6 +95,13 @@ std::string diff(std::vector<uint8_t> expected, std::vector<uint8_t> actual) {
     auto diffs = dmp_ins.diff_main(out1, out2);
     std::stringstream diff;
     return diff_pretty_ansi(diffs);
+}
+
+::testing::AssertionResult checkTextF(bool isSuccess, const char* msg) {
+    if(isSuccess)
+        return ::testing::AssertionSuccess();
+
+    return ::testing::AssertionFailure(::testing::Message(msg));
 }
 
 #endif // ! DIFF_HH

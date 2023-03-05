@@ -5,18 +5,29 @@
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
+#include <gtest/gtest.h>
 
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+class Day02Suite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    Day02Suite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
 
-auto logger = spdlog::stdout_color_st("opennask");
+    // 試験終了時に一回だけ実行
+    ~Day02Suite() override {
+    }
 
-TEST_GROUP(day02_suite)
-{
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
 
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(day02_suite, helloos3) {
+TEST_F(Day02Suite, Helloos3) {
 
     std::stringstream ss;
     const char nask_statements[] = R"(
@@ -95,9 +106,10 @@ msg:
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
-    auto pass1 = std::make_unique<Pass1Strategy>();
-    pass1->Eval(pt.get());
-    //CHECK_EQUAL(1474692, pass1->loc);
+    // TODO: pass1を実装したら外す
+    //auto pass1 = std::make_unique<Pass1Strategy>();
+    //pass1->Eval(pt.get());
+    //EXPECT_EQ(1474692, pass1->loc);
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);
@@ -159,19 +171,6 @@ msg:
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    CHECK_EQUAL(expected.size(), d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
-}
-
-int main(int argc, char** argv) {
-    spdlog::set_level(spdlog::level::debug);
-    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-    args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-
-    args.push_back("TEST(day02_suite, helloos3)");
-
-    // Run all tests
-    int i = RUN_ALL_TESTS(args.size(), &args[0]);
-    return i;
+    EXPECT_EQ(expected.size(), d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }

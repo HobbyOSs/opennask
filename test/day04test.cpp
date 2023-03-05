@@ -1,4 +1,5 @@
-#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "nask_utility.hpp"
 #include "string_util.hpp"
 #include "bracket_utility.hpp"
@@ -7,15 +8,29 @@
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+#include <gtest/gtest.h>
 
-// Init stuff
-auto logger = spdlog::basic_logger_st("opennask", "debug.log");
+class Day04Suite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    Day04Suite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
 
-TEST_GROUP(day04test_suite) {};
+    // 試験終了時に一回だけ実行
+    ~Day04Suite() override {
+    }
 
-TEST(day04test_suite, asmhead_MOV_disp) {
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
+};
+
+TEST_F(Day04Suite, AsmheadMovDisp) {
     // Found MOV_with_bracket
     //
     // MOV CL,BYTE [0x0ff0]
@@ -57,14 +72,14 @@ TEST(day04test_suite, asmhead_MOV_disp) {
 
     std::vector<uint8_t> answer = { 0x8a, 0x0e, 0xf0, 0x0f };
     if (test != answer) {
-        logger->error("output bin: {}",
-                      nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+        spdlog::get("opennask")->error("output bin: {}",
+                                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
 
-    CHECK(test == answer);
+    EXPECT_TRUE(test == answer);
 }
 
-TEST(day04test_suite, asmhead_MOV_mem_former) {
+TEST_F(Day04Suite, AsmheadMovMemFormer) {
     // Found MOV_with_bracket
     //
     // [INSTRSET "i486p"]
@@ -101,14 +116,14 @@ TEST(day04test_suite, asmhead_MOV_mem_former) {
 
     std::vector<uint8_t> answer = { 0x67, 0x66, 0x89, 0x07 };
     if (test != answer) {
-        logger->error("output bin: {}",
-                      nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+        spdlog::get("opennask")->error("output bin: {}",
+                                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
 
-    CHECK(test == answer);
+    EXPECT_TRUE(test == answer);
 }
 
-TEST(day04test_suite, asmhead_MOV_disp_plus) {
+TEST_F(Day04Suite, AsmheadMovDispPlus) {
     // Found MOV_with_bracket
     //
     // [INSTRSET "i486p"]
@@ -166,14 +181,14 @@ TEST(day04test_suite, asmhead_MOV_disp_plus) {
     };
 
     if (test != answer) {
-        logger->error("output bin: {}",
-                      nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+        spdlog::get("opennask")->error("output bin: {}",
+                                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
 
-    CHECK(test == answer);
+    EXPECT_TRUE(test == answer);
 }
 
-TEST(day04test_suite, asmhead_MOV_later) {
+TEST_F(Day04Suite, AsmheadMovLater) {
     // Found MOV_with_bracket
     //
     // [INSTRSET "i486p"]
@@ -212,13 +227,13 @@ TEST(day04test_suite, asmhead_MOV_later) {
     std::vector<uint8_t> answer = { 0x67, 0x66, 0x8b, 0x06 };
 
     if (test != answer) {
-        logger->error("output bin: {}",
-                      nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+        spdlog::get("opennask")->error("output bin: {}",
+                                       nask_utility::string_to_hex(std::string(test.begin(), test.end())));
     }
-    CHECK(test == answer);
+    EXPECT_TRUE(test == answer);
 }
 
-TEST(day04test_suite, day04) {
+TEST_F(Day04Suite, Day04) {
     // Found MOV_with_bracket
     nask_utility::Instructions inst;
     inst.OPENNASK_MODES = ID_16BIT_MODE;
@@ -311,7 +326,7 @@ TEST(day04test_suite, day04) {
     };
 
     if (test != answer && test.size() == answer.size()) {
-        //logger->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
+        //spdlog::get("opennask")->error("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
 
         for (size_t i = 0; i < answer.size(); i=i+16) {
             std::array<uint8_t, 16> expect = {};
@@ -320,32 +335,14 @@ TEST(day04test_suite, day04) {
             std::copy(test.begin()   +i, test.begin()   +i +16, actual.begin());
 
             const std::string hex = nask_utility::string_to_hex(std::string(expect.begin(), expect.end()));
-            logger->error("OK {}", hex);
+            spdlog::get("opennask")->error("OK {}", hex);
 
             if (expect != actual) {
                 const std::string hex = nask_utility::string_to_hex(std::string(actual.begin(), actual.end()));
-                logger->error("NG {}", hex);
+                spdlog::get("opennask")->error("NG {}", hex);
             }
         }
     }
 
-    CHECK(test == answer);
-}
-
-void setup() {
-    //MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
-}
-
-void teardown() {
-    //MemoryLeakWarningPlugin::turnOnNewDeleteOverloads();
-}
-
-int main(int argc, char** argv) {
-    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-    args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-
-    // Run all tests
-    int i = RUN_ALL_TESTS(args.size(), &args[0]);
-    return i;
+    EXPECT_TRUE(test == answer);
 }

@@ -23,12 +23,13 @@ add_subdirectory(golibc)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------
-# Checks for CppUTest
+# GoogleTest
 #
-OPTION(USE_CPPUTEST "Enable feature to test with cpputest (Dev)" ON)
-if (USE_CPPUTEST)
-  add_definitions(-DUSE_CPPUTEST)
+OPTION(USE_GTEST "Enable feature to test with googletest (Dev)" ON)
+if (USE_GTEST)
+  add_definitions(-DUSE_GTEST)
+  add_subdirectory(googletest)
   add_subdirectory(backward-cpp)
   add_subdirectory(test)
   add_subdirectory(data)
-endif(USE_CPPUTEST)
+endif(USE_GTEST)
