@@ -14,7 +14,7 @@ namespace x86_64 {
 
     extern const char* X86_64_JSON;
 
-    const std::string token_to_x86_type(TParaToken&);
+    const std::string token_to_x86_type(const TParaToken*);
 
     class Isa {
         std::string id_;
@@ -90,6 +90,10 @@ namespace x86_64 {
         {
             return byte_;
         }
+        const int get_size() const
+        {
+            return 1;  // 0x66 のみの場合がほとんど
+        }
     };
 
     class REX {
@@ -129,6 +133,10 @@ namespace x86_64 {
         {
             return X_;
         }
+        const int get_size() const
+        {
+            return 1;  // REXプレフィックスは、オペコードの直前に配置されるため、オペコードサイズを1バイト増やすことになる
+        }
     };
 
     class VEX {
@@ -165,6 +173,7 @@ namespace x86_64 {
         }
         const std::optional<std::string>& L() const
         {
+            // VEXプレフィックスの長さを指定します。Lが0の場合、VEXプレフィックスは3バイトです。Lが1の場合、VEXプレフィックスは2バイト。
             return L_;
         }
         const std::optional<std::string>& R() const
@@ -174,6 +183,19 @@ namespace x86_64 {
         const std::optional<std::string>& X() const
         {
             return X_;
+        }
+        const int get_size() const
+        {
+            int size = 0;
+            if (mmmmm_ && pp_) {
+                const std::string& mmmmm = mmmmm_.value();
+                const std::string& pp = pp_.value();
+                int L = L_ ? std::stoi(L_.value(), nullptr, 2) : 1;
+                if (mmmmm == "00001" && std::stoi(pp, nullptr, 2) <= 2) {
+                    size = (L == 0) ? 3 : 2;
+                }
+            }
+            return size;
         }
     };
 
@@ -200,6 +222,10 @@ namespace x86_64 {
         const std::string& reg() const
         {
             return reg_;
+        }
+        const int get_size() const
+        {
+            return 1;  // ModRMは常に1byte
         }
     };
 
@@ -306,6 +332,10 @@ namespace x86_64 {
         {
             return addend_;
         }
+        const int get_size() const
+        {
+            return 1;
+        }
     };
 
     // Prefix, REX, VEX, Opcode, ModRM, RegisterByte, Immediate, DataOffset, CodeOffset
@@ -371,6 +401,8 @@ namespace x86_64 {
         {
             return data_offset_;
         }
+
+        const int get_output_size();
     };
 
     class InstructionForm {
@@ -446,8 +478,7 @@ namespace x86_64 {
             return forms_;
         }
 
-        const uint32_t get_output_size(TParaToken& opr1,
-                                       TParaToken& opr2);
+        const uint32_t get_output_size(std::initializer_list<TParaToken> tokens);
     };
 
     class InstructionSet {

@@ -1151,7 +1151,7 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     }
     // [SI] のような間接アドレス表現を読み取る
     TParaToken t = this->ctx.top();
-    t.SetAttribute(TParaToken::ttMem);
+    t.SetAttribute(TParaToken::ttMem); // TODO: 8,16,32,64を判定する
     this->ctx.pop();
     this->ctx.push(t);
 }
