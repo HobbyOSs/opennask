@@ -3,6 +3,7 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "x86.hh"
 #include <gtest/gtest.h>
+#include "nask_defs.hpp"
 
 using namespace x86_64;
 using namespace jsoncons;
@@ -115,10 +116,11 @@ TEST_F(X86TableSuite, GetOutputSize)
 
     auto inst = iset.instructions().at("ADD");
     auto size = inst.get_output_size(
+        ID_16BIT_MODE,
         {
             TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
         }
     );
-    EXPECT_EQ(3, size);
+    EXPECT_EQ(2, size);
 }

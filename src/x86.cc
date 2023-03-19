@@ -36,36 +36,21 @@ namespace x86_64 {
       );
     }
 
-    const int Encoding::get_output_size() {
+    const int Encoding::get_output_size(OPENNASK_MODES mode) {
         int output_size = 0;
 
-        if (prefix_) {
-            std::cout << "prefix size: "
-                      << prefix_->get_size()
-                      << std::endl;
+        if (prefix_ && prefix_->mandatory()) {
             output_size += prefix_->get_size();
         }
-        if (rex_) {
-            std::cout << "rex size: "
-                      << rex_->get_size()
-                      << std::endl;
-            output_size += rex_->get_size();
+        if (REX_ && REX_->mandatory()) {
+            output_size += REX_->get_size();
         }
-        if (vex_) {
-            std::cout << "vex size: "
-                      << vex_->get_size()
-                      << std::endl;
-            output_size += vex_->get_size();
+        if (VEX_) {
+            output_size += VEX_->get_size();
         }
-        std::cout << "opcode size: "
-                  << opcode_.get_size()
-                  << std::endl;
         output_size += opcode_.get_size();
-        if (mod_rm_) {
-            std::cout << "modrm size: "
-                      << mod_rm_->get_size()
-                      << std::endl;
-            output_size += mod_rm_->get_size();
+        if (ModRM_) {
+            output_size += ModRM_->get_size();
         }
         if (immediate_) {
             output_size += immediate_->size();
@@ -80,7 +65,7 @@ namespace x86_64 {
         return output_size;
     }
 
-    const uint32_t Instruction::get_output_size(std::initializer_list<TParaToken> tokens) {
+    const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
 
         for (int i = 0; i < tokens.size(); i++) {
             std::cout << (tokens.begin() + i)->AsString() << std::endl;
@@ -107,8 +92,6 @@ namespace x86_64 {
                                return detect;
                                });
 
-        std::cout << "starting !!!! " << std::endl;
-
         if (it != forms_.end()) {
             auto& found_form = *it;
             auto encodings = found_form.encodings();
@@ -116,14 +99,13 @@ namespace x86_64 {
             std::cout << "type(found_form) -> " << type(found_form)
                       << " \n"
                       << " ** -> "
-                      << encodings[0].get_output_size()
+                      << encodings[0].get_output_size(mode)
                       << " "
                       << std::endl;
 
-            const uint32_t size = encodings[0].get_output_size();
+            const uint32_t size = encodings[0].get_output_size(mode);
             return size;
         }
-        std::cout << "end !!!! " << std::endl;
 
         return 0;
     }

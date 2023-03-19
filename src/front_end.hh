@@ -29,6 +29,7 @@ private:
     bool trace_scanning;
     // $ の位置
     uint32_t dollar_position = 0;
+    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
 
 public:
     // visitorのcontext情報
