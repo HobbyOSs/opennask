@@ -87,8 +87,10 @@ public:
 
     TParaToken(void);
     explicit TParaToken(const std::string& token_string,
-                        TTokenType type = ttUnknown,
-                        TIdentiferAttribute attr = ttAttrUnknown);
+                        TTokenType type);
+    explicit TParaToken(const std::string& token_string,
+                        TTokenType type,
+                        TIdentiferAttribute attr);
     TParaToken(const TParaToken& token);
     ~TParaToken();
     void SetAttribute();

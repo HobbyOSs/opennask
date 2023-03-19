@@ -19,14 +19,20 @@ TParaToken::TParaToken(void) {
 }
 
 TParaToken::TParaToken(const string& token_string,
+                       TTokenType type) {
+
+    _token_string = token_string;
+    _type = type;
+    SetAttribute();
+}
+
+TParaToken::TParaToken(const string& token_string,
                        TTokenType type,
                        TIdentiferAttribute attr) {
 
     _token_string = token_string;
     _type = type;
-    if (attr != ttAttrUnknown) {
-        SetAttribute(attr);
-    }
+    SetAttribute(attr);
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
