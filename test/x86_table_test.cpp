@@ -78,7 +78,7 @@ struct TokenToX86TypeParam {
 };
 
 void PrintTo(const TokenToX86TypeParam& param, ::std::ostream* os) {
-  *os << param.para_token.to_string();
+    *os << param.para_token.to_string();
 }
 
 class TokenToX86Type : public testing::TestWithParam<TokenToX86TypeParam> {

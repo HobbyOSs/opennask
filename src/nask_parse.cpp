@@ -64,6 +64,7 @@ int main (int argc, char *argv[]) {
     std::unique_ptr<FrontEnd> d(new FrontEnd(trace_scanning, trace_parsing));
 
     if (argv[optind+1] != NULL) {
+        // ファイルから読み込む場合
         assembly_src = argv[optind];
         assembly_dst = argv[optind + 1];
 
@@ -79,6 +80,7 @@ int main (int argc, char *argv[]) {
         return d->Eval<Program>(parse_tree.get(), assembly_dst);
     }
 
+    // 標準入力から読み込む場合
     assembly_dst = argv[optind];
     auto parse_tree = d->Parse<Program>(std::cin);
     return d->Eval<Program>(parse_tree.get(), assembly_dst);
