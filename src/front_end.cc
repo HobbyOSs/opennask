@@ -1036,7 +1036,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         pattern | _ = [&] {
             std::stringstream ss;
-            ss << "MOV, Not implemented or not matched!!! \n"
+            ss << "[pass2] MOV, Not implemented or not matched!!! \n"
                << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
                << ", "
                << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
@@ -1483,7 +1483,7 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
 
     // TODO: ここでシンボルテーブル等をpass1からgetする
     auto pass1 = std::make_unique<Pass1Strategy>();
-    // pass1->Eval(parse_tree);
+    pass1->Eval(parse_tree);
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

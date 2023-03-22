@@ -495,6 +495,21 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        // セグメントレジスタはx86-jsonに記載なし
+        pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
+            return 2; // opcode, modrmなので2byte
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] MOV, Not implemented or not matched!!! \n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << ", "
+               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
         }
     );
 
