@@ -50,6 +50,7 @@ void TParaToken::SetAttribute() {
     std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
     std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
     std::regex registers64(R"(RAX|RBX|RCX|RDX)");
+    // セグメントレジスタは16bitであるがx86_64.jsonに記載がないため、特殊扱いする
     std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
 
     if (std::regex_match(_token_string, registers8)) {
@@ -61,7 +62,7 @@ void TParaToken::SetAttribute() {
     } else if (std::regex_match(_token_string, registers64)) {
         _attr = TIdentiferAttribute::ttReg64;
     } else if (std::regex_match(_token_string, segment_registers)) {
-        _attr = TIdentiferAttribute::ttSegReg;
+        _attr = TIdentiferAttribute::ttSreg;
     } else if (IsImmediate()) {
         _attr = TIdentiferAttribute::ttImm; // 即値
     } else if (IsIdentifier()) {

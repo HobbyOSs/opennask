@@ -394,33 +394,33 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     );
 
     // cat json-x86-64/x86_64.json | \
-    // jq -r '.instructions["MOV"].forms[] | [.operands[0].type, .operands[1].type ] | @tsv'
+    // jq -r '.instructions["MOV"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // -- パターンは25個ある
-    // r8      imm8
-    // r8      r8
-    // r8      m8
-    // r16     imm16
-    // r16     r16
-    // r16     m16
-    // eax     moffs32
-    // r32     imm32
-    // r32     r32
-    // r32     m32
-    // rax     moffs64
-    // r64     imm32
-    // r64     imm64
-    // r64     r64
-    // r64     m64
-    // m8      imm8
-    // m8      r8
-    // m16     imm16
-    // m16     r16
-    // m32     imm32
-    // m32     r32
-    // m64     imm32
-    // m64     r64
-    // moffs32 eax
-    // moffs64 rax
+    // C6      r8      imm8
+    // 88      r8      r8
+    // 8A      r8      m8
+    // C7      r16     imm16
+    // 89      r16     r16
+    // 8B      r16     m16
+    // A1      eax     moffs32
+    // C7      r32     imm32
+    // 89      r32     r32
+    // 8B      r32     m32
+    // A1      rax     moffs64
+    // C7      r64     imm32
+    // B8      r64     imm64
+    // 89      r64     r64
+    // 8B      r64     m64
+    // C6      m8      imm8
+    // 88      m8      r8
+    // C7      m16     imm16
+    // 89      m16     r16
+    // C7      m32     imm32
+    // 89      m32     r32
+    // C7      m64     imm32
+    // 89      m64     r64
+    // A3      moffs32 eax
+    // A3      moffs64 rax
     auto inst = iset->instructions().at("MOV");
 
     uint32_t l = match(operands)(
