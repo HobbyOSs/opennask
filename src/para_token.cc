@@ -18,10 +18,21 @@ TParaToken::TParaToken(void) {
     _type = ttEmpty;
 }
 
-TParaToken::TParaToken(const string& token_string, TTokenType type) {
+TParaToken::TParaToken(const string& token_string,
+                       TTokenType type) {
+
     _token_string = token_string;
     _type = type;
     SetAttribute();
+}
+
+TParaToken::TParaToken(const string& token_string,
+                       TTokenType type,
+                       TIdentiferAttribute attr) {
+
+    _token_string = token_string;
+    _type = type;
+    SetAttribute(attr);
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
@@ -47,6 +58,8 @@ void TParaToken::SetAttribute() {
         _attr = TIdentiferAttribute::ttReg16;
     } else if (std::regex_match(_token_string, registers32)) {
         _attr = TIdentiferAttribute::ttReg32;
+    } else if (std::regex_match(_token_string, registers64)) {
+        _attr = TIdentiferAttribute::ttReg64;
     } else if (std::regex_match(_token_string, segment_registers)) {
         _attr = TIdentiferAttribute::ttSegReg;
     } else if (IsImmediate()) {

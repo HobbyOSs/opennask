@@ -425,76 +425,76 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttMem16, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem8, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem64, _, TParaToken::ttImm, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
-            return inst.get_output_size(mnemonic_args[0], mnemonic_args[1]);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         }
     );
 
@@ -556,8 +556,32 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
         indirect_addr_exp->exp_->accept(this);
     }
     // [SI] のような間接アドレス表現を読み取る
+    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
+    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
+    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
+    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
+
     TParaToken t = this->ctx.top();
-    t.SetAttribute(TParaToken::ttMem);
+    if (std::regex_match(t.AsString(), registers8)) {
+        t.SetAttribute(TParaToken::ttMem8);
+    } else if (std::regex_match(t.AsString(), registers16)) {
+        t.SetAttribute(TParaToken::ttMem16);
+    } else if (std::regex_match(t.AsString(), registers32)) {
+        t.SetAttribute(TParaToken::ttMem32);
+    } else if (std::regex_match(t.AsString(), registers64)) {
+      t.SetAttribute(TParaToken::ttMem64);
+    } else if (t.IsHex()) {
+        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+            pattern | _ = TParaToken::ttMem64
+        );
+        t.SetAttribute(attr);
+    } else {
+        t.SetAttribute(TParaToken::ttMem);
+    }
+
     this->ctx.pop();
     this->ctx.push(t);
 }

@@ -23,6 +23,7 @@ public:
 
     // LOC(location of counter)
     uint32_t loc = 0;
+    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
     // Pass1のシンボルテーブル, リテラルテーブル
     std::map<std::string, uint32_t> sym_table;
     std::map<std::string, uint32_t> lit_table;

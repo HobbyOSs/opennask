@@ -810,7 +810,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0x88 /r	MOV r/m8   , r8
         // REX   + 0x88 /r	MOV r/m8   , r8
         //
-        pattern | ds(TParaToken::ttMem , TParaToken::ttReg8, _ != "AL") = [&] {
+        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16) , TParaToken::ttReg8, _ != "AL") = [&] {
             const std::string dst_mem = "[" + mnemonic_args[0].AsString() + "]";
             const std::string src_reg = mnemonic_args[1].AsString();
 
@@ -831,7 +831,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0x8B /r	MOV r16    , r/m16
         //         0x8B /r	MOV r32    , r/m32
         // REX.W + 0x8B /r	MOV r64    , r/m64
-        pattern | ds(TParaToken::ttReg8 , TParaToken::ttMem, _) = [&] {
+        pattern | ds(TParaToken::ttReg8 , or_(TParaToken::ttMem8, TParaToken::ttMem16), _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -840,7 +840,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem, _) = [&] {
+        pattern | ds(TParaToken::ttReg16, TParaToken::ttMem16, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -849,7 +849,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {base, modrm};
             return b;
         },
-        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem, _) = [&] {
+        pattern | ds(TParaToken::ttReg32, TParaToken::ttMem32, _) = [&] {
             const std::string src_mem = "[" + mnemonic_args[1].AsString() + "]";
             const std::string dst_reg = mnemonic_args[0].AsString();
 
@@ -894,7 +894,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         //         0xA3	    MOV moffs16, AX
         //		   0xA3		MOV moffs32, EAX
         // REX.W + 0xA3		MOV moffs64, RAX
-        pattern | ds(TParaToken::ttMem, TParaToken::ttReg8, "AL") = [&] {
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttReg8, "AL") = [&] {
 
             const uint8_t base = 0xa2;
             std::vector<uint8_t> b = {base};
@@ -902,7 +902,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(addr.begin(), addr.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem, TParaToken::ttReg16, "AX") = [&] {
+        pattern | ds(TParaToken::ttMem16, TParaToken::ttReg16, "AX") = [&] {
 
             const uint8_t base = 0xa3;
             std::vector<uint8_t> b = {base};
@@ -910,7 +910,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::copy(addr.begin(), addr.end(), std::back_inserter(b));
             return b;
         },
-        pattern | ds(TParaToken::ttMem, TParaToken::ttReg32, "EAX") = [&] {
+        pattern | ds(TParaToken::ttMem32, TParaToken::ttReg32, "EAX") = [&] {
 
             const uint8_t base = 0xa3;
             std::vector<uint8_t> b = {base};
@@ -1035,7 +1035,14 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return b;
         },
         pattern | _ = [&] {
-            throw std::runtime_error("MOV, Not implemented or not matched!!!");
+            std::stringstream ss;
+            ss << "MOV, Not implemented or not matched!!! \n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << ", "
+               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
             return std::vector<uint8_t>();
         }
     );
@@ -1150,8 +1157,32 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
         indirect_addr_exp->exp_->accept(this);
     }
     // [SI] のような間接アドレス表現を読み取る
+    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
+    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
+    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
+    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
+
     TParaToken t = this->ctx.top();
-    t.SetAttribute(TParaToken::ttMem);
+    if (std::regex_match(t.AsString(), registers8)) {
+        t.SetAttribute(TParaToken::ttMem8);
+    } else if (std::regex_match(t.AsString(), registers16)) {
+        t.SetAttribute(TParaToken::ttMem16);
+    } else if (std::regex_match(t.AsString(), registers32)) {
+        t.SetAttribute(TParaToken::ttMem32);
+    } else if (std::regex_match(t.AsString(), registers64)) {
+      t.SetAttribute(TParaToken::ttMem64);
+    } else if (t.IsHex()) {
+        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
+            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+            pattern | _ = TParaToken::ttMem64
+        );
+        t.SetAttribute(attr);
+    } else {
+        t.SetAttribute(TParaToken::ttMem);
+    }
+
     this->ctx.pop();
     this->ctx.push(t);
 }

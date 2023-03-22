@@ -117,6 +117,50 @@ TEST_F(ExpSuite, ImmExp)
     }
 }
 
+// テストデータクラス
+struct IndirectAddrExpParam {
+    const std::string token;
+    const TParaToken::TIdentiferAttribute expected;
+
+    IndirectAddrExpParam(
+        const std::string& token,
+        const TParaToken::TIdentiferAttribute expected
+    ):
+        token(token), expected(expected) {}
+};
+
+void PrintTo(const IndirectAddrExpParam& param, ::std::ostream* os) {
+    *os << param.token
+        << " = "
+        << TParaToken::TIAttributeNames[param.expected];
+}
+
+class IndirectAddrExpTest : public testing::TestWithParam<IndirectAddrExpParam> {};
+
+TEST_P(IndirectAddrExpTest, IndirectAddrExpTest) {
+    const auto p = GetParam();
+
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
+    auto identFactor = IdentFactor(p.token); // 前後の[,]は保持しない
+    auto immExp = ImmExp(identFactor.clone());
+    auto indirectAddrExp = IndirectAddrExp(immExp.clone());
+
+    d->visitIndirectAddrExp(&indirectAddrExp);
+    EXPECT_EQ(p.token, d->ctx.top().AsString());
+    EXPECT_EQ(p.expected, d->ctx.top().AsAttr());
+    d->ctx.pop();
+}
+
+INSTANTIATE_TEST_SUITE_P(ExpSuite, IndirectAddrExpTest,
+    testing::Values(
+        IndirectAddrExpParam("AL", TParaToken::ttMem8),
+        IndirectAddrExpParam("AX", TParaToken::ttMem16),
+        IndirectAddrExpParam("EAX", TParaToken::ttMem32),
+        IndirectAddrExpParam("RAX", TParaToken::ttMem64)
+    )
+);
+
+
 TEST_F(ExpSuite, ArithmeticOperations)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
@@ -199,6 +243,28 @@ TEST_F(ExpSuite, SimpleMnemonic)
     EXPECT_EQ(3, d->binout_container.size());
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
+
+TEST_F(ExpSuite, MovWithBracket)
+{
+    GTEST_SKIP(); // TODO: まだ機能しない
+
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
+    auto expected = std::vector<uint8_t>{0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08};
+    std::stringstream ss;
+    ss << u8R"##(
+# [BITS 32]
+# [INSTRSET "i486p"]
+
+MOV ECX,[ESP+4]
+MOV AL,[ESP+8]
+)##";
+
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
+    EXPECT_EQ(8, d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+}
+
 
 TEST_F(ExpSuite, DeclareStmt)
 {

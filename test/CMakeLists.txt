@@ -75,6 +75,7 @@ gtest_discover_tests(modrmtest)
 set(x86_table_test_SRCS
   x86_table_test.cpp
   ../src/x86.cc
+  ../src/demangle.cpp
   ../src/para_token.cc)
 
 add_executable(x86_table_test ${x86_table_test_SRCS})
