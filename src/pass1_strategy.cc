@@ -196,7 +196,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     if (it != funcs.end()) {
         it->second(mnemonic_args);
     } else {
-        throw std::runtime_error(opcode + " is not implemented!!!");
+        throw std::runtime_error("[pass1] " + opcode + " is not implemented!!!");
     }
 }
 
@@ -424,16 +424,16 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     auto inst = iset->instructions().at("MOV");
 
     uint32_t l = match(operands)(
-        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
+        pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
@@ -445,7 +445,7 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttReg32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
@@ -457,7 +457,7 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg64, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttReg64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
@@ -466,25 +466,25 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttMem8, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttMem32, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttMem64, _, TParaToken::ttImm, _) = [&] {
+        pattern | ds(TParaToken::ttMem64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
@@ -503,6 +503,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | _ = [&] {
             std::stringstream ss;
             ss << "[pass1] MOV, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << ", "
+               << mnemonic_args[1].AsString()
+               << "\n"
                << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
                << ", "
                << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
@@ -623,7 +627,7 @@ void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
         pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
         pattern | "DWORD" = [&]{ right.SetAttribute(TParaToken::ttMem32); },
         pattern | _ = [&] {
-            throw std::runtime_error("datatype, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass1] datatype, Not implemented or not matched!!!");
         }
     );
 
