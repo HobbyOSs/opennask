@@ -179,20 +179,22 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        // 疑似命令
         std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Pass1Strategy::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Pass1Strategy::processDD, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
+        // x86命令
         // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
         std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
+        std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
     };
 
-    // TODO: それぞれのオペコードの場合のPass1の動作を実装する
     const std::string opcode = type(*mnemonic_stmt->opcode_);
     funcs_type::iterator it = funcs.find(opcode);
 
@@ -599,10 +601,39 @@ void Pass1Strategy::processHLT() {
 }
 
 void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("INT");
+
+    uint32_t l = match(operands)(
+        pattern | ds(_, "3") = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] INT, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << ", "
+               << mnemonic_args[1].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << ", "
+               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+
+    loc += l;
+    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
