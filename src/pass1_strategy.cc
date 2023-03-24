@@ -186,6 +186,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
         // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
         std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
@@ -633,16 +634,19 @@ void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    // rel8の場合instructionのsizeは合計2
+    // rel32の場合instructionのsizeは合計5
+    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
+    uint32_t l = 2;
+
+    loc += l;
+    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     // rel8の場合instructionのsizeは合計2
     // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理するどちらになるかはpass2で判断する
+    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
     uint32_t l = 2;
 
     loc += l;
