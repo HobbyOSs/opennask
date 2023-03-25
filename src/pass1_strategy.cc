@@ -237,8 +237,7 @@ void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
-
-    // cat json-x86-64/x86_64.json |                                    \
+    // cat json-x86-64/x86_64.json | \
     // jq -r '.instructions["ADD"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // --
     // 04      al      imm8
@@ -398,8 +397,8 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
-
-    // cat src/json-x86-64/x86_64.json | jq -r '.instructions["CMP"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["CMP"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // 3C      al      imm8
     // 80      r8      imm8
     // 38      r8      r8
@@ -601,6 +600,7 @@ void Pass1Strategy::processHLT() {
 }
 
 void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
+
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
         mnemonic_args[0].AsString()
@@ -610,10 +610,10 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     uint32_t l = match(operands)(
         pattern | ds(_, "3") = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return inst.get_output_size(bit_mode, {mnemonic_args[0]});
         },
         pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return inst.get_output_size(bit_mode, {mnemonic_args[0]});
         },
         pattern | _ = [&] {
             std::stringstream ss;

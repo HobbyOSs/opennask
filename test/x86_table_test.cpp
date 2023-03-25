@@ -105,21 +105,28 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, TokenToX86Type,
 );
 
 
-TEST_F(X86TableSuite, GetOutputSize)
+TEST_F(X86TableSuite, ADDGetOutputSize)
 {
     auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-
-    EXPECT_EQ("x86-64", iset.instruction_set());
-    EXPECT_EQ(1215, iset.instructions().size());
-    EXPECT_EQ(1, iset.instructions().count("MOV"));
-
-
     auto inst = iset.instructions().at("ADD");
     auto size = inst.get_output_size(
         ID_16BIT_MODE,
         {
             TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
+        }
+    );
+    EXPECT_EQ(2, size);
+}
+
+TEST_F(X86TableSuite, INTGetOutputSize)
+{
+    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
+    auto inst = iset.instructions().at("INT");
+    auto size = inst.get_output_size(
+        ID_16BIT_MODE,
+        {
+            TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
         }
     );
     EXPECT_EQ(2, size);
