@@ -27,6 +27,8 @@ public:
     // Pass1のシンボルテーブル, リテラルテーブル
     std::map<std::string, uint32_t> sym_table;
     std::map<std::string, uint32_t> lit_table;
+    // EQUで設定されたマクロ情報
+    std::map<std::string, TParaToken> equ_map;
     // x86命令セット
     std::unique_ptr<x86_64::InstructionSet> iset;
 

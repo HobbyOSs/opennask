@@ -17,6 +17,7 @@ Pass1Strategy::Pass1Strategy() {
 
     sym_table = std::map<std::string, uint32_t>{};
     lit_table = std::map<std::string, uint32_t>{};
+    equ_map = std::map<std::string, TParaToken>{};
     loc = 0;
     iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
 }
@@ -24,6 +25,7 @@ Pass1Strategy::Pass1Strategy() {
 Pass1Strategy::~Pass1Strategy() {
     sym_table.clear();
     lit_table.clear();
+    equ_map.clear();
 }
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
@@ -145,7 +147,7 @@ void Pass1Strategy::visitDeclareStmt(DeclareStmt *declare_stmt) {
     this->ctx.pop();
 
     log()->debug("declare {} = {}", key.AsString(), value.AsString());
-    //equ_map[key.AsString()] = value;
+    equ_map[key.AsString()] = value;
 }
 
 void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -1147,14 +1149,13 @@ void Pass1Strategy::visitString(String x) {
 }
 
 void Pass1Strategy::visitIdent(Ident x) {
-    // TODO: ラベルの変数定義を先に作っておく必要がありそう
-    // if (equ_map.count(x) > 0) {
-    //     // 変数定義があれば展開する
-    //     log()->debug("EQU {} = {}", x, equ_map[x].AsString());
-    //     TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
-    //     this->ctx.push(t);
-    //     return;
-    // }
+    if (equ_map.count(x) > 0) {
+        // 変数定義があれば展開する
+        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
+        this->ctx.push(t);
+        return;
+    }
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

@@ -34,7 +34,7 @@ private:
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
-    // EQUで設定された変数情報
+    // EQUで設定されたマクロ情報
     static std::map<std::string, TParaToken> equ_map;
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
