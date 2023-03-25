@@ -53,7 +53,7 @@ public:
         ttReg16,
         ttReg32,
         ttReg64,
-        ttSegReg,
+        ttSreg,
         ttMem,
         ttMem8,
         ttMem16,
@@ -62,6 +62,9 @@ public:
         ttAcc,
         ttImm,
         ttLabel,
+        ttRel8,
+        ttRel16,
+        ttRel32,
         ttAttrUnknown,
     };
 
@@ -71,7 +74,7 @@ public:
         "ttReg16",
         "ttReg32",
         "ttReg64",
-        "ttSegReg",
+        "ttSreg",
         "ttMem",
         "ttMem8",
         "ttMem16",
@@ -80,6 +83,9 @@ public:
         "ttAcc",
         "ttImm",
         "ttLabel",
+        "ttRel8",
+        "ttRel16",
+        "ttRel32",
         "ttAttrUnknown",
     };
 

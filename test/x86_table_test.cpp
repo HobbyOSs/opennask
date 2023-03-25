@@ -12,7 +12,6 @@ class X86TableSuite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     X86TableSuite() {
-        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     // 試験終了時に一回だけ実行
@@ -46,7 +45,7 @@ TEST_F(X86TableSuite, CheckJsonSchema)
             jsoncons::decode_json<InstructionSet>(std::string(X86_64_JSON));
 
         EXPECT_EQ("x86-64", iset.instruction_set());
-        EXPECT_EQ(1215, iset.instructions().size());
+        EXPECT_EQ(1216, iset.instructions().size());
         EXPECT_EQ(1, iset.instructions().count("ADC"));
         EXPECT_EQ("Add with Carry", iset.instructions().at("ADC").summary());
 
@@ -105,15 +104,9 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, TokenToX86Type,
 );
 
 
-TEST_F(X86TableSuite, GetOutputSize)
+TEST_F(X86TableSuite, ADDGetOutputSize)
 {
     auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-
-    EXPECT_EQ("x86-64", iset.instruction_set());
-    EXPECT_EQ(1215, iset.instructions().size());
-    EXPECT_EQ(1, iset.instructions().count("MOV"));
-
-
     auto inst = iset.instructions().at("ADD");
     auto size = inst.get_output_size(
         ID_16BIT_MODE,
@@ -123,4 +116,30 @@ TEST_F(X86TableSuite, GetOutputSize)
         }
     );
     EXPECT_EQ(2, size);
+}
+
+TEST_F(X86TableSuite, INTGetOutputSize)
+{
+    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
+    auto inst = iset.instructions().at("INT");
+    auto size = inst.get_output_size(
+        ID_16BIT_MODE,
+        {
+            TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
+        }
+    );
+    EXPECT_EQ(2, size);
+}
+
+TEST_F(X86TableSuite, CALLGetOutputSize)
+{
+    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
+    auto inst = iset.instructions().at("CALL");
+    auto size = inst.get_output_size(
+        ID_16BIT_MODE,
+        {
+            TParaToken("waitkbdout", TParaToken::ttIdentifier, TParaToken::ttRel32)
+        }
+    );
+    EXPECT_EQ(5, size);
 }

@@ -10,7 +10,7 @@ class Day03Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day03Suite() {
-        auto logger = spdlog::stdout_color_st("opennask");
+        //spdlog::set_level(spdlog::level::debug);
     }
 
     // 試験終了時に一回だけ実行

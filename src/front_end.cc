@@ -861,7 +861,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8C /r	MOV r/m16  , Sreg
         // REX.W + 0x8C /r	MOV r/m16  , Sreg
-        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSegReg, _) = [&] {
+        pattern | ds(TParaToken::ttReg16 , TParaToken::ttSreg, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -873,7 +873,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         //         0x8E /r	MOV Sreg   , r/m16
         // REX.W + 0x8E /r	MOV Sreg   , r/m64
-        pattern | ds(TParaToken::ttSegReg , _, _) = [&] {
+        pattern | ds(TParaToken::ttSreg , _, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
 
@@ -1036,7 +1036,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         pattern | _ = [&] {
             std::stringstream ss;
-            ss << "MOV, Not implemented or not matched!!! \n"
+            ss << "[pass2] MOV, Not implemented or not matched!!! \n"
                << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
                << ", "
                << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
@@ -1483,7 +1483,7 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
 
     // TODO: ここでシンボルテーブル等をpass1からgetする
     auto pass1 = std::make_unique<Pass1Strategy>();
-    // pass1->Eval(parse_tree);
+    pass1->Eval(parse_tree);
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

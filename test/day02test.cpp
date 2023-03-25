@@ -11,7 +11,6 @@ class Day02Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day02Suite() {
-        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     // 試験終了時に一回だけ実行
@@ -105,11 +104,6 @@ msg:
     auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
-
-    // TODO: pass1を実装したら外す
-    //auto pass1 = std::make_unique<Pass1Strategy>();
-    //pass1->Eval(pt.get());
-    //EXPECT_EQ(1474692, pass1->loc);
 
     std::vector<uint8_t> expected = {};
     std::vector<uint8_t> resb18(18, 0);

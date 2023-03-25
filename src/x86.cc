@@ -26,7 +26,11 @@ namespace x86_64 {
           pattern | TParaToken::ttMem32 = [&] { return "m32"; },
           pattern | TParaToken::ttMem64 = [&] { return "m64"; },
           pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+          pattern | TParaToken::ttRel8  = [&] { return "rel8"; },
+          pattern | TParaToken::ttRel16 = [&] { return "rel16"; },
+          pattern | TParaToken::ttRel32 = [&] { return "rel32"; },
           pattern | TParaToken::ttImm   = [&] { return "imm"; },
+          pattern | TParaToken::ttLabel = [&] { return "imm"; },
           pattern | _ = [&] {
               throw std::runtime_error(
                   operand->to_string() + " Not implemented or not matched!!!"
@@ -67,10 +71,6 @@ namespace x86_64 {
 
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
 
-        for (int i = 0; i < tokens.size(); i++) {
-            std::cout << (tokens.begin() + i)->AsString() << std::endl;
-        }
-
         auto it = std::find_if(forms_.begin(), forms_.end(),
                                [&](InstructionForm &form) {
                                if (!form.operands().has_value()) {
@@ -82,10 +82,17 @@ namespace x86_64 {
                                    return false;
                                }
 
-                               bool detect = true;
+                               bool detect = false;
                                for (int i = 0; i < tokens.size(); i++) {
-                                   if ( token_to_x86_type(tokens.begin() + i) != operands[i].type()) {
-                                       detect = false;
+
+                                   // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
+                                   auto actual_token_type = token_to_x86_type(tokens.begin() + i);
+                                   auto table_token_type = operands[i].type();
+
+                                   if (table_token_type.size() >= actual_token_type.size() &&
+                                       std::equal(std::begin(actual_token_type), std::end(actual_token_type), std::begin(table_token_type))) {
+
+                                       detect = true;
                                        break;
                                    }
                                }
@@ -95,14 +102,6 @@ namespace x86_64 {
         if (it != forms_.end()) {
             auto& found_form = *it;
             auto encodings = found_form.encodings();
-
-            std::cout << "type(found_form) -> " << type(found_form)
-                      << " \n"
-                      << " ** -> "
-                      << encodings[0].get_output_size(mode)
-                      << " "
-                      << std::endl;
-
             const uint32_t size = encodings[0].get_output_size(mode);
             return size;
         }
