@@ -137,7 +137,7 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitConfigStmt: args = {}", t.to_string());
+    log()->debug("[pass2] visitConfigStmt: args = {}", t.to_string());
 }
 
 void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
@@ -145,7 +145,7 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitLabelStmt: args = {}", t.to_string());
+    log()->debug("[pass2] visitLabelStmt: args = {}", t.to_string());
 }
 
 
@@ -161,7 +161,7 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
     TParaToken value = this->ctx.top();
     this->ctx.pop();
 
-    log()->debug("declare {} = {}", key.AsString(), value.AsString());
+    log()->debug("[pass2] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
 }
 
@@ -190,7 +190,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
                    std::back_inserter(debug_args),
                    [](TParaToken x) { return "{ " + x.to_string() + " }"; });
 
-    log()->debug("mnemonic_args=[{}]", this->join(debug_args, ","));
+    log()->debug("[pass2] mnemonic_args=[{}]", this->join(debug_args, ","));
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -253,7 +253,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             this->binout_container.push_back(e.AsInt());
@@ -399,7 +399,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
         // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
 
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
             std::string label = arg.AsString();
 
             if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -438,7 +438,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     std::string dst = mnemonic_args[0].AsString();
-    log()->debug("processCMP dst={}", dst);
+    log()->debug("[pass2] processCMP dst={}", dst);
 
     std::vector<uint8_t> machine_codes = match(operands)(
         // 0x3C ib		CMP AL, imm8		imm8をALと比較します
@@ -526,7 +526,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             uint16_t word = e.AsInt();
@@ -546,7 +546,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             uint32_t dword = e.AsLong();
@@ -571,19 +571,19 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
     const std::string suffix = "-$";
 
     if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
-        log()->debug("type: {}, value: {}", type(arg), arg.to_string());
+        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
         auto resb_size = range.substr(0, range.length() - suffix.length());
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
         std::vector<uint8_t> resb(resb_token.AsLong() - dollar_position - binout_container.size(), 0);
-        log()->debug("padding upto: {}(={}), current: {}",
+        log()->debug("[pass2] padding upto: {}(={}), current: {}",
                      resb_token.AsString(), resb_token.AsLong(), binout_container.size());
         binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
 
     std::vector<uint8_t> resb(arg.AsLong(), 0);
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
@@ -597,7 +597,7 @@ void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     binout_container.push_back(0xcd);
     binout_container.push_back(arg.AsInt());
 }
@@ -606,7 +606,7 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -615,7 +615,7 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x73);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -623,7 +623,7 @@ void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -632,7 +632,7 @@ void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x72);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -640,7 +640,7 @@ void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -649,7 +649,7 @@ void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x76);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -657,7 +657,7 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -666,7 +666,7 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x72);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -674,7 +674,7 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -683,7 +683,7 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x74);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x74, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x74, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -726,7 +726,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         },
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
             std::string label = arg.AsString();
 
             if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -735,7 +735,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 LabelJmp::store_label_src(label, label_src_list, binout_container);
                 binout_container.push_back(0xeb);
                 binout_container.push_back(0x00);
-                log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+                log()->debug("[pass2] bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
             }
 
             return std::vector<uint8_t>();
@@ -757,7 +757,7 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -766,7 +766,7 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x73);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -1060,7 +1060,7 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
     dollar_position = arg.AsLong();
 }
 
@@ -1234,7 +1234,7 @@ void FrontEnd::visitDataTypes(T *t) {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }
 
-    log()->debug("datatype {}", literal);
+    log()->debug("[pass2] datatype {}", literal);
     this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
 }
 
@@ -1369,7 +1369,7 @@ void FrontEnd::visitIdent(Ident x) {
     // TODO: ラベルの変数定義を先に作っておく必要がありそう
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
-        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        log()->debug("[pass2] EQU {} = {}", x, equ_map[x].AsString());
         TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
         this->ctx.push(t);
         return;
@@ -1386,7 +1386,7 @@ void FrontEnd::visitHex(Hex x) {
 void FrontEnd::visitLabel(Label x) {
 
     std::string label = x.substr(0, x.find(":", 0));
-    log()->debug("label='{}' binout_container[{}]",
+    log()->debug("[pass2] label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
     // label: (label_dstと呼ぶ)
@@ -1481,9 +1481,13 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    // TODO: ここでシンボルテーブル等をpass1からgetする
+    // ここでシンボルテーブル等をpass1からgetする
     auto pass1 = std::make_unique<Pass1Strategy>();
     pass1->Eval(parse_tree);
+
+    for (auto entry : pass1->sym_table) {
+        log()->debug("[pass2] symbol_table [{}] = {}({:x})", entry.first, entry.second, entry.second);
+    }
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {
