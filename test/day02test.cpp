@@ -11,7 +11,6 @@ class Day02Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day02Suite() {
-        auto logger = spdlog::stdout_color_st("opennask");
     }
 
     // 試験終了時に一回だけ実行

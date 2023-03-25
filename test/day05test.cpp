@@ -14,6 +14,7 @@ class Day05Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day05Suite() {
+        // TODO: nask_parseに切り替わったら削除
         auto logger = spdlog::stdout_color_st("opennask");
     }
 
