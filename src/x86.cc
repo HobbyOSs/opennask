@@ -26,6 +26,9 @@ namespace x86_64 {
           pattern | TParaToken::ttMem32 = [&] { return "m32"; },
           pattern | TParaToken::ttMem64 = [&] { return "m64"; },
           pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+          pattern | TParaToken::ttRel8  = [&] { return "rel8"; },
+          pattern | TParaToken::ttRel16 = [&] { return "rel16"; },
+          pattern | TParaToken::ttRel32 = [&] { return "rel32"; },
           pattern | TParaToken::ttImm   = [&] { return "imm"; },
           pattern | TParaToken::ttLabel = [&] { return "imm"; },
           pattern | _ = [&] {

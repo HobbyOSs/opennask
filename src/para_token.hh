@@ -62,6 +62,9 @@ public:
         ttAcc,
         ttImm,
         ttLabel,
+        ttRel8,
+        ttRel16,
+        ttRel32,
         ttAttrUnknown,
     };
 
@@ -80,6 +83,9 @@ public:
         "ttAcc",
         "ttImm",
         "ttLabel",
+        "ttRel8",
+        "ttRel16",
+        "ttRel32",
         "ttAttrUnknown",
     };
 

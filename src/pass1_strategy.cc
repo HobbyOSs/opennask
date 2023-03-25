@@ -196,6 +196,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
         std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processJC, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
+        std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
@@ -398,10 +399,46 @@ void Pass1Strategy::processCLI() {
 }
 
 void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    // cat json-x86-64/x86_64.json | \
+    // jq -r '.instructions["CALL"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // --
+    // E8      rel32
+    // FF      r64
+    // FF      m64
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("CALL");
+
+    uint32_t l = match(operands)(
+        pattern | ds(TParaToken::ttReg64, _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0]});
+        },
+        pattern | ds(TParaToken::ttMem64, _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0]});
+        },
+        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+            auto token = TParaToken(mnemonic_args[0]);
+            token.SetAttribute(TParaToken::ttRel32);
+            return inst.get_output_size(bit_mode, {token});
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] CALL, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+
+    loc += l;
+    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
