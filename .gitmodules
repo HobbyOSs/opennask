@@ -9,7 +9,7 @@
 	url = https://github.com/gabime/spdlog.git
 [submodule "src/json-x86-64"]
 	path = src/json-x86-64
-	url = https://github.com/astocko/json-x86-64.git
+	url = https://github.com/hangingman/json-x86-64.git
 [submodule "src/incbin"]
 	path = src/incbin
 	url = https://github.com/graphitemaster/incbin.git
