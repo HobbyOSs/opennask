@@ -904,13 +904,12 @@ void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
 void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
     // cat src/json-x86-64/x86_64.json | \
     // jq -r '.instructions["OUT"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
-    // E6      al      imm8
-    // E7      ax      imm8
-    // E7      eax     imm8
+    // E6      imm8    al
+    // E7      imm8    ax
+    // E7      imm8    eax
     // EE      dx      al
     // EF      dx      ax
     // EF      dx      eax
-
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
         mnemonic_args[0].AsString(),
@@ -921,13 +920,13 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
     auto inst = iset->instructions().at("OUT");
 
     uint32_t l = match(operands)(
-        pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _, TParaToken::ttReg8, "AL") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg16, "AX", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _, TParaToken::ttReg16, "AX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttReg32, "EAX", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _, TParaToken::ttReg32, "EAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg8, "AL") = [&] {
