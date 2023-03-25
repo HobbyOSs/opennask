@@ -189,6 +189,8 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
         std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
+        std::make_pair("OpcodesJBE", std::bind(&Pass1Strategy::processJBE, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
         std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
         std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processJC, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
@@ -650,17 +652,23 @@ void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    // rel8の場合instructionのsizeは合計2
+    // rel32の場合instructionのsizeは合計5
+    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
+    uint32_t l = 2;
+
+    loc += l;
+    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    // rel8の場合instructionのsizeは合計2
+    // rel32の場合instructionのsizeは合計5
+    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
+    uint32_t l = 2;
+
+    loc += l;
+    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
@@ -750,80 +758,109 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     auto inst = iset->instructions().at("MOV");
 
     uint32_t l = match(operands)(
+        // C6      r8      imm8
         pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 88      r8      r8
         pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 8A      r8      m8
         pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      r16     imm16
         pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      r16     r16
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 8B      r16     m16
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttMem16, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // A1      eax     moffs32
         pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      r32     imm32
         pattern | ds(TParaToken::ttReg32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      r32     r32
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 8B      r32     m32
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // A1      rax     moffs64
         pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      r64     imm32
+        // B8      r64     imm64
         pattern | ds(TParaToken::ttReg64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      r64     r64
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 8B      r64     m64
         pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C6      m8      imm8
         pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
+        // 88      m8      r8
+        // 実際mem16でも実行できる
+        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      m16     r16
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      m32     imm32
         pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      m32     r32
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // C7      m64     imm32
         pattern | ds(TParaToken::ttMem64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // 89      m64     r64
         pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // A3      moffs32 eax
         pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // A3      moffs64 rax
         pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        // セグメントレジスタはx86-jsonに記載なし
+        // 以下、セグメントレジスタはx86-jsonに記載なし
         pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
+            return 2; // opcode, modrmなので2byte
+        },
+        pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
             return 2; // opcode, modrmなので2byte
         },
         pattern | _ = [&] {
