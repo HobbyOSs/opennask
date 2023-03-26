@@ -23,11 +23,14 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     }
 
     // lexer, parser
-    this->trace_scanning = trace_scanning;
-    this->trace_parsing = trace_parsing;
+    trace_scanning = trace_scanning;
+    trace_parsing = trace_parsing;
 
     // nask
-    this->dollar_position = 0;
+    dollar_position = 0;
+    equ_map = std::map<std::string, TParaToken>{};
+    label_dst_list = LabelDstList{};
+    label_src_list = LabelSrcList{};
 }
 
 FrontEnd::~FrontEnd() {
@@ -38,10 +41,6 @@ FrontEnd::~FrontEnd() {
     label_src_list.clear();
     label_src_list.shrink_to_fit();
 };
-
-std::map<std::string, TParaToken> FrontEnd::equ_map = std::map<std::string, TParaToken>{};
-LabelDstList FrontEnd::label_dst_list = LabelDstList{};
-LabelSrcList FrontEnd::label_src_list = LabelSrcList{};
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
 void FrontEnd::visitProgram(Program *t) {
@@ -729,6 +728,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
             log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
             std::string label = arg.AsString();
 
+            // TODO: pass1のシンボルテーブルを使う
             if (LabelJmp::dst_is_stored(label, label_dst_list)) {
                 LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
             } else {
@@ -737,7 +737,6 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 binout_container.push_back(0x00);
                 log()->debug("[pass2] bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
             }
-
             return std::vector<uint8_t>();
         },
         pattern | _ = [&] {
@@ -1484,8 +1483,9 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
     // ここでシンボルテーブル等をpass1からgetする
     auto pass1 = std::make_unique<Pass1Strategy>();
     pass1->Eval(parse_tree);
+    sym_table = std::move(pass1->sym_table);
 
-    for (auto entry : pass1->sym_table) {
+    for (auto entry : sym_table) {
         log()->debug("[pass2] symbol_table [{}] = {}({:x})", entry.first, entry.second, entry.second);
     }
 

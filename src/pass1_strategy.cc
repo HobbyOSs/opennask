@@ -133,6 +133,7 @@ void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
+
     log()->debug("[pass1] visitLabelStmt: args = {}", t.to_string());
 }
 
@@ -211,15 +212,15 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         throw std::runtime_error("[pass1] " + opcode + " is not implemented!!!");
     }
 
-    auto args_iter = std::find_if(mnemonic_args.begin(), mnemonic_args.end(),
-                           [&](TParaToken &mnemonic_arg) {
-                           return mnemonic_arg.AsAttr() == TParaToken::ttLabel;
-                           });
-    if (args_iter != mnemonic_args.end()) {
-        // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
-        auto& found_label = *args_iter;
-        sym_table[found_label.AsString()] = loc;
-    }
+    //auto args_iter = std::find_if(mnemonic_args.begin(), mnemonic_args.end(),
+    //                       [&](TParaToken &mnemonic_arg) {
+    //                       return mnemonic_arg.AsAttr() == TParaToken::ttLabel;
+    //                       });
+    //if (args_iter != mnemonic_args.end()) {
+    //    // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
+    //    auto& found_label = *args_iter;
+    //    sym_table[found_label.AsString()] = loc;
+    //}
 
     func_iter->second(mnemonic_args);
 }
@@ -1267,6 +1268,10 @@ void Pass1Strategy::visitHex(Hex x) {
 void Pass1Strategy::visitLabel(Label x) {
 
     std::string label = x.substr(0, x.find(":", 0));
+
+    // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
+    sym_table[label] = loc;
+
     // LabelJmp::store_label_dst(label, label_dst_list, binout_container);
     // LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
 
