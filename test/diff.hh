@@ -10,7 +10,6 @@
 #include <gtest/gtest.h>
 #include "diff-match-patch-cpp-stl/diff_match_patch.h"
 
-
 #define RED "\e[0;31m"
 #define GRN "\e[0;32m"
 #define CYN "\e[0;36m"
@@ -97,11 +96,31 @@ std::string diff(std::vector<uint8_t> expected, std::vector<uint8_t> actual) {
     return diff_pretty_ansi(diffs);
 }
 
-::testing::AssertionResult checkTextF(bool isSuccess, const char* msg) {
-    if(isSuccess)
+template<typename T>
+std::vector<T> slice(std::vector<T> const &v, int m, int n) {
+    auto first = v.cbegin() + m;
+    auto last = v.cbegin() + n + 1;
+
+    std::vector<T> vec(first, last);
+    return vec;
+};
+
+// exprN: マクロに与えた式
+// valN: マクロに与えられた式の値
+::testing::AssertionResult checkTextF(const char* expected_name,
+                                      const char* actual_name,
+                                      std::vector<uint8_t>& expected,
+                                      std::vector<uint8_t>& actual) {
+
+    if(std::equal(expected.begin(), expected.end(), actual.begin()))
         return ::testing::AssertionSuccess();
 
-    return ::testing::AssertionFailure(::testing::Message(msg));
+    // 差分が有る場合でも最初の300byteまでしか出さない
+    auto expected_slice = slice(expected, 0, 300);
+    auto actual_slice = slice(actual, 0, 300);
+
+    const std::string msg = "[diff]\n" + diff(expected_slice, actual_slice);
+    return ::testing::AssertionFailure(::testing::Message(msg.c_str()));
 }
 
 #endif // ! DIFF_HH

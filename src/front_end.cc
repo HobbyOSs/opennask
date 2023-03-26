@@ -726,18 +726,41 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
             log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-            std::string label = arg.AsString();
 
-            // TODO: pass1のシンボルテーブルを使う
-            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-                LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
-            } else {
-                LabelJmp::store_label_src(label, label_src_list, binout_container);
-                binout_container.push_back(0xeb);
-                binout_container.push_back(0x00);
-                log()->debug("[pass2] bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-            }
-            return std::vector<uint8_t>();
+            std::string label = arg.AsString();
+            auto label_address = sym_table.at(label);
+            std::vector<uint8_t> bytes = {0xeb};
+
+            // pass1のシンボルテーブルを使う
+            auto jmp_offset = label_address - dollar_position - binout_container.size();
+            //log()->debug("[pass2] *** JMP *** binout_container.size() = {}",
+            //             binout_container.size());
+            //log()->debug("[pass2] *** JMP *** label_address = {}, jmp_offset = {}",
+            //             label_address,
+            //             jmp_offset);
+
+            match(static_cast<uint64_t>(jmp_offset))(
+                pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = [&] {
+                    auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+                    log()->debug("[pass2] *** JMP(byte) *** {}", b[0]);
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                },
+                pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = [&] {
+                    auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+                    log()->debug("[pass2] *** JMP(word) *** {}, {}", b[0], b[1]);
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                },
+                pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = [&] {
+                    auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                }
+            );
+
+
+            // かくにん
+            log()->debug("[pass2] *** JMP machine codes ??? *** {}", bytes_to_hex(bytes));
+
+            return bytes;
         },
         pattern | _ = [&] {
             throw std::runtime_error("JMP, Not implemented or not matched!!!");

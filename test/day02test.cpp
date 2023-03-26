@@ -1,16 +1,17 @@
+#include <gtest/gtest.h>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "front_end.hh"
 #include "pass1_strategy.hh"
 #include "demangle.hpp"
-#include "tinyexpr.h"
 #include "spdlog/spdlog.h"
-#include <gtest/gtest.h>
+#include "diff.hh"
 
 class Day02Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day02Suite() {
+        spdlog::set_level(spdlog::level::debug);
     }
 
     // 試験終了時に一回だけ実行
@@ -165,6 +166,6 @@ msg:
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    EXPECT_EQ(expected.size(), d->binout_container.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }

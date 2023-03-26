@@ -10,15 +10,6 @@
 #include <iomanip>
 #include <algorithm>
 
-template<typename T>
-std::vector<T> slice(std::vector<T> const &v, int m, int n) {
-    auto first = v.cbegin() + m;
-    auto last = v.cbegin() + n + 1;
-
-    std::vector<T> vec(first, last);
-    return vec;
-};
-
 class BinUtil {
 
 public:
@@ -32,6 +23,15 @@ public:
 
     const std::string bytes_to_hex(std::vector<uint8_t>& bytes);
     const std::string join(std::vector<std::string>&, const std::string& = "");
+
+    template<typename T>
+    std::vector<T> slice(std::vector<T> const &v, int m, int n) {
+        auto first = v.cbegin() + m;
+        auto last = v.cbegin() + n + 1;
+
+        std::vector<T> vec(first, last);
+        return vec;
+    };
 };
 
 #endif // ! BIN_UTIL_HH
