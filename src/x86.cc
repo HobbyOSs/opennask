@@ -82,21 +82,30 @@ namespace x86_64 {
                                    return false;
                                }
 
-                               bool detect = false;
                                for (int i = 0; i < tokens.size(); i++) {
 
                                    // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
                                    auto actual_token_type = token_to_x86_type(tokens.begin() + i);
                                    auto table_token_type = operands[i].type();
 
+                                   //std::cout << (tokens.begin() + i)->to_string() << std::endl;
+                                   //std::cout << "actual_token_type: "
+                                   //          << actual_token_type
+                                   //          << "\n"
+                                   //          << "table_token_type: "
+                                   //          << table_token_type
+                                   //          << std::endl;
                                    if (table_token_type.size() >= actual_token_type.size() &&
-                                       std::equal(std::begin(actual_token_type), std::end(actual_token_type), std::begin(table_token_type))) {
-
-                                       detect = true;
-                                       break;
+                                       std::equal(std::begin(actual_token_type),
+                                                  std::end(actual_token_type),
+                                                  std::begin(table_token_type))) {
+                                       continue;
                                    }
+
+                                   return false;
                                }
-                               return detect;
+
+                               return true;
                                });
 
         if (it != forms_.end()) {

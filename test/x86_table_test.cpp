@@ -143,3 +143,17 @@ TEST_F(X86TableSuite, CALLGetOutputSize)
     );
     EXPECT_EQ(5, size);
 }
+
+TEST_F(X86TableSuite, MOVGetOutputSize)
+{
+    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
+    auto inst = iset.instructions().at("MOV");
+    auto size = inst.get_output_size(
+        ID_16BIT_MODE,
+        {
+            TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
+            TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
+        }
+    );
+    EXPECT_EQ(2, size);
+}
