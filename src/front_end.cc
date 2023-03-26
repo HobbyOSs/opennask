@@ -688,9 +688,9 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
-    // 0xEB cb	JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
-    // 0xE9 cw	JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
-    // 0xE9 cd	JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xEB cb  JMP rel8   次の命令との相対オフセットだけ相対ショートジャンプする
+    // 0xE9 cw  JMP rel16  次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xE9 cd  JMP rel32  次の命令との相対オフセットだけ相対ニアジャンプする
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
 
@@ -733,21 +733,14 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
             // pass1のシンボルテーブルを使う
             auto jmp_offset = label_address - dollar_position - binout_container.size();
-            //log()->debug("[pass2] *** JMP *** binout_container.size() = {}",
-            //             binout_container.size());
-            //log()->debug("[pass2] *** JMP *** label_address = {}, jmp_offset = {}",
-            //             label_address,
-            //             jmp_offset);
 
             match(static_cast<uint64_t>(jmp_offset))(
                 pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = [&] {
                     auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
-                    log()->debug("[pass2] *** JMP(byte) *** {}", b[0]);
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = [&] {
                     auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
-                    log()->debug("[pass2] *** JMP(word) *** {}, {}", b[0], b[1]);
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = [&] {
@@ -755,10 +748,6 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 }
             );
-
-
-            // かくにん
-            log()->debug("[pass2] *** JMP machine codes ??? *** {}", bytes_to_hex(bytes));
 
             return bytes;
         },
@@ -941,10 +930,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return b;
         },
 
-        //         0xB0+rb	MOV r8     , imm8
-        // REX   + 0xB0+rb	MOV r8     , imm8
-        //         0xB8+rw	MOV r16    , imm16
-        //         0xB8+rd	MOV r32    , imm32
+        //         0xB0+rb  MOV r8     , imm8
+        // REX   + 0xB0+rb  MOV r8     , imm8
+        //         0xB8+rw  MOV r16    , imm16
+        //         0xB8+rd  MOV r32    , imm32
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
@@ -954,14 +943,12 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container);
-                }
-                auto imm = std::array<uint8_t, 1>{0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto jmp_offset = label_address - dollar_position - binout_container.size();
+
+                auto offset = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt8t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -976,14 +963,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm16);
-                }
-                auto imm = std::array<uint8_t, 2>{0x00, 0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto offset = IntAsWord(label_address); // ここは絶対アドレスになるようだ
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt16t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -1000,14 +983,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm32);
-                }
-                auto imm = std::array<uint8_t, 4>{0x00, 0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto offset = LongAsDword(label_address); // ここは絶対アドレスになるようだ
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt32t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
