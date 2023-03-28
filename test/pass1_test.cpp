@@ -55,6 +55,16 @@ TEST_F(Pass1Suite, Helloos3) {
 ; プログラム本体
 
 entry:
+		MOV		AX,0			; レジスタ初期化
+		;MOV		SS,AX
+		;MOV		SP,0x7c00
+		;MOV		DS,AX
+		;MOV		ES,AX
+
+		;MOV		SI,msg
+
+;putloop:
+		;MOV		AL,[SI]
 )";
 
     ss << nask_statements;
@@ -63,8 +73,9 @@ entry:
     auto pass1 = std::make_unique<Pass1Strategy>();
     pass1->Eval(pt.get());
 
-    EXPECT_EQ(31824, pass1->loc);
-    EXPECT_EQ(31824, pass1->sym_table["entry"]); // pass1時点でアドレスが決まる
+    EXPECT_EQ(31824, pass1->sym_table["entry"]);
+    //EXPECT_EQ(31839, pass1->sym_table["putloop"]);
+    EXPECT_EQ(31827, pass1->loc);
 }
 
 TEST_F(Pass1Suite, SymTable) {

@@ -415,7 +415,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
             return std::vector<uint8_t>();
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            throw std::runtime_error("CALL, Not implemented or not matched!!!");
             return std::vector<uint8_t>();
         }
     );
@@ -671,19 +671,40 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
+    // 0x74 0xCB        JE rel8       (ZF=1で)等しい場合ショートジャンプする
+    // 0x0F 0x84 cw/cd  JE rel16/32   (ZF=1で)等しい場合ニアジャンプする
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-    std::string label = arg.AsString();
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x74, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x74);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x74, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> machine_codes = {0x74};
+
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<uint64_t>(jmp_offset))(
+        pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = [&] {
+            // ショートジャンプ
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        },
+        pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = [&] {
+            // ニアジャンプ
+            auto b = IntAsWord(label_address);
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        },
+        pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = [&] {
+            // ニアジャンプ
+            auto b = LongAsDword(label_address);
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {

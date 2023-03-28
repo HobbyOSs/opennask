@@ -52,7 +52,9 @@ namespace x86_64 {
         if (VEX_) {
             output_size += VEX_->get_size();
         }
+
         output_size += opcode_.get_size();
+
         if (ModRM_) {
             output_size += ModRM_->get_size();
         }
@@ -65,8 +67,22 @@ namespace x86_64 {
         if (code_offset_) {
             output_size += code_offset_->size();
         }
-
+;
         return output_size;
+    }
+
+    const Encoding InstructionForm::find_encoding() {
+        if (encodings_.size() == 1) {
+            return encodings_[0];
+        }
+
+        // TODO: MOV r16, imm16という命令は
+        // 0xC7 /0
+        // 0xB8+rw
+        // の２つの機械語が使用可能、とりあえず後者を選んでいる。本当はもっときっちり判定するべき。
+        // * 「0xC7 /0」は、オペランドのうち、第1オペランドがレジスターで、第2オペランドがメモリーやレジスターの場合に使用されます。つまり、第1オペランドがr16で、第2オペランドがimm16の場合には、このオペコードを使用することができる
+        // * 「0xB8+rw」は、オペランドのうち、第1オペランドがレジスターで、第2オペランドが即値の場合に使用される
+        return encodings_[1];
     }
 
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
@@ -110,8 +126,8 @@ namespace x86_64 {
 
         if (it != forms_.end()) {
             auto& found_form = *it;
-            auto encodings = found_form.encodings();
-            const uint32_t size = encodings[0].get_output_size(mode);
+            auto encoding = found_form.find_encoding();
+            const uint32_t size = encoding.get_output_size(mode);
             return size;
         }
 

@@ -212,16 +212,6 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         throw std::runtime_error("[pass1] " + opcode + " is not implemented!!!");
     }
 
-    //auto args_iter = std::find_if(mnemonic_args.begin(), mnemonic_args.end(),
-    //                       [&](TParaToken &mnemonic_arg) {
-    //                       return mnemonic_arg.AsAttr() == TParaToken::ttLabel;
-    //                       });
-    //if (args_iter != mnemonic_args.end()) {
-    //    // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
-    //    auto& found_label = *args_iter;
-    //    sym_table[found_label.AsString()] = loc;
-    //}
-
     func_iter->second(mnemonic_args);
 }
 
@@ -230,15 +220,7 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         opcode_stmt->opcode_->accept(this);
     }
 
-    const std::string opcode = type(*opcode_stmt->opcode_);
-
-    // TODO: それぞれのオペコードの場合のPass1の動作を実装する
-    //funcs_type::iterator it = funcs.find(opcode);
-    //if (it != funcs.end()) {
-    //    it->second();
-    //} else {
-    //    throw std::runtime_error(opcode + " is not implemented!!!");
-    //}
+    // NOP
 }
 
 void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
@@ -818,8 +800,14 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         // 8A      r8      m8
-        pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16), _) = [&] {
+        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
+            // TODO: m16でもOKなのだがx86 tableの検索に引っかからなくなるのでttMem8に変換する.もっといい方法がないか検討
+            auto token = TParaToken(mnemonic_args[1]);
+            token.SetAttribute(TParaToken::ttMem8);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], token});
         },
         // C7      r16     imm16
         pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
