@@ -1044,9 +1044,9 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
         auto attr = match(static_cast<uint64_t>(t.AsLong()))(
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
+            pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
+            pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
             pattern | _ = TParaToken::ttMem64
         );
         t.SetAttribute(attr);

@@ -682,18 +682,18 @@ void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
     std::vector<uint8_t> machine_codes = {0x74};
 
     auto jmp_offset = label_address - dollar_position - binout_container.size();
-    match(static_cast<uint64_t>(jmp_offset))(
-        pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = [&] {
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
             // ショートジャンプ
             auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
             std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
         },
-        pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = [&] {
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
             // ニアジャンプ
             auto b = IntAsWord(label_address);
             std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
         },
-        pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = [&] {
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
             // ニアジャンプ
             auto b = LongAsDword(label_address);
             std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
@@ -754,17 +754,16 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
             // pass1のシンボルテーブルを使う
             auto jmp_offset = label_address - dollar_position - binout_container.size();
-
-            match(static_cast<uint64_t>(jmp_offset))(
-                pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = [&] {
+            match(static_cast<int64_t>(jmp_offset))(
+                pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
                     auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
-                pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = [&] {
+                pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
                     auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
-                pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = [&] {
+                pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
                     auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 }
@@ -1194,10 +1193,10 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers64)) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
+            pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
+            pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
             pattern | _ = TParaToken::ttMem64
         );
         t.SetAttribute(attr);
