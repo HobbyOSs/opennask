@@ -455,6 +455,9 @@ namespace x86_64 {
         {
             return isa_;
         }
+
+        // 複数機械語の出力があり得る場合がたまにある
+        const Encoding find_encoding();
     };
 
     class Instruction {

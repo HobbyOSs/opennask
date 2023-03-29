@@ -23,11 +23,14 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     }
 
     // lexer, parser
-    this->trace_scanning = trace_scanning;
-    this->trace_parsing = trace_parsing;
+    trace_scanning = trace_scanning;
+    trace_parsing = trace_parsing;
 
     // nask
-    this->dollar_position = 0;
+    dollar_position = 0;
+    equ_map = std::map<std::string, TParaToken>{};
+    label_dst_list = LabelDstList{};
+    label_src_list = LabelSrcList{};
 }
 
 FrontEnd::~FrontEnd() {
@@ -38,10 +41,6 @@ FrontEnd::~FrontEnd() {
     label_src_list.clear();
     label_src_list.shrink_to_fit();
 };
-
-std::map<std::string, TParaToken> FrontEnd::equ_map = std::map<std::string, TParaToken>{};
-LabelDstList FrontEnd::label_dst_list = LabelDstList{};
-LabelSrcList FrontEnd::label_src_list = LabelSrcList{};
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
 void FrontEnd::visitProgram(Program *t) {
@@ -137,7 +136,7 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitConfigStmt: args = {}", t.to_string());
+    log()->debug("[pass2] visitConfigStmt: args = {}", t.to_string());
 }
 
 void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
@@ -145,7 +144,7 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitLabelStmt: args = {}", t.to_string());
+    log()->debug("[pass2] visitLabelStmt: args = {}", t.to_string());
 }
 
 
@@ -161,7 +160,7 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
     TParaToken value = this->ctx.top();
     this->ctx.pop();
 
-    log()->debug("declare {} = {}", key.AsString(), value.AsString());
+    log()->debug("[pass2] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
 }
 
@@ -190,7 +189,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
                    std::back_inserter(debug_args),
                    [](TParaToken x) { return "{ " + x.to_string() + " }"; });
 
-    log()->debug("mnemonic_args=[{}]", this->join(debug_args, ","));
+    log()->debug("[pass2] mnemonic_args=[{}]", this->join(debug_args, ","));
 
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
@@ -253,7 +252,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             this->binout_container.push_back(e.AsInt());
@@ -399,7 +398,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
         // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
 
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
             std::string label = arg.AsString();
 
             if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -416,7 +415,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
             return std::vector<uint8_t>();
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            throw std::runtime_error("CALL, Not implemented or not matched!!!");
             return std::vector<uint8_t>();
         }
     );
@@ -438,7 +437,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     std::string dst = mnemonic_args[0].AsString();
-    log()->debug("processCMP dst={}", dst);
+    log()->debug("[pass2] processCMP dst={}", dst);
 
     std::vector<uint8_t> machine_codes = match(operands)(
         // 0x3C ib		CMP AL, imm8		imm8をALと比較します
@@ -526,7 +525,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             uint16_t word = e.AsInt();
@@ -546,7 +545,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
     for (const auto& e : mnemonic_args) {
-        log()->debug("{}", e.to_string());
+        log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
             uint32_t dword = e.AsLong();
@@ -571,19 +570,19 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
     const std::string suffix = "-$";
 
     if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
-        log()->debug("type: {}, value: {}", type(arg), arg.to_string());
+        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
         auto resb_size = range.substr(0, range.length() - suffix.length());
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
         std::vector<uint8_t> resb(resb_token.AsLong() - dollar_position - binout_container.size(), 0);
-        log()->debug("padding upto: {}(={}), current: {}",
+        log()->debug("[pass2] padding upto: {}(={}), current: {}",
                      resb_token.AsString(), resb_token.AsLong(), binout_container.size());
         binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
 
     std::vector<uint8_t> resb(arg.AsLong(), 0);
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
@@ -597,7 +596,7 @@ void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     binout_container.push_back(0xcd);
     binout_container.push_back(arg.AsInt());
 }
@@ -606,7 +605,7 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -615,7 +614,7 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x73);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -623,7 +622,7 @@ void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -632,7 +631,7 @@ void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x72);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -640,7 +639,7 @@ void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -649,7 +648,7 @@ void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x76);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -657,7 +656,7 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -666,32 +665,53 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x72);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
 void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
 
+    // 0x74 0xCB        JE rel8       (ZF=1で)等しい場合ショートジャンプする
+    // 0x0F 0x84 cw/cd  JE rel16/32   (ZF=1で)等しい場合ニアジャンプする
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
-    std::string label = arg.AsString();
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x74, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x74);
-        binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x74, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> machine_codes = {0x74};
+
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            // ショートジャンプ
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            // ニアジャンプ
+            auto b = IntAsWord(label_address);
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            // ニアジャンプ
+            auto b = LongAsDword(label_address);
+            std::copy(b.begin(), b.end(), std::back_inserter(machine_codes));
+        }
+    );
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+    return;
 }
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
-    // 0xEB cb	JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする
-    // 0xE9 cw	JMP rel16	次の命令との相対オフセットだけ相対ニアジャンプする
-    // 0xE9 cd	JMP rel32	次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xEB cb  JMP rel8   次の命令との相対オフセットだけ相対ショートジャンプする
+    // 0xE9 cw  JMP rel16  次の命令との相対オフセットだけ相対ニアジャンプする
+    // 0xE9 cd  JMP rel32  次の命令との相対オフセットだけ相対ニアジャンプする
     using namespace matchit;
     using Attr = TParaToken::TIdentiferAttribute;
 
@@ -726,19 +746,32 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         },
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
+
             std::string label = arg.AsString();
+            auto label_address = sym_table.at(label);
+            std::vector<uint8_t> bytes = {0xeb};
 
-            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-                LabelJmp::update_label_src_offset(label, label_dst_list, 0xeb, binout_container);
-            } else {
-                LabelJmp::store_label_src(label, label_src_list, binout_container);
-                binout_container.push_back(0xeb);
-                binout_container.push_back(0x00);
-                log()->debug("bin[{}] = 0xeb, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-            }
+            // pass1のシンボルテーブルを使う
+            auto jmp_offset = label_address - dollar_position - binout_container.size();
+            match(static_cast<int64_t>(jmp_offset))(
+                pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                    auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                },
+                pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+                    // TODO: ここ本当はニアジャンプじゃないかな...
+                    auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                },
+                pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+                    // TODO: ここ本当はニアジャンプじゃないかな...
+                    auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+                    std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+                }
+            );
 
-            return std::vector<uint8_t>();
+            return bytes;
         },
         pattern | _ = [&] {
             throw std::runtime_error("JMP, Not implemented or not matched!!!");
@@ -757,7 +790,7 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsString());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
 
     if (LabelJmp::dst_is_stored(label, label_dst_list)) {
@@ -766,7 +799,7 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
         LabelJmp::store_label_src(label, label_src_list, binout_container);
         binout_container.push_back(0x73);
         binout_container.push_back(0x00);
-        log()->debug("bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
+        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
     }
 }
 
@@ -919,10 +952,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return b;
         },
 
-        //         0xB0+rb	MOV r8     , imm8
-        // REX   + 0xB0+rb	MOV r8     , imm8
-        //         0xB8+rw	MOV r16    , imm16
-        //         0xB8+rd	MOV r32    , imm32
+        //         0xB0+rb  MOV r8     , imm8
+        // REX   + 0xB0+rb  MOV r8     , imm8
+        //         0xB8+rw  MOV r16    , imm16
+        //         0xB8+rd  MOV r32    , imm32
         pattern | ds(TParaToken::ttReg8 , TParaToken::ttImm, _) = [&] {
             const std::string src = mnemonic_args[0].AsString();
             const std::string dst = mnemonic_args[1].AsString();
@@ -932,14 +965,12 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container);
-                }
-                auto imm = std::array<uint8_t, 1>{0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto jmp_offset = label_address - dollar_position - binout_container.size();
+
+                auto offset = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt8t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -954,14 +985,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm16);
-                }
-                auto imm = std::array<uint8_t, 2>{0x00, 0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto offset = IntAsWord(label_address); // ここは絶対アドレスになるようだ
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt16t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -978,14 +1005,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> b = {opcode};
 
             if (std::get<1>(operands) == TParaToken::ttLabel) {
-                // immがラベルだった場合は後でオフセットを計算する
-                if (LabelJmp::dst_is_stored(dst, label_dst_list)) {
-                    LabelJmp::update_label_src_offset(dst, label_dst_list, opcode, binout_container);
-                } else {
-                    LabelJmp::store_label_src(dst, label_src_list, binout_container, true, imm32);
-                }
-                auto imm = std::array<uint8_t, 4>{0x00, 0x00};
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                std::string label = mnemonic_args[1].AsString();
+                auto label_address = sym_table.at(label);
+                auto offset = LongAsDword(label_address); // ここは絶対アドレスになるようだ
+                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
             } else {
                 auto imm = mnemonic_args[1].AsUInt32t();
                 std::copy(imm.begin(), imm.end(), std::back_inserter(b));
@@ -1060,7 +1083,7 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("type: {}, value: {}", type(arg), arg.AsLong());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
     dollar_position = arg.AsLong();
 }
 
@@ -1172,10 +1195,10 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers64)) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
+            pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
+            pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
             pattern | _ = TParaToken::ttMem64
         );
         t.SetAttribute(attr);
@@ -1234,7 +1257,7 @@ void FrontEnd::visitDataTypes(T *t) {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }
 
-    log()->debug("datatype {}", literal);
+    log()->debug("[pass2] datatype {}", literal);
     this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
 }
 
@@ -1369,7 +1392,7 @@ void FrontEnd::visitIdent(Ident x) {
     // TODO: ラベルの変数定義を先に作っておく必要がありそう
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
-        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        log()->debug("[pass2] EQU {} = {}", x, equ_map[x].AsString());
         TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
         this->ctx.push(t);
         return;
@@ -1386,7 +1409,7 @@ void FrontEnd::visitHex(Hex x) {
 void FrontEnd::visitLabel(Label x) {
 
     std::string label = x.substr(0, x.find(":", 0));
-    log()->debug("label='{}' binout_container[{}]",
+    log()->debug("[pass2] label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
     // label: (label_dstと呼ぶ)
@@ -1481,9 +1504,14 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
         return 17;
     }
 
-    // TODO: ここでシンボルテーブル等をpass1からgetする
+    // ここでシンボルテーブル等をpass1からgetする
     auto pass1 = std::make_unique<Pass1Strategy>();
     pass1->Eval(parse_tree);
+    sym_table = std::move(pass1->sym_table);
+
+    for (auto entry : sym_table) {
+        log()->debug("[pass2] symbol_table [{}] = {}({:x})", entry.first, entry.second, entry.second);
+    }
 
     // Eval開始
     if constexpr (std::is_same_v<T, Program>) {

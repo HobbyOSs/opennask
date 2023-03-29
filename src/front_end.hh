@@ -34,13 +34,17 @@ private:
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
+
     // EQUで設定されたマクロ情報
-    static std::map<std::string, TParaToken> equ_map;
+    // Pass1のシンボルテーブル, リテラルテーブル
+    std::map<std::string, TParaToken> equ_map;
+    std::map<std::string, uint32_t> sym_table;
+
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
     // ラベルによるオフセットの計算をする
-    static LabelDstList label_dst_list;
-    static LabelSrcList label_src_list;
+    LabelDstList label_dst_list;
+    LabelSrcList label_src_list;
 
     FrontEnd(bool trace_scanning, bool trace_parsing);
 

@@ -9,6 +9,9 @@
 using namespace std::placeholders;
 using namespace matchit;
 
+typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
+typedef std::map<std::string, nim_callback> funcs_type;
+
 Pass1Strategy::Pass1Strategy() {
     // spdlog
     if(!spdlog::get("opennask")) {
@@ -122,7 +125,7 @@ void Pass1Strategy::visitConfigStmt(ConfigStmt *config_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitConfigStmt: args = {}", t.to_string());
+    log()->debug("[pass1] visitConfigStmt: args = {}", t.to_string());
 }
 
 void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {
@@ -130,7 +133,8 @@ void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
-    log()->debug("visitLabelStmt: args = {}", t.to_string());
+
+    log()->debug("[pass1] visitLabelStmt: args = {}", t.to_string());
 }
 
 
@@ -146,7 +150,7 @@ void Pass1Strategy::visitDeclareStmt(DeclareStmt *declare_stmt) {
     TParaToken value = this->ctx.top();
     this->ctx.pop();
 
-    log()->debug("declare {} = {}", key.AsString(), value.AsString());
+    log()->debug("[pass1] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
 }
 
@@ -175,10 +179,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
                    std::back_inserter(debug_args),
                    [](TParaToken x) { return "{ " + x.to_string() + " }"; });
 
-    log()->debug("mnemonic_args=[{}]", this->join(debug_args, ","));
-
-    typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
-    typedef std::map<std::string, nim_callback> funcs_type;
+    log()->debug("[pass1] mnemonic_args=[{}]", this->join(debug_args, ","));
 
     funcs_type funcs {
         // 疑似命令
@@ -205,13 +206,13 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
-    funcs_type::iterator it = funcs.find(opcode);
+    funcs_type::iterator func_iter = funcs.find(opcode);
 
-    if (it != funcs.end()) {
-        it->second(mnemonic_args);
-    } else {
+    if (func_iter == funcs.end()) {
         throw std::runtime_error("[pass1] " + opcode + " is not implemented!!!");
     }
+
+    func_iter->second(mnemonic_args);
 }
 
 void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
@@ -219,15 +220,23 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         opcode_stmt->opcode_->accept(this);
     }
 
+    typedef std::function<void()> nim_callback;
+    typedef std::map<std::string, nim_callback> funcs_type;
+
+    funcs_type funcs {
+        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
+        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
+        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
+    };
+
     const std::string opcode = type(*opcode_stmt->opcode_);
 
-    // TODO: それぞれのオペコードの場合のPass1の動作を実装する
-    //funcs_type::iterator it = funcs.find(opcode);
-    //if (it != funcs.end()) {
-    //    it->second();
-    //} else {
-    //    throw std::runtime_error(opcode + " is not implemented!!!");
-    //}
+    funcs_type::iterator it = funcs.find(opcode);
+    if (it != funcs.end()) {
+        it->second();
+    } else {
+        throw std::runtime_error(opcode + " is not implemented!!!");
+    }
 }
 
 void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
@@ -242,7 +251,7 @@ void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
@@ -388,14 +397,13 @@ void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processCLI() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
@@ -438,7 +446,7 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
@@ -583,7 +591,7 @@ void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processDW(std::vector<TParaToken>& mnemonic_args) {
@@ -598,7 +606,7 @@ void Pass1Strategy::processDW(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
@@ -613,7 +621,7 @@ void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
@@ -627,21 +635,20 @@ void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
         loc += resb_token.AsLong();
-        log()->debug("LOC = {}({:x})", loc, loc);
+        log()->debug("[pass1] LOC = {}({:x})", loc, loc);
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
     loc += arg.AsLong();
-    log()->debug("LOC = {}({:x})", loc, loc);
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
     return;
 }
 
 void Pass1Strategy::processHLT() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
@@ -678,7 +685,7 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
@@ -688,7 +695,7 @@ void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
@@ -698,7 +705,7 @@ void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
@@ -708,7 +715,7 @@ void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
@@ -718,7 +725,7 @@ void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
@@ -728,7 +735,7 @@ void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
@@ -738,7 +745,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
@@ -748,7 +755,7 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 2;
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
@@ -807,8 +814,14 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         // 8A      r8      m8
-        pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16), _) = [&] {
+        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
+            // TODO: m16でもOKなのだがx86 tableの検索に引っかからなくなるのでttMem8に変換する.もっといい方法がないか検討
+            auto token = TParaToken(mnemonic_args[1]);
+            token.SetAttribute(TParaToken::ttMem8);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], token});
         },
         // C7      r16     imm16
         pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
@@ -921,21 +934,20 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processNOP() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
     loc = arg.AsLong();
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
@@ -993,7 +1005,7 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 //
@@ -1044,10 +1056,10 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers64)) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint8_t>::max())  = TParaToken::ttMem8,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint16_t>::max()) = TParaToken::ttMem16,
-            pattern | (0U <= _ && _ <= std::numeric_limits<uint32_t>::max()) = TParaToken::ttMem32,
+        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
+            pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
+            pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
             pattern | _ = TParaToken::ttMem64
         );
         t.SetAttribute(attr);
@@ -1106,7 +1118,7 @@ void Pass1Strategy::visitDataTypes(T *t) {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }
 
-    log()->debug("datatype {}", literal);
+    log()->debug("[pass1] datatype {}", literal);
     this->ctx.push(TParaToken(literal, TParaToken::ttKeyword));
 }
 
@@ -1240,7 +1252,7 @@ void Pass1Strategy::visitString(String x) {
 void Pass1Strategy::visitIdent(Ident x) {
     if (equ_map.count(x) > 0) {
         // 変数定義があれば展開する
-        log()->debug("EQU {} = {}", x, equ_map[x].AsString());
+        log()->debug("[pass1] EQU {} = {}", x, equ_map[x].AsString());
         TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
         this->ctx.push(t);
         return;
@@ -1257,6 +1269,10 @@ void Pass1Strategy::visitHex(Hex x) {
 void Pass1Strategy::visitLabel(Label x) {
 
     std::string label = x.substr(0, x.find(":", 0));
+
+    // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
+    sym_table[label] = loc;
+
     // LabelJmp::store_label_dst(label, label_dst_list, binout_container);
     // LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
 
