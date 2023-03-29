@@ -224,9 +224,9 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
-        //std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
+        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
-        //std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
+        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -401,10 +401,9 @@ void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processCLI() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
@@ -939,10 +938,9 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processNOP() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
@@ -1058,7 +1056,7 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers64)) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<uint64_t>(t.AsLong()))(
+        auto attr = match(static_cast<int64_t>(t.AsLong()))(
             pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
             pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
             pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
