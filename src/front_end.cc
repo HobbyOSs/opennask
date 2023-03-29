@@ -760,10 +760,12 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+                    // TODO: ここ本当はニアジャンプじゃないかな...
                     auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+                    // TODO: ここ本当はニアジャンプじゃないかな...
                     auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 }

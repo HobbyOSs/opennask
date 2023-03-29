@@ -220,7 +220,23 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         opcode_stmt->opcode_->accept(this);
     }
 
-    // NOP
+    typedef std::function<void()> nim_callback;
+    typedef std::map<std::string, nim_callback> funcs_type;
+
+    funcs_type funcs {
+        //std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
+        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
+        //std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
+    };
+
+    const std::string opcode = type(*opcode_stmt->opcode_);
+
+    funcs_type::iterator it = funcs.find(opcode);
+    if (it != funcs.end()) {
+        it->second();
+    } else {
+        throw std::runtime_error(opcode + " is not implemented!!!");
+    }
 }
 
 void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
@@ -631,10 +647,9 @@ void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processHLT() {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {

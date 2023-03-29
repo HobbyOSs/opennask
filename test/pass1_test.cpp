@@ -55,16 +55,30 @@ TEST_F(Pass1Suite, Helloos3) {
 ; プログラム本体
 
 entry:
-		MOV		AX,0			; レジスタ初期化
-		;MOV		SS,AX
-		;MOV		SP,0x7c00
-		;MOV		DS,AX
-		;MOV		ES,AX
+		MOV		AX,0
+		MOV		SS,AX
+		MOV		SP,0x7c00
+		MOV		DS,AX
+		MOV		ES,AX
 
-		;MOV		SI,msg
+		MOV		SI,msg
 
-;putloop:
-		;MOV		AL,[SI]
+putloop:
+		MOV		AL,[SI]
+		ADD		SI,1
+		CMP		AL,0
+		JE		fin
+		MOV		AH,0x0e
+		MOV		BX,15
+		INT		0x10
+		JMP		putloop
+
+fin:
+		HLT
+		JMP		fin
+
+msg:
+
 )";
 
     ss << nask_statements;
@@ -74,8 +88,10 @@ entry:
     pass1->Eval(pt.get());
 
     EXPECT_EQ(31824, pass1->sym_table["entry"]);
-    //EXPECT_EQ(31839, pass1->sym_table["putloop"]);
-    EXPECT_EQ(31827, pass1->loc);
+    EXPECT_EQ(31839, pass1->sym_table["putloop"]);
+    EXPECT_EQ(31857, pass1->sym_table["fin"]);
+    EXPECT_EQ(31860, pass1->sym_table["msg"]);
+    EXPECT_EQ(31860, pass1->loc);
 }
 
 TEST_F(Pass1Suite, SymTable) {
