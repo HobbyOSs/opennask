@@ -1,6 +1,5 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
-enable_testing()
 project(root CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -27,8 +26,9 @@ add_subdirectory(projects)
 #
 OPTION(USE_GTEST "Enable feature to test with googletest (Dev)" ON)
 if (USE_GTEST)
-  add_definitions(-DUSE_GTEST)
   add_subdirectory(googletest)
+  enable_testing()
+
   add_subdirectory(backward-cpp)
   add_subdirectory(test)
   add_subdirectory(data)

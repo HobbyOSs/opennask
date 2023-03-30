@@ -5,7 +5,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 # debug
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -gstabs")
 find_package(Threads REQUIRED)
-find_package(GTest REQUIRED)
+#find_package(GTest REQUIRED)
 
 # general settings
 include_directories(${root_SOURCE_DIR}/parasol
@@ -14,10 +14,11 @@ include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src/incbin
   ${root_SOURCE_DIR}/src/jsoncons/include
   ${root_SOURCE_DIR}/spdlog/include
-  ${root_SOURCE_DIR}/matchit.cpp/include)
+  ${root_SOURCE_DIR}/matchit.cpp/include
+  ${gtest_SOURCE_DIR}/include
+  ${gtest_SOURCE_DIR})
 
 # http://google.github.io/googletest/quickstart-cmake.html
-enable_testing()
 include(GoogleTest)
 
 set(nask_parse_SRCS
