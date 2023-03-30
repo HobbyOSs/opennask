@@ -18,10 +18,21 @@ TParaToken::TParaToken(void) {
     _type = ttEmpty;
 }
 
-TParaToken::TParaToken(const string& token_string, TTokenType type) {
+TParaToken::TParaToken(const string& token_string,
+                       TTokenType type) {
+
     _token_string = token_string;
     _type = type;
     SetAttribute();
+}
+
+TParaToken::TParaToken(const string& token_string,
+                       TTokenType type,
+                       TIdentiferAttribute attr) {
+
+    _token_string = token_string;
+    _type = type;
+    SetAttribute(attr);
 }
 
 TParaToken::TParaToken(const TParaToken& token) {
@@ -39,6 +50,7 @@ void TParaToken::SetAttribute() {
     std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
     std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
     std::regex registers64(R"(RAX|RBX|RCX|RDX)");
+    // セグメントレジスタは16bitであるがx86_64.jsonに記載がないため、特殊扱いする
     std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
 
     if (std::regex_match(_token_string, registers8)) {
@@ -47,8 +59,10 @@ void TParaToken::SetAttribute() {
         _attr = TIdentiferAttribute::ttReg16;
     } else if (std::regex_match(_token_string, registers32)) {
         _attr = TIdentiferAttribute::ttReg32;
+    } else if (std::regex_match(_token_string, registers64)) {
+        _attr = TIdentiferAttribute::ttReg64;
     } else if (std::regex_match(_token_string, segment_registers)) {
-        _attr = TIdentiferAttribute::ttSegReg;
+        _attr = TIdentiferAttribute::ttSreg;
     } else if (IsImmediate()) {
         _attr = TIdentiferAttribute::ttImm; // 即値
     } else if (IsIdentifier()) {

@@ -6,72 +6,83 @@
 #include <list>
 #include <memory>
 #include <cmath>
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+#include <gtest/gtest.h>
 
-// メモリリーク扱いされるのでテストケース側でloggerを作る
-auto logger = spdlog::stdout_color_st("opennask");
+class ExpSuite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    ExpSuite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
 
-TEST_GROUP(exp_suite)
-{
+    // 試験終了時に一回だけ実行
+    ~ExpSuite() override {
+    }
 
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(exp_suite, testToken)
+TEST_F(ExpSuite, ParaToken)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
 
     d->visitInteger(30);
-    CHECK_EQUAL(30, d->ctx.top().AsInt());
+    EXPECT_EQ(30, d->ctx.top().AsInt());
     d->ctx.pop();
 
     d->visitChar('H');
     std::cout << d->ctx.top().AsString() << std::endl;
-    CHECK_EQUAL("H", d->ctx.top().AsString());
+    EXPECT_EQ("H", d->ctx.top().AsString());
     d->ctx.pop();
 
     d->visitDouble(3.14);
-    CHECK_EQUAL(3.14, d->ctx.top().AsDouble());
+    EXPECT_EQ(3.14, d->ctx.top().AsDouble());
     d->ctx.pop();
 
     d->visitString("hello1");
-    CHECK_EQUAL("hello1", d->ctx.top().AsString());
+    EXPECT_EQ("hello1", d->ctx.top().AsString());
     d->ctx.pop();
 
     d->visitIdent("hello2");
-    CHECK_EQUAL("hello2", d->ctx.top().AsString());
+    EXPECT_EQ("hello2", d->ctx.top().AsString());
     d->ctx.pop();
 
     d->visitHex("hello3");
-    CHECK_EQUAL("hello3", d->ctx.top().AsString());
+    EXPECT_EQ("hello3", d->ctx.top().AsString());
     d->ctx.pop();
 }
 
-TEST(exp_suite, testFactor)
+TEST_F(ExpSuite, Factor)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto numberFactor = NumberFactor(30);
     d->visitNumberFactor(&numberFactor);
-    CHECK_EQUAL(30, d->ctx.top().AsInt());
+    EXPECT_EQ(30, d->ctx.top().AsInt());
     d->ctx.pop();
 
     auto hexFactor = HexFactor("hello1");
     d->visitHexFactor(&hexFactor);
-    CHECK_EQUAL("hello1", d->ctx.top().AsString());
+    EXPECT_EQ("hello1", d->ctx.top().AsString());
     d->ctx.pop();
 
     auto identFactor = IdentFactor("hello2");
     d->visitIdentFactor(&identFactor);
-    CHECK_EQUAL("hello2", d->ctx.top().AsString());
+    EXPECT_EQ("hello2", d->ctx.top().AsString());
     d->ctx.pop();
 
     auto stringFactor = StringFactor("hello3");
     d->visitStringFactor(&stringFactor);
-    CHECK_EQUAL("hello3", d->ctx.top().AsString());
+    EXPECT_EQ("hello3", d->ctx.top().AsString());
     d->ctx.pop();
 }
 
-TEST(exp_suite, testImmExp)
+TEST_F(ExpSuite, ImmExp)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
 
@@ -83,30 +94,74 @@ TEST(exp_suite, testImmExp)
     {
         auto immExp = ImmExp(numberFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL(30, d->ctx.top().AsInt());
+        EXPECT_EQ(30, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
         auto immExp = ImmExp(hexFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello1", d->ctx.top().AsString());
+        EXPECT_EQ("hello1", d->ctx.top().AsString());
         d->ctx.pop();
     }
     {
         auto immExp = ImmExp(identFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello2", d->ctx.top().AsString());
+        EXPECT_EQ("hello2", d->ctx.top().AsString());
         d->ctx.pop();
     }
     {
         auto immExp = ImmExp(stringFactor.clone());
         d->visitImmExp(&immExp);
-        CHECK_EQUAL("hello3", d->ctx.top().AsString());
+        EXPECT_EQ("hello3", d->ctx.top().AsString());
         d->ctx.pop();
     }
 }
 
-TEST(exp_suite, testArithmeticOperations)
+// テストデータクラス
+struct IndirectAddrExpParam {
+    const std::string token;
+    const TParaToken::TIdentiferAttribute expected;
+
+    IndirectAddrExpParam(
+        const std::string& token,
+        const TParaToken::TIdentiferAttribute expected
+    ):
+        token(token), expected(expected) {}
+};
+
+void PrintTo(const IndirectAddrExpParam& param, ::std::ostream* os) {
+    *os << param.token
+        << " = "
+        << TParaToken::TIAttributeNames[param.expected];
+}
+
+class IndirectAddrExpTest : public testing::TestWithParam<IndirectAddrExpParam> {};
+
+TEST_P(IndirectAddrExpTest, IndirectAddrExpTest) {
+    const auto p = GetParam();
+
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
+    auto identFactor = IdentFactor(p.token); // 前後の[,]は保持しない
+    auto immExp = ImmExp(identFactor.clone());
+    auto indirectAddrExp = IndirectAddrExp(immExp.clone());
+
+    d->visitIndirectAddrExp(&indirectAddrExp);
+    EXPECT_EQ(p.token, d->ctx.top().AsString());
+    EXPECT_EQ(p.expected, d->ctx.top().AsAttr());
+    d->ctx.pop();
+}
+
+INSTANTIATE_TEST_SUITE_P(ExpSuite, IndirectAddrExpTest,
+    testing::Values(
+        IndirectAddrExpParam("AL", TParaToken::ttMem8),
+        IndirectAddrExpParam("AX", TParaToken::ttMem16),
+        IndirectAddrExpParam("EAX", TParaToken::ttMem32),
+        IndirectAddrExpParam("RAX", TParaToken::ttMem64)
+    )
+);
+
+
+TEST_F(ExpSuite, ArithmeticOperations)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto numberFactor1 = NumberFactor(7);
@@ -117,36 +172,36 @@ TEST(exp_suite, testArithmeticOperations)
     {
         auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
         d->visitPlusExp(&plusExp);
-        CHECK_EQUAL(10, d->ctx.top().AsInt());
+        EXPECT_EQ(10, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
         auto minusExp = MinusExp(immExp1.clone(), immExp2.clone());
         d->visitMinusExp(&minusExp);
-        CHECK_EQUAL(4, d->ctx.top().AsInt());
+        EXPECT_EQ(4, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
         auto mulExp = MulExp(immExp1.clone(), immExp2.clone());
         d->visitMulExp(&mulExp);
-        CHECK_EQUAL(21, d->ctx.top().AsInt());
+        EXPECT_EQ(21, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
         auto divExp = DivExp(immExp1.clone(), immExp2.clone());
         d->visitDivExp(&divExp);
-        CHECK_EQUAL(2, d->ctx.top().AsInt());
+        EXPECT_EQ(2, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
         auto modExp = ModExp(immExp1.clone(), immExp2.clone());
         d->visitModExp(&modExp);
-        CHECK_EQUAL(1, d->ctx.top().AsInt());
+        EXPECT_EQ(1, d->ctx.top().AsInt());
         d->ctx.pop();
     }
 }
 
-TEST(exp_suite, testMnemoArgs)
+TEST_F(ExpSuite, MnemoArgs)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     {
@@ -155,7 +210,7 @@ TEST(exp_suite, testMnemoArgs)
         auto mnemoArg = MnemoArg(immExp.clone());
 
         d->visitMnemoArg(&mnemoArg);
-        CHECK_EQUAL(12, d->ctx.top().AsInt());
+        EXPECT_EQ(12, d->ctx.top().AsInt());
         d->ctx.pop();
     }
     {
@@ -167,16 +222,16 @@ TEST(exp_suite, testMnemoArgs)
         mnemoArgs.cons(mnemoArg2.clone());
 
         d->visitListMnemonicArgs(&mnemoArgs);
-        CHECK_EQUAL(2, d->ctx.size());
+        EXPECT_EQ(2, d->ctx.size());
 
-        CHECK_EQUAL(13, d->ctx.top().AsInt());
+        EXPECT_EQ(13, d->ctx.top().AsInt());
         d->ctx.pop();
-        CHECK_EQUAL(12, d->ctx.top().AsInt());
+        EXPECT_EQ(12, d->ctx.top().AsInt());
         d->ctx.pop();
     }
 }
 
-TEST(exp_suite, testSimpleMnemonic)
+TEST_F(ExpSuite, SimpleMnemonic)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto expected = std::vector<uint8_t>{10,20,30};
@@ -185,11 +240,33 @@ TEST(exp_suite, testSimpleMnemonic)
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
 
-    CHECK_EQUAL(3, d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    EXPECT_EQ(3, d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
-TEST(exp_suite, testDeclareStmt)
+TEST_F(ExpSuite, MovWithBracket)
+{
+    GTEST_SKIP(); // TODO: まだ機能しない
+
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
+    auto expected = std::vector<uint8_t>{0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08};
+    std::stringstream ss;
+    ss << u8R"##(
+# [BITS 32]
+# [INSTRSET "i486p"]
+
+MOV ECX,[ESP+4]
+MOV AL,[ESP+8]
+)##";
+
+    auto pt = d->Parse<Program>(ss);
+    d->Eval<Program>(pt.get(), "test.img");
+    EXPECT_EQ(8, d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+}
+
+
+TEST_F(ExpSuite, DeclareStmt)
 {
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     {
@@ -198,26 +275,11 @@ TEST(exp_suite, testDeclareStmt)
         auto declareStmt = DeclareStmt("CYLS", immExp.clone());
 
         d->visitDeclareStmt(&declareStmt);
-        CHECK_EQUAL(10, d->equ_map["CYLS"].AsInt());
+        EXPECT_EQ(10, d->equ_map["CYLS"].AsInt());
 
         d->visitIdent("CYLS");
-        CHECK_EQUAL("10", d->ctx.top().AsString());
-        CHECK_EQUAL(10, d->ctx.top().AsInt());
+        EXPECT_EQ("10", d->ctx.top().AsString());
+        EXPECT_EQ(10, d->ctx.top().AsInt());
         d->ctx.pop();
     }
-}
-
-int main(int argc, char** argv) {
-    spdlog::set_level(spdlog::level::debug);
-    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-    args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(exp_suite, testDeclareStmt)");
-
-    // TODO: bnfc側のメモリリーク修正する https://github.com/HobbyOSs/opennask/issues/42
-    MemoryLeakWarningPlugin::turnOffNewDeleteOverloads();
-
-    // Run all tests
-    int i = RUN_ALL_TESTS(args.size(), &args[0]);
-    return i;
 }

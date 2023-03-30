@@ -1,21 +1,31 @@
 #include "front_end.hh"
+#include "pass1_strategy.hh"
 #include "demangle.hpp"
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include <CppUTest/MemoryLeakDetectorNewMacros.h>
-#include <CppUTest/MemoryLeakDetectorMallocMacros.h>
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+#include <gtest/gtest.h>
 
-auto logger = spdlog::stdout_color_st("opennask");
+class Day01Suite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    Day01Suite() {
+    }
 
-TEST_GROUP(day01_suite)
-{
+    // 試験終了時に一回だけ実行
+    ~Day01Suite() override {
+    }
 
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(day01_suite, helloos1) {
+TEST_F(Day01Suite, Helloos1) {
 
     std::stringstream ss;
     const char nask_statements[] = R"(
@@ -46,6 +56,11 @@ TEST(day01_suite, helloos1) {
     ss << nask_statements;
     auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
+
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(pt.get());
+    EXPECT_EQ(1474560, pass1->loc);
+
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
@@ -81,11 +96,11 @@ TEST(day01_suite, helloos1) {
             0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    CHECK_EQUAL(expected.size(), d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    EXPECT_EQ(expected.size(), d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
-TEST(day01_suite, helloos2) {
+TEST_F(Day01Suite, Helloos2) {
 
     std::stringstream ss;
     const char nask_statements[] = R"(
@@ -144,6 +159,11 @@ TEST(day01_suite, helloos2) {
     ss << nask_statements;
     auto d = std::make_unique<FrontEnd>(true, true);
     auto pt = d->Parse<Program>(ss);
+
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->Eval(pt.get());
+    EXPECT_EQ(1474692, pass1->loc);
+
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
@@ -190,19 +210,6 @@ TEST(day01_suite, helloos2) {
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    CHECK_EQUAL(expected.size(), d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
-}
-
-
-int main(int argc, char** argv) {
-    spdlog::set_level(spdlog::level::debug);
-    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-    args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day01_suite, helloos2)");
-
-    // Run all tests
-    int i = RUN_ALL_TESTS(args.size(), &args[0]);
-    return i;
+    EXPECT_EQ(expected.size(), d->binout_container.size());
+    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }

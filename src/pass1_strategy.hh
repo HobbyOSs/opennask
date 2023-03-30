@@ -10,6 +10,7 @@
 #include "nask_defs.hpp"
 #include "skeleton.hh"
 #include "bin_util.hh"
+#include "x86.hh"
 
 class Pass1Strategy : public Skeleton, public BinUtil {
 
@@ -22,9 +23,14 @@ public:
 
     // LOC(location of counter)
     uint32_t loc = 0;
+    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
     // Pass1のシンボルテーブル, リテラルテーブル
-    static std::map<std::string, uint32_t> sym_table;
-    static std::map<std::string, uint32_t> lit_table;
+    std::map<std::string, uint32_t> sym_table;
+    std::map<std::string, uint32_t> lit_table;
+    // EQUで設定されたマクロ情報
+    std::map<std::string, TParaToken> equ_map;
+    // x86命令セット
+    std::unique_ptr<x86_64::InstructionSet> iset;
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;

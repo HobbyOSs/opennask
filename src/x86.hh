@@ -3,16 +3,19 @@
 
 #include <string>
 #include <cstdint>
+#include <tuple>
 #include <vector>
 #include <unordered_map>
 #include <optional>
-#include "incbin.h"
 #include <jsoncons/json.hpp>
-
-INCTXT(x86_json_, "json-x86-64/x86_64.json");
-static constexpr const char* const X86_64_JSON = gx86_json_Data;
+#include "nask_defs.hpp"
+#include "para_token.hh"
 
 namespace x86_64 {
+
+    extern const char* X86_64_JSON;
+
+    const std::string token_to_x86_type(const TParaToken*);
 
     class Isa {
         std::string id_;
@@ -88,17 +91,21 @@ namespace x86_64 {
         {
             return byte_;
         }
+        const int get_size() const
+        {
+            return 1;  // 0x66 のみの場合がほとんど
+        }
     };
 
-    class REX {
+    class Rex {
         bool mandatory_;
         std::optional<std::string> W_;
         std::optional<std::string> R_;
         std::optional<std::string> B_;
         std::optional<std::string> X_;
     public:
-        REX() {}
-        REX(const bool mandatory,
+        Rex() {}
+        Rex(const bool mandatory,
             const std::optional<std::string>& W,
             const std::optional<std::string>& R,
             const std::optional<std::string>& B,
@@ -127,9 +134,13 @@ namespace x86_64 {
         {
             return X_;
         }
+        const int get_size() const
+        {
+            return 1;  // REXプレフィックスは、オペコードの直前に配置されるため、オペコードサイズを1バイト増やすことになる
+        }
     };
 
-    class VEX {
+    class Vex {
         std::optional<std::string> mmmmm_;
         std::optional<std::string> pp_;
         std::optional<std::string> W_;
@@ -137,8 +148,8 @@ namespace x86_64 {
         std::optional<std::string> R_;
         std::optional<std::string> X_;
     public:
-        VEX() {}
-        VEX(const std::optional<std::string>& mmmmm,
+        Vex() {}
+        Vex(const std::optional<std::string>& mmmmm,
             const std::optional<std::string>& pp,
             const std::optional<std::string>& W,
             const std::optional<std::string>& L,
@@ -163,6 +174,7 @@ namespace x86_64 {
         }
         const std::optional<std::string>& L() const
         {
+            // VEXプレフィックスの長さを指定します。Lが0の場合、VEXプレフィックスは3バイトです。Lが1の場合、VEXプレフィックスは2バイト。
             return L_;
         }
         const std::optional<std::string>& R() const
@@ -173,15 +185,28 @@ namespace x86_64 {
         {
             return X_;
         }
+        const int get_size() const
+        {
+            int size = 0;
+            if (mmmmm_ && pp_) {
+                const std::string& mmmmm = mmmmm_.value();
+                const std::string& pp = pp_.value();
+                int L = L_ ? std::stoi(L_.value(), nullptr, 2) : 1;
+                if (mmmmm == "00001" && std::stoi(pp, nullptr, 2) <= 2) {
+                    size = (L == 0) ? 3 : 2;
+                }
+            }
+            return size;
+        }
     };
 
-    class ModRM {
+    class Modrm {
         std::string mode_;
         std::string rm_;
         std::string reg_;
     public:
-        ModRM() {}
-        ModRM(const std::string& mode,
+        Modrm() {}
+        Modrm(const std::string& mode,
               const std::string& rm,
               const std::string& reg)
             : mode_(mode), rm_(rm), reg_(reg)
@@ -198,6 +223,10 @@ namespace x86_64 {
         const std::string& reg() const
         {
             return reg_;
+        }
+        const int get_size() const
+        {
+            return 1;  // ModRMは常に1byte
         }
     };
 
@@ -304,15 +333,19 @@ namespace x86_64 {
         {
             return addend_;
         }
+        const int get_size() const
+        {
+            return 1;
+        }
     };
 
     // Prefix, REX, VEX, Opcode, ModRM, RegisterByte, Immediate, DataOffset, CodeOffset
     class Encoding {
         Opcode opcode_;
         std::optional<Prefix> prefix_;
-        std::optional<REX> rex_;
-        std::optional<VEX> vex_;
-        std::optional<ModRM> mod_rm_;
+        std::optional<Rex> REX_;
+        std::optional<Vex> VEX_;
+        std::optional<Modrm> ModRM_;
         std::optional<Immediate> immediate_;
         std::optional<DataOffset> data_offset_;
         std::optional<CodeOffset> code_offset_;
@@ -321,17 +354,17 @@ namespace x86_64 {
         Encoding() {}
         Encoding(const Opcode& opcode,
                  const std::optional<Prefix>& prefix,
-                 const std::optional<REX>& rex,
-                 const std::optional<VEX>& vex,
-                 const std::optional<ModRM>& mod_rm,
+                 const std::optional<Rex>& REX,
+                 const std::optional<Vex>& VEX,
+                 const std::optional<Modrm>& ModRM,
                  const std::optional<Immediate>& immediate,
                  const std::optional<DataOffset> data_offset,
                  const std::optional<CodeOffset> code_offset)
             : opcode_(opcode),
               prefix_(prefix),
-              rex_(rex),
-              vex_(vex),
-              mod_rm_(mod_rm),
+              REX_(REX),
+              VEX_(VEX),
+              ModRM_(ModRM),
               immediate_(immediate),
               data_offset_(data_offset),
               code_offset_(code_offset)
@@ -345,17 +378,17 @@ namespace x86_64 {
         {
             return prefix_;
         }
-        const std::optional<REX>& rex() const
+        const std::optional<Rex>& REX() const
         {
-            return rex_;
+            return REX_;
         }
-        const std::optional<VEX>& vex() const
+        const std::optional<Vex>& VEX() const
         {
-            return vex_;
+            return VEX_;
         }
-        const std::optional<ModRM>& mod_rm() const
+        const std::optional<Modrm>& ModRM() const
         {
-            return mod_rm_;
+            return ModRM_;
         }
         const std::optional<Immediate>& immediate() const
         {
@@ -369,6 +402,8 @@ namespace x86_64 {
         {
             return data_offset_;
         }
+
+        const int get_output_size(OPENNASK_MODES mode);
     };
 
     class InstructionForm {
@@ -420,6 +455,9 @@ namespace x86_64 {
         {
             return isa_;
         }
+
+        // 複数機械語の出力があり得る場合がたまにある
+        const Encoding find_encoding();
     };
 
     class Instruction {
@@ -443,6 +481,8 @@ namespace x86_64 {
         {
             return forms_;
         }
+
+        const uint32_t get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens);
     };
 
     class InstructionSet {
@@ -450,36 +490,35 @@ namespace x86_64 {
         std::map<std::string, Instruction> instructions_;
 
     public:
-        InstructionSet(const std::string& instruction_set,
-                       const std::map<std::string, Instruction>& instructions)
-            : instruction_set_(instruction_set),
-              instructions_(instructions)
-        {}
+        InstructionSet(const InstructionSet &p)
+            : instruction_set_(p.instruction_set()), instructions_(p.instructions()) {}
 
-        const std::string& instruction_set() const
-        {
-            return instruction_set_;
-        }
+        InstructionSet(const std::string &instruction_set,
+                     const std::map<std::string, Instruction> &instructions)
+          : instruction_set_(instruction_set), instructions_(instructions) {}
 
-        const std::map<std::string, Instruction>& instructions() const
-        {
-            return instructions_;
-        }
+      const std::string &instruction_set() const {
+          return instruction_set_;
+      }
+
+      const std::map<std::string, Instruction> &instructions() const {
+          return instructions_;
+      }
     };
 };
 
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Isa, id)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Prefix, mandatory, byte)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::REX, 1, mandatory, W, R, B, X)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::VEX, 1, mmmmm, pp, W, L, R, X)
-JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::ModRM, mode, rm, reg)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Rex, 1, mandatory, W, R, B, X)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Vex, 1, mmmmm, pp, W, L, R, X)
+JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Modrm, mode, rm, reg)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::ImplicitOperand, id, input, output)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Operand, 1, type, input, output, extended_size)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::DataOffset, size, value)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::CodeOffset, size, value)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Immediate, size, value)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Opcode, 1, byte, addend)
-JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Encoding, 1, opcode, prefix, rex, vex, mod_rm, immediate, data_offset, code_offset)
+JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::Encoding, 1, opcode, prefix, REX, VEX, ModRM, immediate, data_offset, code_offset)
 JSONCONS_N_CTOR_GETTER_TRAITS(x86_64::InstructionForm, 1, encodings, operands, implicit_operands, xmm_mode, cancelling_inputs, isa)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::InstructionSet, instruction_set, instructions)
 JSONCONS_ALL_CTOR_GETTER_TRAITS(x86_64::Instruction, summary, forms)

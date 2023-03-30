@@ -1,21 +1,33 @@
+#include <gtest/gtest.h>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "front_end.hh"
+#include "pass1_strategy.hh"
 #include "demangle.hpp"
-#include "tinyexpr.h"
 #include "spdlog/spdlog.h"
+#include "diff.hh"
 
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+class Day02Suite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    Day02Suite() {
+        spdlog::set_level(spdlog::level::debug);
+    }
 
-auto logger = spdlog::stdout_color_st("opennask");
+    // 試験終了時に一回だけ実行
+    ~Day02Suite() override {
+    }
 
-TEST_GROUP(day02_suite)
-{
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
 
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(day02_suite, helloos3) {
+TEST_F(Day02Suite, Helloos3) {
 
     std::stringstream ss;
     const char nask_statements[] = R"(
@@ -154,18 +166,6 @@ msg:
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    CHECK_EQUAL(expected.size(), d->binout_container.size());
-    CHECK_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
-}
-
-int main(int argc, char** argv) {
-    spdlog::set_level(spdlog::level::debug);
-    std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-    args.push_back("-v"); // Set verbose mode
-    args.push_back("-c"); // Set color output (OPTIONAL)
-    //args.push_back("TEST(day02_suite, helloos2)");
-
-    // Run all tests
-    int i = RUN_ALL_TESTS(args.size(), &args[0]);
-    return i;
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }

@@ -1,4 +1,5 @@
-#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "nask_utility.hpp"
 #include "string_util.hpp"
 #include "ParaTokenizer.hh"
@@ -6,17 +7,29 @@
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
-#include <CppUTest/TestHarness.h>
+#include <gtest/gtest.h>
 
-// Init stuff
-std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("opennask", "debug.log");
+class InstSuite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    InstSuite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
 
-TEST_GROUP(inst_suite)
-{
+    // 試験終了時に一回だけ実行
+    ~InstSuite() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-
-TEST(inst_suite, MOV_with_bracket)
+TEST_F(InstSuite, MovWithBracket)
 {
      // Found MOV_with_bracket
      nask_utility::Instructions inst;
@@ -41,6 +54,6 @@ TEST(inst_suite, MOV_with_bracket)
      logger->info("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
 
      // static member data "support" causes memory leak :<
-     EXPECT_N_LEAKS(12);
-     CHECK(test == answer);
+     //EXPECT_N_LEAKS(12);
+     EXPECT_TRUE(test == answer);
 }

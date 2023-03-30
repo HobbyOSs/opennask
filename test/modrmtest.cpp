@@ -1,5 +1,5 @@
 #include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 #include "nask_utility.hpp"
 #include "mod_rm.hpp"
 #include "string_util.hpp"
@@ -8,37 +8,38 @@
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
-#include <CppUTest/TestHarness.h>
-#include <CppUTest/CommandLineTestRunner.h>
+#include <gtest/gtest.h>
 
-// Init stuff
-std::shared_ptr<spdlog::logger> logger = spdlog::basic_logger_st("opennask", "debug.log");
+class ModRMSuite : public ::testing::Test {
+protected:
+    // 試験開始時に一回だけ実行
+    ModRMSuite() {
+        auto logger = spdlog::stdout_color_st("opennask");
+    }
 
-TEST_GROUP(modrmtest_suite)
-{
+    // 試験終了時に一回だけ実行
+    ~ModRMSuite() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
 };
 
-TEST(modrmtest_suite, check_32bit_reg_brackets)
+TEST_F(ModRMSuite, Check32bitRegBrackets)
 {
      using namespace nask_utility;
 
-     CHECK(ModRM::get_rm_from_reg("[EAX]") == "000");
-     CHECK(ModRM::get_rm_from_reg("[EAX+]") == "000");
-     CHECK(ModRM::get_rm_from_reg("[EAX+4]") == "000");
-     CHECK(ModRM::get_rm_from_reg("[EAX+12]") == "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAX]") == "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAX+]") == "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAX+4]") == "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAX+12]") == "000");
 
-     CHECK(ModRM::get_rm_from_reg("[EXX-12]") != "000");
-     CHECK(ModRM::get_rm_from_reg("[EAX-12]") != "000");
-     CHECK(ModRM::get_rm_from_reg("[EAXx12]") != "000");
-}
-
-int main(int argc, char** argv)
-{
-     std::vector<const char*> args(argv, argv + argc); // Insert all arguments
-     args.push_back("-v"); // Set verbose mode
-     args.push_back("-c"); // Set color output (OPTIONAL)
-
-     // Run all tests
-     int i = RUN_ALL_TESTS(args.size(), &args[0]);
-     return i;
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EXX-12]") != "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAX-12]") != "000");
+     EXPECT_TRUE(ModRM::get_rm_from_reg("[EAXx12]") != "000");
 }

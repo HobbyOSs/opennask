@@ -15,6 +15,7 @@
 #include "skeleton.hh"
 #include "bin_util.hh"
 #include "label.hpp"
+#include "pass1_strategy.hh"
 
 
 class FrontEnd : public Skeleton, public BinUtil {
@@ -28,17 +29,22 @@ private:
     bool trace_scanning;
     // $ の位置
     uint32_t dollar_position = 0;
+    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
 
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
-    // EQUで設定された変数情報
-    static std::map<std::string, TParaToken> equ_map;
+
+    // EQUで設定されたマクロ情報
+    // Pass1のシンボルテーブル, リテラルテーブル
+    std::map<std::string, TParaToken> equ_map;
+    std::map<std::string, uint32_t> sym_table;
+
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
     // ラベルによるオフセットの計算をする
-    static LabelDstList label_dst_list;
-    static LabelSrcList label_src_list;
+    LabelDstList label_dst_list;
+    LabelSrcList label_src_list;
 
     FrontEnd(bool trace_scanning, bool trace_parsing);
 
