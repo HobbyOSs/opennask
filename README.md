@@ -27,7 +27,7 @@ $ cmake -G Ninja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
 * You need to install mtools to build these files
 * You need to install QEMU (> 3.1) to test it
 
-'wine' will be very helpful for you to debug original nask
+'wine' should be very useful for you to debug
 
 ## Build day 03, harib00i img (debian)
 
@@ -44,22 +44,6 @@ $ ninja 03_day_harib00i_run
 ```
 
 You can use `make` command instead of `ninja`
-
-
-## Development
-
-Create docker container environment
-
-- Build container
-```sh
-$ docker-compose up -d --build
-```
-
-- Attach container
-```sh
-$ docker exec -it opennask_ci_1 bash
-```
-
 
 ## Screenshots
 
