@@ -8,7 +8,7 @@ class Pass1Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Pass1Suite() {
-        spdlog::set_level(spdlog::level::debug);
+        //spdlog::set_level(spdlog::level::debug);
     }
 
     // 試験終了時に一回だけ実行
@@ -167,27 +167,27 @@ next:
 		JB		readloop
 		MOV		[0x0ff0],CH
 		JMP		0xc200
-#error:
-#    	MOV		SI,msg
-#putloop:
-#    	MOV		AL,[SI]
-#    	ADD		SI,1
-#    	CMP		AL,0
-#    	JE		fin
-#    	MOV		AH,0x0e
-#    	MOV		BX,15
-#    	INT		0x10
-#    	JMP		putloop
-#fin:
-#    	HLT
-#    	JMP		fin
-#msg:
-#    	DB		0x0a, 0x0a
-#    	DB		"load error"
-#    	DB		0x0a
-#    	DB		0
-#    	RESB	0x7dfe-$
-#    	DB		0x55, 0xaa
+error:
+		MOV		SI,msg
+putloop:
+		MOV		AL,[SI]
+		ADD		SI,1
+		CMP		AL,0
+		JE		fin
+		MOV		AH,0x0e
+		MOV		BX,15
+		INT		0x10
+		JMP		putloop
+fin:
+		HLT
+		JMP		fin
+msg:
+		DB		0x0a, 0x0a
+		DB		"load error"
+		DB		0x0a
+		DB		0
+		RESB	0x7dfe-$
+		DB		0x55, 0xaa
 )";
 
     ss << nask_statements;
@@ -200,8 +200,10 @@ next:
     EXPECT_EQ(0x7c00 + 101, pass1->sym_table["readloop"]);
     EXPECT_EQ(0x7c00 + 104, pass1->sym_table["retry"]);
     EXPECT_EQ(0x7c00 + 133, pass1->sym_table["next"]);
-    //EXPECT_EQ(0x7c00 + 175, pass1->sym_table["error"]);
-    EXPECT_EQ(0x7c00 + 175, pass1->loc);
+    EXPECT_EQ(0x7c00 + 175, pass1->sym_table["error"]);
+    EXPECT_EQ(0x7c00 + 178, pass1->sym_table["putloop"]);
+    EXPECT_EQ(0x7c00 + 196, pass1->sym_table["fin"]);
+    EXPECT_EQ(0x7c00 + 199, pass1->sym_table["msg"]);
 }
 
 
