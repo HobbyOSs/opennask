@@ -689,63 +689,6 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
-}
-
-void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
-}
-
-void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
-}
-
-void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
-}
-
-void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
-}
-
-void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
-    // ざっくりしたJMP命令の種別
-    // ---
-    // jmp 0x1234      ; 絶対ジャンプ
-    // jmp short LABEL ; 相対ジャンプ (rel8)
-    // jmp near LABEL  ; 相対ジャンプ (rel16)
-    // jmp LABEL       ; 相対ジャンプ (rel32)
-    // ---
     auto t = mnemonic_args[0];
 
     if (t.AsAttr() == TParaToken::ttLabel) {
@@ -755,18 +698,135 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
-    uint32_t l = 0;
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x73      cb JAE rel8    CF=0 より上か等しい場合ショートジャンプします
+        // 0x0F 0x83 cw JAE rel16   CF=0 より上か等しい場合ニアジャンプします
+        // 0x0F 0x83 cd JAE rel32   CF=0 より上か等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x72      cb JB rel8    CF=1 より下の場合ショートジャンプします
+        // 0x0F 0x82 cw JB rel16   CF=1 より下の場合ニアジャンプします
+        // 0x0F 0x82 cd JB rel32   CF=1 より下の場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x76      cb JBE rel8    CF=1 or ZF=1 より下か等しい場合ショートジャンプします
+        // 0x0F 0x86 cw JBE rel16   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
+        // 0x0F 0x86 cd JBE rel32   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x72      cb JC rel8    CF=1 キャリーがある場合ショートジャンプします
+        // 0x0F 0x82 cw JC rel16   CF=1 キャリーがある場合ニアジャンプします
+        // 0x0F 0x82 cd JC rel32   CF=1 キャリーがある場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x74      cb JE rel8    ZF=1 等しい場合ショートジャンプします
+        // 0x0F 0x84 cw JE rel16   ZF=1 等しい場合ニアジャンプします
+        // 0x0F 0x84 cd JE rel32   ZF=1 等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
 
     // TODO: 絶対ジャンプについては後ほど実装
-    std::cout << "t=" << t.AsString() << ",long=" << t.AsInt32() << std::endl;
-    l = match(t.AsInt32())(
+    uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
         // 0xE9 cw JMP rel16   次の命令との相対オフセットだけ相対ニアジャンプする
         // 0xE9 cd JMP rel32   次の命令との相対オフセットだけ相対ニアジャンプする
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] { std::cout << "b" << std::endl; return 2; },
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] { std::cout << "w" << std::endl; return 3; },
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] { std::cout << "d" << std::endl; return 5; }
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 2,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 5
     );
 
     loc += l;
@@ -774,10 +834,24 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x73      cb JNC rel8    キャリーがない場合ショートジャンプします
+        // 0x0F 0x83 cw JNC rel16   キャリーがない場合ニアジャンプします
+        // 0x0F 0x83 cd JNC rel32   キャリーがない場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
