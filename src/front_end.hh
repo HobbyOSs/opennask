@@ -39,10 +39,13 @@ public:
     // Pass1のシンボルテーブル, リテラルテーブル
     std::map<std::string, TParaToken> equ_map;
     std::map<std::string, uint32_t> sym_table;
+    // x86命令セット
+    std::unique_ptr<x86_64::InstructionSet> iset;
 
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
     // ラベルによるオフセットの計算をする
+    // TODO: 後ほど削除する
     LabelDstList label_dst_list;
     LabelSrcList label_src_list;
 

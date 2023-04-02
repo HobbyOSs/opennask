@@ -876,6 +876,9 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // cat json-x86-64/x86_64.json | \
     // jq -r '.instructions["MOV"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // -- パターンは25個ある
+    // TODO: x86 tableに下記1行の記載なし
+    // B0+rb   r8      imm8
+    //
     // C6      r8      imm8
     // 88      r8      r8
     // 8A      r8      m8
@@ -899,6 +902,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 89      m32     r32
     // C7      m64     imm32
     // 89      m64     r64
+    // TODO: x86 tableに下記2行の記載なし
+    // A2      moffs8  al
+    // A3      moffs16 ax
+    //
     // A3      moffs32 eax
     // A3      moffs64 rax
     auto inst = iset->instructions().at("MOV");
