@@ -320,7 +320,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             uint8_t base = 0x81;
             uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
 
-            if (mnemonic_args[1].AsLong() <= 255) {
+            if (mnemonic_args[1].AsInt32() <= 255) {
                 base = 0x83;
                 std::vector<uint8_t> b = {base, modrm};
                 auto imm = mnemonic_args[1].AsUInt8t();
@@ -341,7 +341,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             uint8_t base = 0x00;
             uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
 
-            if (mnemonic_args[1].AsLong() <= 255) {
+            if (mnemonic_args[1].AsInt32() <= 255) {
                 base = 0x83;
                 std::vector<uint8_t> b = {base, modrm};
                 auto imm = mnemonic_args[1].AsUInt8t();
@@ -548,7 +548,7 @@ void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint32_t dword = e.AsLong();
+            uint32_t dword = e.AsInt32();
             std::vector<uint8_t> bytes = {
                 static_cast<uint8_t>( (dword >> 24) & 0xff ),
                 static_cast<uint8_t>( (dword >> 16) & 0xff ),
@@ -574,17 +574,17 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
         auto resb_size = range.substr(0, range.length() - suffix.length());
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
-        std::vector<uint8_t> resb(resb_token.AsLong() - dollar_position - binout_container.size(), 0);
+        std::vector<uint8_t> resb(resb_token.AsInt32() - dollar_position - binout_container.size(), 0);
         log()->debug("[pass2] padding upto: {}(={}), current: {}",
-                     resb_token.AsString(), resb_token.AsLong(), binout_container.size());
+                     resb_token.AsString(), resb_token.AsInt32(), binout_container.size());
         binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
 
-    std::vector<uint8_t> resb(arg.AsLong(), 0);
+    std::vector<uint8_t> resb(arg.AsInt32(), 0);
     binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
 }
 
@@ -725,21 +725,21 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         // 即値処理
         pattern | ds(TParaToken::ttImm, 1) = [&] {
             std::vector<uint8_t> b = {0xeb};
-            const auto byte = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            const auto byte = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
             auto jmp_offset = IntAsByte(byte);
             std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
         },
         pattern | ds(TParaToken::ttImm, 2) = [&] {
             std::vector<uint8_t> b = {0xe9};
-            const auto word = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            const auto word = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
             auto jmp_offset = IntAsWord(word);
             std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
         },
         pattern | ds(TParaToken::ttImm, 4) = [&] {
             std::vector<uint8_t> b = {0xe9};
-            const auto dword = (arg.AsLong() - dollar_position - binout_container.size()) + 1;
+            const auto dword = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
             auto jmp_offset = LongAsDword(dword);
             std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
             return b;
@@ -1083,8 +1083,8 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsLong());
-    dollar_position = arg.AsLong();
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
+    dollar_position = arg.AsInt32();
 }
 
 void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
@@ -1195,7 +1195,7 @@ void FrontEnd::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers64)) {
       t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+        auto attr = match(static_cast<int64_t>(t.AsInt32()))(
             pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
             pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
             pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
@@ -1313,15 +1313,15 @@ void FrontEnd::visitArithmeticOperations(T *exp) {
 
     long ans = 0;
     if constexpr (std::is_same_v<T, PlusExp>) {
-        ans = left.AsLong() + right.AsLong();
+        ans = left.AsInt32() + right.AsInt32();
     } else if constexpr (std::is_same_v<T, MinusExp>) {
-        ans = left.AsLong() - right.AsLong();
+        ans = left.AsInt32() - right.AsInt32();
     } else if constexpr (std::is_same_v<T, MulExp>) {
-        ans = left.AsLong() * right.AsLong();
+        ans = left.AsInt32() * right.AsInt32();
     } else if constexpr (std::is_same_v<T, DivExp>) {
-        ans = left.AsLong() / right.AsLong();
+        ans = left.AsInt32() / right.AsInt32();
     } else if constexpr (std::is_same_v<T, ModExp>) {
-        ans = left.AsLong() % right.AsLong();
+        ans = left.AsInt32() % right.AsInt32();
     } else {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }

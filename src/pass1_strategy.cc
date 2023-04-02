@@ -634,13 +634,13 @@ void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
         auto resb_size = range.substr(0, range.length() - suffix.length());
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
-        loc += resb_token.AsLong();
+        loc += resb_token.AsInt32();
         log()->debug("[pass1] LOC = {}({:x})", loc, loc);
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
-    loc += arg.AsLong();
+    loc += arg.AsInt32();
     log()->debug("[pass1] LOC = {}({:x})", loc, loc);
     return;
 }
@@ -739,10 +739,35 @@ void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    // ざっくりしたJMP命令の種別
+    // ---
+    // jmp 0x1234      ; 絶対ジャンプ
+    // jmp short LABEL ; 相対ジャンプ (rel8)
+    // jmp near LABEL  ; 相対ジャンプ (rel16)
+    // jmp LABEL       ; 相対ジャンプ (rel32)
+    // ---
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = 0;
+
+    // TODO: 絶対ジャンプについては後ほど実装
+    std::cout << "t=" << t.AsString() << ",long=" << t.AsInt32() << std::endl;
+    l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
+        // 0xE9 cw JMP rel16   次の命令との相対オフセットだけ相対ニアジャンプする
+        // 0xE9 cd JMP rel32   次の命令との相対オフセットだけ相対ニアジャンプする
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] { std::cout << "b" << std::endl; return 2; },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] { std::cout << "w" << std::endl; return 3; },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] { std::cout << "d" << std::endl; return 5; }
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
@@ -873,9 +898,13 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         // 88      m8      r8
-        // 実際mem16でも実行できる
+        // 88      m16     r8 (m16の場合下位8ビットが使われる)
         pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            auto token = TParaToken(mnemonic_args[0]);
+            token.SetAttribute(TParaToken::ttMem8);
+            // `MOV [0x0ff0],CH` だと0x0ff0部分を機械語に足す
+            auto size = token.GetImmSize() + inst.get_output_size(bit_mode, {token, mnemonic_args[1]});
+            return size;
         },
         // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
@@ -946,7 +975,7 @@ void Pass1Strategy::processNOP() {
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    loc = arg.AsLong();
+    loc = arg.AsInt32();
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
@@ -1054,9 +1083,9 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers32)) {
         t.SetAttribute(TParaToken::ttMem32);
     } else if (std::regex_match(t.AsString(), registers64)) {
-      t.SetAttribute(TParaToken::ttMem64);
+        t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+        auto attr = match(static_cast<int64_t>(t.AsInt32()))(
             pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
             pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
             pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
@@ -1174,15 +1203,15 @@ void Pass1Strategy::visitArithmeticOperations(T *exp) {
 
     long ans = 0;
     if constexpr (std::is_same_v<T, PlusExp>) {
-        ans = left.AsLong() + right.AsLong();
+        ans = left.AsInt32() + right.AsInt32();
     } else if constexpr (std::is_same_v<T, MinusExp>) {
-        ans = left.AsLong() - right.AsLong();
+        ans = left.AsInt32() - right.AsInt32();
     } else if constexpr (std::is_same_v<T, MulExp>) {
-        ans = left.AsLong() * right.AsLong();
+        ans = left.AsInt32() * right.AsInt32();
     } else if constexpr (std::is_same_v<T, DivExp>) {
-        ans = left.AsLong() / right.AsLong();
+        ans = left.AsInt32() / right.AsInt32();
     } else if constexpr (std::is_same_v<T, ModExp>) {
-        ans = left.AsLong() % right.AsLong();
+        ans = left.AsInt32() % right.AsInt32();
     } else {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }
