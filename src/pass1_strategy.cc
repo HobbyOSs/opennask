@@ -976,7 +976,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C6      m8      imm8
         pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV BYTE [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 88      m8      r8
         // 88      m16     r8 (m16の場合下位8ビットが使われる)
@@ -989,7 +992,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV WORD [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m16     r16
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
@@ -997,7 +1003,12 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C7      m32     imm32
         pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV DWORD [addr_size], X`
+            // TODO: x86 tableの定義に`prefix`の定義がない
+            auto override_prefix_size = (bit_mode != ID_32BIT_MODE) ? 1 : 0;
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = override_prefix_size + addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m32     r32
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
