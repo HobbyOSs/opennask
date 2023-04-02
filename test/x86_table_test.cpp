@@ -167,4 +167,12 @@ TEST_F(X86TableSuite, MOVGetOutputSize)
     );
     EXPECT_EQ(3, size2);
 
+    auto size3 = inst.get_output_size(
+        ID_16BIT_MODE,
+        {
+            TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
+            TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+        }
+    );
+    EXPECT_EQ(2, size3); // +2byteはpass1側で足す
 }

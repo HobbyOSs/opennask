@@ -87,6 +87,20 @@ set_property(TARGET x86_table_test PROPERTY CXX_STANDARD 17)
 set_property(TARGET x86_table_test PROPERTY CXX_STANDARD_REQUIRED ON)
 gtest_discover_tests(x86_table_test)
 
+# `ctest -R para_token_test`
+set(para_token_test_SRCS
+  para_token_test.cpp
+  ../src/demangle.cpp
+  ../src/para_token.cc)
+
+add_executable(para_token_test ${para_token_test_SRCS})
+target_link_libraries(para_token_test PRIVATE
+  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+
+set_property(TARGET para_token_test PROPERTY CXX_STANDARD 17)
+set_property(TARGET para_token_test PROPERTY CXX_STANDARD_REQUIRED ON)
+gtest_discover_tests(para_token_test)
+
 # `ctest -R pass1_test`
 set(pass1_test_SRCS
   pass1_test.cpp

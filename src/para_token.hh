@@ -119,7 +119,7 @@ public:
     bool IsNot(const std::string& string) const;
     std::string AsString(void) const;
     int AsInt(void) const noexcept(false);
-    long AsLong(void) const noexcept(false);
+    int32_t AsInt32(void) const noexcept(false);
     double AsDouble(void) const noexcept(false);
     std::array<uint8_t, 1> AsUInt8t(void) const noexcept(false);
     std::array<uint8_t, 2> AsUInt16t(void) const noexcept(false);

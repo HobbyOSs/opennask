@@ -11,8 +11,10 @@
 #include <exception>
 #include <stdexcept>
 #include "para_token.hh"
+#include "matchit.h"
 
 using namespace std;
+using namespace matchit;
 
 TParaToken::TParaToken(void) {
     _type = ttEmpty;
@@ -174,27 +176,44 @@ int TParaToken::AsInt(void) const noexcept(false) {
     return int_value;
 }
 
-long TParaToken::AsLong(void) const noexcept(false) {
+int32_t TParaToken::AsInt32(void) const noexcept(false) {
     if (! IsInteger() && ! IsHex() ) {
         ThrowUnexpected("integer");
     }
 
-    long long_value;
-    if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
-        // Hex Number
-        istringstream value_stream(_token_string.substr(2, string::npos));
-        if (! (value_stream >> hex >> long_value)) {
-            ThrowUnexpected("integer");
-        }
-    } else {
+    if (IsInteger()) {
         // Dec Number
+        int32_t value;
         istringstream value_stream(_token_string);
-        if (! (value_stream >> long_value)) {
+        if (! (value_stream >> value)) {
             ThrowUnexpected("integer");
         }
+        return value;
     }
-
-    return long_value;
+    // Hex Number
+    return match(_token_string.length() - 2)(
+        pattern | (_ <= 2) = [&] {
+            std::istringstream iss(_token_string);
+            int16_t val;
+            if (! (iss >> std::hex >> val)) {
+                ThrowUnexpected("integer");
+            }
+            // int16_t -> int8_t -> int32_t にキャストして負の数に対応
+            return static_cast<int32_t>(static_cast<int8_t>(val));
+        },
+        pattern | (_ <= 4) = [&] {
+            std::istringstream iss(_token_string);
+            uint16_t val;
+            if (! (iss >> std::hex >> val)) {
+                ThrowUnexpected("integer");
+            }
+            return static_cast<int32_t>(static_cast<int16_t>(val));
+        },
+        pattern | _ = [&] {
+            // std::stoulでunsigned longを取得してキャスト
+            return static_cast<int32_t>(std::stoul(_token_string, nullptr, 16));
+        }
+    );
 }
 
 double TParaToken::AsDouble(void) const noexcept(false) {
@@ -204,8 +223,8 @@ double TParaToken::AsDouble(void) const noexcept(false) {
 
     double double_value;
     if (IsInteger()) {
-        // the token might be a HEX number, so use AsLong() conversion
-        double_value = (double) AsLong();
+        // the token might be a HEX number, so use AsInt32() conversion
+        double_value = static_cast<double>(AsInt32());
     } else {
         istringstream value_stream(_token_string);
         if (! (value_stream >> double_value)) {
@@ -230,7 +249,7 @@ std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
 }
 
 std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
-    const long dword = AsLong();
+    const unsigned long dword = AsInt32();
     return std::array<uint8_t, 4>{
         static_cast<uint8_t>( dword & 0xff ),
         static_cast<uint8_t>( (dword >> 8)  & 0xff ),
