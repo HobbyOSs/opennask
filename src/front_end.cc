@@ -607,15 +607,35 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> bytes = {};
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x73, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x73);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    // pass1のシンボルテーブルを使う
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            bytes.push_back(0x73);
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x83);
+            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x83);
+            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        }
+    );
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(bytes),
+                            std::end(bytes));
+    return;
 }
 
 void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
@@ -624,15 +644,35 @@ void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> bytes = {};
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x72);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    // pass1のシンボルテーブルを使う
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            bytes.push_back(0x72);
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x82);
+            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x82);
+            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        }
+    );
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(bytes),
+                            std::end(bytes));
+    return;
 }
 
 void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
@@ -641,15 +681,35 @@ void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> bytes = {};
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x76, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x76);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x76, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    // pass1のシンボルテーブルを使う
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            bytes.push_back(0x76);
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x86);
+            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x86);
+            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        }
+    );
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(bytes),
+                            std::end(bytes));
+    return;
 }
 
 void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
@@ -658,15 +718,35 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> bytes = {};
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x72, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x72);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x72, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    // pass1のシンボルテーブルを使う
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            bytes.push_back(0x72);
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x82);
+            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x82);
+            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        }
+    );
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(bytes),
+                            std::end(bytes));
+    return;
 }
 
 void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
@@ -792,15 +872,35 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     std::string label = arg.AsString();
+    auto label_address = sym_table.at(label);
+    std::vector<uint8_t> bytes = {};
 
-    if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-        LabelJmp::update_label_src_offset(label, label_dst_list, 0x73, binout_container);
-    } else {
-        LabelJmp::store_label_src(label, label_src_list, binout_container);
-        binout_container.push_back(0x73);
-        binout_container.push_back(0x00);
-        log()->debug("[pass2] bin[{}] = 0x73, bin[{}] = 0x00", binout_container.size() - 1, binout_container.size());
-    }
+    // pass1のシンボルテーブルを使う
+    auto jmp_offset = label_address - dollar_position - binout_container.size();
+    match(static_cast<int64_t>(jmp_offset))(
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            bytes.push_back(0x73);
+            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x83);
+            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        },
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
+            bytes.push_back(0x0F);
+            bytes.push_back(0x83);
+            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
+            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+        }
+    );
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(bytes),
+                            std::end(bytes));
+    return;
 }
 
 void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
