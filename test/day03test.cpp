@@ -1011,8 +1011,6 @@ fin:
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
-    std::vector<uint8_t> resb18(18, 0);
-    //std::vector<uint8_t> padding(297, 0);
 
     // haribote.nas
     expected.insert(expected.end(), {0xb0, 0x13});
@@ -1026,7 +1024,6 @@ fin:
     expected.insert(expected.end(), {0xb4, 0x02});
     expected.insert(expected.end(), {0xcd, 0x16});
 
-    GTEST_SKIP(); // TODO: 以降まだ機能しない
     expected.insert(expected.end(), {0x88, 0x06});
     expected.insert(expected.end(), {0xf1, 0x0f});
     expected.insert(expected.end(), {0xf4});

@@ -55,7 +55,7 @@ int TBitSetObject::DispatchMessage(const string& Message, vector<TParaValue*>& A
         ReturnValue = IsSet(ArgumentList);
     }
     else if (Message == "asInt") {
-        ReturnValue = AsInt(ArgumentList);
+        ReturnValue = AsUInt32(ArgumentList);
     }
     else if (Message == "asString") {
         ReturnValue = AsString(ArgumentList);
@@ -127,7 +127,7 @@ TParaValue TBitSetObject::IsSet(vector<TParaValue*>& ArgumentList) noexcept(fals
     return TParaValue(Result);
 }
 
-TParaValue TBitSetObject::AsInt(vector<TParaValue*>& ArgumentList) noexcept(false)
+TParaValue TBitSetObject::AsUInt32(vector<TParaValue*>& ArgumentList) noexcept(false)
 {
     return TParaValue(_Value);
 }

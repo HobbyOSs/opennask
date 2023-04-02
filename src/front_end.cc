@@ -259,7 +259,7 @@ void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            this->binout_container.push_back(e.AsInt());
+            this->binout_container.push_back(e.AsInt32());
         } else if (e.IsIdentifier()) {
             std::string s = e.AsString();
             std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
@@ -532,7 +532,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint16_t word = e.AsInt();
+            uint16_t word = static_cast<uint16_t>(e.AsInt32());
             std::vector<uint8_t> bytes = {
                 static_cast<uint8_t>( (word >> 8) & 0xff ),
                 static_cast<uint8_t>( word & 0xff ),
@@ -602,7 +602,7 @@ void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttHex);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
     binout_container.push_back(0xcd);
-    binout_container.push_back(arg.AsInt());
+    binout_container.push_back(arg.AsInt32());
 }
 
 void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
@@ -837,19 +837,26 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
             std::vector<uint8_t> bytes = {0xeb};
 
             // pass1のシンボルテーブルを使う
-            auto jmp_offset = label_address - dollar_position - binout_container.size();
-            match(static_cast<int64_t>(jmp_offset))(
+            int32_t jmp_offset = label_address - (dollar_position + binout_container.size());
+            log()->debug("[pass2] JMP label_adress: {}", label_address);
+            log()->debug("[pass2] JMP $: {}", dollar_position);
+            log()->debug("[pass2] JMP lc: {}", binout_container.size());
+
+            match(jmp_offset)(
                 pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                    log()->debug("[pass2] JMP(b): {}", jmp_offset);
                     auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
                     // TODO: ここ本当はニアジャンプじゃないかな...
+                    log()->debug("[pass2] JMP(w): {}", jmp_offset);
                     auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
                     // TODO: ここ本当はニアジャンプじゃないかな...
+                    log()->debug("[pass2] JMP(d): {}", jmp_offset);
                     auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 }
@@ -1204,8 +1211,8 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
-    dollar_position = arg.AsInt32();
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsUInt32());
+    dollar_position = arg.AsUInt32();
 }
 
 void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {

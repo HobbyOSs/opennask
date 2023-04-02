@@ -26,7 +26,7 @@ class TBitSetObject: public TParaObjectPrototype {
     TParaValue Set(std::vector<TParaValue*>& ArgumentList) noexcept(false);
     TParaValue Unset(std::vector<TParaValue*>& ArgumentList) noexcept(false);
     TParaValue IsSet(std::vector<TParaValue*>& ArgumentList) noexcept(false);
-    TParaValue AsInt(std::vector<TParaValue*>& ArgumentList) noexcept(false);
+    TParaValue AsUInt32(std::vector<TParaValue*>& ArgumentList) noexcept(false);
     TParaValue AsString(std::vector<TParaValue*>& ArgumentList) noexcept(false);
   private:
     long _Value;

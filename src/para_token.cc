@@ -153,18 +153,15 @@ string TParaToken::AsString(void) const {
     return _token_string;
 }
 
-int TParaToken::AsInt(void) const noexcept(false) {
+uint32_t TParaToken::AsUInt32(void) const noexcept(false) {
     if (! IsInteger() && ! IsHex() ) {
         ThrowUnexpected("integer");
     }
 
-    int int_value;
+    uint32_t int_value;
     if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
         // Hex Number
-        istringstream value_stream(_token_string.substr(2, string::npos));
-        if (! (value_stream >> hex >> int_value)) {
-            ThrowUnexpected("integer");
-        }
+        return static_cast<uint32_t>(std::stoul(_token_string, nullptr, 16));
     } else {
         // Dec Number
         istringstream value_stream(_token_string);
@@ -236,12 +233,12 @@ double TParaToken::AsDouble(void) const noexcept(false) {
 }
 
 std::array<uint8_t, 1> TParaToken::AsUInt8t() const {
-    const int v = AsInt();
+    const int v = AsUInt32();
     return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
 }
 
 std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
-    const int word = AsInt();
+    const int word = AsUInt32();
     return std::array<uint8_t, 2>{
         static_cast<uint8_t>( word & 0xff ),
         static_cast<uint8_t>( (word >> 8) & 0xff ),

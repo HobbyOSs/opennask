@@ -1056,7 +1056,7 @@ void Pass1Strategy::processNOP() {
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    loc = arg.AsInt32();
+    loc = arg.AsUInt32();
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
