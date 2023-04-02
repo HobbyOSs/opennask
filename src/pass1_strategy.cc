@@ -876,6 +876,9 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // cat json-x86-64/x86_64.json | \
     // jq -r '.instructions["MOV"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // -- パターンは25個ある
+    // TODO: x86 tableに下記1行の記載なし
+    // B0+rb   r8      imm8
+    //
     // C6      r8      imm8
     // 88      r8      r8
     // 8A      r8      m8
@@ -899,6 +902,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 89      m32     r32
     // C7      m64     imm32
     // 89      m64     r64
+    // TODO: x86 tableに下記2行の記載なし
+    // A2      moffs8  al
+    // A3      moffs16 ax
+    //
     // A3      moffs32 eax
     // A3      moffs64 rax
     auto inst = iset->instructions().at("MOV");
@@ -969,7 +976,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C6      m8      imm8
         pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV BYTE [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 88      m8      r8
         // 88      m16     r8 (m16の場合下位8ビットが使われる)
@@ -982,7 +992,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV WORD [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m16     r16
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
@@ -990,7 +1003,12 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C7      m32     imm32
         pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV DWORD [addr_size], X`
+            // TODO: x86 tableの定義に`prefix`の定義がない
+            auto override_prefix_size = (bit_mode != ID_32BIT_MODE) ? 1 : 0;
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = override_prefix_size + addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m32     r32
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
@@ -1049,7 +1067,7 @@ void Pass1Strategy::processNOP() {
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    loc = arg.AsInt32();
+    loc = arg.AsUInt32();
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
