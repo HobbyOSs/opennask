@@ -838,25 +838,17 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
             // pass1のシンボルテーブルを使う
             int32_t jmp_offset = label_address - (dollar_position + binout_container.size());
-            log()->debug("[pass2] JMP label_adress: {}", label_address);
-            log()->debug("[pass2] JMP $: {}", dollar_position);
-            log()->debug("[pass2] JMP lc: {}", binout_container.size());
 
             match(jmp_offset)(
                 pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                    log()->debug("[pass2] JMP(b): {}", jmp_offset);
                     auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
-                    // TODO: ここ本当はニアジャンプじゃないかな...
-                    log()->debug("[pass2] JMP(w): {}", jmp_offset);
                     auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 },
                 pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
-                    // TODO: ここ本当はニアジャンプじゃないかな...
-                    log()->debug("[pass2] JMP(d): {}", jmp_offset);
                     auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
                     std::copy(b.begin(), b.end(), std::back_inserter(bytes));
                 }
