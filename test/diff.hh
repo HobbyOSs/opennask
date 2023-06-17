@@ -116,8 +116,13 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n) {
         return ::testing::AssertionSuccess();
 
     // 差分が有る場合でも最初の300byteまでしか出さない
-    auto expected_slice = slice(expected, 0, 300);
-    auto actual_slice = slice(actual, 0, 300);
+    size_t slice_size = 300;
+    if (expected.size() <= 300 && actual.size() <= 300) {
+        // 出力が300byte以下だった場合は想定値とテスト結果のうち大きい方のサイズで差分を出す
+        slice_size = std::max(expected.size(), actual.size());
+    }
+    auto expected_slice = slice(expected, 0, slice_size);
+    auto actual_slice = slice(actual, 0, slice_size);
 
     const std::string msg = "[diff]\n" + diff(expected_slice, actual_slice);
     return ::testing::AssertionFailure(::testing::Message(msg.c_str()));

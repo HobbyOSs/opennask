@@ -10,7 +10,7 @@ class Day03Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Day03Suite() {
-        //spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::debug);
     }
 
     // 試験終了時に一回だけ実行
@@ -964,7 +964,6 @@ msg:
     expected.insert(expected.end(), {0x55, 0xaa});
 
     // 作成したバイナリの差分assert & diff表示
-    GTEST_SKIP(); // TODO: まだ機能しない
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
 
@@ -1012,8 +1011,6 @@ fin:
     d->Eval<Program>(pt.get(), "test.img");
 
     std::vector<uint8_t> expected = {};
-    std::vector<uint8_t> resb18(18, 0);
-    //std::vector<uint8_t> padding(297, 0);
 
     // haribote.nas
     expected.insert(expected.end(), {0xb0, 0x13});
@@ -1026,13 +1023,13 @@ fin:
 
     expected.insert(expected.end(), {0xb4, 0x02});
     expected.insert(expected.end(), {0xcd, 0x16});
+
     expected.insert(expected.end(), {0x88, 0x06});
     expected.insert(expected.end(), {0xf1, 0x0f});
     expected.insert(expected.end(), {0xf4});
     expected.insert(expected.end(), {0xeb, 0xfd});
 
     // 作成したバイナリの差分assert & diff表示
-    GTEST_SKIP(); // TODO: まだ機能しない
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
 

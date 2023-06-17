@@ -33,7 +33,7 @@ TEST_F(ExpSuite, ParaToken)
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
 
     d->visitInteger(30);
-    EXPECT_EQ(30, d->ctx.top().AsInt());
+    EXPECT_EQ(30, d->ctx.top().AsUInt32());
     d->ctx.pop();
 
     d->visitChar('H');
@@ -63,7 +63,7 @@ TEST_F(ExpSuite, Factor)
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto numberFactor = NumberFactor(30);
     d->visitNumberFactor(&numberFactor);
-    EXPECT_EQ(30, d->ctx.top().AsInt());
+    EXPECT_EQ(30, d->ctx.top().AsUInt32());
     d->ctx.pop();
 
     auto hexFactor = HexFactor("hello1");
@@ -94,7 +94,7 @@ TEST_F(ExpSuite, ImmExp)
     {
         auto immExp = ImmExp(numberFactor.clone());
         d->visitImmExp(&immExp);
-        EXPECT_EQ(30, d->ctx.top().AsInt());
+        EXPECT_EQ(30, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
@@ -172,31 +172,31 @@ TEST_F(ExpSuite, ArithmeticOperations)
     {
         auto plusExp = PlusExp(immExp1.clone(), immExp2.clone());
         d->visitPlusExp(&plusExp);
-        EXPECT_EQ(10, d->ctx.top().AsInt());
+        EXPECT_EQ(10, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
         auto minusExp = MinusExp(immExp1.clone(), immExp2.clone());
         d->visitMinusExp(&minusExp);
-        EXPECT_EQ(4, d->ctx.top().AsInt());
+        EXPECT_EQ(4, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
         auto mulExp = MulExp(immExp1.clone(), immExp2.clone());
         d->visitMulExp(&mulExp);
-        EXPECT_EQ(21, d->ctx.top().AsInt());
+        EXPECT_EQ(21, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
         auto divExp = DivExp(immExp1.clone(), immExp2.clone());
         d->visitDivExp(&divExp);
-        EXPECT_EQ(2, d->ctx.top().AsInt());
+        EXPECT_EQ(2, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
         auto modExp = ModExp(immExp1.clone(), immExp2.clone());
         d->visitModExp(&modExp);
-        EXPECT_EQ(1, d->ctx.top().AsInt());
+        EXPECT_EQ(1, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
 }
@@ -210,7 +210,7 @@ TEST_F(ExpSuite, MnemoArgs)
         auto mnemoArg = MnemoArg(immExp.clone());
 
         d->visitMnemoArg(&mnemoArg);
-        EXPECT_EQ(12, d->ctx.top().AsInt());
+        EXPECT_EQ(12, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
     {
@@ -224,9 +224,9 @@ TEST_F(ExpSuite, MnemoArgs)
         d->visitListMnemonicArgs(&mnemoArgs);
         EXPECT_EQ(2, d->ctx.size());
 
-        EXPECT_EQ(13, d->ctx.top().AsInt());
+        EXPECT_EQ(13, d->ctx.top().AsUInt32());
         d->ctx.pop();
-        EXPECT_EQ(12, d->ctx.top().AsInt());
+        EXPECT_EQ(12, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
 }
@@ -275,11 +275,11 @@ TEST_F(ExpSuite, DeclareStmt)
         auto declareStmt = DeclareStmt("CYLS", immExp.clone());
 
         d->visitDeclareStmt(&declareStmt);
-        EXPECT_EQ(10, d->equ_map["CYLS"].AsInt());
+        EXPECT_EQ(10, d->equ_map["CYLS"].AsUInt32());
 
         d->visitIdent("CYLS");
         EXPECT_EQ("10", d->ctx.top().AsString());
-        EXPECT_EQ(10, d->ctx.top().AsInt());
+        EXPECT_EQ(10, d->ctx.top().AsUInt32());
         d->ctx.pop();
     }
 }

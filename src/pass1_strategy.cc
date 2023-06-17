@@ -634,13 +634,13 @@ void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
         auto resb_size = range.substr(0, range.length() - suffix.length());
         auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
-        loc += resb_token.AsLong();
+        loc += resb_token.AsInt32();
         log()->debug("[pass1] LOC = {}({:x})", loc, loc);
         return;
     }
 
     arg.MustBe(TParaToken::ttInteger);
-    loc += arg.AsLong();
+    loc += arg.AsInt32();
     log()->debug("[pass1] LOC = {}({:x})", loc, loc);
     return;
 }
@@ -689,70 +689,169 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x73      cb JAE rel8    CF=0 より上か等しい場合ショートジャンプします
+        // 0x0F 0x83 cw JAE rel16   CF=0 より上か等しい場合ニアジャンプします
+        // 0x0F 0x83 cd JAE rel32   CF=0 より上か等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x72      cb JB rel8    CF=1 より下の場合ショートジャンプします
+        // 0x0F 0x82 cw JB rel16   CF=1 より下の場合ニアジャンプします
+        // 0x0F 0x82 cd JB rel32   CF=1 より下の場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x76      cb JBE rel8    CF=1 or ZF=1 より下か等しい場合ショートジャンプします
+        // 0x0F 0x86 cw JBE rel16   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
+        // 0x0F 0x86 cd JBE rel32   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x72      cb JC rel8    CF=1 キャリーがある場合ショートジャンプします
+        // 0x0F 0x82 cw JC rel16   CF=1 キャリーがある場合ニアジャンプします
+        // 0x0F 0x82 cd JC rel32   CF=1 キャリーがある場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x74      cb JE rel8    ZF=1 等しい場合ショートジャンプします
+        // 0x0F 0x84 cw JE rel16   ZF=1 等しい場合ニアジャンプします
+        // 0x0F 0x84 cd JE rel32   ZF=1 等しい場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    // TODO: 絶対ジャンプについては後ほど実装
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
+        // 0xE9 cw JMP rel16   次の命令との相対オフセットだけ相対ニアジャンプする
+        // 0xE9 cd JMP rel32   次の命令との相対オフセットだけ相対ニアジャンプする
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 2,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 5
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
-    // rel8の場合instructionのsizeは合計2
-    // rel32の場合instructionのsizeは合計5
-    // とりあえずrel8として処理する, どちらになるかはpass2で判断する
-    uint32_t l = 2;
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x73      cb JNC rel8    キャリーがない場合ショートジャンプします
+        // 0x0F 0x83 cw JNC rel16   キャリーがない場合ニアジャンプします
+        // 0x0F 0x83 cd JNC rel32   キャリーがない場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
@@ -777,6 +876,9 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // cat json-x86-64/x86_64.json | \
     // jq -r '.instructions["MOV"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
     // -- パターンは25個ある
+    // TODO: x86 tableに下記1行の記載なし
+    // B0+rb   r8      imm8
+    //
     // C6      r8      imm8
     // 88      r8      r8
     // 8A      r8      m8
@@ -800,6 +902,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 89      m32     r32
     // C7      m64     imm32
     // 89      m64     r64
+    // TODO: x86 tableに下記2行の記載なし
+    // A2      moffs8  al
+    // A3      moffs16 ax
+    //
     // A3      moffs32 eax
     // A3      moffs64 rax
     auto inst = iset->instructions().at("MOV");
@@ -870,16 +976,26 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C6      m8      imm8
         pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV BYTE [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 88      m8      r8
-        // 実際mem16でも実行できる
+        // 88      m16     r8 (m16の場合下位8ビットが使われる)
         pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            auto token = TParaToken(mnemonic_args[0]);
+            token.SetAttribute(TParaToken::ttMem8);
+            // `MOV [0x0ff0],CH` だと0x0ff0部分を機械語に足す
+            auto size = token.GetImmSize() + inst.get_output_size(bit_mode, {token, mnemonic_args[1]});
+            return size;
         },
         // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV WORD [addr_size], X`
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m16     r16
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
@@ -887,7 +1003,12 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // C7      m32     imm32
         pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            // `MOV DWORD [addr_size], X`
+            // TODO: x86 tableの定義に`prefix`の定義がない
+            auto override_prefix_size = (bit_mode != ID_32BIT_MODE) ? 1 : 0;
+            auto addr_size = mnemonic_args[0].GetImmSize();
+            auto size = override_prefix_size + addr_size + inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+            return size;
         },
         // 89      m32     r32
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
@@ -946,7 +1067,7 @@ void Pass1Strategy::processNOP() {
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
-    loc = arg.AsLong();
+    loc = arg.AsUInt32();
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
@@ -1054,9 +1175,9 @@ void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
     } else if (std::regex_match(t.AsString(), registers32)) {
         t.SetAttribute(TParaToken::ttMem32);
     } else if (std::regex_match(t.AsString(), registers64)) {
-      t.SetAttribute(TParaToken::ttMem64);
+        t.SetAttribute(TParaToken::ttMem64);
     } else if (t.IsHex()) {
-        auto attr = match(static_cast<int64_t>(t.AsLong()))(
+        auto attr = match(static_cast<int64_t>(t.AsInt32()))(
             pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
             pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
             pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
@@ -1174,15 +1295,15 @@ void Pass1Strategy::visitArithmeticOperations(T *exp) {
 
     long ans = 0;
     if constexpr (std::is_same_v<T, PlusExp>) {
-        ans = left.AsLong() + right.AsLong();
+        ans = left.AsInt32() + right.AsInt32();
     } else if constexpr (std::is_same_v<T, MinusExp>) {
-        ans = left.AsLong() - right.AsLong();
+        ans = left.AsInt32() - right.AsInt32();
     } else if constexpr (std::is_same_v<T, MulExp>) {
-        ans = left.AsLong() * right.AsLong();
+        ans = left.AsInt32() * right.AsInt32();
     } else if constexpr (std::is_same_v<T, DivExp>) {
-        ans = left.AsLong() / right.AsLong();
+        ans = left.AsInt32() / right.AsInt32();
     } else if constexpr (std::is_same_v<T, ModExp>) {
-        ans = left.AsLong() % right.AsLong();
+        ans = left.AsInt32() % right.AsInt32();
     } else {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }

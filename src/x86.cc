@@ -69,7 +69,6 @@ namespace x86_64 {
         if (code_offset_) {
             output_size += code_offset_->size();
         }
-;
         return output_size;
     }
 

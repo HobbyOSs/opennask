@@ -11,8 +11,10 @@
 #include <exception>
 #include <stdexcept>
 #include "para_token.hh"
+#include "matchit.h"
 
 using namespace std;
+using namespace matchit;
 
 TParaToken::TParaToken(void) {
     _type = ttEmpty;
@@ -151,18 +153,15 @@ string TParaToken::AsString(void) const {
     return _token_string;
 }
 
-int TParaToken::AsInt(void) const noexcept(false) {
+uint32_t TParaToken::AsUInt32(void) const noexcept(false) {
     if (! IsInteger() && ! IsHex() ) {
         ThrowUnexpected("integer");
     }
 
-    int int_value;
+    uint32_t int_value;
     if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
         // Hex Number
-        istringstream value_stream(_token_string.substr(2, string::npos));
-        if (! (value_stream >> hex >> int_value)) {
-            ThrowUnexpected("integer");
-        }
+        return static_cast<uint32_t>(std::stoul(_token_string, nullptr, 16));
     } else {
         // Dec Number
         istringstream value_stream(_token_string);
@@ -174,27 +173,44 @@ int TParaToken::AsInt(void) const noexcept(false) {
     return int_value;
 }
 
-long TParaToken::AsLong(void) const noexcept(false) {
+int32_t TParaToken::AsInt32(void) const noexcept(false) {
     if (! IsInteger() && ! IsHex() ) {
         ThrowUnexpected("integer");
     }
 
-    long long_value;
-    if ((_token_string.size() > 2) && (tolower(_token_string[1]) == 'x')) {
-        // Hex Number
-        istringstream value_stream(_token_string.substr(2, string::npos));
-        if (! (value_stream >> hex >> long_value)) {
-            ThrowUnexpected("integer");
-        }
-    } else {
+    if (IsInteger()) {
         // Dec Number
+        int32_t value;
         istringstream value_stream(_token_string);
-        if (! (value_stream >> long_value)) {
+        if (! (value_stream >> value)) {
             ThrowUnexpected("integer");
         }
+        return value;
     }
-
-    return long_value;
+    // Hex Number
+    return match(_token_string.length() - 2)(
+        pattern | (_ <= 2) = [&] {
+            std::istringstream iss(_token_string);
+            int16_t val;
+            if (! (iss >> std::hex >> val)) {
+                ThrowUnexpected("integer");
+            }
+            // int16_t -> int8_t -> int32_t にキャストして負の数に対応
+            return static_cast<int32_t>(static_cast<int8_t>(val));
+        },
+        pattern | (_ <= 4) = [&] {
+            std::istringstream iss(_token_string);
+            uint16_t val;
+            if (! (iss >> std::hex >> val)) {
+                ThrowUnexpected("integer");
+            }
+            return static_cast<int32_t>(static_cast<int16_t>(val));
+        },
+        pattern | _ = [&] {
+            // std::stoulでunsigned longを取得してキャスト
+            return static_cast<int32_t>(std::stoul(_token_string, nullptr, 16));
+        }
+    );
 }
 
 double TParaToken::AsDouble(void) const noexcept(false) {
@@ -204,8 +220,8 @@ double TParaToken::AsDouble(void) const noexcept(false) {
 
     double double_value;
     if (IsInteger()) {
-        // the token might be a HEX number, so use AsLong() conversion
-        double_value = (double) AsLong();
+        // the token might be a HEX number, so use AsInt32() conversion
+        double_value = static_cast<double>(AsInt32());
     } else {
         istringstream value_stream(_token_string);
         if (! (value_stream >> double_value)) {
@@ -217,12 +233,12 @@ double TParaToken::AsDouble(void) const noexcept(false) {
 }
 
 std::array<uint8_t, 1> TParaToken::AsUInt8t() const {
-    const int v = AsInt();
+    const int v = AsUInt32();
     return std::array<uint8_t, 1>{static_cast<uint8_t>(v)};
 }
 
 std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
-    const int word = AsInt();
+    const int word = AsUInt32();
     return std::array<uint8_t, 2>{
         static_cast<uint8_t>( word & 0xff ),
         static_cast<uint8_t>( (word >> 8) & 0xff ),
@@ -230,7 +246,7 @@ std::array<uint8_t, 2> TParaToken::AsUInt16t() const {
 }
 
 std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
-    const long dword = AsLong();
+    const unsigned long dword = AsInt32();
     return std::array<uint8_t, 4>{
         static_cast<uint8_t>( dword & 0xff ),
         static_cast<uint8_t>( (dword >> 8)  & 0xff ),
@@ -240,6 +256,10 @@ std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
 }
 
 size_t TParaToken::GetImmSize() const {
+    if (!IsHex()) {
+        return 0;
+    }
+
     const std::string supplied_hex = (_token_string.substr(2).size() % 2 == 0) ?
         _token_string.substr(2) : "0" + _token_string.substr(2);
     const size_t s = supplied_hex.size() / 2;
