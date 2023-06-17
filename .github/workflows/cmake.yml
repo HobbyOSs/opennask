@@ -44,8 +44,8 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -B ${{github.workspace}}/build -G Ninja \
-              -D CMAKE_C_COMPILER_LAUNCHER=ccache     \
-              -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache      \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
     - name: Build
       working-directory: ${{github.workspace}}/build
