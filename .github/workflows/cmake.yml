@@ -2,22 +2,23 @@ name: CMake
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: ['*']
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest # focal
+    runs-on: ubuntu-latest # jammy
 
     steps:
     - name: Checkout source
       uses: actions/checkout@v2
       with:
         submodules: recursive
+
+    - name: Use ccache
+      uses: hendrikmuhs/ccache-action@v1.2
 
     - name: Update submodules
       id: update
@@ -36,15 +37,17 @@ jobs:
     - name: Install build tools
       uses: awalsh128/cache-apt-pkgs-action@v1.1.0
       with:
-        packages: cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+        packages: gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
         version: 1.0
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -G Ninja
-
-    - name: Build
-      working-directory: ${{github.workspace}}/build
-      run: ninja && ninja images
+      uses: lukka/run-cmake@v10.5
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        cmakeAppendedArgs: '-G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache'
+        buildWithCMake: true
+        buildDirectory: '${{ github.workspace }}/build'
 
     - name: Test
       working-directory: ${{github.workspace}}/build
