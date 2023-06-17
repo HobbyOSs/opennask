@@ -2,7 +2,8 @@ name: CMake
 
 on:
   push:
-    branches: ['*']
+  pull_request:
+    branches: [ "*" ]
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -41,13 +42,14 @@ jobs:
         version: 1.0
 
     - name: Configure CMake
-      uses: lukka/run-cmake@v10.5
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeAppendedArgs: '-G Ninja -D CMAKE_C_COMPILER_LAUNCHER=ccache -D CMAKE_CXX_COMPILER_LAUNCHER=ccache'
-        buildWithCMake: true
-        buildDirectory: '${{ github.workspace }}/build'
+      run: |
+        cmake -B ${{github.workspace}}/build -G Ninja \
+              -D CMAKE_C_COMPILER_LAUNCHER=ccache     \
+              -D CMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      run: ninja && ninja images
 
     - name: Test
       working-directory: ${{github.workspace}}/build
