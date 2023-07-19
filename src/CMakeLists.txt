@@ -6,6 +6,7 @@ set(opennask_VERSION \"1.0.1\")
 find_package(Threads REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
+add_subdirectory(asmjit)
 
 include_directories(
   ${root_SOURCE_DIR}/parasol
@@ -13,7 +14,8 @@ include_directories(
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/jsoncons/include
-  ${root_SOURCE_DIR}/matchit.cpp/include)
+  ${root_SOURCE_DIR}/matchit.cpp/include
+)
 
 ########### next target ###############
 
