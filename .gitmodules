@@ -25,3 +25,6 @@
 [submodule "src/asmjit"]
 	path = src/asmjit
 	url = https://github.com/asmjit/asmjit
+[submodule "asmjit"]
+	path = asmjit
+	url = https://github.com/asmjit/asmjit
