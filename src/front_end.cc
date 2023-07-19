@@ -9,7 +9,6 @@
 #include "parser.hh"
 #include "demangle.hpp"
 #include "mod_rm.hpp"
-#include "x86.hh"
 
 
 using namespace std::placeholders;
@@ -30,7 +29,6 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     // nask
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
-    iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
 
     // TODO: 後ほど削除
     label_dst_list = LabelDstList{};
@@ -943,7 +941,6 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsString()
     );
 
-    auto inst = iset->instructions().at("MOV");
     Id<std::string> dst;
     Id<std::string> src;
 
