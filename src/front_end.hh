@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <any>
-#include <asmjit/src/asmjit/asmjit.h>
+#include <asmjit/asmjit.h>
 #include "para_token.hh"
 #include "parser.hh"
 #include "printer.hh"

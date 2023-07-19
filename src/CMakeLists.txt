@@ -7,13 +7,13 @@ find_package(Threads REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
-set(ASMJIT_DIR "asmjit")
+set(ASMJIT_DIR ${root_SOURCE_DIR}/asmjit)
 include("${ASMJIT_DIR}/CMakeLists.txt")
 
 include_directories(
   ${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src/incbin
-  #${ASMJIT_DIR}
+  ${ASMJIT_DIR}/src
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/jsoncons/include
@@ -81,12 +81,13 @@ add_executable(nask_parse
   ${nask_parse_SRCS})
 target_link_libraries(nask_parse PRIVATE
   Threads::Threads
-  spdlog::spdlog)
+  spdlog::spdlog
+  ${ASMJIT_DEPS}
+)
 target_include_directories(nask_parse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/bnfc
   ${CMAKE_CURRENT_SOURCE_DIR}/incbin
   ${CMAKE_CURRENT_SOURCE_DIR}/jsoncons/include
-  #${CMAKE_CURRENT_SOURCE_DIR}/asmjit/src/asmjit
 )
 set_property(TARGET nask_parse PROPERTY CXX_STANDARD 17)
 
@@ -123,7 +124,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 add_executable(opennask ${opennask_SRCS})
 target_link_libraries(opennask
   PRIVATE
-  Threads::Threads parasol spdlog::spdlog ${ASMJIT_DEPS})
+  Threads::Threads parasol spdlog::spdlog)
 
 set_property(TARGET opennask PROPERTY CXX_STANDARD 17)
 set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)

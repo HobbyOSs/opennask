@@ -11,7 +11,6 @@
 #include "mod_rm.hpp"
 
 
-using namespace asmjit;
 using namespace std::placeholders;
 using namespace matchit;
 

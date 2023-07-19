@@ -12,6 +12,7 @@ include_directories(${root_SOURCE_DIR}/parasol
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/src/bnfc
   ${root_SOURCE_DIR}/src/incbin
+  ${ASMJIT_DIR}/src
   ${root_SOURCE_DIR}/src/jsoncons/include
   ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/matchit.cpp/include
