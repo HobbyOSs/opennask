@@ -82,7 +82,7 @@ add_executable(nask_parse
 target_link_libraries(nask_parse PRIVATE
   Threads::Threads
   spdlog::spdlog
-  ${ASMJIT_DEPS}
+  asmjit::asmjit
 )
 target_include_directories(nask_parse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/bnfc

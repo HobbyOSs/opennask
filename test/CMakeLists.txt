@@ -50,7 +50,11 @@ set(parsertest_SRCS
 
 add_executable(parsertest ${parsertest_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(parsertest PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  Threads::Threads
+  spdlog::spdlog
+  asmjit::asmjit
+  parasol
+  GTest::gtest_main)
 add_backward(parsertest)
 
 set_property(TARGET parsertest PROPERTY CXX_STANDARD 17)
@@ -67,7 +71,10 @@ set(modrmtest_SRCS
 
 add_executable(modrmtest ${modrmtest_SRCS})
 target_link_libraries(modrmtest PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  GTest::gtest_main)
 
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD 17)
 set_property(TARGET modrmtest PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -109,7 +116,11 @@ set(pass1_test_SRCS
 
 add_executable(pass1_test ${pass1_test_SRCS})
 target_link_libraries(pass1_test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
 
 set_property(TARGET pass1_test PROPERTY CXX_STANDARD 17)
 set_property(TARGET pass1_test PROPERTY CXX_STANDARD_REQUIRED ON)
@@ -122,7 +133,11 @@ set(day01test_SRCS
 
 add_executable(day01test ${day01test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day01test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
 add_backward(day01test)
 
 set_property(TARGET day01test PROPERTY CXX_STANDARD 17)
@@ -136,7 +151,11 @@ set(day02test_SRCS
 
 add_executable(day02test ${day02test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day02test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
 add_backward(day02test)
 
 set_property(TARGET day02test PROPERTY CXX_STANDARD 17)
@@ -150,7 +169,11 @@ set(day03test_SRCS
 
 add_executable(day03test ${day03test_SRCS} ${BACKWARD_ENABLE})
 target_link_libraries(day03test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
 add_backward(day03test)
 
 set_property(TARGET day03test PROPERTY CXX_STANDARD 17)
