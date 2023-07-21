@@ -267,7 +267,10 @@ void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
+    using namespace asmjit;
     using namespace matchit;
+
+
     using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsString(),
@@ -276,88 +279,55 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     );
     std::string dst = mnemonic_args[0].AsString();
 
-    std::vector<uint8_t> machine_codes = match(operands)(
+    JitRuntime rt;
+    CodeHolder code;
+    code.init(rt.environment(), rt.cpuFeatures());
+    x86::Assembler assembler(&code);
+
+    match(operands)(
         // 0x04 ib		ADD AL, imm8		imm8をALに加算する
         // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
         // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
         pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x04;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            assembler.mov(x86::al, mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x05;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt16t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            assembler.mov(x86::ax, mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x05;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt32t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            assembler.mov(x86::eax, mnemonic_args[1].AsInt32());
+            return;
         },
-
         // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
-        pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x80;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+        pattern | ds(or_(std::string("AL"),
+                         std::string("BL"),
+                         std::string("CL"),
+                         std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            assembler.mov(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            return;
         },
+        pattern | ds(or_(std::string("AH"),
+                         std::string("BH"),
+                         std::string("CH"),
+                         std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            assembler.mov(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            return;
+        },
+
         // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
         // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
         pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-
-            uint8_t base = 0x81;
-            uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-
-            if (mnemonic_args[1].AsInt32() <= 255) {
-                base = 0x83;
-                std::vector<uint8_t> b = {base, modrm};
-                auto imm = mnemonic_args[1].AsUInt8t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-                return b;
-            } else {
-                base = 0x81;
-                std::vector<uint8_t> b = {base, modrm};
-                auto imm = mnemonic_args[1].AsUInt16t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-                return b;
-            }
+            assembler.mov(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            return;
         },
         // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
         // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
         pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-
-            uint8_t base = 0x00;
-            uint8_t modrm = ModRM::generate_modrm(ModRM::REG, dst, ModRM::SLASH_0);
-
-            if (mnemonic_args[1].AsInt32() <= 255) {
-                base = 0x83;
-                std::vector<uint8_t> b = {base, modrm};
-                auto imm = mnemonic_args[1].AsUInt8t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-                return b;
-            } else {
-                base = 0x81;
-                std::vector<uint8_t> b = {base, modrm};
-                auto imm = mnemonic_args[1].AsUInt32t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-                return b;
-            }
+            assembler.mov(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            return;
         },
-
 
         // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
         // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
@@ -368,12 +338,26 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
         pattern | _ = [&] {
             throw std::runtime_error("ADD, Not implemented or not matched!!!");
-            return std::vector<uint8_t>();
         }
     );
 
+    //typedef int (*Func)(void);
+    //Func fn;
+    //Error err = assembler.finalize();
+    //if (err) {
+    //    throw std::runtime_error(std::string("ADD, エラー: ") + DebugUtils::errorAsString(err));
+    //}
+    //err = rt.add(&fn, &code);
+    //if (err) {
+    //    throw std::runtime_error(std::string("ADD, エラー: ") + DebugUtils::errorAsString(err));
+    //}
+    //
+    //// 生成された機械語を取得
+    //const uint8_t* machine_code = fn.getCode();
+    //size_t code_size = code.codeSize();
+
     // 結果を投入
-    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    //binout_container.insert(binout_container.end(), machine_code, machine_code + code_size);
     return;
 }
 

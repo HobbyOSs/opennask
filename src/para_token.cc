@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace matchit;
+using namespace asmjit;
 
 TParaToken::TParaToken(void) {
     _type = ttEmpty;
@@ -151,6 +152,85 @@ bool TParaToken::IsNot(const string& string) const {
 
 string TParaToken::AsString(void) const {
     return _token_string;
+}
+
+asmjit::x86::GpbLo TParaToken::AsAsmJitGpbLo(void) const {
+
+    using namespace asmjit;
+    std::string s(_token_string);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+
+    return match(s)(
+        pattern | "al" = x86::al,
+        pattern | "bl" = x86::bl,
+        pattern | "cl" = x86::cl,
+        pattern | "dl" = x86::dl
+    );
+}
+
+asmjit::x86::GpbHi TParaToken::AsAsmJitGpbHi(void) const {
+
+    std::string s(_token_string);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+
+    return match(s)(
+        pattern | "ah" = asmjit::x86::ah,
+        pattern | "bh" = asmjit::x86::bh,
+        pattern | "ch" = asmjit::x86::ch,
+        pattern | "dh" = asmjit::x86::dh
+    );
+}
+
+asmjit::x86::Gpw TParaToken::AsAsmJitGpw(void) const {
+
+    std::string s(_token_string);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+
+    return match(s)(
+        pattern | "ax" = asmjit::x86::ax,
+        pattern | "bx" = asmjit::x86::bx,
+        pattern | "cx" = asmjit::x86::cx,
+        pattern | "dx" = asmjit::x86::dx,
+        pattern | "si" = asmjit::x86::si,
+        pattern | "di" = asmjit::x86::di,
+        pattern | "bp" = asmjit::x86::bp
+    );
+}
+
+asmjit::x86::Gpd TParaToken::AsAsmJitGpd(void) const {
+
+    std::string s(_token_string);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+
+    return match(s)(
+        pattern | "eax" = asmjit::x86::eax,
+        pattern | "ebx" = asmjit::x86::ebx,
+        pattern | "ecx" = asmjit::x86::ecx,
+        pattern | "edx" = asmjit::x86::edx,
+        pattern | "esi" = asmjit::x86::esi,
+        pattern | "edi" = asmjit::x86::edi,
+        pattern | "ebp" = asmjit::x86::ebp
+    );
 }
 
 uint32_t TParaToken::AsUInt32(void) const noexcept(false) {
