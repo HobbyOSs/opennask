@@ -284,22 +284,24 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     Environment env;
     env.setArch(Arch::kX86);
     code.init(env);
-    x86::Assembler assembler(&code);
+    x86::Assembler a(&code);
 
     match(operands)(
         // 0x04 ib		ADD AL, imm8		imm8をALに加算する
         // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
         // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
         pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.add(x86::al, mnemonic_args[1].AsInt32());
+            a.add(x86::al, mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            assembler.add(x86::ax, mnemonic_args[1].AsInt32());
+            // 他のassemblerだと通常はこの場合0x83で処理するようだ
+            a.db(0x05);
+            a.dw(mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            assembler.add(x86::eax, mnemonic_args[1].AsInt32());
+            a.add(x86::eax, mnemonic_args[1].AsInt32());
             return;
         },
         // TODO: メモリーアドレッシング
@@ -308,27 +310,27 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
                          std::string("BL"),
                          std::string("CL"),
                          std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds(or_(std::string("AH"),
                          std::string("BH"),
                          std::string("CH"),
                          std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
             return;
         },
 
         // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
         // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
         pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            assembler.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
             return;
         },
         // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
         // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
         pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            assembler.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
             return;
         },
 
@@ -338,7 +340,6 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
         // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
         // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
-
         pattern | _ = [&] {
             throw std::runtime_error("ADD, Not implemented or not matched!!!");
         }
