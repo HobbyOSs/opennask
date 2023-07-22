@@ -253,24 +253,37 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 }
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            this->binout_container.push_back(e.AsInt32());
+            a.db(e.AsInt32());
         } else if (e.IsIdentifier()) {
-            std::string s = e.AsString();
-            std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+            const std::string s = e.AsString();
+            std::for_each(s.begin(),
+                          s.end(),
+                          [&](char c) { a.db(c); });
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
-    using namespace asmjit;
     using namespace matchit;
-
-
     using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsString(),
@@ -279,10 +292,10 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     );
     std::string dst = mnemonic_args[0].AsString();
 
-    JitRuntime rt;
-    CodeHolder code;
+    using namespace asmjit;
     Environment env;
     env.setArch(Arch::kX86);
+    CodeHolder code;
     code.init(env);
     x86::Assembler a(&code);
 
@@ -509,44 +522,54 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint16_t word = static_cast<uint16_t>(e.AsInt32());
-            std::vector<uint8_t> bytes = {
-                static_cast<uint8_t>( (word >> 8) & 0xff ),
-                static_cast<uint8_t>( word & 0xff ),
-            };
-            // リトルエンディアンなので逆順コピー
-            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
-
+            a.dw(e.AsInt32());
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint32_t dword = e.AsInt32();
-            std::vector<uint8_t> bytes = {
-                static_cast<uint8_t>( (dword >> 24) & 0xff ),
-                static_cast<uint8_t>( (dword >> 16) & 0xff ),
-                static_cast<uint8_t>( (dword >> 8)  & 0xff ),
-                static_cast<uint8_t>( dword & 0xff ),
-            };
-            // リトルエンディアンなので逆順コピー
-            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
-
+            a.dd(e.AsInt32());
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {

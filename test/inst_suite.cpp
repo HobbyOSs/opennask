@@ -67,19 +67,24 @@ TEST_P(StatementToMachineCode, StatementToMachineCode) {
 
 INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
     testing::Values(
-        // acc--
+        // DB,DW,DD---
+        StatementToMachineCodeParam("DB 1,2,3", std::vector<uint8_t>{0x01, 0x02, 0x03}),
+        StatementToMachineCodeParam("DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
+        StatementToMachineCodeParam("DW 512", std::vector<uint8_t>{0x00, 0x02}),
+        StatementToMachineCodeParam("DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
+        // ADD---
         StatementToMachineCodeParam("ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
         StatementToMachineCodeParam("ADD AX,0x0020", std::vector<uint8_t>{0x05, 0x20, 0x00}),
         StatementToMachineCodeParam("ADD EAX,3", std::vector<uint8_t>{0x83, 0xc0, 0x03}),
-        // add r/m8 imm8
+        //   add r/m8 imm8
         StatementToMachineCodeParam("ADD BL,1", std::vector<uint8_t>{0x80, 0xc3, 0x01}),
         StatementToMachineCodeParam("ADD BH,1", std::vector<uint8_t>{0x80, 0xc7, 0x01}),
-        // 0x81 add r/m16 imm16
-        // 0x83 add r/m16 imm8
+        //   0x81 add r/m16 imm16
+        //   0x83 add r/m16 imm8
         StatementToMachineCodeParam("ADD SI,300", std::vector<uint8_t>{0x81, 0xc6, 0x2c, 0x01}),
         StatementToMachineCodeParam("ADD SI,1", std::vector<uint8_t>{0x83, 0xc6, 0x01}),
-        // 0x81 add r/m32 imm32
-        // 0x83 add r/m32 imm32
+        //   0x81 add r/m32 imm32
+        //   0x83 add r/m32 imm32
         StatementToMachineCodeParam("ADD EBX,1", std::vector<uint8_t>{0x83, 0xc3, 0x01}),
         StatementToMachineCodeParam("ADD EBX,300", std::vector<uint8_t>{0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00})
     )

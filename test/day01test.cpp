@@ -5,6 +5,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include <gtest/gtest.h>
+#include "diff.hh"
 
 class Day01Suite : public ::testing::Test {
 protected:
@@ -96,8 +97,8 @@ TEST_F(Day01Suite, Helloos1) {
             0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    EXPECT_EQ(expected.size(), d->binout_container.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
 
 TEST_F(Day01Suite, Helloos2) {
@@ -210,6 +211,6 @@ TEST_F(Day01Suite, Helloos2) {
     expected.insert(expected.end(), {0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), std::begin(resb1469432), std::end(resb1469432));
 
-    EXPECT_EQ(expected.size(), d->binout_container.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }

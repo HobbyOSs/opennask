@@ -157,13 +157,7 @@ string TParaToken::AsString(void) const {
 asmjit::x86::GpbLo TParaToken::AsAsmJitGpbLo(void) const {
 
     using namespace asmjit;
-    std::string s(_token_string);
-    std::transform(s.begin(),
-                   s.end(),
-                   s.begin(),
-                   [](unsigned char const &c) {
-                       return ::tolower(c);
-                   });
+    std::string s(to_lower(_token_string));
 
     return match(s)(
         pattern | "al" = x86::al,
@@ -175,13 +169,8 @@ asmjit::x86::GpbLo TParaToken::AsAsmJitGpbLo(void) const {
 
 asmjit::x86::GpbHi TParaToken::AsAsmJitGpbHi(void) const {
 
-    std::string s(_token_string);
-    std::transform(s.begin(),
-                   s.end(),
-                   s.begin(),
-                   [](unsigned char const &c) {
-                       return ::tolower(c);
-                   });
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
 
     return match(s)(
         pattern | "ah" = asmjit::x86::ah,
@@ -193,13 +182,8 @@ asmjit::x86::GpbHi TParaToken::AsAsmJitGpbHi(void) const {
 
 asmjit::x86::Gpw TParaToken::AsAsmJitGpw(void) const {
 
-    std::string s(_token_string);
-    std::transform(s.begin(),
-                   s.end(),
-                   s.begin(),
-                   [](unsigned char const &c) {
-                       return ::tolower(c);
-                   });
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
 
     return match(s)(
         pattern | "ax" = asmjit::x86::ax,
@@ -445,4 +429,15 @@ void TParaToken::ThrowUnexpected(const string& expected) const noexcept(false) {
     }
 
     throw std::runtime_error(message);
+}
+
+std::string TParaToken::to_lower(const std::string& in) const {
+    std::string s(in);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+    return s;
 }
