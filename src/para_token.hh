@@ -9,7 +9,8 @@
 
 #include <string>
 #include <regex>
-
+#include <variant>
+#include <asmjit/asmjit.h>
 
 class TParaToken {
 
@@ -118,6 +119,34 @@ public:
     bool Is(const std::string& string) const;
     bool IsNot(const std::string& string) const;
     std::string AsString(void) const;
+
+    // asmjit provides following datatype
+    // https://github.com/asmjit/asmjit/blob/master/src/asmjit/x86/x86operand.h
+    // ---
+    // - \ref x86::Reg - Base class for any X86 register.
+    //   - \ref x86::Gp - General purpose register:
+    //     - \ref x86::GpbLo - 8-bit low register.
+    //     - \ref x86::GpbHi - 8-bit high register.
+    //     - \ref x86::Gpw - 16-bit register.
+    //     - \ref x86::Gpd - 32-bit register.
+    //     - \ref x86::Gpq - 64-bit register (X64 only).
+    //   - \ref x86::Vec - Vector (SIMD) register:
+    //     - \ref x86::Xmm - 128-bit SIMD register (SSE+).
+    //     - \ref x86::Ymm - 256-bit SIMD register (AVX+).
+    //     - \ref x86::Zmm - 512-bit SIMD register (AVX512+).
+    //   - \ref x86::Mm - 64-bit MMX register.
+    //   - \ref x86::St - 80-bit FPU register.
+    //   - \ref x86::KReg - opmask registers (AVX512+).
+    //   - \ref x86::SReg - segment register.
+    //   - \ref x86::CReg - control register.
+    //   - \ref x86::DReg - debug register.
+    //   - \ref x86::Bnd - bound register (discontinued).
+    //   - \ref x86::Rip - relative instruction pointer.
+    asmjit::x86::GpbLo AsAsmJitGpbLo(void) const;
+    asmjit::x86::GpbHi AsAsmJitGpbHi(void) const;
+    asmjit::x86::Gpw AsAsmJitGpw(void) const;
+    asmjit::x86::Gpd AsAsmJitGpd(void) const;
+
     uint32_t AsUInt32(void) const noexcept(false);
     int32_t AsInt32(void) const noexcept(false);
     double AsDouble(void) const noexcept(false);
