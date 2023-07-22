@@ -281,7 +281,9 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     JitRuntime rt;
     CodeHolder code;
-    code.init(rt.environment(), rt.cpuFeatures());
+    Environment env;
+    env.setArch(Arch::kX86);
+    code.init(env);
     x86::Assembler assembler(&code);
 
     match(operands)(
@@ -289,43 +291,44 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
         // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
         pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.mov(x86::al, mnemonic_args[1].AsInt32());
+            assembler.add(x86::al, mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            assembler.mov(x86::ax, mnemonic_args[1].AsInt32());
+            assembler.add(x86::ax, mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            assembler.mov(x86::eax, mnemonic_args[1].AsInt32());
+            assembler.add(x86::eax, mnemonic_args[1].AsInt32());
             return;
         },
+        // TODO: メモリーアドレッシング
         // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
         pattern | ds(or_(std::string("AL"),
                          std::string("BL"),
                          std::string("CL"),
                          std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.mov(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            assembler.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
             return;
         },
         pattern | ds(or_(std::string("AH"),
                          std::string("BH"),
                          std::string("CH"),
                          std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            assembler.mov(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            assembler.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
             return;
         },
 
         // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
         // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
         pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            assembler.mov(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            assembler.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
             return;
         },
         // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
         // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
         pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            assembler.mov(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            assembler.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
             return;
         },
 
@@ -341,23 +344,18 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         }
     );
 
-    //typedef int (*Func)(void);
-    //Func fn;
-    //Error err = assembler.finalize();
-    //if (err) {
-    //    throw std::runtime_error(std::string("ADD, エラー: ") + DebugUtils::errorAsString(err));
-    //}
-    //err = rt.add(&fn, &code);
-    //if (err) {
-    //    throw std::runtime_error(std::string("ADD, エラー: ") + DebugUtils::errorAsString(err));
-    //}
-    //
-    //// 生成された機械語を取得
-    //const uint8_t* machine_code = fn.getCode();
-    //size_t code_size = code.codeSize();
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+
+    // 16bitモードなのに0x66がついてしまっている場合削除
+    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
+        machine_codes.erase(machine_codes.begin());
+    }
 
     // 結果を投入
-    //binout_container.insert(binout_container.end(), machine_code, machine_code + code_size);
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
     return;
 }
 

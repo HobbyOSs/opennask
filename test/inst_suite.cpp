@@ -8,6 +8,8 @@
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
 #include <gtest/gtest.h>
+#include "front_end.hh"
+#include "diff.hh"
 
 class InstSuite : public ::testing::Test {
 protected:
@@ -29,6 +31,62 @@ protected:
     }
 };
 
+// テストデータクラス
+struct StatementToMachineCodeParam {
+    const std::string _statement;
+    const std::vector<uint8_t> _expected;
+
+    StatementToMachineCodeParam(
+        const std::string& statement,
+        const std::vector<uint8_t> expected
+    ): _statement(statement),
+       _expected(expected)
+    {
+    }
+};
+
+void PrintTo(const StatementToMachineCodeParam& param, ::std::ostream* os) {
+    *os << param._statement;
+}
+
+class StatementToMachineCode : public testing::TestWithParam<StatementToMachineCodeParam> {};
+
+TEST_P(StatementToMachineCode, StatementToMachineCode) {
+    const auto p = GetParam();
+
+    std::stringstream ss;
+    ss << p._statement;
+
+    auto front = std::make_unique<FrontEnd>(true, true);
+    auto pt = front->Parse<Program>(ss);
+    front->Eval<Program>(pt.get(), "test.img");
+
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF, p._expected, front->binout_container);
+}
+
+INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
+    testing::Values(
+        // acc--
+        StatementToMachineCodeParam("ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
+        StatementToMachineCodeParam("ADD AX,2", std::vector<uint8_t>{0x83, 0xc0, 0x02}),
+        StatementToMachineCodeParam("ADD EAX,3", std::vector<uint8_t>{0x83, 0xc0, 0x03}),
+        // add r/m8 imm8
+        StatementToMachineCodeParam("ADD BL,1", std::vector<uint8_t>{0x80, 0xc3, 0x01}),
+        StatementToMachineCodeParam("ADD BH,1", std::vector<uint8_t>{0x80, 0xc7, 0x01}),
+        // 0x81 add r/m16 imm16
+        // 0x83 add r/m16 imm8
+        StatementToMachineCodeParam("ADD SI,300", std::vector<uint8_t>{0x81, 0xc6, 0x2c, 0x01}),
+        StatementToMachineCodeParam("ADD SI,1", std::vector<uint8_t>{0x83, 0xc6, 0x01}),
+
+        // 0x81 add r/m32 imm32
+        // 0x83 add r/m32 imm32
+        StatementToMachineCodeParam("ADD EBX,1", std::vector<uint8_t>{0x83, 0xc3, 0x01}),
+        StatementToMachineCodeParam("ADD EBX,300", std::vector<uint8_t>{0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00})
+    )
+);
+
+/**
 TEST_F(InstSuite, MovWithBracket)
 {
      // Found MOV_with_bracket
@@ -57,3 +115,4 @@ TEST_F(InstSuite, MovWithBracket)
      //EXPECT_N_LEAKS(12);
      EXPECT_TRUE(test == answer);
 }
+*/

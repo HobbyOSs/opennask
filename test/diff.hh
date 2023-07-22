@@ -109,8 +109,8 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n) {
 // valN: マクロに与えられた式の値
 ::testing::AssertionResult checkTextF(const char* expected_name,
                                       const char* actual_name,
-                                      std::vector<uint8_t>& expected,
-                                      std::vector<uint8_t>& actual) {
+                                      const std::vector<uint8_t>& expected,
+                                      const std::vector<uint8_t>& actual) {
 
     if(std::equal(expected.begin(), expected.end(), actual.begin()))
         return ::testing::AssertionSuccess();

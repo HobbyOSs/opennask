@@ -40,6 +40,23 @@ set(nask_parse_SRCS
   ../src/label.cpp
   ../src/x86.cc)
 
+set(parsertest_SRCS
+  inst_suite.cpp
+  ${nask_parse_SRCS})
+
+add_executable(inst_suite_test ${parsertest_SRCS} ${BACKWARD_ENABLE})
+target_link_libraries(inst_suite_test PRIVATE
+  parasol
+  spdlog::spdlog
+  asmjit::asmjit
+  Threads::Threads
+  GTest::gtest_main)
+add_backward(inst_suite_test)
+
+set_property(TARGET inst_suite_test PROPERTY CXX_STANDARD 17)
+set_property(TARGET inst_suite_test PROPERTY CXX_STANDARD_REQUIRED ON)
+gtest_discover_tests(inst_suite_test)
+
 ########### next target ###############
 
 # lexer, parser testing
