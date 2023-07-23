@@ -881,37 +881,30 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                     a.mov(dst.AsAsmJitGpbHi(), offset);
                 }
             },
-
-                //    std::string label = *dst;
-                //    auto label_address = sym_table.at(label);
-                //    auto jmp_offset = label_address - dollar_position - binout_container.size();
-                //
-                //    auto offset = IntAsByte(jmp_offset - (1 + NASK_BYTE));
-                //    std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-
-
-            //// 88      r8      r8
-            //pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
-            //},
+            // 88      r8      r8
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
+                match( std::make_tuple( dst.IsAsmJitGpbLo(), src.IsAsmJitGpbLo() ))(
+                    pattern | ds(true, true)   = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(true, false)  = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbHi() ); },
+                    pattern | ds(false, true)  = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(false, false) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbHi() ); }
+                );
+            },
             // 8A      r8      m8
-            //pattern | ds(TParaToken::ttReg8, dst, TParaToken::ttMem8, src) = [&] {
-            //    const std::string src_mem = "[" + *src + "]";
-            //    const std::string dst_reg = *dst;
-            //
-            //    const uint8_t base = 0x8a;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    //return b;
+            // TODO: まだ使われてないので未実装
+            //pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
+            //    match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
+            //        pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsInt32()) ); },
+            //        pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsInt32()) ); }
+            //    );
             //},
-            //pattern | ds(TParaToken::ttReg8, dst, TParaToken::ttMem16, src) = [&] {
-            //    const std::string src_mem = "[" + *src + "]";
-            //    const std::string dst_reg = *dst;
-            //
-            //    const uint8_t base = 0x8a;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
+               match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
+                   // "MOV AL,[SI]" のようなパターンだけ対応
+                   pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsAsmJitGpw()) ); },
+                   pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsAsmJitGpw()) ); }
+               );
+            },
             // C7      r16     imm16 (TODO: こっちは実装していない)
             // B8+rw   r16     imm16
             //pattern | ds(TParaToken::ttReg16, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
@@ -1599,8 +1592,11 @@ void FrontEnd::with_asmjit(F && f) {
     CodeBuffer& buf = code.textSection()->buffer();
     std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
 
-    // 16bitモードなのに0x66がついてしまっている場合削除
+    // 16bitモードなのに0x66,0x67がついてしまっている場合削除
     if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
+        machine_codes.erase(machine_codes.begin());
+    }
+    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x67) {
         machine_codes.erase(machine_codes.begin());
     }
 

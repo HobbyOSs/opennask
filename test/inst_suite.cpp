@@ -107,9 +107,13 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
 
         // MOV---
         StatementToMachineCodeParam("MOV AL,0x0e", std::vector<uint8_t>{0xb0, 0x0e}),
-        StatementToMachineCodeParam("MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e})
-
-
+        StatementToMachineCodeParam("MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e}),
+        StatementToMachineCodeParam("MOV AL,BL", std::vector<uint8_t>{0x88, 0xd8}),
+        StatementToMachineCodeParam("MOV AL,BH", std::vector<uint8_t>{0x88, 0xf8}),
+        StatementToMachineCodeParam("MOV AH,BL", std::vector<uint8_t>{0x88, 0xdc}),
+        StatementToMachineCodeParam("MOV AH,BH", std::vector<uint8_t>{0x88, 0xfc}),
+        StatementToMachineCodeParam("MOV AL,[SI]", std::vector<uint8_t>{0x8a, 0x04}),
+        StatementToMachineCodeParam("MOV AH,[SI]", std::vector<uint8_t>{0x8a, 0x24})
     )
 );
 
