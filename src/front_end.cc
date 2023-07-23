@@ -253,24 +253,37 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 }
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            this->binout_container.push_back(e.AsInt32());
+            a.db(e.AsInt32());
         } else if (e.IsIdentifier()) {
-            std::string s = e.AsString();
-            std::copy(s.begin(), s.end(), std::back_inserter(binout_container));
+            const std::string s = e.AsString();
+            std::for_each(s.begin(),
+                          s.end(),
+                          [&](char c) { a.db(c); });
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
-    using namespace asmjit;
     using namespace matchit;
-
-
     using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsString(),
@@ -279,10 +292,10 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     );
     std::string dst = mnemonic_args[0].AsString();
 
-    JitRuntime rt;
-    CodeHolder code;
+    using namespace asmjit;
     Environment env;
     env.setArch(Arch::kX86);
+    CodeHolder code;
     code.init(env);
     x86::Assembler a(&code);
 
@@ -422,71 +435,60 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     std::string dst = mnemonic_args[0].AsString();
+
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     log()->debug("[pass2] processCMP dst={}", dst);
 
-    std::vector<uint8_t> machine_codes = match(operands)(
+    match(operands)(
         // 0x3C ib		CMP AL, imm8		imm8をALと比較します
         // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
         // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
         pattern | ds("AL", TParaToken::ttReg8, TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x3c;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            a.cmp(x86::al, mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x3d;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt16t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            a.db(0x3d);
+            a.dw(mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-
-            const uint8_t base = 0x3d;
-            std::vector<uint8_t> b = {base};
-            auto imm = mnemonic_args[1].AsUInt32t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            a.db(0x3d);
+            a.dd(mnemonic_args[1].AsInt32());
+            return;
         },
-
         // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
         // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
         // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します <-- ?
         // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
         // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
-        pattern | ds(_, TParaToken::ttReg8, TParaToken::ttImm) = [&] {
-
-            const std::string src = mnemonic_args[0].AsString();
-            const uint8_t base = 0x80;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+        pattern | ds(or_(std::string("AL"),
+                         std::string("BL"),
+                         std::string("CL"),
+                         std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            a.cmp(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            return;
+        },
+        pattern | ds(or_(std::string("AH"),
+                         std::string("BH"),
+                         std::string("CH"),
+                         std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+            a.cmp(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-
-            const std::string src = mnemonic_args[0].AsString();
-            const uint8_t base = 0x83;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            a.cmp(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            return;
         },
         pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-
-            const std::string src = mnemonic_args[0].AsString();
-            const uint8_t base = 0x83;
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG, src, ModRM::SLASH_7);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
+            a.cmp(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            return;
         },
 
         // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
@@ -498,55 +500,75 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
         pattern | _ = [&] {
             throw std::runtime_error("CMP, Not implemented or not matched!!!");
-            return std::vector<uint8_t>();
+            //return std::vector<uint8_t>();
         }
     );
 
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+
+    // 16bitモードなのに0x66がついてしまっている場合削除
+    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
+        machine_codes.erase(machine_codes.begin());
+    }
+
     // 結果を投入
-    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
     return;
 }
 
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint16_t word = static_cast<uint16_t>(e.AsInt32());
-            std::vector<uint8_t> bytes = {
-                static_cast<uint8_t>( (word >> 8) & 0xff ),
-                static_cast<uint8_t>( word & 0xff ),
-            };
-            // リトルエンディアンなので逆順コピー
-            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
-
+            a.dw(e.AsInt32());
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
     for (const auto& e : mnemonic_args) {
         log()->debug("[pass2] {}", e.to_string());
 
         if (e.IsInteger() || e.IsHex()) {
-            uint32_t dword = e.AsInt32();
-            std::vector<uint8_t> bytes = {
-                static_cast<uint8_t>( (dword >> 24) & 0xff ),
-                static_cast<uint8_t>( (dword >> 16) & 0xff ),
-                static_cast<uint8_t>( (dword >> 8)  & 0xff ),
-                static_cast<uint8_t>( dword & 0xff ),
-            };
-            // リトルエンディアンなので逆順コピー
-            std::reverse_copy(bytes.begin(), bytes.end(), std::back_inserter(binout_container));
-
+            a.dd(e.AsInt32());
         } else if (e.IsIdentifier()) {
             throw std::runtime_error("not implemented");
         }
     }
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
 }
 
 void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {

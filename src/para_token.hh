@@ -165,6 +165,7 @@ protected:
     std::string _token_string;
     TTokenType _type;
     TIdentiferAttribute _attr;
+    std::string to_lower(const std::string& in) const;
 };
 
 
