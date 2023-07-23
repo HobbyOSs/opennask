@@ -95,7 +95,15 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam("CMP SI,300", std::vector<uint8_t>{0x81, 0xfe, 0x2c, 0x01}),
         StatementToMachineCodeParam("CMP SI,1", std::vector<uint8_t>{0x83, 0xfe, 0x01}),
         StatementToMachineCodeParam("CMP EBX,1", std::vector<uint8_t>{0x83, 0xfb, 0x01}),
-        StatementToMachineCodeParam("CMP EBX,300", std::vector<uint8_t>{0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00})
+        StatementToMachineCodeParam("CMP EBX,300", std::vector<uint8_t>{0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
+
+        // OUT---
+        StatementToMachineCodeParam("OUT 0x01,AL", std::vector<uint8_t>{0xe6, 0x01}),
+        StatementToMachineCodeParam("OUT 0x01,AX", std::vector<uint8_t>{0xe7, 0x01}),
+        StatementToMachineCodeParam("OUT 0x01,EAX", std::vector<uint8_t>{0xe7, 0x01}),
+        StatementToMachineCodeParam("OUT DX,AL", std::vector<uint8_t>{0xee}),
+        StatementToMachineCodeParam("OUT DX,AX", std::vector<uint8_t>{0xef}),
+        StatementToMachineCodeParam("OUT DX,EAX", std::vector<uint8_t>{0xef})
 
     )
 );
