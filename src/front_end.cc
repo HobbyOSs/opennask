@@ -254,7 +254,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -282,8 +282,9 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
     auto dst = mnemonic_args[0];
     log()->debug("[pass2] processADD dst={}", dst.AsString());
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x04 ib		ADD AL, imm8		imm8をALに加算する
@@ -334,7 +335,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processCLI() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.cli();
     });
 }
@@ -399,8 +400,9 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
     auto dst = mnemonic_args[0];
     log()->debug("[pass2] processCMP dst={}", dst.AsString());
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x3C ib		CMP AL, imm8		imm8をALと比較します
@@ -450,7 +452,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -465,7 +467,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -503,7 +505,7 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processHLT() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.hlt();
     });
 }
@@ -857,8 +859,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     auto dst = mnemonic_args[0];
     auto src = mnemonic_args[1];
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst, src);
 
         match(operands)(
             // C6      r8      imm8 (TODO: こっちは実装していない)
@@ -907,26 +910,19 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             },
             // C7      r16     imm16 (TODO: こっちは実装していない)
             // B8+rw   r16     imm16
-            //pattern | ds(TParaToken::ttReg16, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
-            //    const uint8_t base = 0xb8;
-            //    const uint8_t opcode = ModRM::get_opecode_from_reg(base, *src);
-            //    std::vector<uint8_t> b = {opcode};
-            //
-            //    if (std::get<2>(operands) == TParaToken::ttLabel) {
-            //        std::string label = *dst;
-            //        auto label_address = sym_table.at(label);
-            //        auto offset = IntAsWord(label_address); // ここは絶対アドレスになるようだ
-            //        std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-            //    } else {
-            //        auto imm = mnemonic_args[1].AsUInt16t();
-            //        std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    }
-            //
-            //    //return b;
-            //},
-            //// 89      r16     r16
-            //pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
-            //},
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = dst.AsString();
+                auto label_address = sym_table.at(label);
+
+                a.mov(dst.AsAsmJitGpw(), label_address);
+            },
+            // 89      r16     r16
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsAsmJitGpw());
+            },
             // 8B      r16     m16
             //pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttMem16, src) = [&] {
             //    const std::string src_mem = "[" + *src + "]";
@@ -939,25 +935,22 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //},
             //// A1      eax     moffs32
             //pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
+            //
             //},
             // C7      r32     imm32 (TODO: こっちは実装していない)
             // 0xB8+rd r32     imm32
-            //pattern | ds(TParaToken::ttReg32, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
-            //    const uint8_t base = 0xb8;
-            //    const uint8_t opcode = ModRM::get_opecode_from_reg(base, *src);
-            //    std::vector<uint8_t> b = {opcode};
-            //
-            //    if (std::get<2>(operands) == TParaToken::ttLabel) {
-            //        std::string label = *dst;
-            //        auto label_address = sym_table.at(label);
-            //        auto offset = LongAsDword(label_address); // ここは絶対アドレスになるようだ
-            //        std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-            //    } else {
-            //        auto imm = mnemonic_args[1].AsUInt32t();
-            //        std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    }
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
+                if (bit_mode == ID_16BIT_MODE) { a.db(0x66); }
+                a.mov(dst.AsAsmJitGpd(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = dst.AsString();
+                auto label_address = sym_table.at(label);
+
+                if (bit_mode == ID_16BIT_MODE) { a.db(0x66); }
+                a.mov(dst.AsAsmJitGpd(), label_address);
+            },
+
             //// 89      r32     r32
             //pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
             //},
@@ -1109,7 +1102,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processNOP() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.nop();
     });
 }
@@ -1130,9 +1123,12 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsString(),
         mnemonic_args[1].AsAttr()
     );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst, src);
 
         match(operands)(
             // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
@@ -1586,22 +1582,77 @@ void FrontEnd::with_asmjit(F && f) {
     CodeHolder code;
     code.init(env);
     x86::Assembler a(&code);
+    PrefixInfo pp;
 
-    f(a); // 変数 a をラムダ式に渡す
+    f(a, pp);
 
     CodeBuffer& buf = code.textSection()->buffer();
     std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
 
-    // 16bitモードなのに0x66,0x67がついてしまっている場合削除
-    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
-        machine_codes.erase(machine_codes.begin());
-    }
-    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x67) {
-        machine_codes.erase(machine_codes.begin());
-    }
+    // asmjitはデフォルトは32bitモード
+    // 0x67の制御
+    match(std::make_tuple(pp.require_67h, machine_codes[0] == 0x67))(
+        pattern | ds(true, false) = [&] { machine_codes.insert(machine_codes.begin(), 0x67); },
+        pattern | ds(false, true) = [&] { machine_codes.erase(machine_codes.begin()); },
+        pattern | _ = [&] {}
+    );
+
+    // 0x66の制御
+    match(std::make_tuple(pp.require_66h, machine_codes[0] == 0x67))(
+        pattern | ds(true, false) = [&] {
+            if (machine_codes[0] != 0x66)
+                machine_codes.insert(machine_codes.begin(), 0x66);
+        },
+        pattern | ds(true, true) = [&] {
+            if (machine_codes[1] != 0x66)
+                machine_codes.insert(machine_codes.begin() + 1, 0x66);
+        },
+        pattern | ds(false, _) = [&] {
+            auto to_remove = std::remove_if(machine_codes.begin(),
+                                            machine_codes.end(),
+                                            [](int v) { return v == 0x66; });
+            machine_codes.erase(to_remove, machine_codes.end());
+        },
+        pattern | _ = [&] {}
+    );
 
     // 結果を投入
     binout_container.insert(binout_container.end(),
                             std::begin(machine_codes),
                             std::end(machine_codes));
+}
+
+void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
+    // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
+    // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
+    require_67h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
+        pattern | _ = false
+    );
+
+    // 16bit命令モードで32bitレジスタが使われていればこれが必要
+    require_66h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | _ = false
+    );
+}
+
+void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
+
+    require_67h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()||src.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
+        pattern | _ = false
+    );
+    require_66h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | _ = false
+    );
 }
