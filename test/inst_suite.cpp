@@ -103,7 +103,12 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam("OUT 0x01,EAX", std::vector<uint8_t>{0xe7, 0x01}),
         StatementToMachineCodeParam("OUT DX,AL", std::vector<uint8_t>{0xee}),
         StatementToMachineCodeParam("OUT DX,AX", std::vector<uint8_t>{0xef}),
-        StatementToMachineCodeParam("OUT DX,EAX", std::vector<uint8_t>{0xef})
+        StatementToMachineCodeParam("OUT DX,EAX", std::vector<uint8_t>{0xef}),
+
+        // MOV---
+        StatementToMachineCodeParam("MOV AL,0x0e", std::vector<uint8_t>{0xb0, 0x0e}),
+        StatementToMachineCodeParam("MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e})
+
 
     )
 );
