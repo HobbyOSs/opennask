@@ -72,6 +72,10 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam("DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
         StatementToMachineCodeParam("DW 512", std::vector<uint8_t>{0x00, 0x02}),
         StatementToMachineCodeParam("DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
+        // CLI,HLT,NOP
+        StatementToMachineCodeParam("CLI", std::vector<uint8_t>{0xfa}),
+        StatementToMachineCodeParam("HLT", std::vector<uint8_t>{0xf4}),
+        StatementToMachineCodeParam("NOP", std::vector<uint8_t>{0x90}),
         // ADD---
         StatementToMachineCodeParam("ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
         StatementToMachineCodeParam("ADD AX,0x0020", std::vector<uint8_t>{0x05, 0x20, 0x00}),

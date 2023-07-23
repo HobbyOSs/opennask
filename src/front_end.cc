@@ -254,31 +254,20 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        for (const auto& e : mnemonic_args) {
+            log()->debug("[pass2] {}", e.to_string());
 
-    for (const auto& e : mnemonic_args) {
-        log()->debug("[pass2] {}", e.to_string());
-
-        if (e.IsInteger() || e.IsHex()) {
-            a.db(e.AsInt32());
-        } else if (e.IsIdentifier()) {
-            const std::string s = e.AsString();
-            std::for_each(s.begin(),
-                          s.end(),
-                          [&](char c) { a.db(c); });
+            if (e.IsInteger() || e.IsHex()) {
+                a.db(e.AsInt32());
+            } else if (e.IsIdentifier()) {
+                const std::string s = e.AsString();
+                std::for_each(s.begin(),
+                              s.end(),
+                              [&](char c) { a.db(c); });
+            }
         }
-    }
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
+    });
 }
 
 void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
@@ -291,90 +280,69 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     std::string dst = mnemonic_args[0].AsString();
+    log()->debug("[pass2] processADD dst={}", dst);
 
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        using namespace asmjit;
 
-    match(operands)(
-        // 0x04 ib		ADD AL, imm8		imm8をALに加算する
-        // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
-        // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
-        pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            a.add(x86::al, mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            // 他のassemblerだと通常はこの場合0x83で処理するようだ
-            a.db(0x05);
-            a.dw(mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            a.add(x86::eax, mnemonic_args[1].AsInt32());
-            return;
-        },
-        // TODO: メモリーアドレッシング
-        // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
-        pattern | ds(or_(std::string("AL"),
-                         std::string("BL"),
-                         std::string("CL"),
-                         std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds(or_(std::string("AH"),
-                         std::string("BH"),
-                         std::string("CH"),
-                         std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
-            return;
-        },
+        match(operands)(
+            // 0x04 ib		ADD AL, imm8		imm8をALに加算する
+            // 0x05 iw		ADD AX, imm16		imm16をAXに加算する
+            // 0x05 id		ADD EAX, imm32		imm32をEAXに加算する
+            pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                a.add(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                // 他のassemblerだと通常はこの場合0x83で処理するようだ
+                a.db(0x05);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.add(x86::eax, mnemonic_args[1].AsInt32());
+            },
+            // TODO: メモリーアドレッシング
+            // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
+            pattern | ds(or_(std::string("AL"),
+                             std::string("BL"),
+                             std::string("CL"),
+                             std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                                 a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+                             },
+            pattern | ds(or_(std::string("AH"),
+                             std::string("BH"),
+                             std::string("CH"),
+                             std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                                 a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+                             },
 
-        // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
-        // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
-        pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
-            return;
-        },
-        // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
-        // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
-        pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
-            return;
-        },
+            // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
+            // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
+            // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
 
-        // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
-        // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
-        // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
-        // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
-        // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
-        // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
-        pattern | _ = [&] {
-            throw std::runtime_error("ADD, Not implemented or not matched!!!");
-        }
-    );
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-
-    // 16bitモードなのに0x66がついてしまっている場合削除
-    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
-        machine_codes.erase(machine_codes.begin());
-    }
-
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
-    return;
+            // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
+            // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
+            // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
+            // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
+            // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
+            // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
+            pattern | _ = [&] {
+                throw std::runtime_error("ADD, Not implemented or not matched!!!");
+            }
+        );
+    });
 }
 
 void FrontEnd::processCLI() {
-    binout_container.push_back(0xfa);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.cli();
+    });
 }
 
 void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
@@ -435,140 +403,91 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     std::string dst = mnemonic_args[0].AsString();
-
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
-
     log()->debug("[pass2] processCMP dst={}", dst);
 
-    match(operands)(
-        // 0x3C ib		CMP AL, imm8		imm8をALと比較します
-        // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
-        // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
-        pattern | ds("AL", TParaToken::ttReg8, TParaToken::ttImm) = [&] {
-            a.cmp(x86::al, mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            a.db(0x3d);
-            a.dw(mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            a.db(0x3d);
-            a.dd(mnemonic_args[1].AsInt32());
-            return;
-        },
-        // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
-        // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
-        // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します <-- ?
-        // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
-        // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
-        pattern | ds(or_(std::string("AL"),
-                         std::string("BL"),
-                         std::string("CL"),
-                         std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            a.cmp(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds(or_(std::string("AH"),
-                         std::string("BH"),
-                         std::string("CH"),
-                         std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-            a.cmp(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-            a.cmp(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
-            return;
-        },
-        pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-            a.cmp(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
-            return;
-        },
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        using namespace asmjit;
 
-        // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
-        // 0x39 /r		CMP r/m16, r16		r16をr/m16と比較します
-        // 0x39 /r		CMP r/m32, r32		r32をr/m32と比較します
-        // 0x3A /r		CMP r8, r/m8		r/m8をr8と比較します
-        // 0x3B /r		CMP r16, r/m16		r/m16をr16と比較します
-        // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
+        match(operands)(
+            // 0x3C ib		CMP AL, imm8		imm8をALと比較します
+            // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
+            // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+            pattern | ds("AL", TParaToken::ttReg8, TParaToken::ttImm) = [&] {
+                a.cmp(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.db(0x3d);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.db(0x3d);
+                a.dd(mnemonic_args[1].AsInt32());
+            },
+            // 0x80 /7 ib	CMP r/m8, imm8		imm8をr/m8と比較します
+            // 0x81 /7 iw	CMP r/m16, imm16	imm16をr/m16と比較します <-- ?
+            // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します <-- ?
+            // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
+            // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
+            pattern | ds(or_(std::string("AL"),
+                             std::string("BL"),
+                             std::string("CL"),
+                             std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                                 a.cmp(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+                             },
+            pattern | ds(or_(std::string("AH"),
+                             std::string("BH"),
+                             std::string("CH"),
+                             std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                                 a.cmp(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+                             },
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.cmp(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.cmp(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
+            // 0x38 /r		CMP r/m8, r8		r8をr/m8と比較します
+            // 0x39 /r		CMP r/m16, r16		r16をr/m16と比較します
+            // 0x39 /r		CMP r/m32, r32		r32をr/m32と比較します
+            // 0x3A /r		CMP r8, r/m8		r/m8をr8と比較します
+            // 0x3B /r		CMP r16, r/m16		r/m16をr16と比較します
+            // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
 
-        pattern | _ = [&] {
-            throw std::runtime_error("CMP, Not implemented or not matched!!!");
-            //return std::vector<uint8_t>();
-        }
-    );
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-
-    // 16bitモードなのに0x66がついてしまっている場合削除
-    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
-        machine_codes.erase(machine_codes.begin());
-    }
-
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
-    return;
+            pattern | _ = [&] {
+                throw std::runtime_error("CMP, Not implemented or not matched!!!");
+            }
+        );
+    });
 }
 
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        for (const auto& e : mnemonic_args) {
+            log()->debug("[pass2] {}", e.to_string());
 
-    for (const auto& e : mnemonic_args) {
-        log()->debug("[pass2] {}", e.to_string());
-
-        if (e.IsInteger() || e.IsHex()) {
-            a.dw(e.AsInt32());
-        } else if (e.IsIdentifier()) {
-            throw std::runtime_error("not implemented");
+            if (e.IsInteger() || e.IsHex()) {
+                a.dw(e.AsInt32());
+            } else if (e.IsIdentifier()) {
+                throw std::runtime_error("not implemented");
+            }
         }
-    }
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
+    });
 }
 
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        for (const auto& e : mnemonic_args) {
+            log()->debug("[pass2] {}", e.to_string());
 
-    for (const auto& e : mnemonic_args) {
-        log()->debug("[pass2] {}", e.to_string());
-
-        if (e.IsInteger() || e.IsHex()) {
-            a.dd(e.AsInt32());
-        } else if (e.IsIdentifier()) {
-            throw std::runtime_error("not implemented");
+            if (e.IsInteger() || e.IsHex()) {
+                a.dd(e.AsInt32());
+            } else if (e.IsIdentifier()) {
+                throw std::runtime_error("not implemented");
+            }
         }
-    }
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
+    });
 }
 
 void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
@@ -596,7 +515,9 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processHLT() {
-    binout_container.push_back(0xf4);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.hlt();
+    });
 }
 
 void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
@@ -1198,7 +1119,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processNOP() {
-    binout_container.push_back(0x90);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.nop();
+    });
 }
 
 void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
@@ -1678,3 +1601,30 @@ template int FrontEnd::Eval<Factor>(Factor* parse_tree, const char* assembly_dst
 template int FrontEnd::Eval<ConfigType>(ConfigType* parse_tree, const char* assembly_dst);
 template int FrontEnd::Eval<DataType>(DataType* parse_tree, const char* assembly_dst);
 template int FrontEnd::Eval<Opcode>(Opcode* parse_tree, const char* assembly_dst);
+
+
+template <class F>
+void FrontEnd::with_asmjit(F && f) {
+
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
+    f(a); // 変数 a をラムダ式に渡す
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+
+    // 16bitモードなのに0x66がついてしまっている場合削除
+    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
+        machine_codes.erase(machine_codes.begin());
+    }
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+}
