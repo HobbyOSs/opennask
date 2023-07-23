@@ -161,6 +161,11 @@ public:
     // ASTを評価し結果をファイルに書き込む
     template <class T>
     int Eval(T* parse_tree, const char* assembly_dst);
+
+private:
+    // アセンブラ処理のコンテキストマネージャー
+    template <class F>
+    void with_asmjit(F && f);
 };
 
 //template <typename T>

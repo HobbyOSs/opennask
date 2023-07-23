@@ -374,7 +374,9 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processCLI() {
-    binout_container.push_back(0xfa);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.cli();
+    });
 }
 
 void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
@@ -500,7 +502,6 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
         pattern | _ = [&] {
             throw std::runtime_error("CMP, Not implemented or not matched!!!");
-            //return std::vector<uint8_t>();
         }
     );
 
@@ -596,7 +597,9 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processHLT() {
-    binout_container.push_back(0xf4);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.hlt();
+    });
 }
 
 void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
@@ -1198,7 +1201,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processNOP() {
-    binout_container.push_back(0x90);
+    with_asmjit([&](asmjit::x86::Assembler& a) {
+        a.nop();
+    });
 }
 
 void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
@@ -1678,3 +1683,30 @@ template int FrontEnd::Eval<Factor>(Factor* parse_tree, const char* assembly_dst
 template int FrontEnd::Eval<ConfigType>(ConfigType* parse_tree, const char* assembly_dst);
 template int FrontEnd::Eval<DataType>(DataType* parse_tree, const char* assembly_dst);
 template int FrontEnd::Eval<Opcode>(Opcode* parse_tree, const char* assembly_dst);
+
+
+template <class F>
+void FrontEnd::with_asmjit(F && f) {
+
+    using namespace asmjit;
+    Environment env;
+    env.setArch(Arch::kX86);
+    CodeHolder code;
+    code.init(env);
+    x86::Assembler a(&code);
+
+    f(a); // 変数 a をラムダ式に渡す
+
+    CodeBuffer& buf = code.textSection()->buffer();
+    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+
+    // 16bitモードなのに0x66がついてしまっている場合削除
+    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
+        machine_codes.erase(machine_codes.begin());
+    }
+
+    // 結果を投入
+    binout_container.insert(binout_container.end(),
+                            std::begin(machine_codes),
+                            std::end(machine_codes));
+}
