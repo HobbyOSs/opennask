@@ -873,7 +873,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitGpbHi(), src.AsInt32());
             },
             pattern | ds(TParaToken::ttReg8, _, TParaToken::ttLabel, _) | when(dst.IsAsmJitGpbLo()) = [&] {
-                std::string label = dst.AsString();
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
                 auto jmp_offset = label_address - dollar_position - binout_container.size();
                 auto offset = jmp_offset - (1 + NASK_BYTE);
@@ -917,12 +917,12 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitSReg(), x86::word_ptr(src.AsInt32()));
             },
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttLabel, _) = [&] {
-                std::string label = dst.AsString();
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
                 a.mov(dst.AsAsmJitGpw(), label_address);
             },
             pattern | ds(TParaToken::ttSreg, _, TParaToken::ttLabel, _) = [&] {
-                std::string label = dst.AsString();
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
                 a.mov(dst.AsAsmJitSReg(), x86::word_ptr(label_address));
             },
@@ -950,9 +950,8 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitGpd(), src.AsInt32());
             },
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttLabel, _) = [&] {
-                std::string label = dst.AsString();
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
-
                 a.mov(dst.AsAsmJitGpd(), label_address);
             },
 
@@ -995,36 +994,40 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //    //return b;
             //},
             // 88      m8      r8
+            pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                match( std::make_tuple( src.IsAsmJitGpbLo() ))(
+                    pattern | ds(true)  = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); }
+                );
+            },
             // 88      m16     r8 (m16の場合下位8ビットが使われる)
-            //pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), dst, TParaToken::ttReg8, src) = [&] {
-            //    auto token = TParaToken(mnemonic_args[0]);
-            //    token.SetAttribute(TParaToken::ttMem8);
-            //    // `MOV [0x0ff0],CH` だと0x0ff0部分を機械語に足す
-            //    const std::string dst_mem = "[" + *dst + "]";
-            //    const std::string src_reg = *src;
-            //
-            //    const uint8_t base = 0x88;
-            //    const uint8_t modrm = ModRM::generate_modrm(base, ModRM::REG_REG, dst_mem, src_reg);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    auto imm = mnemonic_args[0].AsUInt16t(); // TODO: int16で返しているが実際は可変なのでちゃんと処理する
-            //    std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg8, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                match( std::make_tuple( src.IsAsmJitGpbLo() ))(
+                    pattern | ds(true)  = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); }
+                );
+            },
             // C7      m16     imm16
-            //pattern | ds(TParaToken::ttMem16, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            //    std::string dst_mem = "[" + *dst + "]";
-            //    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-            //
-            //    std::vector<uint8_t> b = {0xc7, modrm};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    auto imm = mnemonic_args[1].AsUInt16t();
-            //    std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    //return b;
-            //},
-            //// 89      m16     r16
-            //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
-            //},
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttLabel, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                std::string label = src.AsString();
+                auto label_address = sym_table.at(label);
+                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), label_address);
+            },
+            // 89      m16     r16
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsAsmJitGpw());
+            },
+
             // C7      m32     imm32
             //pattern | ds(TParaToken::ttMem32, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             //    std::string dst_mem = "[" + *dst + "]";
