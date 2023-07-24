@@ -194,9 +194,10 @@ asmjit::x86::Gpw TParaToken::AsAsmJitGpw(void) const {
         pattern | "bx" = asmjit::x86::bx,
         pattern | "cx" = asmjit::x86::cx,
         pattern | "dx" = asmjit::x86::dx,
+        pattern | "sp" = asmjit::x86::sp,
+        pattern | "bp" = asmjit::x86::bp,
         pattern | "si" = asmjit::x86::si,
-        pattern | "di" = asmjit::x86::di,
-        pattern | "bp" = asmjit::x86::bp
+        pattern | "di" = asmjit::x86::di
     );
 }
 
@@ -216,6 +217,21 @@ asmjit::x86::Gpd TParaToken::AsAsmJitGpd(void) const {
     );
 }
 
+asmjit::x86::SReg TParaToken::AsAsmJitSReg(void) const {
+
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
+
+    return match(s)(
+        pattern | "cs" = asmjit::x86::cs,
+        pattern | "ds" = asmjit::x86::ds,
+        pattern | "es" = asmjit::x86::es,
+        pattern | "ss" = asmjit::x86::ss,
+        pattern | "fs" = asmjit::x86::fs,
+        pattern | "gs" = asmjit::x86::gs
+    );
+}
+
 bool TParaToken::IsAsmJitGpbLo(void) const {
     return std::regex_match(_token_string, registers8Lo);
 }
@@ -230,6 +246,10 @@ bool TParaToken::IsAsmJitGpw(void) const {
 
 bool TParaToken::IsAsmJitGpd(void) const {
     return std::regex_match(_token_string, registers32);
+}
+
+bool TParaToken::IsAsmJitSReg(void) const {
+    return std::regex_match(_token_string, segment_registers);
 }
 
 uint32_t TParaToken::AsUInt32(void) const noexcept(false) {

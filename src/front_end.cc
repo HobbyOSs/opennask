@@ -913,11 +913,18 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
                 a.mov(dst.AsAsmJitGpw(), src.AsInt32());
             },
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttImm, _) = [&] {
+                a.mov(dst.AsAsmJitSReg(), x86::word_ptr(src.AsInt32()));
+            },
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttLabel, _) = [&] {
                 std::string label = dst.AsString();
                 auto label_address = sym_table.at(label);
-
                 a.mov(dst.AsAsmJitGpw(), label_address);
+            },
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = dst.AsString();
+                auto label_address = sym_table.at(label);
+                a.mov(dst.AsAsmJitSReg(), x86::word_ptr(label_address));
             },
             // 89      r16     r16
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
@@ -940,14 +947,12 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             // C7      r32     imm32 (TODO: こっちは実装していない)
             // 0xB8+rd r32     imm32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
-                if (bit_mode == ID_16BIT_MODE) { a.db(0x66); }
                 a.mov(dst.AsAsmJitGpd(), src.AsInt32());
             },
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttLabel, _) = [&] {
                 std::string label = dst.AsString();
                 auto label_address = sym_table.at(label);
 
-                if (bit_mode == ID_16BIT_MODE) { a.db(0x66); }
                 a.mov(dst.AsAsmJitGpd(), label_address);
             },
 
@@ -1070,19 +1075,14 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //// A3      moffs64 rax
             //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             //},
-            // 以下、セグメントレジスタはx86-jsonに記載なし
-            //pattern | ds(TParaToken::ttSreg, src, _, dst) = [&] {
-            //    const uint8_t base = 0x8e;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG, *dst, *src);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    return b;
-            //},
-            //pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttSreg, src) = [&] {
-            //    const uint8_t base = 0x8c;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8c, ModRM::REG, *dst, *src);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    return b;
-            //},
+            // 8E/r      Sreg, r/m16
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttReg16, _) = [&] {
+                a.mov(dst.AsAsmJitSReg(), src.AsAsmJitGpw());
+            },
+            // 8C/r      r/m16, Sreg
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttSreg, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsAsmJitSReg());
+            },
             pattern | _ = [&] {
                 std::stringstream ss;
                 ss << "[pass2] MOV, Not implemented or not matched!!! \n"
