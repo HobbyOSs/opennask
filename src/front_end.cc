@@ -254,7 +254,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -279,11 +279,12 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[0].AsAttr(),
         mnemonic_args[1].AsAttr()
     );
-    std::string dst = mnemonic_args[0].AsString();
-    log()->debug("[pass2] processADD dst={}", dst);
+    auto dst = mnemonic_args[0];
+    log()->debug("[pass2] processADD dst={}", dst.AsString());
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x04 ib		ADD AL, imm8		imm8をALに加算する
@@ -302,18 +303,12 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             },
             // TODO: メモリーアドレッシング
             // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
-            pattern | ds(or_(std::string("AL"),
-                             std::string("BL"),
-                             std::string("CL"),
-                             std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-                                 a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
-                             },
-            pattern | ds(or_(std::string("AH"),
-                             std::string("BH"),
-                             std::string("CH"),
-                             std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-                                 a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
-                             },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
 
             // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
             // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
@@ -340,7 +335,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processCLI() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.cli();
     });
 }
@@ -402,11 +397,12 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[0].AsAttr(),
         mnemonic_args[1].AsAttr()
     );
-    std::string dst = mnemonic_args[0].AsString();
-    log()->debug("[pass2] processCMP dst={}", dst);
+    auto dst = mnemonic_args[0];
+    log()->debug("[pass2] processCMP dst={}", dst.AsString());
 
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x3C ib		CMP AL, imm8		imm8をALと比較します
@@ -428,18 +424,12 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
             // 0x80 /7 id	CMP r/m32, imm32	imm32をr/m32と比較します <-- ?
             // 0x83 /7 ib	CMP r/m16, imm8		imm8をr/m16と比較します
             // 0x83 /7 ib	CMP r/m32, imm8		imm8をr/m32と比較します
-            pattern | ds(or_(std::string("AL"),
-                             std::string("BL"),
-                             std::string("CL"),
-                             std::string("DL")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-                                 a.cmp(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
-                             },
-            pattern | ds(or_(std::string("AH"),
-                             std::string("BH"),
-                             std::string("CH"),
-                             std::string("DH")), TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
-                                 a.cmp(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
-                             },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.cmp(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.cmp(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
             pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
                 a.cmp(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
             },
@@ -462,7 +452,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
     // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -477,7 +467,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
     // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         for (const auto& e : mnemonic_args) {
             log()->debug("[pass2] {}", e.to_string());
 
@@ -515,7 +505,7 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void FrontEnd::processHLT() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.hlt();
     });
 }
@@ -866,260 +856,288 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr(),
         mnemonic_args[1].AsString()
     );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
 
-    Id<std::string> dst;
-    Id<std::string> src;
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
 
-    std::vector<uint8_t> machine_codes = match(operands)(
-        // TODO: 全体的にオペコード, ModRMなどはx86テーブルから取得するようにする
-
-        // C6      r8      imm8 (TODO: こっちは実装していない)
-        // B0+rb   r8      imm8
-        pattern | ds(TParaToken::ttReg8, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
-            const uint8_t base = 0xb0;
-            const uint8_t opcode = ModRM::get_opecode_from_reg(base, *src);
-            std::vector<uint8_t> b = {opcode};
-
-            if (std::get<2>(operands) == TParaToken::ttLabel) {
-                std::string label = *dst;
+        match(operands)(
+            // C6      r8      imm8 (TODO: こっちは実装していない)
+            // B0+rb   r8      imm8
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.mov(dst.AsAsmJitGpbLo(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.mov(dst.AsAsmJitGpbHi(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttLabel, _) | when(dst.IsAsmJitGpbLo()) = [&] {
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
                 auto jmp_offset = label_address - dollar_position - binout_container.size();
+                auto offset = jmp_offset - (1 + NASK_BYTE);
 
-                auto offset = IntAsByte(jmp_offset - (1 + NASK_BYTE));
-                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-            } else {
-                auto imm = mnemonic_args[1].AsUInt8t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            }
-            return b;
-        },
-        //// 88      r8      r8
-        //pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
-        //},
-        // 8A      r8      m8
-        pattern | ds(TParaToken::ttReg8, dst, TParaToken::ttMem8, src) = [&] {
-            const std::string src_mem = "[" + *src + "]";
-            const std::string dst_reg = *dst;
-
-            const uint8_t base = 0x8a;
-            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        pattern | ds(TParaToken::ttReg8, dst, TParaToken::ttMem16, src) = [&] {
-            const std::string src_mem = "[" + *src + "]";
-            const std::string dst_reg = *dst;
-
-            const uint8_t base = 0x8a;
-            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        // C7      r16     imm16 (TODO: こっちは実装していない)
-        // B8+rw   r16     imm16
-        pattern | ds(TParaToken::ttReg16, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
-            const uint8_t base = 0xb8;
-            const uint8_t opcode = ModRM::get_opecode_from_reg(base, *src);
-            std::vector<uint8_t> b = {opcode};
-
-            if (std::get<2>(operands) == TParaToken::ttLabel) {
-                std::string label = *dst;
+                if ( dst.IsAsmJitGpbLo() ) {
+                    a.mov(dst.AsAsmJitGpbLo(), offset);
+                } else if ( dst.IsAsmJitGpbHi() ) {
+                    a.mov(dst.AsAsmJitGpbHi(), offset);
+                }
+            },
+            // 88      r8      r8
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, _) = [&] {
+                match( std::make_tuple( dst.IsAsmJitGpbLo(), src.IsAsmJitGpbLo() ))(
+                    pattern | ds(true, true)   = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(true, false)  = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbHi() ); },
+                    pattern | ds(false, true)  = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(false, false) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbHi() ); }
+                );
+            },
+            // 8A      r8      m8
+            // TODO: まだ使われてないので未実装
+            //pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
+            //    match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
+            //        pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsInt32()) ); },
+            //        pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsInt32()) ); }
+            //    );
+            //},
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
+               match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
+                   // "MOV AL,[SI]" のようなパターンだけ対応
+                   pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsAsmJitGpw()) ); },
+                   pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsAsmJitGpw()) ); }
+               );
+            },
+            // C7      r16     imm16 (TODO: こっちは実装していない)
+            // B8+rw   r16     imm16
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttImm, _) = [&] {
+                a.mov(dst.AsAsmJitSReg(), x86::word_ptr(src.AsInt32()));
+            },
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
-                auto offset = IntAsWord(label_address); // ここは絶対アドレスになるようだ
-                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-            } else {
-                auto imm = mnemonic_args[1].AsUInt16t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            }
-
-            return b;
-        },
-        //// 89      r16     r16
-        //pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
-        //},
-        // 8B      r16     m16
-        pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttMem16, src) = [&] {
-            const std::string src_mem = "[" + *src + "]";
-            const std::string dst_reg = *dst;
-
-            const uint8_t base = 0x8b;
-            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        //// A1      eax     moffs32
-        //pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
-        //},
-        // C7      r32     imm32 (TODO: こっちは実装していない)
-        // 0xB8+rd r32     imm32
-        pattern | ds(TParaToken::ttReg32, src, or_(TParaToken::ttImm, TParaToken::ttLabel), dst) = [&] {
-            const uint8_t base = 0xb8;
-            const uint8_t opcode = ModRM::get_opecode_from_reg(base, *src);
-            std::vector<uint8_t> b = {opcode};
-
-            if (std::get<2>(operands) == TParaToken::ttLabel) {
-                std::string label = *dst;
+                a.mov(dst.AsAsmJitGpw(), label_address);
+            },
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = src.AsString();
                 auto label_address = sym_table.at(label);
-                auto offset = LongAsDword(label_address); // ここは絶対アドレスになるようだ
-                std::copy(offset.begin(), offset.end(), std::back_inserter(b));
-            } else {
-                auto imm = mnemonic_args[1].AsUInt32t();
-                std::copy(imm.begin(), imm.end(), std::back_inserter(b));
+                a.mov(dst.AsAsmJitSReg(), x86::word_ptr(label_address));
+            },
+            // 89      r16     r16
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg16, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsAsmJitGpw());
+            },
+            // 8B      r16     m16
+            //pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttMem16, src) = [&] {
+            //    const std::string src_mem = "[" + *src + "]";
+            //    const std::string dst_reg = *dst;
+            //
+            //    const uint8_t base = 0x8b;
+            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            //    std::vector<uint8_t> b = {base, modrm};
+            //    //return b;
+            //},
+            //// A1      eax     moffs32
+            //pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
+            //
+            //},
+            // C7      r32     imm32 (TODO: こっちは実装していない)
+            // 0xB8+rd r32     imm32
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
+                a.mov(dst.AsAsmJitGpd(), src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttLabel, _) = [&] {
+                std::string label = src.AsString();
+                auto label_address = sym_table.at(label);
+                a.mov(dst.AsAsmJitGpd(), label_address);
+            },
+
+            //// 89      r32     r32
+            //pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
+            //},
+            // 8B      r32     m32
+            //pattern | ds(TParaToken::ttReg32, dst, TParaToken::ttMem32, src) = [&] {
+            //    const std::string src_mem = "[" + *src + "]";
+            //    const std::string dst_reg = *dst;
+            //
+            //    const uint8_t base = 0x8b;
+            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
+            //    std::vector<uint8_t> b = {base, modrm};
+            //    //return b;
+            //},
+            //// A1      rax     moffs64
+            //pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
+            //},
+            //// C7      r64     imm32
+            //// B8      r64     imm64
+            //pattern | ds(TParaToken::ttReg64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+            //},
+            //// 89      r64     r64
+            //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
+            //},
+            //// 8B      r64     m64
+            //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
+            //},
+            // C6      m8      imm8
+            pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+                std::string dst_mem = "[" + dst.AsString() + "]";
+                const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
+                // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                a.db(0xc6);
+                a.db(modrm);
+                a.dw(mnemonic_args[0].AsInt32());
+                a.db(mnemonic_args[1].AsInt32());
+            },
+            // A2      moffs8  al
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {
+                a.db(0xa2);
+                auto addr = mnemonic_args[0].AsUInt32();
+                a.dw(addr);
+            },
+            // A3      moffs16 ax
+            //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, "AX") = [&] {
+            //    const uint8_t base = 0xa3;
+            //    std::vector<uint8_t> b = {base};
+            //    auto addr = mnemonic_args[0].AsUInt16t();
+            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            //    //return b;
+            //},
+            // A3      moffs32 eax
+            //pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
+            //    const uint8_t base = 0xa3;
+            //    std::vector<uint8_t> b = {base};
+            //    auto addr = mnemonic_args[0].AsUInt32t();
+            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            //    //return b;
+            //},
+            // 88      m8      r8
+            pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
+                } else {
+                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                    // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                    a.db(0x88);
+                    a.db(ModRM::generate_modrm(0x88,
+                                               ModRM::REG_REG,
+                                               std::string("[" + dst.AsString() + "]"),
+                                               std::string(src.AsString())));
+                    a.dw(dst.AsInt32());
+                }
+            },
+            // 88      m16     r8 (m16の場合下位8ビットが使われる)
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg8, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
+                } else {
+                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                    // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                    a.db(0x88);
+                    a.db(ModRM::generate_modrm(0x88,
+                                               ModRM::REG_REG,
+                                               std::string("[" + dst.AsString() + "]"),
+                                               std::string(src.AsString())));
+                    a.dw(dst.AsInt32());
+                }
+            },
+            // C7      m16     imm16
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                if (dst.IsAsmJitGpw()) {
+                    a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsInt32());
+                    return;
+                }
+                a.db(0xc7);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG,
+                                           std::string("[" + dst.AsString() + "]"),
+                                           ModRM::SLASH_0));
+                a.dw(dst.AsInt32());
+                a.dw(src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttLabel, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                std::string label = src.AsString();
+                auto label_address = sym_table.at(label);
+                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), label_address);
+            },
+            // 89      m16     r16
+            pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsAsmJitGpw());
+            },
+
+            // C7      m32     imm32
+            pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                if (dst.IsAsmJitGpd()) {
+                    a.mov(x86::dword_ptr(dst.AsAsmJitGpd()), src.AsInt32());
+                    return;
+                }
+
+                pp.require_66h = true;
+                a.db(0xc7);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG,
+                                           std::string("[" + dst.AsString() + "]"),
+                                           ModRM::SLASH_0));
+                a.dw(dst.AsInt32());
+                a.dd(src.AsInt32());
+            },
+            //// 89      m32     r32
+            //pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
+            //},
+            //// C7      m64     imm32
+            //pattern | ds(TParaToken::ttMem64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+            //},
+            //// 89      m64     r64
+            //pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
+            //},
+            //// A3      moffs64 rax
+            //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
+            //},
+            // 8E/r      Sreg, r/m16
+            pattern | ds(TParaToken::ttSreg, _, TParaToken::ttReg16, _) = [&] {
+                a.mov(dst.AsAsmJitSReg(), src.AsAsmJitGpw());
+            },
+            // 8C/r      r/m16, Sreg
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttSreg, _) = [&] {
+                a.mov(dst.AsAsmJitGpw(), src.AsAsmJitSReg());
+            },
+            pattern | _ = [&] {
+                std::stringstream ss;
+                ss << "[pass2] MOV, Not implemented or not matched!!! \n"
+                   << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+                   << ", "
+                   << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+                   << std::endl;
+
+                throw std::runtime_error(ss.str());
             }
-            return b;
-        },
-        //// 89      r32     r32
-        //pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
-        //},
-        // 8B      r32     m32
-        pattern | ds(TParaToken::ttReg32, dst, TParaToken::ttMem32, src) = [&] {
-            const std::string src_mem = "[" + *src + "]";
-            const std::string dst_reg = *dst;
-
-            const uint8_t base = 0x8b;
-            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        //// A1      rax     moffs64
-        //pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
-        //},
-        //// C7      r64     imm32
-        //// B8      r64     imm64
-        //pattern | ds(TParaToken::ttReg64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-        //},
-        //// 89      r64     r64
-        //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
-        //},
-        //// 8B      r64     m64
-        //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
-        //},
-        // C6      m8      imm8
-        pattern | ds(TParaToken::ttMem8, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            std::string dst_mem = "[" + *dst + "]";
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-
-            std::vector<uint8_t> b = {0xc6, modrm};
-            auto addr = mnemonic_args[0].AsUInt16t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            auto imm = mnemonic_args[1].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        // 88      m8      r8
-        // 88      m16     r8 (m16の場合下位8ビットが使われる)
-        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), dst, TParaToken::ttReg8, src) = [&] {
-            auto token = TParaToken(mnemonic_args[0]);
-            token.SetAttribute(TParaToken::ttMem8);
-            // `MOV [0x0ff0],CH` だと0x0ff0部分を機械語に足す
-            const std::string dst_mem = "[" + *dst + "]";
-            const std::string src_reg = *src;
-
-            const uint8_t base = 0x88;
-            const uint8_t modrm = ModRM::generate_modrm(base, ModRM::REG_REG, dst_mem, src_reg);
-            std::vector<uint8_t> b = {base, modrm};
-            auto imm = mnemonic_args[0].AsUInt16t(); // TODO: int16で返しているが実際は可変なのでちゃんと処理する
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        // C7      m16     imm16
-        pattern | ds(TParaToken::ttMem16, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            std::string dst_mem = "[" + *dst + "]";
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-
-            std::vector<uint8_t> b = {0xc7, modrm};
-            auto addr = mnemonic_args[0].AsUInt16t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            auto imm = mnemonic_args[1].AsUInt16t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        //// 89      m16     r16
-        //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
-        //},
-        // C7      m32     imm32
-        pattern | ds(TParaToken::ttMem32, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            std::string dst_mem = "[" + *dst + "]";
-            const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-
-            // Override prefixes(0x66)
-            // TODO: 16bit命令モードで動作中のみ0x66を付与するようにする
-            std::vector<uint8_t> b = {0x66, 0xc7, modrm};
-            auto addr = mnemonic_args[0].AsUInt16t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            auto imm = mnemonic_args[1].AsUInt32t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        //// 89      m32     r32
-        //pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
-        //},
-        //// C7      m64     imm32
-        //pattern | ds(TParaToken::ttMem64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-        //},
-        //// 89      m64     r64
-        //pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
-        //},
-        // A2      moffs8  al
-        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {
-            const uint8_t base = 0xa2;
-            std::vector<uint8_t> b = {base};
-            auto addr = mnemonic_args[0].AsUInt16t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            return b;
-        },
-        // A3      moffs16 ax
-        pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, "AX") = [&] {
-            const uint8_t base = 0xa3;
-            std::vector<uint8_t> b = {base};
-            auto addr = mnemonic_args[0].AsUInt16t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            return b;
-        },
-        // A3      moffs32 eax
-        pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
-            const uint8_t base = 0xa3;
-            std::vector<uint8_t> b = {base};
-            auto addr = mnemonic_args[0].AsUInt32t();
-            std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            return b;
-        },
-        //// A3      moffs64 rax
-        //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
-        //},
-        // 以下、セグメントレジスタはx86-jsonに記載なし
-        pattern | ds(TParaToken::ttSreg, src, _, dst) = [&] {
-            const uint8_t base = 0x8e;
-            const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG, *dst, *src);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttSreg, src) = [&] {
-            const uint8_t base = 0x8c;
-            const uint8_t modrm = ModRM::generate_modrm(0x8c, ModRM::REG, *dst, *src);
-            std::vector<uint8_t> b = {base, modrm};
-            return b;
-        },
-        pattern | _ = [&] {
-            std::stringstream ss;
-            ss << "[pass2] MOV, Not implemented or not matched!!! \n"
-               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
-               << ", "
-               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
-               << std::endl;
-
-            throw std::runtime_error(ss.str());
-            return std::vector<uint8_t>();
-        }
-    );
+        );
+    });
 
     // 結果を投入
-    binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
-    return;
+    //binout_container.insert(binout_container.end(), std::begin(machine_codes), std::end(machine_codes));
+    //return;
 }
 
 void FrontEnd::processNOP() {
-    with_asmjit([&](asmjit::x86::Assembler& a) {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.nop();
     });
 }
@@ -1134,62 +1152,49 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
 
 void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
 
-    //using namespace matchit;
-    //using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsString(),
         mnemonic_args[0].AsAttr(),
         mnemonic_args[1].AsString(),
         mnemonic_args[1].AsAttr()
     );
-    //std::string dst = mnemonic_args[0].AsString();
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
 
-    std::vector<uint8_t> machine_codes = match(operands)(
-        // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
-        // 0xE7 ib	OUT imm8, AX	AXのワード値をI/Oポートアドレスimm8に出力します
-        // 0xE7 ib	OUT imm8, EAX	EAXのダブルワード値をI/Oポートアドレスimm8に出力します
-        pattern | ds(_, TParaToken::ttImm, "AL",  _) = [&] {
-            std::vector<uint8_t> b = {0xe6};
-            auto imm = mnemonic_args[0].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        pattern | ds(_, TParaToken::ttImm, "AX",  _) = [&] {
-            std::vector<uint8_t> b = {0xe7};
-            auto imm = mnemonic_args[0].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        pattern | ds(_, TParaToken::ttImm, "EAX", _) = [&] {
-            std::vector<uint8_t> b = {0xe7};
-            auto imm = mnemonic_args[0].AsUInt8t();
-            std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            return b;
-        },
-        // 0xEE	OUT DX, AL	ALのバイト値をDXの値にあるI/Oポートアドレスに出力します
-        // 0xEF	OUT DX, AX	AXのワード値をDXの値にあるI/Oポートアドレスに出力します
-        // 0xEF	OUT DX, EAX	EAXのダブルワード値をDXの値にあるI/Oポートアドレスに出力します
-        pattern | ds("DX", _, "AL", _) = [&] {
-            return std::vector<uint8_t>{0xee};
-        },
-        pattern | ds("DX", _, "AX", _) = [&] {
-            return std::vector<uint8_t>{0xef};
-        },
-        pattern | ds("DX", _, "EAX", _) = [&] {
-            return std::vector<uint8_t>{0xef};
-        },
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
 
-        pattern | _ = [&] {
-            throw std::runtime_error("OUT, Not implemented or not matched!!!");
-            return std::vector<uint8_t>();
-        }
-    );
-
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
-    return;
+        match(operands)(
+            // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
+            // 0xE7 ib	OUT imm8, AX	AXのワード値をI/Oポートアドレスimm8に出力します
+            // 0xE7 ib	OUT imm8, EAX	EAXのダブルワード値をI/Oポートアドレスimm8に出力します
+            pattern | ds(_, TParaToken::ttImm, "AL",  _) = [&] {
+                a.out(mnemonic_args[0].AsInt32(), x86::al);
+            },
+            pattern | ds(_, TParaToken::ttImm, "AX",  _) = [&] {
+                a.out(mnemonic_args[0].AsInt32(), x86::ax);
+            },
+            pattern | ds(_, TParaToken::ttImm, "EAX", _) = [&] {
+                a.out(mnemonic_args[0].AsInt32(), x86::eax);
+            },
+            // 0xEE	OUT DX, AL	ALのバイト値をDXの値にあるI/Oポートアドレスに出力します
+            // 0xEF	OUT DX, AX	AXのワード値をDXの値にあるI/Oポートアドレスに出力します
+            // 0xEF	OUT DX, EAX	EAXのダブルワード値をDXの値にあるI/Oポートアドレスに出力します
+            pattern | ds("DX", _, "AL", _) = [&] {
+                a.out(x86::dx, x86::al);
+            },
+            pattern | ds("DX", _, "AX", _) = [&] {
+                a.out(x86::dx, x86::ax);
+            },
+            pattern | ds("DX", _, "EAX", _) = [&] {
+                a.out(x86::dx, x86::eax);
+            },
+            pattern | _ = [&] {
+                throw std::runtime_error("OUT, Not implemented or not matched!!!");
+            }
+        );
+    });
 }
 
 //
@@ -1612,19 +1617,77 @@ void FrontEnd::with_asmjit(F && f) {
     CodeHolder code;
     code.init(env);
     x86::Assembler a(&code);
+    PrefixInfo pp;
 
-    f(a); // 変数 a をラムダ式に渡す
+    f(a, pp);
 
     CodeBuffer& buf = code.textSection()->buffer();
     std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
 
-    // 16bitモードなのに0x66がついてしまっている場合削除
-    if (bit_mode == ID_16BIT_MODE && machine_codes[0] == 0x66) {
-        machine_codes.erase(machine_codes.begin());
-    }
+    // asmjitはデフォルトは32bitモード
+    // 0x67の制御
+    match(std::make_tuple(pp.require_67h, machine_codes[0] == 0x67))(
+        pattern | ds(true, false) = [&] { machine_codes.insert(machine_codes.begin(), 0x67); },
+        pattern | ds(false, true) = [&] { machine_codes.erase(machine_codes.begin()); },
+        pattern | _ = [&] {}
+    );
+
+    // 0x66の制御
+    match(std::make_tuple(pp.require_66h, machine_codes[0] == 0x67))(
+        pattern | ds(true, false) = [&] {
+            if (machine_codes[0] != 0x66)
+                machine_codes.insert(machine_codes.begin(), 0x66);
+        },
+        pattern | ds(true, true) = [&] {
+            if (machine_codes[1] != 0x66)
+                machine_codes.insert(machine_codes.begin() + 1, 0x66);
+        },
+        pattern | ds(false, _) = [&] {
+            auto to_remove = std::remove_if(machine_codes.begin(),
+                                            machine_codes.end(),
+                                            [](int v) { return v == 0x66; });
+            machine_codes.erase(to_remove, machine_codes.end());
+        },
+        pattern | _ = [&] {}
+    );
 
     // 結果を投入
     binout_container.insert(binout_container.end(),
                             std::begin(machine_codes),
                             std::end(machine_codes));
+}
+
+void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
+    // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
+    // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
+    require_67h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
+        pattern | _ = false
+    );
+
+    // 16bit命令モードで32bitレジスタが使われていればこれが必要
+    require_66h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | _ = false
+    );
+}
+
+void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
+
+    require_67h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()||src.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
+        pattern | _ = false
+    );
+    require_66h = match(bit_mode)(
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | _ = false
+    );
 }

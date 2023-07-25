@@ -33,13 +33,16 @@ protected:
 
 // テストデータクラス
 struct StatementToMachineCodeParam {
+    const OPENNASK_MODES _bit_mode;
     const std::string _statement;
     const std::vector<uint8_t> _expected;
 
     StatementToMachineCodeParam(
+        const OPENNASK_MODES bit_mode,
         const std::string& statement,
         const std::vector<uint8_t> expected
-    ): _statement(statement),
+    ): _bit_mode(bit_mode),
+       _statement(statement),
        _expected(expected)
     {
     }
@@ -58,6 +61,7 @@ TEST_P(StatementToMachineCode, StatementToMachineCode) {
     ss << p._statement;
 
     auto front = std::make_unique<FrontEnd>(true, true);
+    front->bit_mode = p._bit_mode;
     auto pt = front->Parse<Program>(ss);
     front->Eval<Program>(pt.get(), "test.img");
 
@@ -68,35 +72,63 @@ TEST_P(StatementToMachineCode, StatementToMachineCode) {
 INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
     testing::Values(
         // DB,DW,DD---
-        StatementToMachineCodeParam("DB 1,2,3", std::vector<uint8_t>{0x01, 0x02, 0x03}),
-        StatementToMachineCodeParam("DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
-        StatementToMachineCodeParam("DW 512", std::vector<uint8_t>{0x00, 0x02}),
-        StatementToMachineCodeParam("DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DB 1,2,3", std::vector<uint8_t>{0x01, 0x02, 0x03}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DW 512", std::vector<uint8_t>{0x00, 0x02}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
         // CLI,HLT,NOP
-        StatementToMachineCodeParam("CLI", std::vector<uint8_t>{0xfa}),
-        StatementToMachineCodeParam("HLT", std::vector<uint8_t>{0xf4}),
-        StatementToMachineCodeParam("NOP", std::vector<uint8_t>{0x90}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CLI", std::vector<uint8_t>{0xfa}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "HLT", std::vector<uint8_t>{0xf4}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "NOP", std::vector<uint8_t>{0x90}),
         // ADD---
-        StatementToMachineCodeParam("ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
-        StatementToMachineCodeParam("ADD AX,0x0020", std::vector<uint8_t>{0x05, 0x20, 0x00}),
-        StatementToMachineCodeParam("ADD EAX,3", std::vector<uint8_t>{0x83, 0xc0, 0x03}),
-        StatementToMachineCodeParam("ADD BL,1", std::vector<uint8_t>{0x80, 0xc3, 0x01}),
-        StatementToMachineCodeParam("ADD BH,1", std::vector<uint8_t>{0x80, 0xc7, 0x01}),
-        StatementToMachineCodeParam("ADD SI,300", std::vector<uint8_t>{0x81, 0xc6, 0x2c, 0x01}),
-        StatementToMachineCodeParam("ADD SI,1", std::vector<uint8_t>{0x83, 0xc6, 0x01}),
-        StatementToMachineCodeParam("ADD EBX,1", std::vector<uint8_t>{0x83, 0xc3, 0x01}),
-        StatementToMachineCodeParam("ADD EBX,300", std::vector<uint8_t>{0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD AX,0x0020", std::vector<uint8_t>{0x05, 0x20, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EAX,3", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xc0, 0x03}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD BL,1", std::vector<uint8_t>{0x80, 0xc3, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD BH,1", std::vector<uint8_t>{0x80, 0xc7, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD SI,300", std::vector<uint8_t>{0x81, 0xc6, 0x2c, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD SI,1", std::vector<uint8_t>{0x83, 0xc6, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,1", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xc3, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,300", std::vector<uint8_t>{0x67, 0x66, 0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00}),
         // CMP---
-        StatementToMachineCodeParam("CMP AL,0x01", std::vector<uint8_t>{0x3c, 0x01}),
-        StatementToMachineCodeParam("CMP AX,0x2000", std::vector<uint8_t>{0x3d, 0x00, 0x20 }),
-        StatementToMachineCodeParam("CMP EAX,0x3000", std::vector<uint8_t>{0x3d, 0x00, 0x30, 0x00, 0x00}),
-        StatementToMachineCodeParam("CMP BL,1", std::vector<uint8_t>{0x80, 0xfb, 0x01}),
-        StatementToMachineCodeParam("CMP BH,1", std::vector<uint8_t>{0x80, 0xff, 0x01}),
-        StatementToMachineCodeParam("CMP SI,300", std::vector<uint8_t>{0x81, 0xfe, 0x2c, 0x01}),
-        StatementToMachineCodeParam("CMP SI,1", std::vector<uint8_t>{0x83, 0xfe, 0x01}),
-        StatementToMachineCodeParam("CMP EBX,1", std::vector<uint8_t>{0x83, 0xfb, 0x01}),
-        StatementToMachineCodeParam("CMP EBX,300", std::vector<uint8_t>{0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00})
-
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP AL,0x01", std::vector<uint8_t>{0x3c, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP AX,0x2000", std::vector<uint8_t>{0x3d, 0x00, 0x20 }),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EAX,0x3000", std::vector<uint8_t>{0x67, 0x66, 0x3d, 0x00, 0x30, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP BL,1", std::vector<uint8_t>{0x80, 0xfb, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP BH,1", std::vector<uint8_t>{0x80, 0xff, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP SI,300", std::vector<uint8_t>{0x81, 0xfe, 0x2c, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP SI,1", std::vector<uint8_t>{0x83, 0xfe, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,1", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xfb, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,300", std::vector<uint8_t>{0x67, 0x66, 0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "CMP EBX,1", std::vector<uint8_t>{0x83, 0xfb, 0x01}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "CMP EBX,300", std::vector<uint8_t>{0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
+        // OUT---
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,AL", std::vector<uint8_t>{0xe6, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,AX", std::vector<uint8_t>{0xe7, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,EAX", std::vector<uint8_t>{0x67, 0x66, 0xe7, 0x01}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "OUT 0x01,EAX", std::vector<uint8_t>{0xe7, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,AL", std::vector<uint8_t>{0xee}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,AX", std::vector<uint8_t>{0xef}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0x67, 0x66, 0xef}),
+        // StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0xef}), TODO: 正解が不明
+        // MOV---
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,0x0e", std::vector<uint8_t>{0xb0, 0x0e}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,BL", std::vector<uint8_t>{0x88, 0xd8}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,BH", std::vector<uint8_t>{0x88, 0xf8}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,BL", std::vector<uint8_t>{0x88, 0xdc}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,BH", std::vector<uint8_t>{0x88, 0xfc}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,[SI]", std::vector<uint8_t>{0x8a, 0x04}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,[SI]", std::vector<uint8_t>{0x8a, 0x24}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,15", std::vector<uint8_t>{0xbb, 0x0f, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AX,BX", std::vector<uint8_t>{0x89, 0xD8}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV ESI,0x7c00", std::vector<uint8_t>{0x67, 0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "MOV ESI,0x7c00", std::vector<uint8_t>{0xbe, 0x00, 0x7c, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,0x7c00", std::vector<uint8_t>{0xbc, 0x00, 0x7c}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,SP", std::vector<uint8_t>{0x89, 0xe3}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,BX", std::vector<uint8_t>{0x89, 0xdc})
+        // TODO: まだ機能しない
+        //StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f})
     )
 );
 

@@ -17,6 +17,15 @@ using namespace std;
 using namespace matchit;
 using namespace asmjit;
 
+
+std::regex TParaToken::registers8Hi (R"(AH|BH|CH|DH)");
+std::regex TParaToken::registers8Lo (R"(AL|BL|CL|DL)");
+std::regex TParaToken::registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
+std::regex TParaToken::registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
+std::regex TParaToken::registers64(R"(RAX|RBX|RCX|RDX)");
+std::regex TParaToken::segment_registers(R"(CS|DS|ES|SS|FS|GS)");
+
+
 TParaToken::TParaToken(void) {
     _type = ttEmpty;
 }
@@ -49,14 +58,9 @@ TParaToken::~TParaToken() {
 
 void TParaToken::SetAttribute() {
     // https://ja.wikibooks.org/wiki/X86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%A9/x86%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3
-    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
-    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
-    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
-    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
-    // セグメントレジスタは16bitであるがx86_64.jsonに記載がないため、特殊扱いする
-    std::regex segment_registers(R"(CS|DS|ES|SS|FS|GS)");
-
-    if (std::regex_match(_token_string, registers8)) {
+    if (std::regex_match(_token_string, registers8Hi)) {
+        _attr = TIdentiferAttribute::ttReg8;
+    } else if (std::regex_match(_token_string, registers8Lo)) {
         _attr = TIdentiferAttribute::ttReg8;
     } else if (std::regex_match(_token_string, registers16)) {
         _attr = TIdentiferAttribute::ttReg16;
@@ -190,21 +194,17 @@ asmjit::x86::Gpw TParaToken::AsAsmJitGpw(void) const {
         pattern | "bx" = asmjit::x86::bx,
         pattern | "cx" = asmjit::x86::cx,
         pattern | "dx" = asmjit::x86::dx,
+        pattern | "sp" = asmjit::x86::sp,
+        pattern | "bp" = asmjit::x86::bp,
         pattern | "si" = asmjit::x86::si,
-        pattern | "di" = asmjit::x86::di,
-        pattern | "bp" = asmjit::x86::bp
+        pattern | "di" = asmjit::x86::di
     );
 }
 
 asmjit::x86::Gpd TParaToken::AsAsmJitGpd(void) const {
 
-    std::string s(_token_string);
-    std::transform(s.begin(),
-                   s.end(),
-                   s.begin(),
-                   [](unsigned char const &c) {
-                       return ::tolower(c);
-                   });
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
 
     return match(s)(
         pattern | "eax" = asmjit::x86::eax,
@@ -215,6 +215,41 @@ asmjit::x86::Gpd TParaToken::AsAsmJitGpd(void) const {
         pattern | "edi" = asmjit::x86::edi,
         pattern | "ebp" = asmjit::x86::ebp
     );
+}
+
+asmjit::x86::SReg TParaToken::AsAsmJitSReg(void) const {
+
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
+
+    return match(s)(
+        pattern | "cs" = asmjit::x86::cs,
+        pattern | "ds" = asmjit::x86::ds,
+        pattern | "es" = asmjit::x86::es,
+        pattern | "ss" = asmjit::x86::ss,
+        pattern | "fs" = asmjit::x86::fs,
+        pattern | "gs" = asmjit::x86::gs
+    );
+}
+
+bool TParaToken::IsAsmJitGpbLo(void) const {
+    return std::regex_match(_token_string, registers8Lo);
+}
+
+bool TParaToken::IsAsmJitGpbHi(void) const {
+    return std::regex_match(_token_string, registers8Hi);
+}
+
+bool TParaToken::IsAsmJitGpw(void) const {
+    return std::regex_match(_token_string, registers16);
+}
+
+bool TParaToken::IsAsmJitGpd(void) const {
+    return std::regex_match(_token_string, registers32);
+}
+
+bool TParaToken::IsAsmJitSReg(void) const {
+    return std::regex_match(_token_string, segment_registers);
 }
 
 uint32_t TParaToken::AsUInt32(void) const noexcept(false) {

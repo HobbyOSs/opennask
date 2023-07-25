@@ -30,11 +30,12 @@ private:
     bool trace_scanning;
     // $ の位置
     uint32_t dollar_position = 0;
-    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
 
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;
+    // リアルモード
+    OPENNASK_MODES bit_mode = ID_16BIT_MODE;
 
     // EQUで設定されたマクロ情報
     // Pass1のシンボルテーブル, リテラルテーブル
@@ -168,7 +169,16 @@ private:
     void with_asmjit(F && f);
 };
 
-//template <typename T>
-//constexpr bool false_v = false;
+// asmjitはデフォルトで32bitモードなので、辻褄あわせのため
+class PrefixInfo {
+
+public:
+    bool require_67h = false; // Address size Prefix byte
+    bool require_66h = false; // Operand size Prefix byte
+
+    void set(OPENNASK_MODES, TParaToken&);
+    void set(OPENNASK_MODES, TParaToken&, TParaToken&);
+};
+
 
 #endif // ! FRONT_END_HH

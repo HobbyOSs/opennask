@@ -90,6 +90,13 @@ public:
         "ttAttrUnknown",
     };
 
+    static std::regex registers8Hi;
+    static std::regex registers8Lo;
+    static std::regex registers16;
+    static std::regex registers32;
+    static std::regex registers64;
+    static std::regex segment_registers;
+
 public:
 
     TParaToken(void);
@@ -146,6 +153,12 @@ public:
     asmjit::x86::GpbHi AsAsmJitGpbHi(void) const;
     asmjit::x86::Gpw AsAsmJitGpw(void) const;
     asmjit::x86::Gpd AsAsmJitGpd(void) const;
+    asmjit::x86::SReg AsAsmJitSReg(void) const;
+    bool IsAsmJitGpbLo(void) const;
+    bool IsAsmJitGpbHi(void) const;
+    bool IsAsmJitGpw(void) const;
+    bool IsAsmJitGpd(void) const;
+    bool IsAsmJitSReg(void) const;
 
     uint32_t AsUInt32(void) const noexcept(false);
     int32_t AsInt32(void) const noexcept(false);

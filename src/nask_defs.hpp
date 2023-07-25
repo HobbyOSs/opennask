@@ -125,6 +125,8 @@ constexpr size_t imm64 = 8;
 constexpr size_t offs  = 12;
 
 // 現在のnaskのモード
+// [BITS 16], [BITS 32], [BITS 64]で指定する
+// デフォルトは16bitモード
 enum OPENNASK_MODES {
     ID_16BIT_MODE = 0,
     ID_32BIT_MODE,
