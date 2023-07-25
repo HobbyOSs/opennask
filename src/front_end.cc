@@ -992,33 +992,67 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.dw(mnemonic_args[0].AsInt32());
                 a.db(mnemonic_args[1].AsInt32());
             },
+            // A2      moffs8  al
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {
+                a.db(0xa2);
+                auto addr = mnemonic_args[0].AsUInt32();
+                a.dw(addr);
+            },
+            // A3      moffs16 ax
+            //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, "AX") = [&] {
+            //    const uint8_t base = 0xa3;
+            //    std::vector<uint8_t> b = {base};
+            //    auto addr = mnemonic_args[0].AsUInt16t();
+            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            //    //return b;
+            //},
+            // A3      moffs32 eax
+            //pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
+            //    const uint8_t base = 0xa3;
+            //    std::vector<uint8_t> b = {base};
+            //    auto addr = mnemonic_args[0].AsUInt32t();
+            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
+            //    //return b;
+            //},
             // 88      m8      r8
             pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
                 // TODO: 実装がとても雑
-                match( std::make_tuple( src.IsAsmJitGpbLo() ))(
-                    pattern | ds(true)  = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() ); },
-                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); }
-                );
+                // TODO: test & メモリーアドレッシング
+                // TODO: 実装がとても雑
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
+                } else {
+                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                    // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                    a.db(0x88);
+                    a.db(ModRM::generate_modrm(0x88,
+                                               ModRM::REG_REG,
+                                               std::string("[" + dst.AsString() + "]"),
+                                               std::string(src.AsString())));
+                    a.dw(dst.AsInt32());
+                }
             },
             // 88      m16     r8 (m16の場合下位8ビットが使われる)
             pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
                 // TODO: 実装がとても雑
-                match( std::make_tuple( src.IsAsmJitGpbLo() ))(
-                    pattern | ds(true)  = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() ); },
-                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); },
-                    pattern | _ = [&] {
-                        // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
-                        // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
-                        a.db(0x88);
-                        a.db(ModRM::generate_modrm(0x88,
-                                                   ModRM::REG_REG,
-                                                   std::string("[" + dst.AsString() + "]"),
-                                                   std::string(src.AsString())));
-                        a.dw(dst.AsInt32());
-                    }
-                );
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
+                } else {
+                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                    // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                    a.db(0x88);
+                    a.db(ModRM::generate_modrm(0x88,
+                                               ModRM::REG_REG,
+                                               std::string("[" + dst.AsString() + "]"),
+                                               std::string(src.AsString())));
+                    a.dw(dst.AsInt32());
+                }
             },
             // C7      m16     imm16
             pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
@@ -1072,30 +1106,6 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //},
             //// 89      m64     r64
             //pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
-            //},
-            // A2      moffs8  al
-            //pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {
-            //    const uint8_t base = 0xa2;
-            //    std::vector<uint8_t> b = {base};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    //return b;
-            //},
-            // A3      moffs16 ax
-            //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, "AX") = [&] {
-            //    const uint8_t base = 0xa3;
-            //    std::vector<uint8_t> b = {base};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    //return b;
-            //},
-            // A3      moffs32 eax
-            //pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
-            //    const uint8_t base = 0xa3;
-            //    std::vector<uint8_t> b = {base};
-            //    auto addr = mnemonic_args[0].AsUInt32t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    //return b;
             //},
             //// A3      moffs64 rax
             //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
