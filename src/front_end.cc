@@ -982,17 +982,16 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
             //},
             // C6      m8      imm8
-            //pattern | ds(TParaToken::ttMem8, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            //    std::string dst_mem = "[" + *dst + "]";
-            //    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-            //
-            //    std::vector<uint8_t> b = {0xc6, modrm};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    auto imm = mnemonic_args[1].AsUInt8t();
-            //    std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+                std::string dst_mem = "[" + dst.AsString() + "]";
+                const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
+                // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                a.db(0xc6);
+                a.db(modrm);
+                a.dw(mnemonic_args[0].AsInt32());
+                a.db(mnemonic_args[1].AsInt32());
+            },
             // 88      m8      r8
             pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
@@ -1008,13 +1007,33 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 // TODO: 実装がとても雑
                 match( std::make_tuple( src.IsAsmJitGpbLo() ))(
                     pattern | ds(true)  = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() ); },
-                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); }
+                    pattern | ds(false) = [&] { a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() ); },
+                    pattern | _ = [&] {
+                        // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                        // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                        a.db(0x88);
+                        a.db(ModRM::generate_modrm(0x88,
+                                                   ModRM::REG_REG,
+                                                   std::string("[" + dst.AsString() + "]"),
+                                                   std::string(src.AsString())));
+                        a.dw(dst.AsInt32());
+                    }
                 );
             },
             // C7      m16     imm16
             pattern | ds(TParaToken::ttMem16, _, TParaToken::ttImm, _) = [&] {
                 // TODO: test & メモリーアドレッシング
-                a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsInt32());
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                if (dst.IsAsmJitGpw()) {
+                    a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsInt32());
+                    return;
+                }
+                a.db(0xc7);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG,
+                                           std::string("[" + dst.AsString() + "]"),
+                                           ModRM::SLASH_0));
+                a.dw(dst.AsInt32());
+                a.dw(src.AsInt32());
             },
             pattern | ds(TParaToken::ttMem16, _, TParaToken::ttLabel, _) = [&] {
                 // TODO: test & メモリーアドレッシング
@@ -1029,19 +1048,22 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             },
 
             // C7      m32     imm32
-            //pattern | ds(TParaToken::ttMem32, dst, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            //    std::string dst_mem = "[" + *dst + "]";
-            //    const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-            //
-            //    // Override prefixes(0x66)
-            //    // TODO: 16bit命令モードで動作中のみ0x66を付与するようにする
-            //    std::vector<uint8_t> b = {0x66, 0xc7, modrm};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    auto imm = mnemonic_args[1].AsUInt32t();
-            //    std::copy(imm.begin(), imm.end(), std::back_inserter(b));
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+                // TODO: test & メモリーアドレッシング
+                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                if (dst.IsAsmJitGpd()) {
+                    a.mov(x86::dword_ptr(dst.AsAsmJitGpd()), src.AsInt32());
+                    return;
+                }
+
+                pp.require_66h = true;
+                a.db(0xc7);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG,
+                                           std::string("[" + dst.AsString() + "]"),
+                                           ModRM::SLASH_0));
+                a.dw(dst.AsInt32());
+                a.dd(src.AsInt32());
+            },
             //// 89      m32     r32
             //pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
             //},
