@@ -38,7 +38,8 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 set(nask_parse_SRCS
   nask_parse.cpp
-  front_end.cc
+  front_end/front_parse.cc
+  front_end/front_inst.cc
   front_end.hh
   pass1_strategy.cc
   pass1_strategy.hh

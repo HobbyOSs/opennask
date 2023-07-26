@@ -22,15 +22,22 @@ include_directories(${root_SOURCE_DIR}/parasol
 # http://google.github.io/googletest/quickstart-cmake.html
 include(GoogleTest)
 
-set(nask_parse_SRCS
+set(nask_parse_bnfc_SRCS
   ../src/bnfc/skeleton.cc
   ../src/bnfc/absyn.cc
   ../src/bnfc/parser.cc
   ../src/bnfc/printer.cc
   ../src/bnfc/lexer.cc
   ../src/bnfc/driver.cc
-  ../src/bnfc/buffer.cc
-  ../src/front_end.cc
+  ../src/bnfc/buffer.cc)
+
+set(nask_parse_front_SRCS
+  ../src/front_end/front_parse.cc
+  ../src/front_end/front_inst.cc)
+
+set(nask_parse_SRCS
+  ${nask_parse_bnfc_SRCS}
+  ${nask_parse_front_SRCS}
   ../src/pass1_strategy.cc
   ../src/bin_util.cc
   ../src/demangle.cpp
