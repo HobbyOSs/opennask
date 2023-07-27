@@ -30,6 +30,10 @@ private:
     bool trace_scanning;
     // $ の位置
     uint32_t dollar_position = 0;
+    // asmjit
+    asmjit::Environment env_;
+    asmjit::CodeHolder code_;
+    std::unique_ptr<asmjit::x86::Assembler> a_;
 
 public:
     // visitorのcontext情報

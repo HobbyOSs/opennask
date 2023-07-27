@@ -15,6 +15,46 @@ using namespace std::placeholders;
 using namespace matchit;
 
 
+template <class F>
+void FrontEnd::with_asmjit(F && f) {
+
+    PrefixInfo pp;
+
+    f(*a_, pp);
+
+    //using namespace asmjit;
+    //CodeBuffer& buf = code_.textSection()->buffer();
+    //std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
+
+    // asmjitはデフォルトは32bitモード
+    // 0x67の制御
+    //match(std::make_tuple(pp.require_67h, machine_codes[0] == 0x67))(
+    //    pattern | ds(true, false) = [&] { machine_codes.insert(machine_codes.begin(), 0x67); },
+    //    pattern | ds(false, true) = [&] { machine_codes.erase(machine_codes.begin()); },
+    //    pattern | _ = [&] {}
+    //);
+
+    // 0x66の制御
+    //match(std::make_tuple(pp.require_66h, machine_codes[0] == 0x67))(
+    //    pattern | ds(true, false) = [&] {
+    //        if (machine_codes[0] != 0x66)
+    //            machine_codes.insert(machine_codes.begin(), 0x66);
+    //    },
+    //    pattern | ds(true, true) = [&] {
+    //        if (machine_codes[1] != 0x66)
+    //            machine_codes.insert(machine_codes.begin() + 1, 0x66);
+    //    },
+    //    pattern | ds(false, _) = [&] {
+    //        auto to_remove = std::remove_if(machine_codes.begin(),
+    //                                        machine_codes.end(),
+    //                                        [](int v) { return v == 0x66; });
+    //        machine_codes.erase(to_remove, machine_codes.end());
+    //    },
+    //    pattern | _ = [&] {}
+    //);
+}
+
+
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
@@ -248,23 +288,23 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     const std::string suffix = "-$";
 
-    if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
-        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
-        auto resb_size = range.substr(0, range.length() - suffix.length());
-        auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
+            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
+            auto resb_size = range.substr(0, range.length() - suffix.length());
+            auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
-        std::vector<uint8_t> resb(resb_token.AsInt32() - dollar_position - binout_container.size(), 0);
-        log()->debug("[pass2] padding upto: {}(={}), current: {}",
-                     resb_token.AsString(), resb_token.AsInt32(), binout_container.size());
-        binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
-        return;
-    }
+            std::vector<uint8_t> resb(resb_token.AsInt32() - dollar_position - binout_container.size(), 0);
+            log()->debug("[pass2] padding upto: {}(={}), current: {}",
+                         resb_token.AsString(), resb_token.AsInt32(), binout_container.size());
+            a.db(0x00, resb_token.AsInt32() - dollar_position - binout_container.size());
+            return;
+        }
 
-    arg.MustBe(TParaToken::ttInteger);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
-
-    std::vector<uint8_t> resb(arg.AsInt32(), 0);
-    binout_container.insert(binout_container.end(), std::begin(resb), std::end(resb));
+        arg.MustBe(TParaToken::ttInteger);
+        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
+        a.db(0x00, arg.AsInt32());
+    });
 }
 
 void FrontEnd::processHLT() {
@@ -956,54 +996,6 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
-template <class F>
-void FrontEnd::with_asmjit(F && f) {
-
-    using namespace asmjit;
-    Environment env;
-    env.setArch(Arch::kX86);
-    CodeHolder code;
-    code.init(env);
-    x86::Assembler a(&code);
-    PrefixInfo pp;
-
-    f(a, pp);
-
-    CodeBuffer& buf = code.textSection()->buffer();
-    std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-
-    // asmjitはデフォルトは32bitモード
-    // 0x67の制御
-    match(std::make_tuple(pp.require_67h, machine_codes[0] == 0x67))(
-        pattern | ds(true, false) = [&] { machine_codes.insert(machine_codes.begin(), 0x67); },
-        pattern | ds(false, true) = [&] { machine_codes.erase(machine_codes.begin()); },
-        pattern | _ = [&] {}
-    );
-
-    // 0x66の制御
-    match(std::make_tuple(pp.require_66h, machine_codes[0] == 0x67))(
-        pattern | ds(true, false) = [&] {
-            if (machine_codes[0] != 0x66)
-                machine_codes.insert(machine_codes.begin(), 0x66);
-        },
-        pattern | ds(true, true) = [&] {
-            if (machine_codes[1] != 0x66)
-                machine_codes.insert(machine_codes.begin() + 1, 0x66);
-        },
-        pattern | ds(false, _) = [&] {
-            auto to_remove = std::remove_if(machine_codes.begin(),
-                                            machine_codes.end(),
-                                            [](int v) { return v == 0x66; });
-            machine_codes.erase(to_remove, machine_codes.end());
-        },
-        pattern | _ = [&] {}
-    );
-
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
-}
 
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
