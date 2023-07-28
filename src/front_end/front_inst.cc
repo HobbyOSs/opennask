@@ -18,40 +18,45 @@ using namespace matchit;
 template <class F>
 void FrontEnd::with_asmjit(F && f) {
 
+    using namespace asmjit;
     PrefixInfo pp;
+    CodeBuffer& buf = code_.textSection()->buffer();
+    const size_t before_size = buf.size();
 
     f(*a_, pp);
 
-    //using namespace asmjit;
-    //CodeBuffer& buf = code_.textSection()->buffer();
-    //std::vector<uint8_t> machine_codes(buf.data(), buf.data() + buf.size());
-
     // asmjitはデフォルトは32bitモード
-    // 0x67の制御
-    //match(std::make_tuple(pp.require_67h, machine_codes[0] == 0x67))(
-    //    pattern | ds(true, false) = [&] { machine_codes.insert(machine_codes.begin(), 0x67); },
-    //    pattern | ds(false, true) = [&] { machine_codes.erase(machine_codes.begin()); },
-    //    pattern | _ = [&] {}
-    //);
+    // 0x67, 0x66の制御
+    std::vector<uint8_t> new_data = {};
+    auto it = std::next(buf.begin(), before_size);
 
-    // 0x66の制御
-    //match(std::make_tuple(pp.require_66h, machine_codes[0] == 0x67))(
-    //    pattern | ds(true, false) = [&] {
-    //        if (machine_codes[0] != 0x66)
-    //            machine_codes.insert(machine_codes.begin(), 0x66);
-    //    },
-    //    pattern | ds(true, true) = [&] {
-    //        if (machine_codes[1] != 0x66)
-    //            machine_codes.insert(machine_codes.begin() + 1, 0x66);
-    //    },
-    //    pattern | ds(false, _) = [&] {
-    //        auto to_remove = std::remove_if(machine_codes.begin(),
-    //                                        machine_codes.end(),
-    //                                        [](int v) { return v == 0x66; });
-    //        machine_codes.erase(to_remove, machine_codes.end());
-    //    },
-    //    pattern | _ = [&] {}
-    //);
+    std::copy(buf.begin(), it, std::back_inserter(new_data));
+    if (pp.require_67h) {
+      if (*it == 0x67) {
+          it = std::next(it);
+      } else {
+          new_data.push_back(0x67);
+      }
+    } else {
+      if (*it == 0x67)
+          it = std::next(it);
+    }
+
+    if (pp.require_66h) {
+      if (*it == 0x66) {
+          it = std::next(it);
+      } else {
+          new_data.push_back(0x66);
+      }
+    } else {
+      if (*it == 0x66)
+          it = std::next(it);
+    }
+    std::copy(it, buf.end(), std::back_inserter(new_data));
+
+    delete[] buf._data;
+    buf._data = new uint8_t[new_data.size()];
+    std::copy(new_data.begin(), new_data.end(), buf._data);
 }
 
 
