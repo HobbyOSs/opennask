@@ -36,9 +36,23 @@ add_executable(bin2obj ${bin2obj_SRCS})
 
 ########### next target ###############
 
+set(nask_parse_bnfc_SRCS
+  bnfc/skeleton.cc
+  bnfc/absyn.cc
+  bnfc/parser.cc
+  bnfc/printer.cc
+  bnfc/lexer.cc
+  bnfc/driver.cc
+  bnfc/buffer.cc)
+
+set(nask_parse_front_SRCS
+  front_end/front_parse.cc
+  front_end/front_inst.cc
+  front_end/front_inst_pseudo.cc)
+
 set(nask_parse_SRCS
   nask_parse.cpp
-  front_end.cc
+  ${nask_parse_front_SRCS}
   front_end.hh
   pass1_strategy.cc
   pass1_strategy.hh
@@ -56,20 +70,7 @@ set(nask_parse_SRCS
   bin_util.hh
   x86.cc
   x86.hh
-  bnfc/absyn.cc
-  bnfc/absyn.hh
-  bnfc/buffer.cc
-  bnfc/buffer.hh
-  bnfc/driver.cc
-  bnfc/driver.hh
-  bnfc/lexer.cc
-  bnfc/parser.cc
-  bnfc/parser.hh
-  bnfc/printer.cc
-  bnfc/printer.hh
-  bnfc/parsererror.hh
-  bnfc/skeleton.cc
-  bnfc/skeleton.hh
+  ${nask_parse_bnfc_SRCS}
   incbin/incbin.h)
 
 if (WIN32)
@@ -119,7 +120,7 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 # debug
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -gstabs")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
 
 add_executable(opennask ${opennask_SRCS})
 target_link_libraries(opennask

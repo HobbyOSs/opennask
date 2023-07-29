@@ -7,12 +7,13 @@
 #include <memory>
 #include <cmath>
 #include <gtest/gtest.h>
+#include "diff.hh"
 
 class ExpSuite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     ExpSuite() {
-        auto logger = spdlog::stdout_color_st("opennask");
+        spdlog::set_level(spdlog::level::debug);
     }
 
     // 試験終了時に一回だけ実行
@@ -281,5 +282,52 @@ TEST_F(ExpSuite, DeclareStmt)
         EXPECT_EQ("10", d->ctx.top().AsString());
         EXPECT_EQ(10, d->ctx.top().AsUInt32());
         d->ctx.pop();
+    }
+}
+
+
+TEST_F(ExpSuite, WithAsmjit)
+{
+    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
+
+    {
+        auto expected = std::vector<uint8_t>{0x01,0x02,0x03};
+        std::stringstream ss;
+        ss << "DB 0x01" << std::endl;
+        ss << "DB 0x02" << std::endl;
+        ss << "DB 0x03" << std::endl;
+        auto pt = d->Parse<Program>(ss);
+        d->Eval<Program>(pt.get(), "test.img");
+
+        // 作成したバイナリの差分assert & diff表示
+        ASSERT_PRED_FORMAT2(checkTextF,
+                            expected,
+                            d->binout_container);
+    }
+
+    {
+        auto expected = std::vector<uint8_t>(0x00, 18);
+        std::stringstream ss;
+        ss << "RESB 18" << std::endl;
+        auto pt = d->Parse<Program>(ss);
+        d->Eval<Program>(pt.get(), "test.img");
+
+        // 作成したバイナリの差分assert & diff表示
+        ASSERT_PRED_FORMAT2(checkTextF,
+                            expected,
+                            d->binout_container);
+    }
+
+    {
+        auto expected = std::vector<uint8_t>(0x00, 18);
+        std::stringstream ss;
+        ss << "RESB 0x12-$" << std::endl;
+        auto pt = d->Parse<Program>(ss);
+        d->Eval<Program>(pt.get(), "test.img");
+
+        // 作成したバイナリの差分assert & diff表示
+        ASSERT_PRED_FORMAT2(checkTextF,
+                            expected,
+                            d->binout_container);
     }
 }

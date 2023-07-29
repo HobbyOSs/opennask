@@ -18,7 +18,6 @@
 #include "label.hpp"
 #include "pass1_strategy.hh"
 
-
 class FrontEnd : public Skeleton, public BinUtil {
 
 public:
@@ -30,6 +29,10 @@ private:
     bool trace_scanning;
     // $ の位置
     uint32_t dollar_position = 0;
+    // asmjit
+    asmjit::Environment env_;
+    asmjit::CodeHolder code_;
+    std::unique_ptr<asmjit::x86::Assembler> a_;
 
 public:
     // visitorのcontext情報
@@ -169,16 +172,8 @@ private:
     void with_asmjit(F && f);
 };
 
-// asmjitはデフォルトで32bitモードなので、辻褄あわせのため
-class PrefixInfo {
 
-public:
-    bool require_67h = false; // Address size Prefix byte
-    bool require_66h = false; // Operand size Prefix byte
-
-    void set(OPENNASK_MODES, TParaToken&);
-    void set(OPENNASK_MODES, TParaToken&, TParaToken&);
-};
+#include "front_end_ext.hh"
 
 
 #endif // ! FRONT_END_HH
