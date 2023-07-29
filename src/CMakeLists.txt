@@ -47,7 +47,8 @@ set(nask_parse_bnfc_SRCS
 
 set(nask_parse_front_SRCS
   front_end/front_parse.cc
-  front_end/front_inst.cc)
+  front_end/front_inst.cc
+  front_end/front_inst_pseudo.cc)
 
 set(nask_parse_SRCS
   nask_parse.cpp
@@ -119,7 +120,7 @@ endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 # debug
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -gstabs")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g")
 
 add_executable(opennask ${opennask_SRCS})
 target_link_libraries(opennask

@@ -18,7 +18,6 @@
 #include "label.hpp"
 #include "pass1_strategy.hh"
 
-
 class FrontEnd : public Skeleton, public BinUtil {
 
 public:
@@ -173,16 +172,8 @@ private:
     void with_asmjit(F && f);
 };
 
-// asmjitはデフォルトで32bitモードなので、辻褄あわせのため
-class PrefixInfo {
 
-public:
-    bool require_67h = false; // Address size Prefix byte
-    bool require_66h = false; // Operand size Prefix byte
-
-    void set(OPENNASK_MODES, TParaToken&);
-    void set(OPENNASK_MODES, TParaToken&, TParaToken&);
-};
+#include "front_end_ext.hh"
 
 
 #endif // ! FRONT_END_HH

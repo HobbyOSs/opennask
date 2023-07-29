@@ -15,71 +15,6 @@ using namespace std::placeholders;
 using namespace matchit;
 
 
-template <class F>
-void FrontEnd::with_asmjit(F && f) {
-
-    using namespace asmjit;
-    PrefixInfo pp;
-    CodeBuffer& buf = code_.textSection()->buffer();
-    const size_t before_size = buf.size();
-
-    f(*a_, pp);
-
-    // asmjitはデフォルトは32bitモード
-    // 0x67, 0x66の制御
-    std::vector<uint8_t> old_data(buf.data(), buf.data() + buf.size());
-    std::vector<uint8_t> new_data = {};
-    new_data.reserve(old_data.size() + 2);
-
-    auto it = old_data.begin();
-    std::advance(it, before_size);
-    std::copy(old_data.begin(), it, std::back_inserter(new_data));
-
-    if (pp.require_67h) {
-        if (*it == 0x67) {
-            std::advance(it, 1);
-        } else {
-            new_data.push_back(0x67);
-        }
-    } else {
-        if (*it == 0x67)
-            std::advance(it, 1);
-    }
-
-    if (pp.require_66h) {
-        if (*it == 0x66) {
-            std::advance(it, 1);
-        } else {
-            new_data.push_back(0x66);
-        }
-    } else {
-        if (*it == 0x66)
-            std::advance(it, 1);
-    }
-    std::copy(it, old_data.end(), std::back_inserter(new_data));
-
-    buf._size = new_data.size(); // コピー前にbufのサイズ情報を更新する
-    memcpy(buf.begin(), new_data.data(), new_data.size());
-}
-
-void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        for (const auto& e : mnemonic_args) {
-            log()->debug("[pass2] {}", e.to_string());
-
-            if (e.IsInteger() || e.IsHex()) {
-                a.db(e.AsInt32());
-            } else if (e.IsIdentifier()) {
-                const std::string s = e.AsString();
-                std::for_each(s.begin(),
-                              s.end(),
-                              [&](char c) { a.db(c); });
-            }
-        }
-    });
-}
-
 void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
@@ -257,62 +192,6 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
                 throw std::runtime_error("CMP, Not implemented or not matched!!!");
             }
         );
-    });
-}
-
-void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
-    // uint16_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        for (const auto& e : mnemonic_args) {
-            log()->debug("[pass2] {}", e.to_string());
-
-            if (e.IsInteger() || e.IsHex()) {
-                a.dw(e.AsInt32());
-            } else if (e.IsIdentifier()) {
-                throw std::runtime_error("not implemented");
-            }
-        }
-    });
-}
-
-void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
-    // uint32_tで数値を読み取った後、uint8_t型にデータを分けて、リトルエンディアンで格納する
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        for (const auto& e : mnemonic_args) {
-            log()->debug("[pass2] {}", e.to_string());
-
-            if (e.IsInteger() || e.IsHex()) {
-                a.dd(e.AsInt32());
-            } else if (e.IsIdentifier()) {
-                throw std::runtime_error("not implemented");
-            }
-        }
-    });
-}
-
-void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    const std::string suffix = "-$";
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        using namespace asmjit;
-
-        if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
-            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
-            auto resb_size = range.substr(0, range.length() - suffix.length());
-            auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
-
-            CodeBuffer& buf = code_.textSection()->buffer();
-            log()->debug("[pass2] padding upto: {}(={}), current: {}",
-                         resb_token.AsString(), resb_token.AsInt32(), buf.size());
-            a.db(0x00, resb_token.AsInt32() - dollar_position - buf.size());
-            return;
-        }
-
-        arg.MustBe(TParaToken::ttInteger);
-        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
-        a.db(0x00, arg.AsInt32());
     });
 }
 
@@ -948,14 +827,6 @@ void FrontEnd::processNOP() {
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
         a.nop();
     });
-}
-
-void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttHex);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsUInt32());
-    dollar_position = arg.AsUInt32();
 }
 
 void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
