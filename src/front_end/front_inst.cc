@@ -27,38 +27,42 @@ void FrontEnd::with_asmjit(F && f) {
 
     // asmjitはデフォルトは32bitモード
     // 0x67, 0x66の制御
+    std::vector<uint8_t> old_data(buf.data(), buf.data() + buf.size());
     std::vector<uint8_t> new_data = {};
-    auto it = std::next(buf.begin(), before_size);
+    new_data.reserve(old_data.size() + 2);
 
-    std::copy(buf.begin(), it, std::back_inserter(new_data));
+    auto it = old_data.begin();
+    std::advance(it, before_size);
+    std::copy(old_data.begin(), it, std::back_inserter(new_data));
+
     if (pp.require_67h) {
-      if (*it == 0x67) {
-          it = std::next(it);
-      } else {
-          new_data.push_back(0x67);
-      }
+        if (*it == 0x67) {
+            std::advance(it, 1);
+        } else {
+            new_data.push_back(0x67);
+        }
     } else {
-      if (*it == 0x67)
-          it = std::next(it);
+        if (*it == 0x67)
+            std::advance(it, 1);
     }
 
     if (pp.require_66h) {
-      if (*it == 0x66) {
-          it = std::next(it);
-      } else {
-          new_data.push_back(0x66);
-      }
+        if (*it == 0x66) {
+            std::advance(it, 1);
+        } else {
+            new_data.push_back(0x66);
+        }
     } else {
-      if (*it == 0x66)
-          it = std::next(it);
+        if (*it == 0x66)
+            std::advance(it, 1);
     }
-    std::copy(it, buf.end(), std::back_inserter(new_data));
+    std::copy(it, old_data.end(), std::back_inserter(new_data));
 
     delete[] buf._data;
     buf._data = new uint8_t[new_data.size()];
+    buf._size = new_data.size(); // コピー前にbufのサイズ情報を更新する
     std::copy(new_data.begin(), new_data.end(), buf._data);
 }
-
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
