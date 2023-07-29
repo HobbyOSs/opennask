@@ -296,15 +296,17 @@ void FrontEnd::processRESB(std::vector<TParaToken>& mnemonic_args) {
     const std::string suffix = "-$";
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        using namespace asmjit;
+
         if (auto range = arg.AsString(); range.find(suffix) != std::string::npos) {
             log()->debug("[pass2] type: {}, value: {}", type(arg), arg.to_string());
             auto resb_size = range.substr(0, range.length() - suffix.length());
             auto resb_token = TParaToken(resb_size, TParaToken::ttHex);
 
-            std::vector<uint8_t> resb(resb_token.AsInt32() - dollar_position - binout_container.size(), 0);
+            CodeBuffer& buf = code_.textSection()->buffer();
             log()->debug("[pass2] padding upto: {}(={}), current: {}",
-                         resb_token.AsString(), resb_token.AsInt32(), binout_container.size());
-            a.db(0x00, resb_token.AsInt32() - dollar_position - binout_container.size());
+                         resb_token.AsString(), resb_token.AsInt32(), buf.size());
+            a.db(0x00, resb_token.AsInt32() - dollar_position - buf.size());
             return;
         }
 
