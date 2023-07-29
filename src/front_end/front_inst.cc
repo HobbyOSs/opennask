@@ -58,10 +58,8 @@ void FrontEnd::with_asmjit(F && f) {
     }
     std::copy(it, old_data.end(), std::back_inserter(new_data));
 
-    delete[] buf._data;
-    buf._data = new uint8_t[new_data.size()];
     buf._size = new_data.size(); // コピー前にbufのサイズ情報を更新する
-    std::copy(new_data.begin(), new_data.end(), buf._data);
+    memcpy(buf.begin(), new_data.data(), new_data.size());
 }
 
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
