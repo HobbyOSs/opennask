@@ -158,8 +158,10 @@ void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-    binout_container.push_back(0xcd);
-    binout_container.push_back(arg.AsInt32());
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        a.db(0xcd);
+        a.db(arg.AsInt32());
+    });
 }
 
 void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
