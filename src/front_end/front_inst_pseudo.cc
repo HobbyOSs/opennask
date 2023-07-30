@@ -95,4 +95,5 @@ void FrontEnd::processORG(std::vector<TParaToken>& mnemonic_args) {
     arg.MustBe(TParaToken::ttHex);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsUInt32());
     dollar_position = arg.AsUInt32();
+    code_.relocateToBase(dollar_position);
 }

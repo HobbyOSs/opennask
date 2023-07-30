@@ -517,22 +517,6 @@ void FrontEnd::visitHex(Hex x) {
     this->ctx.push(t);
 }
 
-void FrontEnd::visitLabel(Label x) {
-
-    std::string label = x.substr(0, x.find(":", 0));
-    log()->debug("[pass2] label='{}' binout_container[{}]",
-                 label, std::to_string(this->binout_container.size()));
-
-    // label: (label_dstと呼ぶ)
-    // 1) label_dstの位置を記録する → label_dst_list
-    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
-    LabelJmp::store_label_dst(label, label_dst_list, binout_container);
-    LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
-
-    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
-    this->ctx.push(t);
-}
-
 template <class T>
 std::shared_ptr<T> FrontEnd::Parse(std::istream &input) {
 

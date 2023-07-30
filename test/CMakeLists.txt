@@ -34,6 +34,7 @@ set(nask_parse_bnfc_SRCS
 set(nask_parse_front_SRCS
   ../src/front_end/front_parse.cc
   ../src/front_end/front_inst.cc
+  ../src/front_end/front_inst_jmp.cc
   ../src/front_end/front_inst_pseudo.cc)
 
 set(nask_parse_SRCS
