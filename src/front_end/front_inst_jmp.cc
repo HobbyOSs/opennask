@@ -203,36 +203,29 @@ void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-    std::string label = arg.AsString();
-    auto label_address = sym_table.at(label);
-    std::vector<uint8_t> bytes = {};
 
-    // pass1のシンボルテーブルを使う
-    auto jmp_offset = label_address - dollar_position - binout_container.size();
-    match(static_cast<int64_t>(jmp_offset))(
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-            bytes.push_back(0x72);
-            auto b = IntAsByte(jmp_offset - (1 + NASK_BYTE));
-            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
-        },
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
-            bytes.push_back(0x0F);
-            bytes.push_back(0x82);
-            auto b = IntAsWord(jmp_offset - (1 + NASK_WORD));
-            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
-        },
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] {
-            bytes.push_back(0x0F);
-            bytes.push_back(0x82);
-            auto b = LongAsDword(jmp_offset - (1 + NASK_DWORD));
-            std::copy(b.begin(), b.end(), std::back_inserter(bytes));
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+
+        CodeBuffer& buf = code_.textSection()->buffer();
+        const std::string label = arg.AsString();
+        const auto label_address = sym_table.at(label);
+        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
+
+        auto asmjit_label = code_.labelByName(label.c_str());
+        if( ! asmjit_label.isValid() ) {
+            asmjit_label = a.newNamedLabel(label.c_str());
         }
-    );
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(bytes),
-                            std::end(bytes));
-    return;
+
+        match(jmp_offset)(
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                a.short_().jc(asmjit_label);
+            },
+            pattern | _ = [&] {
+                a.long_().jc(asmjit_label);
+            }
+        );
+    });
 }
 
 void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
