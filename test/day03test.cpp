@@ -543,7 +543,6 @@ msg:
     expected.insert(expected.end(), std::begin(resb324), std::end(resb324));
     expected.insert(expected.end(), {0x55, 0xaa});
 
-    GTEST_SKIP(); // TODO: JMP系命令のasmjit化するまでskip
     // 作成したバイナリの差分assert & diff表示
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
