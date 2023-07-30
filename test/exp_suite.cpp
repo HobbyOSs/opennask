@@ -285,49 +285,58 @@ TEST_F(ExpSuite, DeclareStmt)
     }
 }
 
+// テストデータクラス
+struct StatementsToMachineCodeParam {
+    const OPENNASK_MODES _bit_mode;
+    const std::string _statement;
+    const std::vector<uint8_t> _expected;
 
-TEST_F(ExpSuite, WithAsmjit)
-{
-    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
-
+    StatementsToMachineCodeParam(
+        const OPENNASK_MODES bit_mode,
+        const std::string& statement,
+        const std::vector<uint8_t> expected
+    ): _bit_mode(bit_mode),
+       _statement(statement),
+       _expected(expected)
     {
-        auto expected = std::vector<uint8_t>{0x01,0x02,0x03};
-        std::stringstream ss;
-        ss << "DB 0x01" << std::endl;
-        ss << "DB 0x02" << std::endl;
-        ss << "DB 0x03" << std::endl;
-        auto pt = d->Parse<Program>(ss);
-        d->Eval<Program>(pt.get(), "test.img");
-
-        // 作成したバイナリの差分assert & diff表示
-        ASSERT_PRED_FORMAT2(checkTextF,
-                            expected,
-                            d->binout_container);
     }
+};
 
-    {
-        auto expected = std::vector<uint8_t>(0x00, 18);
-        std::stringstream ss;
-        ss << "RESB 18" << std::endl;
-        auto pt = d->Parse<Program>(ss);
-        d->Eval<Program>(pt.get(), "test.img");
-
-        // 作成したバイナリの差分assert & diff表示
-        ASSERT_PRED_FORMAT2(checkTextF,
-                            expected,
-                            d->binout_container);
-    }
-
-    {
-        auto expected = std::vector<uint8_t>(0x00, 18);
-        std::stringstream ss;
-        ss << "RESB 0x12-$" << std::endl;
-        auto pt = d->Parse<Program>(ss);
-        d->Eval<Program>(pt.get(), "test.img");
-
-        // 作成したバイナリの差分assert & diff表示
-        ASSERT_PRED_FORMAT2(checkTextF,
-                            expected,
-                            d->binout_container);
-    }
+void PrintTo(const StatementsToMachineCodeParam& param, ::std::ostream* os) {
+    *os << param._statement;
 }
+
+class StatementsToMachineCode : public testing::TestWithParam<StatementsToMachineCodeParam> {};
+
+TEST_P(StatementsToMachineCode, StatementsToMachineCode) {
+    const auto p = GetParam();
+
+    std::stringstream ss;
+    ss << p._statement;
+
+    auto front = std::make_unique<FrontEnd>(true, true);
+    front->bit_mode = p._bit_mode;
+    auto pt = front->Parse<Program>(ss);
+    front->Eval<Program>(pt.get(), "test.img");
+
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF, p._expected, front->binout_container);
+}
+
+
+INSTANTIATE_TEST_SUITE_P(ExpSuite, StatementsToMachineCode,
+    testing::Values(
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     "DB 0x01\nDB 0x02\nDB 0x03",
+                                     std::vector<uint8_t>{0x01, 0x02, 0x03}),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     "RESB 18",
+                                     std::vector<uint8_t>(0x00, 18)),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     "RESB 0x12-$",
+                                     std::vector<uint8_t>(0x00, 18)),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     "MOV AX,0\nMOV SS,AX",
+                                     std::vector<uint8_t>{0xb8, 0x00, 0x00, 0x8e, 0xd0})
+
+    ));
