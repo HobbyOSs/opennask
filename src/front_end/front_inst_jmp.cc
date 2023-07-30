@@ -290,25 +290,16 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
     match(operands)(
         // 即値処理
         pattern | ds(TParaToken::ttImm, 1) = [&] {
-            //std::vector<uint8_t> b = {0xeb};
-            //const auto byte = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
-            //auto jmp_offset = IntAsByte(byte);
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
-            //return b;
+            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                const auto imm = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
+                a.short_().jmp(imm);
+            });
         },
-        pattern | ds(TParaToken::ttImm, 2) = [&] {
-            //std::vector<uint8_t> b = {0xe9};
-            //const auto word = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
-            //auto jmp_offset = IntAsWord(word);
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
-            //return b;
-        },
-        pattern | ds(TParaToken::ttImm, 4) = [&] {
-            //std::vector<uint8_t> b = {0xe9};
-            //const auto dword = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
-            //auto jmp_offset = LongAsDword(dword);
-            //std::copy(jmp_offset.begin(), jmp_offset.end(), std::back_inserter(b));
-            //return b;
+        pattern | ds(TParaToken::ttImm, or_(2, 4)) = [&] {
+            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                const auto imm = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
+                a.long_().jmp(imm);
+            });
         },
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
