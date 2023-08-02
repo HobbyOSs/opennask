@@ -361,15 +361,8 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             // 88      m8      r8
             pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
-                // TODO: 実装がとても雑
-                // TODO: test & メモリーアドレッシング
-                // TODO: 実装がとても雑
-                if (src.IsAsmJitGpbLo()) {
-                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
-                } else if (src.IsAsmJitGpbHi()) {
-                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
-                } else {
-                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                if (dst.IsImmediate()) {
+                    // asmjitでMOV [offset],Reg の場合独自実装が必要
                     // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
                     a.db(0x88);
                     a.db(ModRM::generate_modrm(0x88,
@@ -377,18 +370,20 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                                                std::string("[" + dst.AsString() + "]"),
                                                std::string(src.AsString())));
                     a.dw(dst.AsInt32());
+                    return;
+                }
+
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
                 }
             },
             // 88      m16     r8 (m16の場合下位8ビットが使われる)
             pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
-                // TODO: 実装がとても雑
-                if (src.IsAsmJitGpbLo()) {
-                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
-                } else if (src.IsAsmJitGpbHi()) {
-                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
-                } else {
-                    // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
+                if (dst.IsImmediate()) {
+                    // asmjitでMOV [offset],Reg の場合独自実装が必要
                     // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
                     a.db(0x88);
                     a.db(ModRM::generate_modrm(0x88,
@@ -396,6 +391,14 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                                                std::string("[" + dst.AsString() + "]"),
                                                std::string(src.AsString())));
                     a.dw(dst.AsInt32());
+                    return;
+                }
+
+                // TODO: 実装がとても雑
+                if (src.IsAsmJitGpbLo()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbLo() );
+                } else if (src.IsAsmJitGpbHi()) {
+                    a.mov(x86::byte_ptr(dst.AsInt32()), src.AsAsmJitGpbHi() );
                 }
             },
             // C7      m16     imm16
