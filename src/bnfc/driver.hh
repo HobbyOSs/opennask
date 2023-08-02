@@ -31,6 +31,8 @@ public:
     std::shared_ptr<ListMnemonicArgs> listmnemonicargs_;
     std::shared_ptr<MnemonicArgs> mnemonicargs_;
     std::shared_ptr<Exp> exp_;
+    std::shared_ptr<MemoryAddr> memoryaddr_;
+    std::shared_ptr<IndexExp> indexexp_;
     std::shared_ptr<Factor> factor_;
     std::shared_ptr<ConfigType> configtype_;
     std::shared_ptr<DataType> datatype_;
@@ -43,6 +45,8 @@ public:
     std::shared_ptr<ListMnemonicArgs> pListMnemonicArgs(std::istream &stream);
     std::shared_ptr<MnemonicArgs> pMnemonicArgs(std::istream &stream);
     std::shared_ptr<Exp> pExp(std::istream &stream);
+    std::shared_ptr<MemoryAddr> pMemoryAddr(std::istream &stream);
+    std::shared_ptr<IndexExp> pIndexExp(std::istream &stream);
     std::shared_ptr<Factor> pFactor(std::istream &stream);
     std::shared_ptr<ConfigType> pConfigType(std::istream &stream);
     std::shared_ptr<DataType> pDataType(std::istream &stream);

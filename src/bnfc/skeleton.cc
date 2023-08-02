@@ -14,6 +14,8 @@ void Skeleton::visitProgram(Program *t) {} //abstract class
 void Skeleton::visitStatement(Statement *t) {} //abstract class
 void Skeleton::visitMnemonicArgs(MnemonicArgs *t) {} //abstract class
 void Skeleton::visitExp(Exp *t) {} //abstract class
+void Skeleton::visitMemoryAddr(MemoryAddr *t) {} //abstract class
+void Skeleton::visitIndexExp(IndexExp *t) {} //abstract class
 void Skeleton::visitFactor(Factor *t) {} //abstract class
 void Skeleton::visitConfigType(ConfigType *t) {} //abstract class
 void Skeleton::visitDataType(DataType *t) {} //abstract class
@@ -123,14 +125,6 @@ void Skeleton::visitModExp(ModExp *mod_exp)
 
 }
 
-void Skeleton::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp)
-{
-  /* Code For IndirectAddrExp Goes Here */
-
-  if (indirect_addr_exp->exp_) indirect_addr_exp->exp_->accept(this);
-
-}
-
 void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
 {
   /* Code For DatatypeExp Goes Here */
@@ -155,6 +149,67 @@ void Skeleton::visitImmExp(ImmExp *imm_exp)
   /* Code For ImmExp Goes Here */
 
   if (imm_exp->factor_) imm_exp->factor_->accept(this);
+
+}
+
+void Skeleton::visitMemoryAddrExp(MemoryAddrExp *memory_addr_exp)
+{
+  /* Code For MemoryAddrExp Goes Here */
+
+  if (memory_addr_exp->memoryaddr_) memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitDirect(Direct *direct)
+{
+  /* Code For Direct Goes Here */
+
+  if (direct->factor_) direct->factor_->accept(this);
+
+}
+
+void Skeleton::visitIndexed(Indexed *indexed)
+{
+  /* Code For Indexed Goes Here */
+
+  if (indexed->indexexp_) indexed->indexexp_->accept(this);
+  if (indexed->factor_) indexed->factor_->accept(this);
+
+}
+
+void Skeleton::visitBased(Based *based)
+{
+  /* Code For Based Goes Here */
+
+  if (based->factor_) based->factor_->accept(this);
+  if (based->indexexp_) based->indexexp_->accept(this);
+
+}
+
+void Skeleton::visitBasedIndexedDisp(BasedIndexedDisp *based_indexed_disp)
+{
+  /* Code For BasedIndexedDisp Goes Here */
+
+  if (based_indexed_disp->factor_1) based_indexed_disp->factor_1->accept(this);
+  if (based_indexed_disp->indexexp_) based_indexed_disp->indexexp_->accept(this);
+  if (based_indexed_disp->factor_2) based_indexed_disp->factor_2->accept(this);
+
+}
+
+void Skeleton::visitIndexScaleExp(IndexScaleExp *index_scale_exp)
+{
+  /* Code For IndexScaleExp Goes Here */
+
+  if (index_scale_exp->factor_) index_scale_exp->factor_->accept(this);
+
+}
+
+void Skeleton::visitIndexScaleNExp(IndexScaleNExp *index_scale_n_exp)
+{
+  /* Code For IndexScaleNExp Goes Here */
+
+  if (index_scale_n_exp->factor_) index_scale_n_exp->factor_->accept(this);
+  visitInteger(index_scale_n_exp->integer_);
 
 }
 

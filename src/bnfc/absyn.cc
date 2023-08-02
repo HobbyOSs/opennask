@@ -198,22 +198,6 @@ std::shared_ptr<Exp> ModExp::clone() const
 
 
 
-/********************   IndirectAddrExp    ********************/
-
-
-
-void IndirectAddrExp::accept(Visitor *v)
-{
-    v->visitIndirectAddrExp(this);
-}
-
-std::shared_ptr<Exp> IndirectAddrExp::clone() const
-{
-    return std::make_shared<IndirectAddrExp>(*this);
-}
-
-
-
 /********************   DatatypeExp    ********************/
 
 
@@ -258,6 +242,118 @@ void ImmExp::accept(Visitor *v)
 std::shared_ptr<Exp> ImmExp::clone() const
 {
     return std::make_shared<ImmExp>(*this);
+}
+
+
+
+/********************   MemoryAddrExp    ********************/
+
+
+
+void MemoryAddrExp::accept(Visitor *v)
+{
+    v->visitMemoryAddrExp(this);
+}
+
+std::shared_ptr<Exp> MemoryAddrExp::clone() const
+{
+    return std::make_shared<MemoryAddrExp>(*this);
+}
+
+
+
+/********************   Direct    ********************/
+
+
+
+void Direct::accept(Visitor *v)
+{
+    v->visitDirect(this);
+}
+
+std::shared_ptr<MemoryAddr> Direct::clone() const
+{
+    return std::make_shared<Direct>(*this);
+}
+
+
+
+/********************   Indexed    ********************/
+
+
+
+void Indexed::accept(Visitor *v)
+{
+    v->visitIndexed(this);
+}
+
+std::shared_ptr<MemoryAddr> Indexed::clone() const
+{
+    return std::make_shared<Indexed>(*this);
+}
+
+
+
+/********************   Based    ********************/
+
+
+
+void Based::accept(Visitor *v)
+{
+    v->visitBased(this);
+}
+
+std::shared_ptr<MemoryAddr> Based::clone() const
+{
+    return std::make_shared<Based>(*this);
+}
+
+
+
+/********************   BasedIndexedDisp    ********************/
+
+
+
+void BasedIndexedDisp::accept(Visitor *v)
+{
+    v->visitBasedIndexedDisp(this);
+}
+
+std::shared_ptr<MemoryAddr> BasedIndexedDisp::clone() const
+{
+    return std::make_shared<BasedIndexedDisp>(*this);
+}
+
+
+
+/********************   IndexScaleExp    ********************/
+
+
+
+void IndexScaleExp::accept(Visitor *v)
+{
+    v->visitIndexScaleExp(this);
+}
+
+std::shared_ptr<IndexExp> IndexScaleExp::clone() const
+{
+    return std::make_shared<IndexScaleExp>(*this);
+}
+
+
+
+/********************   IndexScaleNExp    ********************/
+
+
+
+void IndexScaleNExp::accept(Visitor *v)
+{
+    v->visitIndexScaleNExp(this);
+}
+
+std::shared_ptr<IndexExp> IndexScaleNExp::clone() const
+{
+    return std::make_shared<IndexScaleNExp>(*this);
 }
 
 

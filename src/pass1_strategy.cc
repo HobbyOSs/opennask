@@ -73,8 +73,8 @@ void Pass1Strategy::visitExp(Exp *t) {
         this->visitDivExp(dynamic_cast<DivExp*>(t));
     } else if (dynamic_cast<ModExp*>(t) != nullptr) {
         this->visitModExp(dynamic_cast<ModExp*>(t));
-    } else if (dynamic_cast<IndirectAddrExp*>(t) != nullptr) {
-        this->visitIndirectAddrExp(dynamic_cast<IndirectAddrExp*>(t));
+    } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
+        this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
     } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
     } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
@@ -94,6 +94,28 @@ void Pass1Strategy::visitFactor(Factor *t) {
         this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
     } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
         this->visitStringFactor(dynamic_cast<StringFactor*>(t));
+    }
+}
+
+void Pass1Strategy::visitMemoryAddr(MemoryAddr *t) {
+
+    if (dynamic_cast<Direct*>(t) != nullptr) {
+        this->visitDirect(dynamic_cast<Direct*>(t));
+    } else if (dynamic_cast<Indexed*>(t) != nullptr) {
+        this->visitIndexed(dynamic_cast<Indexed*>(t));
+    } else if (dynamic_cast<Based*>(t) != nullptr) {
+        this->visitBased(dynamic_cast<Based*>(t));
+    } else if (dynamic_cast<BasedIndexedDisp*>(t) != nullptr) {
+        this->visitBasedIndexedDisp(dynamic_cast<BasedIndexedDisp*>(t));
+    }
+}
+
+void Pass1Strategy::visitIndexExp(IndexExp *t) {
+
+    if (dynamic_cast<IndexScaleExp*>(t) != nullptr) {
+        this->visitIndexScaleExp(dynamic_cast<IndexScaleExp*>(t));
+    } else if (dynamic_cast<IndexScaleNExp*>(t) != nullptr) {
+        this->visitIndexScaleNExp(dynamic_cast<IndexScaleNExp*>(t));
     }
 }
 
@@ -1157,43 +1179,15 @@ void Pass1Strategy::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
-void Pass1Strategy::visitIndirectAddrExp(IndirectAddrExp *indirect_addr_exp) {
-    if (indirect_addr_exp->exp_) {
-        indirect_addr_exp->exp_->accept(this);
-    }
-    // [SI] のような間接アドレス表現を読み取る
-    std::regex registers8 (R"(AL|BL|CL|DL|AH|BH|CH|DH)");
-    std::regex registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
-    std::regex registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
-    std::regex registers64(R"(RAX|RBX|RCX|RDX)");
-
-    TParaToken t = this->ctx.top();
-    if (std::regex_match(t.AsString(), registers8)) {
-        t.SetAttribute(TParaToken::ttMem8);
-    } else if (std::regex_match(t.AsString(), registers16)) {
-        t.SetAttribute(TParaToken::ttMem16);
-    } else if (std::regex_match(t.AsString(), registers32)) {
-        t.SetAttribute(TParaToken::ttMem32);
-    } else if (std::regex_match(t.AsString(), registers64)) {
-        t.SetAttribute(TParaToken::ttMem64);
-    } else if (t.IsHex()) {
-        auto attr = match(static_cast<int64_t>(t.AsInt32()))(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max())  = TParaToken::ttMem8,
-            pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = TParaToken::ttMem16,
-            pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = TParaToken::ttMem32,
-            pattern | _ = TParaToken::ttMem64
-        );
-        t.SetAttribute(attr);
-    } else {
-        t.SetAttribute(TParaToken::ttMem);
-    }
-
-    this->ctx.pop();
-    this->ctx.push(t);
-}
+void Pass1Strategy::visitMemoryAddrExp(MemoryAddrExp *p) {};
+void Pass1Strategy::visitDirect(Direct *direct) {};
+void Pass1Strategy::visitIndexed(Indexed *p) {};
+void Pass1Strategy::visitBased(Based *p) {};
+void Pass1Strategy::visitBasedIndexedDisp(BasedIndexedDisp *p) {};
+void Pass1Strategy::visitIndexScaleExp(IndexScaleExp *p) {};
+void Pass1Strategy::visitIndexScaleNExp(IndexScaleNExp *p) {};
 
 void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
-
     // DataType "[" Exp "]" ; という間接アドレス表現を読み取る
     // left "[" right "]" ; と変数をおいて、属性をTParaTokenに設定する
     if (datatype_exp->datatype_) {
@@ -1417,6 +1411,10 @@ int Pass1Strategy::Eval(T *parse_tree) {
         this->visitMnemonicArgs(parse_tree);
     } else if constexpr (std::is_same_v<T, Exp>) {
         this->visitExp(parse_tree);
+    } else if constexpr (std::is_same_v<T, MemoryAddr>) {
+        this->visitMemoryAddr(parse_tree);
+    } else if constexpr (std::is_same_v<T, IndexExp>) {
+        this->visitIndexExp(parse_tree);
     } else if constexpr (std::is_same_v<T, Factor>) {
         this->visitFactor(parse_tree);
     } else if constexpr (std::is_same_v<T, ConfigType>) {
@@ -1438,6 +1436,8 @@ template int Pass1Strategy::Eval<Statement>(Statement* pt);
 template int Pass1Strategy::Eval<ListMnemonicArgs>(ListMnemonicArgs* pt);
 template int Pass1Strategy::Eval<MnemonicArgs>(MnemonicArgs* pt);
 template int Pass1Strategy::Eval<Exp>(Exp* pt);
+template int Pass1Strategy::Eval<MemoryAddr>(MemoryAddr* pt);
+template int Pass1Strategy::Eval<IndexExp>(IndexExp* pt);
 template int Pass1Strategy::Eval<Factor>(Factor* pt);
 template int Pass1Strategy::Eval<ConfigType>(ConfigType* pt);
 template int Pass1Strategy::Eval<DataType>(DataType* pt);

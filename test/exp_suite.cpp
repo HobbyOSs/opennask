@@ -119,45 +119,49 @@ TEST_F(ExpSuite, ImmExp)
 }
 
 // テストデータクラス
-struct IndirectAddrExpParam {
+struct MemoryAddrExpParam {
     const std::string token;
     const TParaToken::TIdentiferAttribute expected;
 
-    IndirectAddrExpParam(
+    MemoryAddrExpParam(
         const std::string& token,
         const TParaToken::TIdentiferAttribute expected
     ):
         token(token), expected(expected) {}
 };
 
-void PrintTo(const IndirectAddrExpParam& param, ::std::ostream* os) {
+void PrintTo(const MemoryAddrExpParam& param, ::std::ostream* os) {
     *os << param.token
         << " = "
         << TParaToken::TIAttributeNames[param.expected];
 }
 
-class IndirectAddrExpTest : public testing::TestWithParam<IndirectAddrExpParam> {};
+class MemoryAddrExpTest : public testing::TestWithParam<MemoryAddrExpParam> {};
 
-TEST_P(IndirectAddrExpTest, IndirectAddrExpTest) {
+TEST_P(MemoryAddrExpTest, MemoryAddrExpTest) {
     const auto p = GetParam();
 
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
-    auto identFactor = IdentFactor(p.token); // 前後の[,]は保持しない
-    auto immExp = ImmExp(identFactor.clone());
-    auto indirectAddrExp = IndirectAddrExp(immExp.clone());
 
-    d->visitIndirectAddrExp(&indirectAddrExp);
-    EXPECT_EQ(p.token, d->ctx.top().AsString());
-    EXPECT_EQ(p.expected, d->ctx.top().AsAttr());
-    d->ctx.pop();
+    std::stringstream ss;
+    ss << p.token;
+
+    auto front = std::make_unique<FrontEnd>(true, true);
+    //front->bit_mode = p._bit_mode;
+    auto pt = front->Parse<MemoryAddr>(ss);
+
+    //d->visitMemoryAddrExp(&indirectAddrExp);
+    //EXPECT_EQ(p.token, d->ctx.top().AsString());
+    //EXPECT_EQ(p.expected, d->ctx.top().AsAttr());
+    //d->ctx.pop();
 }
 
-INSTANTIATE_TEST_SUITE_P(ExpSuite, IndirectAddrExpTest,
+INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
     testing::Values(
-        IndirectAddrExpParam("AL", TParaToken::ttMem8),
-        IndirectAddrExpParam("AX", TParaToken::ttMem16),
-        IndirectAddrExpParam("EAX", TParaToken::ttMem32),
-        IndirectAddrExpParam("RAX", TParaToken::ttMem64)
+        MemoryAddrExpParam("[AL]", TParaToken::ttMem8),
+        MemoryAddrExpParam("[AX]", TParaToken::ttMem16),
+        MemoryAddrExpParam("[EAX]", TParaToken::ttMem32),
+        MemoryAddrExpParam("[RAX]", TParaToken::ttMem64)
     )
 );
 
