@@ -260,19 +260,19 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttImm, 1) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xeb);
-                a.db(arg.AsInt32() - dollar_position - binout_container.size() + 1);
+                a.db(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
         pattern | ds(TParaToken::ttImm, 2) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xe9);
-                a.dw(arg.AsInt32() - dollar_position - binout_container.size() + 1);
+                a.dw(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
         pattern | ds(TParaToken::ttImm, 4) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xe9);
-                a.dd(arg.AsInt32() - dollar_position - binout_container.size() + 1);
+                a.dd(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
         // ラベル処理

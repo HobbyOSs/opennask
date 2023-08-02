@@ -963,7 +963,7 @@ msg:
     expected.insert(expected.end(), std::begin(padding), std::end(padding));
     expected.insert(expected.end(), {0x55, 0xaa});
 
-    GTEST_SKIP(); // TODO: まだ機能しない
+    //GTEST_SKIP(); // TODO: まだ機能しない
     // 作成したバイナリの差分assert & diff表示
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
@@ -1030,7 +1030,6 @@ fin:
     expected.insert(expected.end(), {0xf4});
     expected.insert(expected.end(), {0xeb, 0xfd});
 
-    GTEST_SKIP(); // TODO: まだ機能しない
     // 作成したバイナリの差分assert & diff表示
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
