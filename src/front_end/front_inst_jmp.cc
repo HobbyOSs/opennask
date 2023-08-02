@@ -254,17 +254,25 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
 
     match(operands)(
-        // 即値処理
+        // asmjitでのJMP即値処理はうまい方法がないので下記のように実装しておく
+        // そもそも即値へのジャンプというのが一般的ではないのかもしれない
+        // MEMO: https://stackoverflow.com/a/63500826/2565527
         pattern | ds(TParaToken::ttImm, 1) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-                const auto imm = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
-                a.short_().jmp(imm);
+                a.db(0xeb);
+                a.db(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
-        pattern | ds(TParaToken::ttImm, or_(2, 4)) = [&] {
+        pattern | ds(TParaToken::ttImm, 2) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-                const auto imm = (arg.AsInt32() - dollar_position - binout_container.size()) + 1;
-                a.long_().jmp(imm);
+                a.db(0xe9);
+                a.dw(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
+            });
+        },
+        pattern | ds(TParaToken::ttImm, 4) = [&] {
+            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                a.db(0xe9);
+                a.dd(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
         // ラベル処理
