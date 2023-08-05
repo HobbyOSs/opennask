@@ -18,8 +18,9 @@ sed -e 's/Test/test/g' -e 's/Absyn/absyn/g' \
 find . -name \*.cc -or -name \*.hh -or -name \*.ll -or -name \*.yy | xargs sed -i 's/"\(.\+\)\.hh"/"\L\1\.hh"/'
 
 # flexでdebugログ出す設定
-# sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.l
-# sed -i 's/return scanner;/nask_set_debug(true, scanner); return scanner;/g' nask.l
+#sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.ll
+#sed -i 's/set_debug(trace_scanning);/set_debug(true);/g' driver.cc
+#sed -i 's/set_debug_level (trace_parsing);/set_debug_level (true);/g' driver.cc
 
 # commentのstate設定の修正
 sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g'   nask.ll
