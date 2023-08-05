@@ -61,7 +61,7 @@ public:
     void visitStatement(Statement *t) override;
     void visitMnemonicArgs(MnemonicArgs *t) override;
     void visitExp(Exp *t) override;
-    void visitMemoryAddr(MemoryAddr *t) override;
+    void visitMemoryAddrExp(MemoryAddrExp *p) override;
     void visitIndexExp(IndexExp *t) override;
     void visitFactor(Factor *t) override;
     void visitConfigType(ConfigType *t) override;
@@ -128,7 +128,6 @@ public:
 
     // expression
     void visitImmExp(ImmExp *p) override;
-    void visitMemoryAddrExp(MemoryAddrExp *p) override;
     void visitDirect(Direct *direct) override;
     void visitIndexed(Indexed *p) override;
     void visitBased(Based *p) override;

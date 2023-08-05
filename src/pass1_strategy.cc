@@ -73,15 +73,20 @@ void Pass1Strategy::visitExp(Exp *t) {
         this->visitDivExp(dynamic_cast<DivExp*>(t));
     } else if (dynamic_cast<ModExp*>(t) != nullptr) {
         this->visitModExp(dynamic_cast<ModExp*>(t));
-    } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
-        this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
     } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
     } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
         this->visitRangeExp(dynamic_cast<RangeExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
+    } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
+        this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
     }
+}
+
+void Pass1Strategy::visitMemoryAddrExp(MemoryAddrExp *t) {
+
+    if (t->memoryaddr_) t->memoryaddr_->accept(this);
 }
 
 void Pass1Strategy::visitFactor(Factor *t) {
@@ -94,19 +99,6 @@ void Pass1Strategy::visitFactor(Factor *t) {
         this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
     } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
         this->visitStringFactor(dynamic_cast<StringFactor*>(t));
-    }
-}
-
-void Pass1Strategy::visitMemoryAddr(MemoryAddr *t) {
-
-    if (dynamic_cast<Direct*>(t) != nullptr) {
-        this->visitDirect(dynamic_cast<Direct*>(t));
-    } else if (dynamic_cast<Indexed*>(t) != nullptr) {
-        this->visitIndexed(dynamic_cast<Indexed*>(t));
-    } else if (dynamic_cast<Based*>(t) != nullptr) {
-        this->visitBased(dynamic_cast<Based*>(t));
-    } else if (dynamic_cast<BasedIndexedDisp*>(t) != nullptr) {
-        this->visitBasedIndexedDisp(dynamic_cast<BasedIndexedDisp*>(t));
     }
 }
 
@@ -1179,8 +1171,43 @@ void Pass1Strategy::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
-void Pass1Strategy::visitMemoryAddrExp(MemoryAddrExp *p) {};
-void Pass1Strategy::visitDirect(Direct *direct) {};
+void Pass1Strategy::visitDirect(Direct *direct) {
+    if (direct->factor_) direct->factor_->accept(this);
+
+    TParaToken t = this->ctx.top();
+    log()->debug("[pass1] visitDirect [{}]", t.AsString());
+
+    match(t)(
+        pattern | _ | when(t.IsAsmJitGpbLo()) = [&] {
+            t.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | _ | when(t.IsAsmJitGpbHi()) = [&] {
+            t.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | _ | when(t.IsAsmJitGpw()) = [&] {
+            t.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | _ | when(t.IsAsmJitSReg()) = [&] {
+            t.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | _ | when(t.IsAsmJitGpd()) = [&] {
+            t.SetAttribute(TParaToken::ttMem32);
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 1) = [&] {
+            t.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 2) = [&] {
+            t.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 4) = [&] {
+            t.SetAttribute(TParaToken::ttMem32);
+        }
+    );
+
+    this->ctx.pop();
+    this->ctx.push(t);
+};
+
 void Pass1Strategy::visitIndexed(Indexed *p) {};
 void Pass1Strategy::visitBased(Based *p) {};
 void Pass1Strategy::visitBasedIndexedDisp(BasedIndexedDisp *p) {};

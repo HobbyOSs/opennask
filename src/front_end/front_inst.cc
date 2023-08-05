@@ -248,8 +248,8 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
                match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
                    // "MOV AL,[SI]" のようなパターンだけ対応
-                   pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsAsmJitGpw()) ); },
-                   pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsAsmJitGpw()) ); }
+                   pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsMem() ); },
+                   pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsMem() ); }
                );
             },
             // C7      r16     imm16 (TODO: こっちは実装していない)

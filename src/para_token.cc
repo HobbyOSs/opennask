@@ -27,7 +27,9 @@ std::regex TParaToken::segment_registers(R"(CS|DS|ES|SS|FS|GS)");
 
 
 TParaToken::TParaToken(void) {
+    _token_string = "";
     _type = ttEmpty;
+    _mem = std::make_shared<x86::Mem>();
 }
 
 TParaToken::TParaToken(const string& token_string,
@@ -35,6 +37,7 @@ TParaToken::TParaToken(const string& token_string,
 
     _token_string = token_string;
     _type = type;
+    _mem = nullptr;
     SetAttribute();
 }
 
@@ -44,6 +47,7 @@ TParaToken::TParaToken(const string& token_string,
 
     _token_string = token_string;
     _type = type;
+    _mem = nullptr;
     SetAttribute(attr);
 }
 
@@ -51,9 +55,21 @@ TParaToken::TParaToken(const TParaToken& token) {
     _token_string = token._token_string;
     _type = token._type;
     _attr = token._attr;
+    _mem = token._mem;
 }
 
 TParaToken::~TParaToken() {
+}
+
+void TParaToken::SetMem(const x86::Mem& mem) {
+    _mem = std::make_shared<x86::Mem>(mem);
+}
+
+x86::Mem& TParaToken::AsMem() const {
+    if (_mem == nullptr)
+        throw std::runtime_error("memory is not set");
+
+    return *_mem.get();
 }
 
 void TParaToken::SetAttribute() {
@@ -396,11 +412,14 @@ TParaToken& TParaToken::RemoveQuotation(char quoter) {
 TParaToken& TParaToken::MustBe(const string& expected_string) noexcept(false) {
 
     if (_token_string != expected_string) {
-        string message = "";
-        message += "invalid token: \"" + AsString() + "\"";
-        message += " (\"" + expected_string + "\" is expected)";
-
-        throw std::runtime_error(message);
+        std::ostringstream oss;
+        oss << "invalid token: \""
+            << AsString()
+            << "\""
+            << " (\""
+            << expected_string
+            << "\" is expected)";
+        throw std::runtime_error(oss.str());
     }
 
     return *this;
@@ -409,41 +428,30 @@ TParaToken& TParaToken::MustBe(const string& expected_string) noexcept(false) {
 TParaToken& TParaToken::MustBe(TTokenType expected_token_type) noexcept(false) {
 
     if (_type != expected_token_type) {
-        string expected = "\?\?\?";
-        switch (expected_token_type) {
-        case ttKeyword:
-            expected = "keyword";
-            break;
-        case ttIdentifier:
-            expected = "identifier";
-            break;
-        case ttInteger:
-            expected = "integer";
-            break;
-        case ttHex:
-            expected = "hex";
-            break;
-        case ttFloating:
-            expected = "floating";
-            break;
-        case ttSeparator:
-            expected = "separator";
-            break;
-        case ttOperator:
-            expected = "operator";
-            break;
-        case ttQuote:
-            expected = "quote";
-            break;
-        default:
-            ;
-        }
+        std::ostringstream oss;
+        oss << "invalid token: \""
+            << AsString()
+            << "\""
+            << " (\""
+            << TTokenNames[expected_token_type]
+            << "\" is expected)";
+        throw std::runtime_error(oss.str());
+    }
 
-        string message = "";
-        message += "invalid token: \"" + AsString() + "\"";
-        message += " (\"" + expected + "\" is expected)";
+    return *this;
+}
 
-        throw std::runtime_error(message);
+TParaToken& TParaToken::MustBe(TIdentiferAttribute expected_attr) noexcept(false) {
+
+    if (_attr != expected_attr) {
+        std::ostringstream oss;
+        oss << "invalid token: \""
+            << AsString()
+            << "\""
+            << " (\""
+            << TIAttributeNames[expected_attr]
+            << "\" is expected)";
+        throw std::runtime_error(oss.str());
     }
 
     return *this;

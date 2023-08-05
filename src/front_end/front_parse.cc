@@ -23,8 +23,8 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     }
 
     // lexer, parser
-    trace_scanning = trace_scanning;
-    trace_parsing = trace_parsing;
+    this->trace_scanning = trace_scanning;
+    this->trace_parsing = trace_parsing;
 
     // nask
     dollar_position = 0;
@@ -92,40 +92,20 @@ void FrontEnd::visitExp(Exp *t) {
         this->visitDivExp(dynamic_cast<DivExp*>(t));
     } else if (dynamic_cast<ModExp*>(t) != nullptr) {
         this->visitModExp(dynamic_cast<ModExp*>(t));
-    } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
-        this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
-    } else if (dynamic_cast<Direct*>(t) != nullptr) {
-        this->visitDirect(dynamic_cast<Direct*>(t));
-    } else if (dynamic_cast<Indexed*>(t) != nullptr) {
-        this->visitIndexed(dynamic_cast<Indexed*>(t));
-    } else if (dynamic_cast<Based*>(t) != nullptr) {
-        this->visitBased(dynamic_cast<Based*>(t));
-    } else if (dynamic_cast<BasedIndexedDisp*>(t) != nullptr) {
-        this->visitBasedIndexedDisp(dynamic_cast<BasedIndexedDisp*>(t));
-    } else if (dynamic_cast<IndexScaleExp*>(t) != nullptr) {
-        this->visitIndexScaleExp(dynamic_cast<IndexScaleExp*>(t));
-    } else if (dynamic_cast<IndexScaleNExp*>(t) != nullptr) {
-        this->visitIndexScaleNExp(dynamic_cast<IndexScaleNExp*>(t));
     } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
     } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
         this->visitRangeExp(dynamic_cast<RangeExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
+    } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
+        this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
     }
 }
 
-void FrontEnd::visitMemoryAddr(MemoryAddr *t) {
+void FrontEnd::visitMemoryAddrExp(MemoryAddrExp *t) {
 
-    if (dynamic_cast<Direct*>(t) != nullptr) {
-        this->visitDirect(dynamic_cast<Direct*>(t));
-    } else if (dynamic_cast<Indexed*>(t) != nullptr) {
-        this->visitIndexed(dynamic_cast<Indexed*>(t));
-    } else if (dynamic_cast<Based*>(t) != nullptr) {
-        this->visitBased(dynamic_cast<Based*>(t));
-    } else if (dynamic_cast<BasedIndexedDisp*>(t) != nullptr) {
-        this->visitBasedIndexedDisp(dynamic_cast<BasedIndexedDisp*>(t));
-    }
+    if (t->memoryaddr_) t->memoryaddr_->accept(this);
 }
 
 void FrontEnd::visitIndexExp(IndexExp *t) {
@@ -321,9 +301,61 @@ void FrontEnd::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
-void FrontEnd::visitMemoryAddrExp(MemoryAddrExp *p) {};
-void FrontEnd::visitDirect(Direct *direct) {};
-void FrontEnd::visitIndexed(Indexed *p) {};
+void FrontEnd::visitDirect(Direct *direct) {
+
+    if (direct->factor_) direct->factor_->accept(this);
+    using namespace asmjit;
+
+    TParaToken t = this->ctx.top();
+    log()->debug("[pass2] visitDirect [{}]", t.AsString());
+
+    match(t)(
+        pattern | _ | when(t.IsAsmJitGpbLo()) = [&] {
+            t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbLo()));
+        },
+        pattern | _ | when(t.IsAsmJitGpbHi()) = [&] {
+            t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbHi()));
+        },
+        pattern | _ | when(t.IsAsmJitGpw()) = [&] {
+            t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(x86::ptr(t.AsAsmJitGpw()));
+        },
+        pattern | _ | when(t.IsAsmJitSReg()) = [&] {
+            t.SetAttribute(TParaToken::ttMem16);
+            //t.SetMem(x86::ptr(t.AsAsmJitSReg())); TODO: コンパイルできない
+        },
+        pattern | _ | when(t.IsAsmJitGpd()) = [&] {
+            t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(x86::ptr(t.AsAsmJitGpd()));
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 1) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
+            t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(mem);
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 2) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
+            t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(mem);
+        },
+        pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 4) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
+            t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(mem);
+        }
+    );
+    this->ctx.pop();
+    this->ctx.push(t);
+};
+
+void FrontEnd::visitIndexed(Indexed *p) {
+};
+
 void FrontEnd::visitBased(Based *p) {};
 void FrontEnd::visitBasedIndexedDisp(BasedIndexedDisp *p) {};
 void FrontEnd::visitIndexScaleExp(IndexScaleExp *p) {};
@@ -529,6 +561,9 @@ std::shared_ptr<T> FrontEnd::Parse(std::istream &input) {
 
     std::shared_ptr<T> parse_tree = nullptr;
     auto driver = std::make_unique<NaskDriver>();
+    // TODO: 開発者向けのデバッグログオプションを作る
+    //driver->trace_scanning = this->trace_scanning;
+    //driver->trace_parsing = this->trace_parsing;
 
     try {
         if constexpr (std::is_same_v<T, Program>) {

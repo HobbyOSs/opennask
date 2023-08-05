@@ -109,6 +109,8 @@ public:
     ~TParaToken();
     void SetAttribute();
     void SetAttribute(TIdentiferAttribute attr);
+    void SetMem(const asmjit::x86::Mem& mem);
+
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
     bool IsKeyword(void) const;
@@ -126,6 +128,7 @@ public:
     bool Is(const std::string& string) const;
     bool IsNot(const std::string& string) const;
     std::string AsString(void) const;
+    asmjit::x86::Mem& AsMem(void) const;
 
     // asmjit provides following datatype
     // https://github.com/asmjit/asmjit/blob/master/src/asmjit/x86/x86operand.h
@@ -172,13 +175,17 @@ public:
     TParaToken& RemoveQuotation(char quoter = '\0');
     TParaToken& MustBe(const std::string& expected_string) noexcept(false);
     TParaToken& MustBe(TTokenType expected_token_type) noexcept(false);
+    TParaToken& MustBe(TIdentiferAttribute expected_attr) noexcept(false);
     void ThrowUnexpected(const std::string& expected = "") const noexcept(false);
+
+private:
+    std::string to_lower(const std::string& in) const;
 
 protected:
     std::string _token_string;
     TTokenType _type;
     TIdentiferAttribute _attr;
-    std::string to_lower(const std::string& in) const;
+    std::shared_ptr<asmjit::x86::Mem> _mem;
 };
 
 
