@@ -1224,8 +1224,8 @@ void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
     left.MustBe(TParaToken::ttKeyword);
     this->ctx.pop();
 
-    if (datatype_exp->exp_) {
-        datatype_exp->exp_->accept(this);
+    if (datatype_exp->memoryaddr_) {
+        datatype_exp->memoryaddr_->accept(this);
     }
     TParaToken right = this->ctx.top();
     this->ctx.pop();

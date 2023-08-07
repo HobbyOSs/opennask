@@ -338,9 +338,7 @@ void PrintAbsyn::visitDatatypeExp(DatatypeExp* p)
   if (oldi > 0) render(_L_PAREN);
 
   _i_ = 0; p->datatype_->accept(this);
-  render('[');
-  _i_ = 0; p->exp_->accept(this);
-  render(']');
+  _i_ = 0; p->memoryaddr_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4413,9 +4411,8 @@ void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
   bufAppend(']');
   bufAppend(' ');
   bufAppend('[');
-  if (p->exp_)  p->exp_->accept(this);
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
   bufAppend(']');
-  bufAppend(' ');
   bufAppend(')');
 }
 

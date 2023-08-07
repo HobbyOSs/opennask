@@ -1046,10 +1046,10 @@ class DatatypeExp : public Exp
 {
 public:
     std::shared_ptr<DataType> datatype_;
-    std::shared_ptr<Exp> exp_;
+    std::shared_ptr<MemoryAddr> memoryaddr_;
 
-    DatatypeExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2)
-    : Exp(), datatype_{p1}, exp_{p2}
+    DatatypeExp(std::shared_ptr<DataType> p1, std::shared_ptr<MemoryAddr> p2)
+    : Exp(), datatype_{p1}, memoryaddr_{p2}
     {};
 
 

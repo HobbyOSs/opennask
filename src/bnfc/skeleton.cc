@@ -130,7 +130,7 @@ void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
   /* Code For DatatypeExp Goes Here */
 
   if (datatype_exp->datatype_) datatype_exp->datatype_->accept(this);
-  if (datatype_exp->exp_) datatype_exp->exp_->accept(this);
+  if (datatype_exp->memoryaddr_) datatype_exp->memoryaddr_->accept(this);
 
 }
 

@@ -186,7 +186,8 @@ INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
         MemoryAddrExpParam("[SI]"    , asmjit::x86::si , std::nullopt),
         MemoryAddrExpParam("[EAX]"   , asmjit::x86::eax, std::nullopt),
         MemoryAddrExpParam("[EBX]"   , asmjit::x86::ebx, std::nullopt),
-        MemoryAddrExpParam("[0x0ff0]", std::nullopt    , 0x0ff0)
+        MemoryAddrExpParam("[0x0ff0]", std::nullopt     , 0x0ff0),
+        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt, 0x0ff0)
     )
 );
 
