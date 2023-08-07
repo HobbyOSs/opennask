@@ -130,6 +130,22 @@ NaskDriver::pExp(std::istream &stream)
     return this->exp_;
 }
 
+std::shared_ptr<MemoryAddr>
+NaskDriver::pMemoryAddr(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->memoryaddr_;
+}
+
+std::shared_ptr<IndexExp>
+NaskDriver::pIndexExp(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->indexexp_;
+}
+
 std::shared_ptr<Factor>
 NaskDriver::pFactor(std::istream &stream)
 {

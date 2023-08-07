@@ -1,4 +1,4 @@
-// A Bison parser, made by GNU Bison 3.7.5.
+// A Bison parser, made by GNU Bison 3.8.2.
 
 // Skeleton interface for Bison LALR(1) parsers in C++
 
@@ -15,7 +15,7 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // As a special exception, you may create a larger work that contains
 // part or all of the Bison parser skeleton and distribute that work
@@ -125,12 +125,18 @@
 # define YY_USE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+#if defined __GNUC__ && ! defined __ICC && 406 <= __GNUC__ * 100 + __GNUC_MINOR__
+# if __GNUC__ * 100 + __GNUC_MINOR__ < 407
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")
+# else
+#  define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                           \
     _Pragma ("GCC diagnostic push")                                     \
     _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# endif
 # define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
@@ -183,7 +189,7 @@
 #endif
 
 namespace nask_ {
-#line 187 "bison.hh"
+#line 193 "bison.hh"
 
 
 
@@ -192,39 +198,44 @@ namespace nask_ {
   class NaskParser
   {
   public:
-#ifndef YYSTYPE
+#ifdef YYSTYPE
+# ifdef __GNUC__
+#  pragma GCC message "bison: do not #define YYSTYPE in C++, use %define api.value.type"
+# endif
+    typedef YYSTYPE value_type;
+#else
   /// A buffer to store and retrieve objects.
   ///
   /// Sort of a variant, but does not keep track of the nature
   /// of the stored data, since that knowledge is available
   /// via the current parser state.
-  class semantic_type
+  class value_type
   {
   public:
     /// Type of *this.
-    typedef semantic_type self_type;
+    typedef value_type self_type;
 
     /// Empty construction.
-    semantic_type () YY_NOEXCEPT
-      : yybuffer_ ()
+    value_type () YY_NOEXCEPT
+      : yyraw_ ()
     {}
 
     /// Construct and fill.
     template <typename T>
-    semantic_type (YY_RVREF (T) t)
+    value_type (YY_RVREF (T) t)
     {
       new (yyas_<T> ()) T (YY_MOVE (t));
     }
 
 #if 201103L <= YY_CPLUSPLUS
     /// Non copyable.
-    semantic_type (const self_type&) = delete;
+    value_type (const self_type&) = delete;
     /// Non copyable.
     self_type& operator= (const self_type&) = delete;
 #endif
 
     /// Destruction, allowed only if empty.
-    ~semantic_type () YY_NOEXCEPT
+    ~value_type () YY_NOEXCEPT
     {}
 
 # if 201103L <= YY_CPLUSPLUS
@@ -348,7 +359,7 @@ namespace nask_ {
   private:
 #if YY_CPLUSPLUS < 201103L
     /// Non copyable.
-    semantic_type (const self_type&);
+    value_type (const self_type&);
     /// Non copyable.
     self_type& operator= (const self_type&);
 #endif
@@ -358,7 +369,7 @@ namespace nask_ {
     T*
     yyas_ () YY_NOEXCEPT
     {
-      void *yyp = yybuffer_.yyraw;
+      void *yyp = yyraw_;
       return static_cast<T*> (yyp);
      }
 
@@ -367,7 +378,7 @@ namespace nask_ {
     const T*
     yyas_ () const YY_NOEXCEPT
     {
-      const void *yyp = yybuffer_.yyraw;
+      const void *yyp = yyraw_;
       return static_cast<const T*> (yyp);
      }
 
@@ -389,29 +400,35 @@ namespace nask_ {
       // Factor
       char dummy5[sizeof (std::shared_ptr<Factor>)];
 
+      // IndexExp
+      char dummy6[sizeof (std::shared_ptr<IndexExp>)];
+
       // ListMnemonicArgs
-      char dummy6[sizeof (std::shared_ptr<ListMnemonicArgs>)];
+      char dummy7[sizeof (std::shared_ptr<ListMnemonicArgs>)];
 
       // ListStatement
-      char dummy7[sizeof (std::shared_ptr<ListStatement>)];
+      char dummy8[sizeof (std::shared_ptr<ListStatement>)];
+
+      // MemoryAddr
+      char dummy9[sizeof (std::shared_ptr<MemoryAddr>)];
 
       // MnemonicArgs
-      char dummy8[sizeof (std::shared_ptr<MnemonicArgs>)];
+      char dummy10[sizeof (std::shared_ptr<MnemonicArgs>)];
 
       // Opcode
-      char dummy9[sizeof (std::shared_ptr<Opcode>)];
+      char dummy11[sizeof (std::shared_ptr<Opcode>)];
 
       // Program
-      char dummy10[sizeof (std::shared_ptr<Program>)];
+      char dummy12[sizeof (std::shared_ptr<Program>)];
 
       // Statement
-      char dummy11[sizeof (std::shared_ptr<Statement>)];
+      char dummy13[sizeof (std::shared_ptr<Statement>)];
 
       // T_Hex
       // T_Label
       // _STRING_
       // _IDENT_
-      char dummy12[sizeof (std::string)];
+      char dummy14[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -421,15 +438,16 @@ namespace nask_ {
     union
     {
       /// Strongest alignment constraints.
-      long double yyalign_me;
+      long double yyalign_me_;
       /// A buffer large enough to store any of the semantic values.
-      char yyraw[size];
-    } yybuffer_;
+      char yyraw_[size];
+    };
   };
 
-#else
-    typedef YYSTYPE semantic_type;
 #endif
+    /// Backward compatibility (Bison 3.8).
+    typedef value_type semantic_type;
+
     /// Symbol locations.
     typedef location location_type;
 
@@ -814,7 +832,7 @@ namespace nask_ {
     };
 
     /// Token kind, as returned by yylex.
-    typedef token::yytokentype token_kind_type;
+    typedef token::token_kind_type token_kind_type;
 
     /// Backward compatibility alias (Bison 3.6).
     typedef token_kind_type token_type;
@@ -1184,10 +1202,12 @@ namespace nask_ {
         S_ListMnemonicArgs = 355,                // ListMnemonicArgs
         S_MnemonicArgs = 356,                    // MnemonicArgs
         S_Exp = 357,                             // Exp
-        S_Factor = 358,                          // Factor
-        S_ConfigType = 359,                      // ConfigType
-        S_DataType = 360,                        // DataType
-        S_Opcode = 361                           // Opcode
+        S_MemoryAddr = 358,                      // MemoryAddr
+        S_IndexExp = 359,                        // IndexExp
+        S_Factor = 360,                          // Factor
+        S_ConfigType = 361,                      // ConfigType
+        S_DataType = 362,                        // DataType
+        S_Opcode = 363                           // Opcode
       };
     };
 
@@ -1210,7 +1230,7 @@ namespace nask_ {
       typedef Base super_type;
 
       /// Default constructor.
-      basic_symbol ()
+      basic_symbol () YY_NOEXCEPT
         : value ()
         , location ()
       {}
@@ -1244,12 +1264,20 @@ namespace nask_ {
         value.move< std::shared_ptr<Factor> > (std::move (that.value));
         break;
 
+      case symbol_kind::S_IndexExp: // IndexExp
+        value.move< std::shared_ptr<IndexExp> > (std::move (that.value));
+        break;
+
       case symbol_kind::S_ListMnemonicArgs: // ListMnemonicArgs
         value.move< std::shared_ptr<ListMnemonicArgs> > (std::move (that.value));
         break;
 
       case symbol_kind::S_ListStatement: // ListStatement
         value.move< std::shared_ptr<ListStatement> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_MemoryAddr: // MemoryAddr
+        value.move< std::shared_ptr<MemoryAddr> > (std::move (that.value));
         break;
 
       case symbol_kind::S_MnemonicArgs: // MnemonicArgs
@@ -1369,6 +1397,20 @@ namespace nask_ {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<IndexExp>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<IndexExp>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<ListMnemonicArgs>&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -1390,6 +1432,20 @@ namespace nask_ {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::shared_ptr<ListStatement>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<MemoryAddr>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<MemoryAddr>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -1472,6 +1528,8 @@ namespace nask_ {
         clear ();
       }
 
+
+
       /// Destroy contents, and record that is empty.
       void clear () YY_NOEXCEPT
       {
@@ -1508,12 +1566,20 @@ switch (yykind)
         value.template destroy< std::shared_ptr<Factor> > ();
         break;
 
+      case symbol_kind::S_IndexExp: // IndexExp
+        value.template destroy< std::shared_ptr<IndexExp> > ();
+        break;
+
       case symbol_kind::S_ListMnemonicArgs: // ListMnemonicArgs
         value.template destroy< std::shared_ptr<ListMnemonicArgs> > ();
         break;
 
       case symbol_kind::S_ListStatement: // ListStatement
         value.template destroy< std::shared_ptr<ListStatement> > ();
+        break;
+
+      case symbol_kind::S_MemoryAddr: // MemoryAddr
+        value.template destroy< std::shared_ptr<MemoryAddr> > ();
         break;
 
       case symbol_kind::S_MnemonicArgs: // MnemonicArgs
@@ -1565,7 +1631,7 @@ switch (yykind)
       void move (basic_symbol& s);
 
       /// The semantic value.
-      semantic_type value;
+      value_type value;
 
       /// The location.
       location_type location;
@@ -1580,22 +1646,24 @@ switch (yykind)
     /// Type access provider for token (enum) based symbols.
     struct by_kind
     {
-      /// Default constructor.
-      by_kind ();
-
-#if 201103L <= YY_CPLUSPLUS
-      /// Move constructor.
-      by_kind (by_kind&& that);
-#endif
-
-      /// Copy constructor.
-      by_kind (const by_kind& that);
-
       /// The symbol kind as needed by the constructor.
       typedef token_kind_type kind_type;
 
+      /// Default constructor.
+      by_kind () YY_NOEXCEPT;
+
+#if 201103L <= YY_CPLUSPLUS
+      /// Move constructor.
+      by_kind (by_kind&& that) YY_NOEXCEPT;
+#endif
+
+      /// Copy constructor.
+      by_kind (const by_kind& that) YY_NOEXCEPT;
+
       /// Constructor from (external) token numbers.
-      by_kind (kind_type t);
+      by_kind (kind_type t) YY_NOEXCEPT;
+
+
 
       /// Record that this symbol is empty.
       void clear () YY_NOEXCEPT;
@@ -1625,31 +1693,31 @@ switch (yykind)
       typedef basic_symbol<by_kind> super_type;
 
       /// Empty symbol.
-      symbol_type () {}
+      symbol_type () YY_NOEXCEPT {}
 
       /// Constructor for valueless symbols, and symbols from each type.
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, location_type l)
-        : super_type(token_type (tok), std::move (l))
+        : super_type (token_kind_type (tok), std::move (l))
 #else
       symbol_type (int tok, const location_type& l)
-        : super_type(token_type (tok), l)
+        : super_type (token_kind_type (tok), l)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, int v, location_type l)
-        : super_type(token_type (tok), std::move (v), std::move (l))
+        : super_type (token_kind_type (tok), std::move (v), std::move (l))
 #else
       symbol_type (int tok, const int& v, const location_type& l)
-        : super_type(token_type (tok), v, l)
+        : super_type (token_kind_type (tok), v, l)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
       symbol_type (int tok, std::string v, location_type l)
-        : super_type(token_type (tok), std::move (v), std::move (l))
+        : super_type (token_kind_type (tok), std::move (v), std::move (l))
 #else
       symbol_type (int tok, const std::string& v, const location_type& l)
-        : super_type(token_type (tok), v, l)
+        : super_type (token_kind_type (tok), v, l)
 #endif
       {}
     };
@@ -1702,7 +1770,7 @@ switch (yykind)
 #endif // #if YYDEBUG || 0
 
 
-    // Implementation of make_symbol for each symbol type.
+    // Implementation of make_symbol for each token kind.
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
@@ -6989,19 +7057,19 @@ switch (yykind)
 
     /// Whether the given \c yypact_ value indicates a defaulted state.
     /// \param yyvalue   the value to check
-    static bool yy_pact_value_is_default_ (int yyvalue);
+    static bool yy_pact_value_is_default_ (int yyvalue) YY_NOEXCEPT;
 
     /// Whether the given \c yytable_ value indicates a syntax error.
     /// \param yyvalue   the value to check
-    static bool yy_table_value_is_error_ (int yyvalue);
+    static bool yy_table_value_is_error_ (int yyvalue) YY_NOEXCEPT;
 
     static const short yypact_ninf_;
     static const signed char yytable_ninf_;
 
     /// Convert a scanner token kind \a t to a symbol kind.
     /// In theory \a t should be a token_kind_type, but character literals
-    /// are valid, yet not members of the token_type enum.
-    static symbol_kind_type yytranslate_ (int t);
+    /// are valid, yet not members of the token_kind_type enum.
+    static symbol_kind_type yytranslate_ (int t) YY_NOEXCEPT;
 
 #if YYDEBUG || 0
     /// For a symbol, its name in clear.
@@ -7032,14 +7100,14 @@ switch (yykind)
 
     static const short yycheck_[];
 
-    // YYSTOS[STATE-NUM] -- The (internal number of the) accessing
-    // symbol of state STATE-NUM.
+    // YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
+    // state STATE-NUM.
     static const short yystos_[];
 
-    // YYR1[YYN] -- Symbol number of symbol that rule YYN derives.
+    // YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.
     static const short yyr1_[];
 
-    // YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.
+    // YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.
     static const signed char yyr2_[];
 
 
@@ -7138,7 +7206,7 @@ switch (yykind)
       typedef typename S::size_type size_type;
       typedef typename std::ptrdiff_t index_type;
 
-      stack (size_type n = 200)
+      stack (size_type n = 200) YY_NOEXCEPT
         : seq_ (n)
       {}
 
@@ -7217,7 +7285,7 @@ switch (yykind)
       class slice
       {
       public:
-        slice (const stack& stack, index_type range)
+        slice (const stack& stack, index_type range) YY_NOEXCEPT
           : stack_ (stack)
           , range_ (range)
         {}
@@ -7267,13 +7335,13 @@ switch (yykind)
     void yypush_ (const char* m, state_type s, YY_MOVE_REF (symbol_type) sym);
 
     /// Pop \a n symbols from the stack.
-    void yypop_ (int n = 1);
+    void yypop_ (int n = 1) YY_NOEXCEPT;
 
     /// Constants.
     enum
     {
-      yylast_ = 682,     ///< Last index in yytable_.
-      yynnts_ = 11,  ///< Number of nonterminal symbols.
+      yylast_ = 648,     ///< Last index in yytable_.
+      yynnts_ = 13,  ///< Number of nonterminal symbols.
       yyfinal_ = 339 ///< Termination state number.
     };
 
@@ -7286,7 +7354,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7290 "bison.hh"
+#line 7358 "bison.hh"
 
 
 

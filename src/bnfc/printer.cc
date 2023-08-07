@@ -332,28 +332,13 @@ void PrintAbsyn::visitModExp(ModExp* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitIndirectAddrExp(IndirectAddrExp* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render('[');
-  _i_ = 0; p->exp_->accept(this);
-  render(']');
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitDatatypeExp(DatatypeExp* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   _i_ = 0; p->datatype_->accept(this);
-  render('[');
-  _i_ = 0; p->exp_->accept(this);
-  render(']');
+  _i_ = 0; p->memoryaddr_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -379,6 +364,105 @@ void PrintAbsyn::visitImmExp(ImmExp* p)
   if (oldi > 0) render(_L_PAREN);
 
   _i_ = 0; p->factor_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->memoryaddr_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitMemoryAddr(MemoryAddr *p) {} //abstract class
+
+void PrintAbsyn::visitDirect(Direct* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  _i_ = 0; p->factor_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitIndexed(Indexed* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  _i_ = 0; p->indexexp_->accept(this);
+  render('+');
+  _i_ = 0; p->factor_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitBased(Based* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  _i_ = 0; p->factor_->accept(this);
+  render('+');
+  _i_ = 0; p->indexexp_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitBasedIndexedDisp(BasedIndexedDisp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  _i_ = 0; p->factor_1->accept(this);
+  render('+');
+  _i_ = 0; p->indexexp_->accept(this);
+  render('+');
+  _i_ = 0; p->factor_2->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitIndexExp(IndexExp *p) {} //abstract class
+
+void PrintAbsyn::visitIndexScaleExp(IndexScaleExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->factor_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitIndexScaleNExp(IndexScaleNExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->factor_->accept(this);
+  render('*');
+  visitInteger(p->integer_);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4317,18 +4401,6 @@ void ShowAbsyn::visitModExp(ModExp* p)
   bufAppend(')');
 }
 
-void ShowAbsyn::visitIndirectAddrExp(IndirectAddrExp* p)
-{
-  bufAppend('(');
-  bufAppend("IndirectAddrExp");
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->exp_)  p->exp_->accept(this);
-  bufAppend(']');
-  bufAppend(' ');
-  bufAppend(')');
-}
-
 void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
 {
   bufAppend('(');
@@ -4339,9 +4411,8 @@ void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
   bufAppend(']');
   bufAppend(' ');
   bufAppend('[');
-  if (p->exp_)  p->exp_->accept(this);
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
   bufAppend(']');
-  bufAppend(' ');
   bufAppend(')');
 }
 
@@ -4369,6 +4440,104 @@ void ShowAbsyn::visitImmExp(ImmExp* p)
   if (p->factor_)  p->factor_->accept(this);
   bufAppend(']');
   bufAppend(')');
+}
+
+void ShowAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
+{
+  bufAppend('(');
+  bufAppend("MemoryAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitMemoryAddr(MemoryAddr *p) {} //abstract class
+
+void ShowAbsyn::visitDirect(Direct* p)
+{
+  bufAppend('(');
+  bufAppend("Direct");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitIndexed(Indexed* p)
+{
+  bufAppend('(');
+  bufAppend("Indexed");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->indexexp_)  p->indexexp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitBased(Based* p)
+{
+  bufAppend('(');
+  bufAppend("Based");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->indexexp_)  p->indexexp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitBasedIndexedDisp(BasedIndexedDisp* p)
+{
+  bufAppend('(');
+  bufAppend("BasedIndexedDisp");
+  bufAppend(' ');
+  p->factor_1->accept(this);
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->indexexp_)  p->indexexp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  p->factor_2->accept(this);
+  bufAppend(' ');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitIndexExp(IndexExp *p) {} //abstract class
+
+void ShowAbsyn::visitIndexScaleExp(IndexScaleExp* p)
+{
+  bufAppend('(');
+  bufAppend("IndexScaleExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitIndexScaleNExp(IndexScaleNExp* p)
+{
+  bufAppend('(');
+  bufAppend("IndexScaleNExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  visitInteger(p->integer_);  bufAppend(')');
 }
 
 void ShowAbsyn::visitFactor(Factor *p) {} //abstract class

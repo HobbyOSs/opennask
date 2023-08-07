@@ -29,10 +29,17 @@ MinusExp.                Exp   ::= Exp "-" Exp ;
 MulExp.                  Exp   ::= Exp "*" Exp ;
 DivExp.                  Exp   ::= Exp "/" Exp ;
 ModExp.                  Exp   ::= Exp "%" Exp ;
-IndirectAddrExp.         Exp   ::= "[" Exp "]" ;
-DatatypeExp.             Exp   ::= DataType "[" Exp "]" ;
+DatatypeExp.             Exp   ::= DataType MemoryAddr ;
 RangeExp.                Exp   ::= DataType Exp ":" Exp ;
 ImmExp.                  Exp   ::= Factor ;
+MemoryAddrExp.           Exp   ::= MemoryAddr ;
+
+Direct.                  MemoryAddr ::= "[" Factor "]" ;
+Indexed.                 MemoryAddr ::= "[" IndexExp "+" Factor "]" ;
+Based.                   MemoryAddr ::= "[" Factor "+" IndexExp "]" ;
+BasedIndexedDisp.        MemoryAddr ::= "[" Factor "+" IndexExp "+" Factor "]" ;
+IndexScaleExp.           IndexExp   ::= Factor ;
+IndexScaleNExp.          IndexExp   ::= Factor "*" Integer ;
 
 NumberFactor. Factor         ::= Integer ;
 HexFactor.    Factor         ::= Hex ;

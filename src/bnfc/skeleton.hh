@@ -14,6 +14,8 @@ public:
   void visitStatement(Statement *p);
   void visitMnemonicArgs(MnemonicArgs *p);
   void visitExp(Exp *p);
+  void visitMemoryAddr(MemoryAddr *p);
+  void visitIndexExp(IndexExp *p);
   void visitFactor(Factor *p);
   void visitConfigType(ConfigType *p);
   void visitDataType(DataType *p);
@@ -30,10 +32,16 @@ public:
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
-  void visitIndirectAddrExp(IndirectAddrExp *p);
   void visitDatatypeExp(DatatypeExp *p);
   void visitRangeExp(RangeExp *p);
   void visitImmExp(ImmExp *p);
+  void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitDirect(Direct *p);
+  void visitIndexed(Indexed *p);
+  void visitBased(Based *p);
+  void visitBasedIndexedDisp(BasedIndexedDisp *p);
+  void visitIndexScaleExp(IndexScaleExp *p);
+  void visitIndexScaleNExp(IndexScaleNExp *p);
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);

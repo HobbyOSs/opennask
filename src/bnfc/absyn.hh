@@ -28,6 +28,8 @@ class Program;
 class Statement;
 class MnemonicArgs;
 class Exp;
+class MemoryAddr;
+class IndexExp;
 class Factor;
 class ConfigType;
 class DataType;
@@ -44,10 +46,16 @@ class MinusExp;
 class MulExp;
 class DivExp;
 class ModExp;
-class IndirectAddrExp;
 class DatatypeExp;
 class RangeExp;
 class ImmExp;
+class MemoryAddrExp;
+class Direct;
+class Indexed;
+class Based;
+class BasedIndexedDisp;
+class IndexScaleExp;
+class IndexScaleNExp;
 class NumberFactor;
 class HexFactor;
 class IdentFactor;
@@ -397,6 +405,8 @@ public:
     virtual void visitStatement(Statement *p) = 0;
     virtual void visitMnemonicArgs(MnemonicArgs *p) = 0;
     virtual void visitExp(Exp *p) = 0;
+    virtual void visitMemoryAddr(MemoryAddr *p) = 0;
+    virtual void visitIndexExp(IndexExp *p) = 0;
     virtual void visitFactor(Factor *p) = 0;
     virtual void visitConfigType(ConfigType *p) = 0;
     virtual void visitDataType(DataType *p) = 0;
@@ -413,10 +423,16 @@ public:
     virtual void visitMulExp(MulExp *p) = 0;
     virtual void visitDivExp(DivExp *p) = 0;
     virtual void visitModExp(ModExp *p) = 0;
-    virtual void visitIndirectAddrExp(IndirectAddrExp *p) = 0;
     virtual void visitDatatypeExp(DatatypeExp *p) = 0;
     virtual void visitRangeExp(RangeExp *p) = 0;
     virtual void visitImmExp(ImmExp *p) = 0;
+    virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
+    virtual void visitDirect(Direct *p) = 0;
+    virtual void visitIndexed(Indexed *p) = 0;
+    virtual void visitBased(Based *p) = 0;
+    virtual void visitBasedIndexedDisp(BasedIndexedDisp *p) = 0;
+    virtual void visitIndexScaleExp(IndexScaleExp *p) = 0;
+    virtual void visitIndexScaleNExp(IndexScaleNExp *p) = 0;
     virtual void visitNumberFactor(NumberFactor *p) = 0;
     virtual void visitHexFactor(HexFactor *p) = 0;
     virtual void visitIdentFactor(IdentFactor *p) = 0;
@@ -806,6 +822,20 @@ public:
     int line_number, char_number;
 };
 
+class MemoryAddr : public Visitable
+{
+public:
+    virtual std::shared_ptr<MemoryAddr> clone() const = 0;
+    int line_number, char_number;
+};
+
+class IndexExp : public Visitable
+{
+public:
+    virtual std::shared_ptr<IndexExp> clone() const = 0;
+    int line_number, char_number;
+};
+
 class Factor : public Visitable
 {
 public:
@@ -1012,28 +1042,14 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
-class IndirectAddrExp : public Exp
-{
-public:
-    std::shared_ptr<Exp> exp_;
-
-    IndirectAddrExp(std::shared_ptr<Exp> p1)
-    : Exp(), exp_{p1}
-    {};
-
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Exp>  clone() const;
-};
-
 class DatatypeExp : public Exp
 {
 public:
     std::shared_ptr<DataType> datatype_;
-    std::shared_ptr<Exp> exp_;
+    std::shared_ptr<MemoryAddr> memoryaddr_;
 
-    DatatypeExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2)
-    : Exp(), datatype_{p1}, exp_{p2}
+    DatatypeExp(std::shared_ptr<DataType> p1, std::shared_ptr<MemoryAddr> p2)
+    : Exp(), datatype_{p1}, memoryaddr_{p2}
     {};
 
 
@@ -1069,6 +1085,109 @@ public:
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Exp>  clone() const;
+};
+
+class MemoryAddrExp : public Exp
+{
+public:
+    std::shared_ptr<MemoryAddr> memoryaddr_;
+
+    MemoryAddrExp(std::shared_ptr<MemoryAddr> p1)
+    : Exp(), memoryaddr_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
+class Direct : public MemoryAddr
+{
+public:
+    std::shared_ptr<Factor> factor_;
+
+    Direct(std::shared_ptr<Factor> p1)
+    : MemoryAddr(), factor_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class Indexed : public MemoryAddr
+{
+public:
+    std::shared_ptr<IndexExp> indexexp_;
+    std::shared_ptr<Factor> factor_;
+
+    Indexed(std::shared_ptr<IndexExp> p1, std::shared_ptr<Factor> p2)
+    : MemoryAddr(), indexexp_{p1}, factor_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class Based : public MemoryAddr
+{
+public:
+    std::shared_ptr<Factor> factor_;
+    std::shared_ptr<IndexExp> indexexp_;
+
+    Based(std::shared_ptr<Factor> p1, std::shared_ptr<IndexExp> p2)
+    : MemoryAddr(), factor_{p1}, indexexp_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class BasedIndexedDisp : public MemoryAddr
+{
+public:
+    std::shared_ptr<Factor> factor_1;
+    std::shared_ptr<IndexExp> indexexp_;
+    std::shared_ptr<Factor> factor_2;
+
+    BasedIndexedDisp(std::shared_ptr<Factor> p1, std::shared_ptr<IndexExp> p2, std::shared_ptr<Factor> p3)
+    : MemoryAddr(), factor_1{p1}, indexexp_{p2}, factor_2{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class IndexScaleExp : public IndexExp
+{
+public:
+    std::shared_ptr<Factor> factor_;
+
+    IndexScaleExp(std::shared_ptr<Factor> p1)
+    : IndexExp(), factor_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<IndexExp>  clone() const;
+};
+
+class IndexScaleNExp : public IndexExp
+{
+public:
+    std::shared_ptr<Factor> factor_;
+    Integer integer_;
+
+    IndexScaleNExp(std::shared_ptr<Factor> p1, Integer p2)
+    : IndexExp(), factor_{p1}, integer_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<IndexExp>  clone() const;
 };
 
 class NumberFactor : public Factor

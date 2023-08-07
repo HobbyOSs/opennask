@@ -3,6 +3,7 @@
 #include "tinyexpr.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include <optional>
 #include <list>
 #include <memory>
 #include <cmath>
@@ -119,45 +120,74 @@ TEST_F(ExpSuite, ImmExp)
 }
 
 // テストデータクラス
-struct IndirectAddrExpParam {
-    const std::string token;
-    const TParaToken::TIdentiferAttribute expected;
+struct MemoryAddrExpParam {
+    const std::string _token;
+    const std::optional<asmjit::x86::Reg> _base_reg;
+    const std::optional<int32_t> _offset;
 
-    IndirectAddrExpParam(
+    MemoryAddrExpParam(
         const std::string& token,
-        const TParaToken::TIdentiferAttribute expected
+        const std::optional<asmjit::x86::Reg> base_reg,
+        const std::optional<int32_t> _offset
     ):
-        token(token), expected(expected) {}
+        _token(token), _base_reg(base_reg), _offset(_offset) {}
 };
 
-void PrintTo(const IndirectAddrExpParam& param, ::std::ostream* os) {
-    *os << param.token
-        << " = "
-        << TParaToken::TIAttributeNames[param.expected];
+void PrintTo(const MemoryAddrExpParam& param, ::std::ostream* os) {
+    *os << param._token
+        << ";has_base:"
+        << (param._base_reg.has_value() ? "true" : "false")
+        << ";offset:"
+        << (param._offset.has_value() ? std::to_string(param._offset.value()) : "n/a");
 }
 
-class IndirectAddrExpTest : public testing::TestWithParam<IndirectAddrExpParam> {};
+class MemoryAddrExpTest : public testing::TestWithParam<MemoryAddrExpParam> {};
 
-TEST_P(IndirectAddrExpTest, IndirectAddrExpTest) {
+TEST_P(MemoryAddrExpTest, MemoryAddrExpTest) {
     const auto p = GetParam();
 
-    std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
-    auto identFactor = IdentFactor(p.token); // 前後の[,]は保持しない
-    auto immExp = ImmExp(identFactor.clone());
-    auto indirectAddrExp = IndirectAddrExp(immExp.clone());
+    auto front = std::make_unique<FrontEnd>(false, false);
 
-    d->visitIndirectAddrExp(&indirectAddrExp);
-    EXPECT_EQ(p.token, d->ctx.top().AsString());
-    EXPECT_EQ(p.expected, d->ctx.top().AsAttr());
-    d->ctx.pop();
+    std::stringstream ss;
+    ss << "DB "; // dummyでopcodeとしてDBを入れておく, bison, flexでpartialに字句解析/構文解析のテストを行うのが厳しいため
+    ss << p._token;
+
+    auto pt = front->Parse<Exp>(ss);
+    front->visitExp(pt.get()); // [AL] のようなメモリーアドレス表現はExpからパースされる
+
+    TParaToken token = front->ctx.top();
+    auto mem = token.AsMem();
+
+    if (p._base_reg.has_value()) {
+        EXPECT_TRUE(mem.hasBase());
+        EXPECT_TRUE(mem.baseReg().isSame(p._base_reg.value()));
+    } else {
+        EXPECT_FALSE(mem.hasBase());
+    }
+
+    if (p._offset.has_value()) {
+        EXPECT_TRUE(mem.hasOffset());
+        EXPECT_EQ(p._offset.value(), mem.offset());
+    } else {
+        EXPECT_FALSE(mem.hasOffset());
+    }
 }
 
-INSTANTIATE_TEST_SUITE_P(ExpSuite, IndirectAddrExpTest,
+// テスト項目
+// メモリーアドレス表現                   : "[BL]"
+// ベースレジスタが設定されているか       : true
+// 格納されるべきasmjit側のベースレジスタ : asmjit::x86::al
+INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
     testing::Values(
-        IndirectAddrExpParam("AL", TParaToken::ttMem8),
-        IndirectAddrExpParam("AX", TParaToken::ttMem16),
-        IndirectAddrExpParam("EAX", TParaToken::ttMem32),
-        IndirectAddrExpParam("RAX", TParaToken::ttMem64)
+        MemoryAddrExpParam("[AL]"    , asmjit::x86::al , std::nullopt),
+        MemoryAddrExpParam("[BL]"    , asmjit::x86::bl , std::nullopt),
+        MemoryAddrExpParam("[AX]"    , asmjit::x86::ax , std::nullopt),
+        MemoryAddrExpParam("[BX]"    , asmjit::x86::bx , std::nullopt),
+        MemoryAddrExpParam("[SI]"    , asmjit::x86::si , std::nullopt),
+        MemoryAddrExpParam("[EAX]"   , asmjit::x86::eax, std::nullopt),
+        MemoryAddrExpParam("[EBX]"   , asmjit::x86::ebx, std::nullopt),
+        MemoryAddrExpParam("[0x0ff0]", std::nullopt     , 0x0ff0),
+        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt, 0x0ff0)
     )
 );
 
@@ -314,7 +344,7 @@ TEST_P(StatementsToMachineCode, StatementsToMachineCode) {
     std::stringstream ss;
     ss << p._statement;
 
-    auto front = std::make_unique<FrontEnd>(true, true);
+    auto front = std::make_unique<FrontEnd>(false, false);
     front->bit_mode = p._bit_mode;
     auto pt = front->Parse<Program>(ss);
     front->Eval<Program>(pt.get(), "test.img");
