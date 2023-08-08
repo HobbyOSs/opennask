@@ -238,16 +238,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 );
             },
             // 8A      r8      m8
-            // TODO: まだ使われてないので未実装
-            //pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
-            //    match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
-            //        pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), x86::ptr(src.AsInt32()) ); },
-            //        pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), x86::ptr(src.AsInt32()) ); }
-            //    );
-            //},
-            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
+            pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
                match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
-                   // "MOV AL,[SI]" のようなパターンだけ対応
+                   // "MOV AL,[SI]", "MOV AL,[ESP+8]" のようなパターン
                    pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsMem() ); },
                    pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsMem() ); }
                );
@@ -303,15 +296,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
             //},
             // 8B      r32     m32
-            //pattern | ds(TParaToken::ttReg32, dst, TParaToken::ttMem32, src) = [&] {
-            //    const std::string src_mem = "[" + *src + "]";
-            //    const std::string dst_reg = *dst;
-            //
-            //    const uint8_t base = 0x8b;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    //return b;
-            //},
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
+                a.mov(dst.AsAsmJitGpd(), src.AsMem() );
+            },
             //// A1      rax     moffs64
             //pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
             //},

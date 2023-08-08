@@ -46,7 +46,9 @@ set(nask_parse_bnfc_SRCS
   bnfc/buffer.cc)
 
 set(nask_parse_front_SRCS
+  front_end/front_config.cc
   front_end/front_parse.cc
+  front_end/front_memory_addr.cc
   front_end/front_inst.cc
   front_end/front_inst_jmp.cc
   front_end/front_inst_pseudo.cc)

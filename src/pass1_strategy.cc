@@ -106,8 +106,6 @@ void Pass1Strategy::visitIndexExp(IndexExp *t) {
 
     if (dynamic_cast<IndexScaleExp*>(t) != nullptr) {
         this->visitIndexScaleExp(dynamic_cast<IndexScaleExp*>(t));
-    } else if (dynamic_cast<IndexScaleNExp*>(t) != nullptr) {
-        this->visitIndexScaleNExp(dynamic_cast<IndexScaleNExp*>(t));
     }
 }
 
@@ -135,7 +133,7 @@ void Pass1Strategy::visitConfigStmt(ConfigStmt *config_stmt) {
     // TODO: 必要な設定を行う
     // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
     if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
-    visitString(config_stmt->string_);
+    if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();
@@ -934,11 +932,8 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         // 8A      r8      m8
-        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem8, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
-        pattern | ds(TParaToken::ttReg8, _, TParaToken::ttMem16, _) = [&] {
-            // TODO: m16でもOKなのだがx86 tableの検索に引っかからなくなるのでttMem8に変換する.もっといい方法がないか検討
+        pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            // TODO: m16,m32でもOKなのだがx86 tableの検索に引っかからなくなるのでttMem8に変換する.もっといい方法がないか検討
             auto token = TParaToken(mnemonic_args[1]);
             token.SetAttribute(TParaToken::ttMem8);
             return inst.get_output_size(bit_mode, {mnemonic_args[0], token});
@@ -1208,11 +1203,49 @@ void Pass1Strategy::visitDirect(Direct *direct) {
     this->ctx.push(t);
 };
 
+void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
+
+    visitIdent(based_or_indexed->ident_);
+    TParaToken left = this->ctx.top();
+    left.MustBe(TParaToken::ttIdentifier);
+    this->ctx.pop();
+
+    visitInteger(based_or_indexed->integer_);
+    TParaToken right = this->ctx.top();
+    right.MustBe(TParaToken::ttInteger);
+    this->ctx.pop();
+
+    using namespace asmjit;
+
+    log()->debug("[pass1] visitBasedOrIndexed [{} + {}]",
+                 left.AsString(), right.AsString());
+
+    match(left)(
+        pattern | _ | when(left.IsAsmJitGpbLo()) = [&] {
+            left.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | _ | when(left.IsAsmJitGpbHi()) = [&] {
+            left.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | _ | when(left.IsAsmJitGpw()) = [&] {
+            left.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | _ | when(left.IsAsmJitSReg()) = [&] {
+            left.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | _ | when(left.IsAsmJitGpd()) = [&] {
+            left.SetAttribute(TParaToken::ttMem32);
+        }
+    );
+
+    this->ctx.push(left);
+};
+
 void Pass1Strategy::visitIndexed(Indexed *p) {};
-void Pass1Strategy::visitBased(Based *p) {};
+void Pass1Strategy::visitBasedIndexed(BasedIndexed *p) {};
 void Pass1Strategy::visitBasedIndexedDisp(BasedIndexedDisp *p) {};
+void Pass1Strategy::visitBasedIndexedDispScale(BasedIndexedDispScale *p) {};
 void Pass1Strategy::visitIndexScaleExp(IndexScaleExp *p) {};
-void Pass1Strategy::visitIndexScaleNExp(IndexScaleNExp *p) {};
 
 void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
     // DataType "[" Exp "]" ; という間接アドレス表現を読み取る

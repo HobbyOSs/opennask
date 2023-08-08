@@ -175,19 +175,29 @@ TEST_P(MemoryAddrExpTest, MemoryAddrExpTest) {
 
 // テスト項目
 // メモリーアドレス表現                   : "[BL]"
-// ベースレジスタが設定されているか       : true
 // 格納されるべきasmjit側のベースレジスタ : asmjit::x86::al
+// 格納されるべきasmjit側のオフセット     : 2
 INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
     testing::Values(
-        MemoryAddrExpParam("[AL]"    , asmjit::x86::al , std::nullopt),
-        MemoryAddrExpParam("[BL]"    , asmjit::x86::bl , std::nullopt),
-        MemoryAddrExpParam("[AX]"    , asmjit::x86::ax , std::nullopt),
-        MemoryAddrExpParam("[BX]"    , asmjit::x86::bx , std::nullopt),
-        MemoryAddrExpParam("[SI]"    , asmjit::x86::si , std::nullopt),
-        MemoryAddrExpParam("[EAX]"   , asmjit::x86::eax, std::nullopt),
-        MemoryAddrExpParam("[EBX]"   , asmjit::x86::ebx, std::nullopt),
-        MemoryAddrExpParam("[0x0ff0]", std::nullopt     , 0x0ff0),
-        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt, 0x0ff0)
+        MemoryAddrExpParam("[AL]"         , asmjit::x86::al , std::nullopt),
+        MemoryAddrExpParam("[BL]"         , asmjit::x86::bl , std::nullopt),
+        MemoryAddrExpParam("[AX]"         , asmjit::x86::ax , std::nullopt),
+        MemoryAddrExpParam("[BX]"         , asmjit::x86::bx , std::nullopt),
+        MemoryAddrExpParam("[SI]"         , asmjit::x86::si , std::nullopt),
+        MemoryAddrExpParam("[EAX]"        , asmjit::x86::eax, std::nullopt),
+        MemoryAddrExpParam("[EBX]"        , asmjit::x86::ebx, std::nullopt),
+        MemoryAddrExpParam("[0x0ff0]"     , std::nullopt,     0x0ff0),
+        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt,     0x0ff0),
+        MemoryAddrExpParam("[BP + 1]"     , asmjit::x86::bp , 1),
+        MemoryAddrExpParam("[BX + 2]"     , asmjit::x86::bx , 2),
+        MemoryAddrExpParam("[SI + 3]"     , asmjit::x86::si , 3),
+        MemoryAddrExpParam("[DI + 4]"     , asmjit::x86::di , 4),
+        MemoryAddrExpParam("[EBX + 16]"   , asmjit::x86::ebx, 16),
+        MemoryAddrExpParam("[ESP + 20]"   , asmjit::x86::esp, 20)
+
+
+
+
     )
 );
 
@@ -275,16 +285,14 @@ TEST_F(ExpSuite, SimpleMnemonic)
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
-TEST_F(ExpSuite, MovWithBracket)
+TEST_F(ExpSuite, MovMemoryAddressing)
 {
-    GTEST_SKIP(); // TODO: まだ機能しない
-
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto expected = std::vector<uint8_t>{0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08};
     std::stringstream ss;
     ss << u8R"##(
-# [BITS 32]
-# [INSTRSET "i486p"]
+[BITS 32]
+[INSTRSET "i486p"]
 
 MOV ECX,[ESP+4]
 MOV AL,[ESP+8]
@@ -292,8 +300,10 @@ MOV AL,[ESP+8]
 
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
-    EXPECT_EQ(8, d->binout_container.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    EXPECT_EQ(ID_32BIT_MODE, d->bit_mode);
+
+    // 作成したバイナリの差分assert & diff表示
+    ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
 
 

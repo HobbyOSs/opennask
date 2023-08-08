@@ -229,7 +229,10 @@ asmjit::x86::Gpd TParaToken::AsAsmJitGpd(void) const {
         pattern | "edx" = asmjit::x86::edx,
         pattern | "esi" = asmjit::x86::esi,
         pattern | "edi" = asmjit::x86::edi,
-        pattern | "ebp" = asmjit::x86::ebp
+        pattern | "esp" = asmjit::x86::esp,
+        pattern | "ebp" = asmjit::x86::ebp,
+        pattern | "esi" = asmjit::x86::esi,
+        pattern | "edi" = asmjit::x86::edi
     );
 }
 

@@ -51,11 +51,12 @@ class RangeExp;
 class ImmExp;
 class MemoryAddrExp;
 class Direct;
+class BasedOrIndexed;
 class Indexed;
-class Based;
+class BasedIndexed;
 class BasedIndexedDisp;
+class BasedIndexedDispScale;
 class IndexScaleExp;
-class IndexScaleNExp;
 class NumberFactor;
 class HexFactor;
 class IdentFactor;
@@ -428,11 +429,12 @@ public:
     virtual void visitImmExp(ImmExp *p) = 0;
     virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
     virtual void visitDirect(Direct *p) = 0;
+    virtual void visitBasedOrIndexed(BasedOrIndexed *p) = 0;
     virtual void visitIndexed(Indexed *p) = 0;
-    virtual void visitBased(Based *p) = 0;
+    virtual void visitBasedIndexed(BasedIndexed *p) = 0;
     virtual void visitBasedIndexedDisp(BasedIndexedDisp *p) = 0;
+    virtual void visitBasedIndexedDispScale(BasedIndexedDispScale *p) = 0;
     virtual void visitIndexScaleExp(IndexScaleExp *p) = 0;
-    virtual void visitIndexScaleNExp(IndexScaleNExp *p) = 0;
     virtual void visitNumberFactor(NumberFactor *p) = 0;
     virtual void visitHexFactor(HexFactor *p) = 0;
     virtual void visitIdentFactor(IdentFactor *p) = 0;
@@ -913,10 +915,10 @@ class ConfigStmt : public Statement
 {
 public:
     std::shared_ptr<ConfigType> configtype_;
-    String string_;
+    std::shared_ptr<Factor> factor_;
 
-    ConfigStmt(std::shared_ptr<ConfigType> p1, String p2)
-    : Statement(), configtype_{p1}, string_{p2}
+    ConfigStmt(std::shared_ptr<ConfigType> p1, std::shared_ptr<Factor> p2)
+    : Statement(), configtype_{p1}, factor_{p2}
     {};
 
 
@@ -1115,14 +1117,14 @@ public:
     std::shared_ptr<MemoryAddr>  clone() const;
 };
 
-class Indexed : public MemoryAddr
+class BasedOrIndexed : public MemoryAddr
 {
 public:
-    std::shared_ptr<IndexExp> indexexp_;
-    std::shared_ptr<Factor> factor_;
+    Ident ident_;
+    Integer integer_;
 
-    Indexed(std::shared_ptr<IndexExp> p1, std::shared_ptr<Factor> p2)
-    : MemoryAddr(), indexexp_{p1}, factor_{p2}
+    BasedOrIndexed(Ident p1, Integer p2)
+    : MemoryAddr(), ident_{p1}, integer_{p2}
     {};
 
 
@@ -1130,14 +1132,29 @@ public:
     std::shared_ptr<MemoryAddr>  clone() const;
 };
 
-class Based : public MemoryAddr
+class Indexed : public MemoryAddr
 {
 public:
-    std::shared_ptr<Factor> factor_;
     std::shared_ptr<IndexExp> indexexp_;
+    Integer integer_;
 
-    Based(std::shared_ptr<Factor> p1, std::shared_ptr<IndexExp> p2)
-    : MemoryAddr(), factor_{p1}, indexexp_{p2}
+    Indexed(std::shared_ptr<IndexExp> p1, Integer p2)
+    : MemoryAddr(), indexexp_{p1}, integer_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class BasedIndexed : public MemoryAddr
+{
+public:
+    Ident ident_1;
+    Ident ident_2;
+
+    BasedIndexed(Ident p1, Ident p2)
+    : MemoryAddr(), ident_1{p1}, ident_2{p2}
     {};
 
 
@@ -1148,12 +1165,28 @@ public:
 class BasedIndexedDisp : public MemoryAddr
 {
 public:
-    std::shared_ptr<Factor> factor_1;
-    std::shared_ptr<IndexExp> indexexp_;
-    std::shared_ptr<Factor> factor_2;
+    Ident ident_1;
+    Ident ident_2;
+    Integer integer_;
 
-    BasedIndexedDisp(std::shared_ptr<Factor> p1, std::shared_ptr<IndexExp> p2, std::shared_ptr<Factor> p3)
-    : MemoryAddr(), factor_1{p1}, indexexp_{p2}, factor_2{p3}
+    BasedIndexedDisp(Ident p1, Ident p2, Integer p3)
+    : MemoryAddr(), ident_1{p1}, ident_2{p2}, integer_{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class BasedIndexedDispScale : public MemoryAddr
+{
+public:
+    Ident ident_;
+    std::shared_ptr<IndexExp> indexexp_;
+    Integer integer_;
+
+    BasedIndexedDispScale(Ident p1, std::shared_ptr<IndexExp> p2, Integer p3)
+    : MemoryAddr(), ident_{p1}, indexexp_{p2}, integer_{p3}
     {};
 
 
@@ -1164,25 +1197,11 @@ public:
 class IndexScaleExp : public IndexExp
 {
 public:
-    std::shared_ptr<Factor> factor_;
-
-    IndexScaleExp(std::shared_ptr<Factor> p1)
-    : IndexExp(), factor_{p1}
-    {};
-
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<IndexExp>  clone() const;
-};
-
-class IndexScaleNExp : public IndexExp
-{
-public:
-    std::shared_ptr<Factor> factor_;
+    Ident ident_;
     Integer integer_;
 
-    IndexScaleNExp(std::shared_ptr<Factor> p1, Integer p2)
-    : IndexExp(), factor_{p1}, integer_{p2}
+    IndexScaleExp(Ident p1, Integer p2)
+    : IndexExp(), ident_{p1}, integer_{p2}
     {};
 
 

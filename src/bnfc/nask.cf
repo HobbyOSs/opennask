@@ -14,7 +14,7 @@ Prog.           Program        ::= [Statement] ;
 
 LabelStmt.      Statement      ::= Label ;
 DeclareStmt.    Statement      ::= Ident "EQU" Exp ;
-ConfigStmt.     Statement      ::= "[" ConfigType String "]" ;
+ConfigStmt.     Statement      ::= "[" ConfigType Factor "]" ;
 MnemonicStmt.   Statement      ::= Opcode [MnemonicArgs] ;
 OpcodeStmt.     Statement      ::= Opcode ;
 
@@ -35,11 +35,12 @@ ImmExp.                  Exp   ::= Factor ;
 MemoryAddrExp.           Exp   ::= MemoryAddr ;
 
 Direct.                  MemoryAddr ::= "[" Factor "]" ;
-Indexed.                 MemoryAddr ::= "[" IndexExp "+" Factor "]" ;
-Based.                   MemoryAddr ::= "[" Factor "+" IndexExp "]" ;
-BasedIndexedDisp.        MemoryAddr ::= "[" Factor "+" IndexExp "+" Factor "]" ;
-IndexScaleExp.           IndexExp   ::= Factor ;
-IndexScaleNExp.          IndexExp   ::= Factor "*" Integer ;
+BasedOrIndexed.          MemoryAddr ::= "[" Ident "+" Integer "]" ;
+Indexed.                 MemoryAddr ::= "[" IndexExp "+" Integer "]" ;
+BasedIndexed.            MemoryAddr ::= "[" Ident "+" Ident "]" ;
+BasedIndexedDisp.        MemoryAddr ::= "[" Ident "+" Ident "+" Integer "]" ;
+BasedIndexedDispScale.   MemoryAddr ::= "[" Ident "+" IndexExp "+" Integer "]" ;
+IndexScaleExp.           IndexExp   ::= Ident "*" Integer ;
 
 NumberFactor. Factor         ::= Integer ;
 HexFactor.    Factor         ::= Hex ;

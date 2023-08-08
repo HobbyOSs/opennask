@@ -51,7 +51,7 @@ void Skeleton::visitConfigStmt(ConfigStmt *config_stmt)
   /* Code For ConfigStmt Goes Here */
 
   if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
-  visitString(config_stmt->string_);
+  if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
 }
 
@@ -168,21 +168,30 @@ void Skeleton::visitDirect(Direct *direct)
 
 }
 
+void Skeleton::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed)
+{
+  /* Code For BasedOrIndexed Goes Here */
+
+  visitIdent(based_or_indexed->ident_);
+  visitInteger(based_or_indexed->integer_);
+
+}
+
 void Skeleton::visitIndexed(Indexed *indexed)
 {
   /* Code For Indexed Goes Here */
 
   if (indexed->indexexp_) indexed->indexexp_->accept(this);
-  if (indexed->factor_) indexed->factor_->accept(this);
+  visitInteger(indexed->integer_);
 
 }
 
-void Skeleton::visitBased(Based *based)
+void Skeleton::visitBasedIndexed(BasedIndexed *based_indexed)
 {
-  /* Code For Based Goes Here */
+  /* Code For BasedIndexed Goes Here */
 
-  if (based->factor_) based->factor_->accept(this);
-  if (based->indexexp_) based->indexexp_->accept(this);
+  visitIdent(based_indexed->ident_1);
+  visitIdent(based_indexed->ident_2);
 
 }
 
@@ -190,9 +199,19 @@ void Skeleton::visitBasedIndexedDisp(BasedIndexedDisp *based_indexed_disp)
 {
   /* Code For BasedIndexedDisp Goes Here */
 
-  if (based_indexed_disp->factor_1) based_indexed_disp->factor_1->accept(this);
-  if (based_indexed_disp->indexexp_) based_indexed_disp->indexexp_->accept(this);
-  if (based_indexed_disp->factor_2) based_indexed_disp->factor_2->accept(this);
+  visitIdent(based_indexed_disp->ident_1);
+  visitIdent(based_indexed_disp->ident_2);
+  visitInteger(based_indexed_disp->integer_);
+
+}
+
+void Skeleton::visitBasedIndexedDispScale(BasedIndexedDispScale *based_indexed_disp_scale)
+{
+  /* Code For BasedIndexedDispScale Goes Here */
+
+  visitIdent(based_indexed_disp_scale->ident_);
+  if (based_indexed_disp_scale->indexexp_) based_indexed_disp_scale->indexexp_->accept(this);
+  visitInteger(based_indexed_disp_scale->integer_);
 
 }
 
@@ -200,16 +219,8 @@ void Skeleton::visitIndexScaleExp(IndexScaleExp *index_scale_exp)
 {
   /* Code For IndexScaleExp Goes Here */
 
-  if (index_scale_exp->factor_) index_scale_exp->factor_->accept(this);
-
-}
-
-void Skeleton::visitIndexScaleNExp(IndexScaleNExp *index_scale_n_exp)
-{
-  /* Code For IndexScaleNExp Goes Here */
-
-  if (index_scale_n_exp->factor_) index_scale_n_exp->factor_->accept(this);
-  visitInteger(index_scale_n_exp->integer_);
+  visitIdent(index_scale_exp->ident_);
+  visitInteger(index_scale_exp->integer_);
 
 }
 

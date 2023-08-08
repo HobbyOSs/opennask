@@ -37,11 +37,12 @@ public:
   void visitImmExp(ImmExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitDirect(Direct *p);
+  void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
-  void visitBased(Based *p);
+  void visitBasedIndexed(BasedIndexed *p);
   void visitBasedIndexedDisp(BasedIndexedDisp *p);
+  void visitBasedIndexedDispScale(BasedIndexedDispScale *p);
   void visitIndexScaleExp(IndexScaleExp *p);
-  void visitIndexScaleNExp(IndexScaleNExp *p);
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);

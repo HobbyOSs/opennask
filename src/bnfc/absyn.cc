@@ -278,6 +278,22 @@ std::shared_ptr<MemoryAddr> Direct::clone() const
 
 
 
+/********************   BasedOrIndexed    ********************/
+
+
+
+void BasedOrIndexed::accept(Visitor *v)
+{
+    v->visitBasedOrIndexed(this);
+}
+
+std::shared_ptr<MemoryAddr> BasedOrIndexed::clone() const
+{
+    return std::make_shared<BasedOrIndexed>(*this);
+}
+
+
+
 /********************   Indexed    ********************/
 
 
@@ -294,18 +310,18 @@ std::shared_ptr<MemoryAddr> Indexed::clone() const
 
 
 
-/********************   Based    ********************/
+/********************   BasedIndexed    ********************/
 
 
 
-void Based::accept(Visitor *v)
+void BasedIndexed::accept(Visitor *v)
 {
-    v->visitBased(this);
+    v->visitBasedIndexed(this);
 }
 
-std::shared_ptr<MemoryAddr> Based::clone() const
+std::shared_ptr<MemoryAddr> BasedIndexed::clone() const
 {
-    return std::make_shared<Based>(*this);
+    return std::make_shared<BasedIndexed>(*this);
 }
 
 
@@ -326,6 +342,22 @@ std::shared_ptr<MemoryAddr> BasedIndexedDisp::clone() const
 
 
 
+/********************   BasedIndexedDispScale    ********************/
+
+
+
+void BasedIndexedDispScale::accept(Visitor *v)
+{
+    v->visitBasedIndexedDispScale(this);
+}
+
+std::shared_ptr<MemoryAddr> BasedIndexedDispScale::clone() const
+{
+    return std::make_shared<BasedIndexedDispScale>(*this);
+}
+
+
+
 /********************   IndexScaleExp    ********************/
 
 
@@ -338,22 +370,6 @@ void IndexScaleExp::accept(Visitor *v)
 std::shared_ptr<IndexExp> IndexScaleExp::clone() const
 {
     return std::make_shared<IndexScaleExp>(*this);
-}
-
-
-
-/********************   IndexScaleNExp    ********************/
-
-
-
-void IndexScaleNExp::accept(Visitor *v)
-{
-    v->visitIndexScaleNExp(this);
-}
-
-std::shared_ptr<IndexExp> IndexScaleNExp::clone() const
-{
-    return std::make_shared<IndexScaleNExp>(*this);
 }
 
 

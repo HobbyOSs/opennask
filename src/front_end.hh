@@ -129,11 +129,12 @@ public:
     // expression
     void visitImmExp(ImmExp *p) override;
     void visitDirect(Direct *direct) override;
+    void visitBasedOrIndexed(BasedOrIndexed *p) override;
     void visitIndexed(Indexed *p) override;
-    void visitBased(Based *p) override;
+    void visitBasedIndexed(BasedIndexed *p) override;
     void visitBasedIndexedDisp(BasedIndexedDisp *p) override;
+    void visitBasedIndexedDispScale(BasedIndexedDispScale *p) override;
     void visitIndexScaleExp(IndexScaleExp *p) override;
-    void visitIndexScaleNExp(IndexScaleNExp *p) override;
 
     void visitDatatypeExp(DatatypeExp *p) override;
     void visitByteDataType(ByteDataType *p) override;
