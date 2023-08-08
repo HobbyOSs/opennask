@@ -112,8 +112,6 @@ void FrontEnd::visitIndexExp(IndexExp *t) {
 
     if (dynamic_cast<IndexScaleExp*>(t) != nullptr) {
         this->visitIndexScaleExp(dynamic_cast<IndexScaleExp*>(t));
-    } else if (dynamic_cast<IndexScaleNExp*>(t) != nullptr) {
-        this->visitIndexScaleNExp(dynamic_cast<IndexScaleNExp*>(t));
     }
 }
 
@@ -340,13 +338,12 @@ void FrontEnd::visitDirect(Direct *direct) {
     this->ctx.push(t);
 };
 
-void FrontEnd::visitIndexed(Indexed *p) {
-};
-
-void FrontEnd::visitBased(Based *p) {};
+void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *p) {};
+void FrontEnd::visitIndexed(Indexed *p) {};
+void FrontEnd::visitBasedIndexed(BasedIndexed *p) {};
 void FrontEnd::visitBasedIndexedDisp(BasedIndexedDisp *p) {};
+void FrontEnd::visitBasedIndexedDispScale(BasedIndexedDispScale *p) {};
 void FrontEnd::visitIndexScaleExp(IndexScaleExp *p) {};
-void FrontEnd::visitIndexScaleNExp(IndexScaleNExp *p) {};
 
 void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
 

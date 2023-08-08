@@ -61,12 +61,13 @@ class PrintAbsyn : public Visitor
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
   void visitDirect(Direct *p);
+  void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
-  void visitBased(Based *p);
+  void visitBasedIndexed(BasedIndexed *p);
   void visitBasedIndexedDisp(BasedIndexedDisp *p);
+  void visitBasedIndexedDispScale(BasedIndexedDispScale *p);
   void visitIndexExp(IndexExp *p); /* abstract class */
   void visitIndexScaleExp(IndexScaleExp *p);
-  void visitIndexScaleNExp(IndexScaleNExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);
@@ -503,12 +504,13 @@ class ShowAbsyn : public Visitor
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
   void visitDirect(Direct *p);
+  void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
-  void visitBased(Based *p);
+  void visitBasedIndexed(BasedIndexed *p);
   void visitBasedIndexedDisp(BasedIndexedDisp *p);
+  void visitBasedIndexedDispScale(BasedIndexedDispScale *p);
   void visitIndexExp(IndexExp *p); /* abstract class */
   void visitIndexScaleExp(IndexScaleExp *p);
-  void visitIndexScaleNExp(IndexScaleNExp *p);
   void visitFactor(Factor *p); /* abstract class */
   void visitNumberFactor(NumberFactor *p);
   void visitHexFactor(HexFactor *p);

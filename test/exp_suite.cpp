@@ -175,19 +175,27 @@ TEST_P(MemoryAddrExpTest, MemoryAddrExpTest) {
 
 // テスト項目
 // メモリーアドレス表現                   : "[BL]"
-// ベースレジスタが設定されているか       : true
 // 格納されるべきasmjit側のベースレジスタ : asmjit::x86::al
+// 格納されるべきasmjit側のオフセット     : 2
 INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
     testing::Values(
-        MemoryAddrExpParam("[AL]"    , asmjit::x86::al , std::nullopt),
-        MemoryAddrExpParam("[BL]"    , asmjit::x86::bl , std::nullopt),
-        MemoryAddrExpParam("[AX]"    , asmjit::x86::ax , std::nullopt),
-        MemoryAddrExpParam("[BX]"    , asmjit::x86::bx , std::nullopt),
-        MemoryAddrExpParam("[SI]"    , asmjit::x86::si , std::nullopt),
-        MemoryAddrExpParam("[EAX]"   , asmjit::x86::eax, std::nullopt),
-        MemoryAddrExpParam("[EBX]"   , asmjit::x86::ebx, std::nullopt),
-        MemoryAddrExpParam("[0x0ff0]", std::nullopt     , 0x0ff0),
-        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt, 0x0ff0)
+        MemoryAddrExpParam("[AL]"         , asmjit::x86::al , std::nullopt),
+        MemoryAddrExpParam("[BL]"         , asmjit::x86::bl , std::nullopt),
+        MemoryAddrExpParam("[AX]"         , asmjit::x86::ax , std::nullopt),
+        MemoryAddrExpParam("[BX]"         , asmjit::x86::bx , std::nullopt),
+        MemoryAddrExpParam("[SI]"         , asmjit::x86::si , std::nullopt),
+        MemoryAddrExpParam("[EAX]"        , asmjit::x86::eax, std::nullopt),
+        MemoryAddrExpParam("[EBX]"        , asmjit::x86::ebx, std::nullopt),
+        MemoryAddrExpParam("[0x0ff0]"     , std::nullopt,     0x0ff0),
+        MemoryAddrExpParam("WORD [0x0ff0]", std::nullopt,     0x0ff0),
+        MemoryAddrExpParam("[BP + 1]"     , asmjit::x86::bp , 1),
+        MemoryAddrExpParam("[BX + 2]"     , asmjit::x86::bx , 2),
+        MemoryAddrExpParam("[SI + 3]"     , asmjit::x86::si , 3),
+        MemoryAddrExpParam("[DI + 4]"     , asmjit::x86::di , 4)
+
+
+
+
     )
 );
 

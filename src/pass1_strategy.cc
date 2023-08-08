@@ -106,8 +106,6 @@ void Pass1Strategy::visitIndexExp(IndexExp *t) {
 
     if (dynamic_cast<IndexScaleExp*>(t) != nullptr) {
         this->visitIndexScaleExp(dynamic_cast<IndexScaleExp*>(t));
-    } else if (dynamic_cast<IndexScaleNExp*>(t) != nullptr) {
-        this->visitIndexScaleNExp(dynamic_cast<IndexScaleNExp*>(t));
     }
 }
 
@@ -1208,11 +1206,12 @@ void Pass1Strategy::visitDirect(Direct *direct) {
     this->ctx.push(t);
 };
 
+void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *p) {};
 void Pass1Strategy::visitIndexed(Indexed *p) {};
-void Pass1Strategy::visitBased(Based *p) {};
+void Pass1Strategy::visitBasedIndexed(BasedIndexed *p) {};
 void Pass1Strategy::visitBasedIndexedDisp(BasedIndexedDisp *p) {};
+void Pass1Strategy::visitBasedIndexedDispScale(BasedIndexedDispScale *p) {};
 void Pass1Strategy::visitIndexScaleExp(IndexScaleExp *p) {};
-void Pass1Strategy::visitIndexScaleNExp(IndexScaleNExp *p) {};
 
 void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
     // DataType "[" Exp "]" ; という間接アドレス表現を読み取る
