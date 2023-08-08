@@ -420,7 +420,7 @@ ListStatement : Statement { $$ = std::make_shared<ListStatement>(); $$->cons($1)
 ;
 Statement : T_Label { $$ = std::make_shared<LabelStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | _IDENT_ _KW_EQU Exp { $$ = std::make_shared<DeclareStmt>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
-  | _LBRACK ConfigType _STRING_ _RBRACK { $$ = std::make_shared<ConfigStmt>($2, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+  | _LBRACK ConfigType Factor _RBRACK { $$ = std::make_shared<ConfigStmt>($2, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | Opcode ListMnemonicArgs { $2->reverse();$$ = std::make_shared<MnemonicStmt>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | Opcode { $$ = std::make_shared<OpcodeStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
 ;

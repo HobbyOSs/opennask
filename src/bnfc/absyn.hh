@@ -913,10 +913,10 @@ class ConfigStmt : public Statement
 {
 public:
     std::shared_ptr<ConfigType> configtype_;
-    String string_;
+    std::shared_ptr<Factor> factor_;
 
-    ConfigStmt(std::shared_ptr<ConfigType> p1, String p2)
-    : Statement(), configtype_{p1}, string_{p2}
+    ConfigStmt(std::shared_ptr<ConfigType> p1, std::shared_ptr<Factor> p2)
+    : Statement(), configtype_{p1}, factor_{p2}
     {};
 
 

@@ -14,7 +14,7 @@ Prog.           Program        ::= [Statement] ;
 
 LabelStmt.      Statement      ::= Label ;
 DeclareStmt.    Statement      ::= Ident "EQU" Exp ;
-ConfigStmt.     Statement      ::= "[" ConfigType String "]" ;
+ConfigStmt.     Statement      ::= "[" ConfigType Factor "]" ;
 MnemonicStmt.   Statement      ::= Opcode [MnemonicArgs] ;
 OpcodeStmt.     Statement      ::= Opcode ;
 

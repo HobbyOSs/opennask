@@ -32,6 +32,7 @@ set(nask_parse_bnfc_SRCS
   ../src/bnfc/buffer.cc)
 
 set(nask_parse_front_SRCS
+  ../src/front_end/front_config.cc
   ../src/front_end/front_parse.cc
   ../src/front_end/front_inst.cc
   ../src/front_end/front_inst_jmp.cc

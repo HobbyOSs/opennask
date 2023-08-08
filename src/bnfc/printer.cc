@@ -202,7 +202,7 @@ void PrintAbsyn::visitConfigStmt(ConfigStmt* p)
 
   render('[');
   _i_ = 0; p->configtype_->accept(this);
-  visitString(p->string_);
+  _i_ = 0; p->factor_->accept(this);
   render(']');
 
   if (oldi > 0) render(_R_PAREN);
@@ -4292,7 +4292,10 @@ void ShowAbsyn::visitConfigStmt(ConfigStmt* p)
   if (p->configtype_)  p->configtype_->accept(this);
   bufAppend(']');
   bufAppend(' ');
-  visitString(p->string_);  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
   bufAppend(')');
 }
 

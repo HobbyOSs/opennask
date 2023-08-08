@@ -135,7 +135,7 @@ void Pass1Strategy::visitConfigStmt(ConfigStmt *config_stmt) {
     // TODO: 必要な設定を行う
     // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
     if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
-    visitString(config_stmt->string_);
+    if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
     TParaToken t = this->ctx.top();
     this->ctx.pop();

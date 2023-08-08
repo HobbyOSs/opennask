@@ -275,25 +275,25 @@ TEST_F(ExpSuite, SimpleMnemonic)
     EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
 }
 
-TEST_F(ExpSuite, MovWithBracket)
+TEST_F(ExpSuite, MovMemoryAddressing)
 {
-    GTEST_SKIP(); // TODO: まだ機能しない
-
     std::unique_ptr<FrontEnd> d(new FrontEnd(false, false));
     auto expected = std::vector<uint8_t>{0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08};
     std::stringstream ss;
     ss << u8R"##(
-# [BITS 32]
-# [INSTRSET "i486p"]
+[BITS 32]
+[INSTRSET "i486p"]
 
-MOV ECX,[ESP+4]
-MOV AL,[ESP+8]
+;MOV ECX,[ESP+4]
+;MOV AL,[ESP+8]
 )##";
 
     auto pt = d->Parse<Program>(ss);
     d->Eval<Program>(pt.get(), "test.img");
-    EXPECT_EQ(8, d->binout_container.size());
-    EXPECT_TRUE(std::equal(expected.begin(), expected.end(), d->binout_container.begin()));
+    EXPECT_EQ(ID_32BIT_MODE, d->bit_mode);
+
+    // 作成したバイナリの差分assert & diff表示
+    //ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
 
 

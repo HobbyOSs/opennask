@@ -51,7 +51,7 @@ void Skeleton::visitConfigStmt(ConfigStmt *config_stmt)
   /* Code For ConfigStmt Goes Here */
 
   if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
-  visitString(config_stmt->string_);
+  if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
 }
 

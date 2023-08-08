@@ -149,18 +149,6 @@ void FrontEnd::visitProg(Prog *prog) {
     }
 }
 
-void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
-
-    // TODO: 必要な設定を行う
-    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
-    if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
-    visitString(config_stmt->string_);
-
-    TParaToken t = this->ctx.top();
-    this->ctx.pop();
-    log()->debug("[pass2] visitConfigStmt: args = {}", t.to_string());
-}
-
 void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
     visitLabel(label_stmt->label_);
 
@@ -168,7 +156,6 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
     this->ctx.pop();
     log()->debug("[pass2] visitLabelStmt: args = {}", t.to_string());
 }
-
 
 void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
