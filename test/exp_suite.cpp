@@ -191,7 +191,9 @@ INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
         MemoryAddrExpParam("[BP + 1]"     , asmjit::x86::bp , 1),
         MemoryAddrExpParam("[BX + 2]"     , asmjit::x86::bx , 2),
         MemoryAddrExpParam("[SI + 3]"     , asmjit::x86::si , 3),
-        MemoryAddrExpParam("[DI + 4]"     , asmjit::x86::di , 4)
+        MemoryAddrExpParam("[DI + 4]"     , asmjit::x86::di , 4),
+        MemoryAddrExpParam("[EBX + 16]"   , asmjit::x86::ebx, 16),
+        MemoryAddrExpParam("[ESP + 20]"   , asmjit::x86::esp, 20)
 
 
 
@@ -292,8 +294,8 @@ TEST_F(ExpSuite, MovMemoryAddressing)
 [BITS 32]
 [INSTRSET "i486p"]
 
-;MOV ECX,[ESP+4]
-;MOV AL,[ESP+8]
+MOV ECX,[ESP+4]
+MOV AL,[ESP+8]
 )##";
 
     auto pt = d->Parse<Program>(ss);
@@ -301,7 +303,7 @@ TEST_F(ExpSuite, MovMemoryAddressing)
     EXPECT_EQ(ID_32BIT_MODE, d->bit_mode);
 
     // 作成したバイナリの差分assert & diff表示
-    //ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
+    ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
 
 

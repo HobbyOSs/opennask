@@ -67,8 +67,47 @@ void FrontEnd::visitDirect(Direct *direct) {
     this->ctx.push(t);
 };
 
-void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *p) {
+void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
 
+    visitIdent(based_or_indexed->ident_);
+    TParaToken left = this->ctx.top();
+    left.MustBe(TParaToken::ttIdentifier);
+    this->ctx.pop();
+
+    visitInteger(based_or_indexed->integer_);
+    TParaToken right = this->ctx.top();
+    right.MustBe(TParaToken::ttInteger);
+    this->ctx.pop();
+
+    using namespace asmjit;
+
+    log()->debug("[pass2] visitBasedOrIndexed [{} + {}]",
+                 left.AsString(), right.AsString());
+
+    match(left)(
+        pattern | _ | when(left.IsAsmJitGpbLo()) = [&] {
+            left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbLo(), right.AsInt32()));
+        },
+        pattern | _ | when(left.IsAsmJitGpbHi()) = [&] {
+            left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbHi(), right.AsInt32()));
+        },
+        pattern | _ | when(left.IsAsmJitGpw()) = [&] {
+            left.SetAttribute(TParaToken::ttMem16);
+            left.SetMem(x86::ptr(left.AsAsmJitGpw(), right.AsInt32()));
+        },
+        pattern | _ | when(left.IsAsmJitSReg()) = [&] {
+            left.SetAttribute(TParaToken::ttMem16);
+            //left.SetMem(x86::ptr(left.AsAsmJitSReg(), right.AsInt32())); TODO: コンパイルできない
+        },
+        pattern | _ | when(left.IsAsmJitGpd()) = [&] {
+            left.SetAttribute(TParaToken::ttMem32);
+            left.SetMem(x86::ptr(left.AsAsmJitGpd(), right.AsInt32()));
+        }
+    );
+
+    this->ctx.push(left);
 };
 
 void FrontEnd::visitIndexed(Indexed *p) {};
