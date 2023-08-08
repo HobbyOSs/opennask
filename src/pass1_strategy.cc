@@ -195,25 +195,26 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         // 疑似命令
-        std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Pass1Strategy::processDB, this, _1)),
-        std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Pass1Strategy::processDD, this, _1)),
+        std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
         // x86命令
         // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
-        std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
-        std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
-        std::make_pair("OpcodesJBE", std::bind(&Pass1Strategy::processJBE, this, _1)),
-        std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
-        std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
-        std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processJC, this, _1)),
-        std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
-        std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
-        std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
+        std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
+        std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
+        std::make_pair("OpcodesJBE", std::bind(&Pass1Strategy::processJBE, this, _1)),
+        std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processJC, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
+        std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
+        std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
+        std::make_pair("OpcodesLGDT", std::bind(&Pass1Strategy::processLGDT, this, _1)),
+        std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&Pass1Strategy::processOUT, this, _1)),
     };
 
@@ -870,10 +871,24 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
 }
 
 void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
-    // TODO: L := 機械語のサイズ
-    // TODO: リテラルテーブルを処理
-    // TODO: ラベルが存在する場合, シンボルテーブルのラベルのレコードに現在のLCを設定
-    // TODO: LC := LC + L
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずm16として処理する, どちらになるかはpass2で判断する
+        loc += 3; // opcode + modrm
+        loc += NASK_WORD;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // m16 or m32
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 3 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {

@@ -963,7 +963,6 @@ msg:
     expected.insert(expected.end(), std::begin(padding), std::end(padding));
     expected.insert(expected.end(), {0x55, 0xaa});
 
-    //GTEST_SKIP(); // TODO: まだ機能しない
     // 作成したバイナリの差分assert & diff表示
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);
 }
@@ -1097,7 +1096,7 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 [INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 
-		;LGDT	[GDTR0]			; 暫定GDTを設定
+		LGDT	[GDTR0]			; 暫定GDTを設定
 		;MOV		EAX,CR0
 		;AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
 		;OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
