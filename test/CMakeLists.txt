@@ -51,8 +51,9 @@ set(nask_parse_SRCS
   ../src/label.cpp
   ../src/x86.cc)
 
-# 共通のソースコードをObject Libraryを使い再コンパイルを防ぐ
+# テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする
 add_library(nask_parse_objects OBJECT ${nask_parse_SRCS})
+target_compile_features(nask_parse_objects PRIVATE cxx_std_17)
 
 ########### next target ###############
 
@@ -71,8 +72,7 @@ if(WITH_BACKWARDS_CPP)
   target_link_libraries(inst_suite_test PUBLIC backward)
 endif()
 
-set_property(TARGET inst_suite_test PROPERTY CXX_STANDARD 17)
-set_property(TARGET inst_suite_test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(inst_suite_test PRIVATE cxx_std_17)
 gtest_discover_tests(inst_suite_test)
 
 ########### next target ###############
@@ -95,8 +95,7 @@ if(WITH_BACKWARDS_CPP)
   target_link_libraries(parsertest PUBLIC backward)
 endif()
 
-set_property(TARGET parsertest PROPERTY CXX_STANDARD 17)
-set_property(TARGET parsertest PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(parsertest PRIVATE cxx_std_17)
 gtest_discover_tests(parsertest)
 
 # `ctest -R modrmtest`
@@ -114,8 +113,7 @@ target_link_libraries(modrmtest PRIVATE
   Threads::Threads
   GTest::gtest_main)
 
-set_property(TARGET modrmtest PROPERTY CXX_STANDARD 17)
-set_property(TARGET modrmtest PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(modrmtest PRIVATE cxx_std_17)
 gtest_discover_tests(modrmtest)
 
 # `ctest -R x86_table_test`
@@ -129,8 +127,7 @@ add_executable(x86_table_test ${x86_table_test_SRCS})
 target_link_libraries(x86_table_test PRIVATE
   parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
 
-set_property(TARGET x86_table_test PROPERTY CXX_STANDARD 17)
-set_property(TARGET x86_table_test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(x86_table_test PRIVATE cxx_std_17)
 gtest_discover_tests(x86_table_test)
 
 # `ctest -R para_token_test`
@@ -143,8 +140,7 @@ add_executable(para_token_test ${para_token_test_SRCS})
 target_link_libraries(para_token_test PRIVATE
   parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
 
-set_property(TARGET para_token_test PROPERTY CXX_STANDARD 17)
-set_property(TARGET para_token_test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(para_token_test PRIVATE cxx_std_17)
 gtest_discover_tests(para_token_test)
 
 # `ctest -R pass1_test`
@@ -160,8 +156,7 @@ target_link_libraries(pass1_test PRIVATE
   asmjit::asmjit
   GTest::gtest_main)
 
-set_property(TARGET pass1_test PROPERTY CXX_STANDARD 17)
-set_property(TARGET pass1_test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(pass1_test PRIVATE cxx_std_17)
 gtest_discover_tests(pass1_test)
 
 # `ctest -R day01`
@@ -181,8 +176,7 @@ if(WITH_BACKWARDS_CPP)
   target_link_libraries(day01test PUBLIC backward)
 endif()
 
-set_property(TARGET day01test PROPERTY CXX_STANDARD 17)
-set_property(TARGET day01test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(day01test PRIVATE cxx_std_17)
 gtest_discover_tests(day01test)
 
 # `ctest -R day02`
@@ -202,8 +196,7 @@ if(WITH_BACKWARDS_CPP)
   target_link_libraries(day02test PUBLIC backward)
 endif()
 
-set_property(TARGET day02test PROPERTY CXX_STANDARD 17)
-set_property(TARGET day02test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(day02test PRIVATE cxx_std_17)
 gtest_discover_tests(day02test)
 
 # `ctest -R day03`
@@ -223,8 +216,7 @@ if(WITH_BACKWARDS_CPP)
   target_link_libraries(day03test PUBLIC backward)
 endif()
 
-set_property(TARGET day03test PROPERTY CXX_STANDARD 17)
-set_property(TARGET day03test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(day03test PRIVATE cxx_std_17)
 gtest_discover_tests(day03test)
 
 # `ctest -R day04`
@@ -239,8 +231,7 @@ add_executable(day04test ${day04test_SRCS})
 target_link_libraries(day04test PRIVATE
   parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
 
-set_property(TARGET day04test PROPERTY CXX_STANDARD 11)
-set_property(TARGET day04test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(day04test PRIVATE cxx_std_17)
 gtest_discover_tests(day04test)
 
 # `ctest -R day05`
@@ -255,6 +246,5 @@ add_executable(day05test ${day05test_SRCS})
 target_link_libraries(day05test PRIVATE
   parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
 
-set_property(TARGET day05test PROPERTY CXX_STANDARD 11)
-set_property(TARGET day05test PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(day05test PRIVATE cxx_std_17)
 gtest_discover_tests(day05test)

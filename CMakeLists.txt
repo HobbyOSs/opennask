@@ -32,15 +32,14 @@ OPTION(USE_GTEST "Enable feature to test with googletest (Dev)" ON)
 OPTION(WITH_BACKWARDS_CPP "Build with backwards-cpp stack trace dumping library? (Linux-only)" OFF)
 message(STATUS "Use backward-cpp for stack traces? " ${WITH_BACKWARDS_CPP})
 
-if(WITH_BACKWARDS_CPP)
-  # Support 'backward-cpp,' a lean stacktrace printing library for Linux.
-  add_definitions(-DWITH_BACKWARDS_CPP)
-  add_subdirectory(backward-cpp)
-endif()
-
-if (USE_GTEST)
+if(USE_GTEST)
   enable_testing()
   add_subdirectory(googletest)
   add_subdirectory(test)
   add_subdirectory(data)
-endif(USE_GTEST)
+endif()
+
+if(WITH_BACKWARDS_CPP)
+  add_definitions(-DWITH_BACKWARDS_CPP)
+  add_subdirectory(backward-cpp)
+endif()

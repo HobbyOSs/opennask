@@ -5,7 +5,7 @@ An 80x86 assembler like MASM/NASM for the tiny OS
 * You need to install cmake, and ninja / make
 ```
 // example
-# apt-get install cmake ninja-build clang clang++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+# apt-get install cmake ninja-build gcc g++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
 
 $ mkdir build
 $ cd build

@@ -105,7 +105,7 @@ target_include_directories(nask_parse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/incbin
   ${CMAKE_CURRENT_SOURCE_DIR}/jsoncons/include
 )
-set_property(TARGET nask_parse PROPERTY CXX_STANDARD 17)
+target_compile_features(nask_parse PRIVATE cxx_std_17)
 
 ########### next target ###############
 
@@ -142,6 +142,5 @@ target_link_libraries(opennask
   PRIVATE
   Threads::Threads parasol spdlog::spdlog)
 
-set_property(TARGET opennask PROPERTY CXX_STANDARD 17)
-set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(opennask PRIVATE cxx_std_17)
 set_property(TARGET opennask PROPERTY APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
