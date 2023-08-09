@@ -38,7 +38,7 @@ jobs:
     - name: Install build tools
       uses: awalsh128/cache-apt-pkgs-action@v1.1.0
       with:
-        packages: gcc g++ libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+        packages: gcc g++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
         version: 1.0
 
     - name: Configure CMake

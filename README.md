@@ -5,7 +5,7 @@ An 80x86 assembler like MASM/NASM for the tiny OS
 * You need to install cmake, and ninja / make
 ```
 // example
-# apt-get install cmake ninja-build cpputest libcpputest-dev gcc g++ libc6-dev-i386 linux-headers-generic
+# apt-get install cmake ninja-build clang clang++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
 
 $ mkdir build
 $ cd build
@@ -18,8 +18,8 @@ $ make
 $ cmake -G Ninja ..
 $ ninja
 
-# or, you may want to specify compiler
-$ cmake -G Ninja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9
+# or, you may want to specify compile option
+$ CMAKE_OPT="-DWITH_BACKWARDS_CPP=ON" ./ninja_build.sh
 ```
 
 # Build osask project files (debian)
