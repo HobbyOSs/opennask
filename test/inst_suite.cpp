@@ -128,37 +128,7 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,SP", std::vector<uint8_t>{0x89, 0xe3}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,BX", std::vector<uint8_t>{0x89, 0xdc}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "JMP 0xc200", std::vector<uint8_t>{0xe9, 0x01, 0xc2}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f})
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CALL 3", std::vector<uint8_t>{0xe8, 0x00, 0x03})
     )
 );
-
-/**
-TEST_F(InstSuite, MovWithBracket)
-{
-     // Found MOV_with_bracket
-     nask_utility::Instructions inst;
-
-     std::istringstream input_stream0("[BITS 32]            \r\n");
-     std::istringstream input_stream1("[INSTRSET \"i486p\"] \r\n");
-     std::istringstream input_stream2("ECX,[ESP+4]          \r\n");
-     std::istringstream input_stream3("AL,[ESP+8]           \r\n");
-     TParaTokenizer tokenizer0(input_stream0, &inst.token_table);
-     TParaTokenizer tokenizer1(input_stream1, &inst.token_table);
-     TParaTokenizer tokenizer2(input_stream2, &inst.token_table);
-     TParaTokenizer tokenizer3(input_stream3, &inst.token_table);
-
-     std::vector<uint8_t> test;
-     std::vector<uint8_t> answer = { 0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08 };
-
-     inst.process_token_BRACKET(tokenizer0, test);
-     inst.process_token_BRACKET(tokenizer1, test);
-     inst.process_token_MOV(tokenizer2, test);
-     inst.process_token_MOV(tokenizer3, test);
-
-     logger->info("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
-
-     // static member data "support" causes memory leak :<
-     //EXPECT_N_LEAKS(12);
-     EXPECT_TRUE(test == answer);
-}
-*/

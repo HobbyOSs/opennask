@@ -48,7 +48,6 @@ set(nask_parse_SRCS
   ../src/para_token.cc
   ../src/mod_rm.cpp
   ../src/string_util.cpp
-  ../src/label.cpp
   ../src/x86.cc)
 
 # テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする

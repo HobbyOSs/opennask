@@ -15,7 +15,6 @@
 #include "nask_defs.hpp"
 #include "skeleton.hh"
 #include "bin_util.hh"
-#include "label.hpp"
 #include "pass1_strategy.hh"
 
 class FrontEnd : public Skeleton, public BinUtil {
@@ -49,11 +48,6 @@ public:
 
     // 出力するバイナリ情報
     std::vector<uint8_t> binout_container;
-    // ラベルによるオフセットの計算をする
-    // TODO: 後ほど削除する
-    LabelDstList label_dst_list;
-    LabelSrcList label_src_list;
-
     FrontEnd(bool trace_scanning, bool trace_parsing);
 
     // 以下、抽象クラスの実装(内部で動的に分岐)

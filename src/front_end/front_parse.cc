@@ -35,19 +35,11 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     env.setArch(Arch::kX86);
     code_.init(env);
     a_ = std::make_unique<x86::Assembler>(&code_);
-
-    // TODO: 後ほど削除
-    label_dst_list = LabelDstList{};
-    label_src_list = LabelSrcList{};
 }
 
 FrontEnd::~FrontEnd() {
     // メモリの開放
     equ_map.clear();
-    label_dst_list.clear();
-    label_dst_list.shrink_to_fit();
-    label_src_list.clear();
-    label_src_list.shrink_to_fit();
 };
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
