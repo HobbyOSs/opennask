@@ -5,6 +5,10 @@ project(root CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 project(root)
 
+#set(CMAKE_C_COMPILER "/usr/bin/clang" CACHE INTERNAL "clang compiler")
+#set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE INTERNAL "clang++ compiler")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
+
 set(WINE "/usr/bin/wine" CACHE INTERNAL "")
 set(WINE_NASK "~/.wine/drive_c/MinGW/msys/1.0/bin/nask.exe" CACHE INTERNAL "")
 set(OD "od" CACHE INTERNAL "")
@@ -22,14 +26,20 @@ add_subdirectory(golibc)
 add_subdirectory(projects)
 
 #-----------------------------------------------------------------------
-# GoogleTest
+# Test
 #
 OPTION(USE_GTEST "Enable feature to test with googletest (Dev)" ON)
-if (USE_GTEST)
-  add_subdirectory(googletest)
-  enable_testing()
+OPTION(WITH_BACKWARDS_CPP "Build with backwards-cpp stack trace dumping library? (Linux-only)" OFF)
+message(STATUS "Use backward-cpp for stack traces? " ${WITH_BACKWARDS_CPP})
 
-  add_subdirectory(backward-cpp)
+if(USE_GTEST)
+  enable_testing()
+  add_subdirectory(googletest)
   add_subdirectory(test)
   add_subdirectory(data)
-endif(USE_GTEST)
+endif()
+
+if(WITH_BACKWARDS_CPP)
+  add_definitions(-DWITH_BACKWARDS_CPP)
+  add_subdirectory(backward-cpp)
+endif()

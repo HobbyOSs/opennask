@@ -1,7 +1,19 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(opennask CXX)
-set(opennask_VERSION \"1.0.1\")
+set(opennask_VERSION \"1.0.3\")
+
+# use lld
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-fuse-ld=lld" COMPILER_SUPPORTS_LLD)
+
+if(COMPILER_SUPPORTS_LLD)
+  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=lld -Wl,--version OUTPUT_VARIABLE stdout ERROR_QUIET)
+  if("${stdout}" MATCHES "lld")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
+  endif()
+endif()
 
 find_package(Threads REQUIRED)
 find_package(FLEX REQUIRED)
@@ -93,7 +105,7 @@ target_include_directories(nask_parse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/incbin
   ${CMAKE_CURRENT_SOURCE_DIR}/jsoncons/include
 )
-set_property(TARGET nask_parse PROPERTY CXX_STANDARD 17)
+target_compile_features(nask_parse PRIVATE cxx_std_17)
 
 ########### next target ###############
 
@@ -130,6 +142,5 @@ target_link_libraries(opennask
   PRIVATE
   Threads::Threads parasol spdlog::spdlog)
 
-set_property(TARGET opennask PROPERTY CXX_STANDARD 17)
-set_property(TARGET opennask PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(opennask PRIVATE cxx_std_17)
 set_property(TARGET opennask PROPERTY APPEND_STRING PROPERTY COMPILE_FLAGS -Wno-missing-braces)
