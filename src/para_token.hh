@@ -55,6 +55,7 @@ public:
         ttReg32,
         ttReg64,
         ttSreg,
+        ttCreg,
         ttMem,
         ttMem8,
         ttMem16,
@@ -76,6 +77,7 @@ public:
         "ttReg32",
         "ttReg64",
         "ttSreg",
+        "ttCreg",
         "ttMem",
         "ttMem8",
         "ttMem16",
@@ -96,6 +98,7 @@ public:
     static std::regex registers32;
     static std::regex registers64;
     static std::regex segment_registers;
+    static std::regex control_registers;
 
 public:
 
@@ -157,11 +160,13 @@ public:
     asmjit::x86::Gpw AsAsmJitGpw(void) const;
     asmjit::x86::Gpd AsAsmJitGpd(void) const;
     asmjit::x86::SReg AsAsmJitSReg(void) const;
+    asmjit::x86::CReg AsAsmJitCReg(void) const;
     bool IsAsmJitGpbLo(void) const;
     bool IsAsmJitGpbHi(void) const;
     bool IsAsmJitGpw(void) const;
     bool IsAsmJitGpd(void) const;
     bool IsAsmJitSReg(void) const;
+    bool IsAsmJitCReg(void) const;
 
     uint32_t AsUInt32(void) const noexcept(false);
     int32_t AsInt32(void) const noexcept(false);

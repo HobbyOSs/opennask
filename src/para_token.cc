@@ -24,6 +24,7 @@ std::regex TParaToken::registers16(R"(AX|BX|CX|DX|SP|DI|BP|SI)");
 std::regex TParaToken::registers32(R"(EAX|EBX|ECX|EDX|ESP|EDI|EBP|ESI)");
 std::regex TParaToken::registers64(R"(RAX|RBX|RCX|RDX)");
 std::regex TParaToken::segment_registers(R"(CS|DS|ES|SS|FS|GS)");
+std::regex TParaToken::control_registers(R"(CR(?:[023456789]|1[012345]?))");
 
 
 TParaToken::TParaToken(void) {
@@ -86,6 +87,8 @@ void TParaToken::SetAttribute() {
         _attr = TIdentiferAttribute::ttReg64;
     } else if (std::regex_match(_token_string, segment_registers)) {
         _attr = TIdentiferAttribute::ttSreg;
+    } else if (std::regex_match(_token_string, control_registers)) {
+        _attr = TIdentiferAttribute::ttCreg;
     } else if (IsImmediate()) {
         _attr = TIdentiferAttribute::ttImm; // 即値
     } else if (IsIdentifier()) {
@@ -251,6 +254,32 @@ asmjit::x86::SReg TParaToken::AsAsmJitSReg(void) const {
     );
 }
 
+asmjit::x86::CReg TParaToken::AsAsmJitCReg(void) const {
+
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
+
+    return match(s)(
+        pattern | "cr0"  = asmjit::x86::cr0 ,
+        pattern | "cr1"  = asmjit::x86::cr1 ,
+        pattern | "cr2"  = asmjit::x86::cr2 ,
+        pattern | "cr3"  = asmjit::x86::cr3 ,
+        pattern | "cr4"  = asmjit::x86::cr4 ,
+        pattern | "cr5"  = asmjit::x86::cr5 ,
+        pattern | "cr6"  = asmjit::x86::cr6 ,
+        pattern | "cr7"  = asmjit::x86::cr7 ,
+        pattern | "cr8"  = asmjit::x86::cr8 ,
+        pattern | "cr9"  = asmjit::x86::cr9 ,
+        pattern | "cr10" = asmjit::x86::cr10,
+        pattern | "cr11" = asmjit::x86::cr11,
+        pattern | "cr12" = asmjit::x86::cr12,
+        pattern | "cr13" = asmjit::x86::cr13,
+        pattern | "cr14" = asmjit::x86::cr14,
+        pattern | "cr15" = asmjit::x86::cr15
+    );
+}
+
+
 bool TParaToken::IsAsmJitGpbLo(void) const {
     return std::regex_match(_token_string, registers8Lo);
 }
@@ -269,6 +298,10 @@ bool TParaToken::IsAsmJitGpd(void) const {
 
 bool TParaToken::IsAsmJitSReg(void) const {
     return std::regex_match(_token_string, segment_registers);
+}
+
+bool TParaToken::IsAsmJitCReg(void) const {
+    return std::regex_match(_token_string, control_registers);
 }
 
 uint32_t TParaToken::AsUInt32(void) const noexcept(false) {
