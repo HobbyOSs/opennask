@@ -80,6 +80,7 @@ public:
 
     // opcodeの処理
     void processADD(std::vector<TParaToken>& memonic_args);
+    void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
     void processCLI();
     void processCMP(std::vector<TParaToken>& memonic_args);

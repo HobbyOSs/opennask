@@ -25,11 +25,12 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
     log()->debug("[pass2] processADD dst={}", dst.AsString());
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, dst);
+        pp.set(bit_mode, dst, src);
 
         match(operands)(
             // 0x04 ib		ADD AL, imm8		imm8をALに加算する
@@ -74,6 +75,69 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
             pattern | _ = [&] {
                 throw std::runtime_error("ADD, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
+void FrontEnd::processAND(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
+    log()->debug("[pass2] processAND dst={}", dst.AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
+
+        match(operands)(
+            // 0x24 ib		AND AL, imm8		ALとimm8とのANDをとる
+            // 0x25 iw		AND AX, imm16		AXとimm16とのANDをとる
+            // 0x25 id		AND EAX, imm32		EAXとimm32とのANDをとる
+            pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                a.and_(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.db(0x25);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.and_(x86::eax, mnemonic_args[1].AsInt32());
+            },
+            // TODO: メモリーアドレッシング
+            // 0x80 /4 ib	AND r/m8, imm8		r/m8とimm8とのANDをとる
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /4 iw	AND r/m16, r/m16とimm16とのANDをとる
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /4 id	AND r/m32, imm32	 	r/m32とimm32とのANDをとる
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
+            // 0x83 /4 ib	AND r/m16, imm8		r/m16と拡張符号したimm8とのANDをとる
+            // 0x83 /4 ib	AND r/m32, imm8		r/m32と拡張符号したimm8とのANDをとる
+
+            // 0x20 /r		AND r/m8, r8		r/m8とr8とのANDをとる
+            // 0x21 /r		AND r/m16, r16		r/m16とr16とのANDをとる
+            // 0x21 /r		AND r/m32, r32		r/m32とr32とのANDをとる
+            // 0x22 /r		AND r8, r/m8		r8とr/m8とのANDをとる
+            // 0x23 /r		AND r16, r/m16		r16とr/m16とのANDをとる
+            // 0x23 /r		AND r32, r/m32		r32とr/m32とのANDをとる
+            pattern | _ = [&] {
+                throw std::runtime_error("AND, Not implemented or not matched!!!");
             }
         );
     });

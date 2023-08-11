@@ -199,6 +199,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
