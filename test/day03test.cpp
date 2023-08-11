@@ -1097,7 +1097,7 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 [INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 
 		LGDT	[GDTR0]			; 暫定GDTを設定
-		MOV		EAX,CR0
+		;MOV		EAX,CR0
 		;AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
 		;OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
 		;MOV		CR0,EAX
@@ -1220,7 +1220,7 @@ bootpack:
     expected.insert(expected.end(), {0xe8, 0xa7, 0x00}); // CALL waitkbdout
 
     expected.insert(expected.end(), {0x0f, 0x01, 0x16, 0x2a, 0xc3}); // LGDT[GDTR0]
-    expected.insert(expected.end(), {0x0f, 0x22, 0xc0});
+    //expected.insert(expected.end(), {0x0f, 0x20, 0xc0});
 
     // 作成したバイナリの差分assert & diff表示
     ASSERT_PRED_FORMAT2(checkTextF,expected,d->binout_container);

@@ -174,14 +174,24 @@ void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
 
         if (src.AsAttr() == TParaToken::ttImm) {
             auto mem = x86::Mem(src.AsInt32());
-            a.lgdt(mem);
+            // TODO: 自力実装
+            a.db(0x0f);
+            a.db(0x01);
+            a.db(0x00);
+            a.db(0x00);
+            a.db(0x00);
         } else if (src.AsAttr() == TParaToken::ttLabel) {
             CodeBuffer& buf = code_.textSection()->buffer();
             const std::string label = src.AsString();
             const auto label_address = sym_table.at(label);
             const int32_t jmp_offset = label_address - (dollar_position + buf.size());
             auto mem = x86::Mem(jmp_offset);
-            a.lgdt(mem);
+            // TODO: 自力実装
+            a.db(0x0f);
+            a.db(0x01);
+            a.db(0x00);
+            a.db(0x00);
+            a.db(0x00);
         } else {
             throw std::runtime_error("LGDT, Not implemented or not matched!!!");
         }
@@ -440,13 +450,21 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //// A3      moffs64 rax
             //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             //},
-            // 8E/r      Sreg, r/m16
+            // 8E /r      Sreg, r/m16
             pattern | ds(TParaToken::ttSreg, _, TParaToken::ttReg16, _) = [&] {
                 a.mov(dst.AsAsmJitSReg(), src.AsAsmJitGpw());
             },
-            // 8C/r      r/m16, Sreg
+            // 8C /r      r/m16, Sreg
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttSreg, _) = [&] {
                 a.mov(dst.AsAsmJitGpw(), src.AsAsmJitSReg());
+            },
+            // 0F 22 /r   Creg, r32
+            pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
+                a.mov(dst.AsAsmJitCReg(), src.AsAsmJitGpd());
+            },
+            // 0F 20 /r   r32, Creg
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttCreg, _) = [&] {
+                a.mov(dst.AsAsmJitGpd(), src.AsAsmJitCReg());
             },
             pattern | _ = [&] {
                 std::stringstream ss;

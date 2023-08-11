@@ -938,6 +938,19 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     auto inst = iset->instructions().at("MOV");
 
     uint32_t l = match(operands)(
+        // 以下、セグメントレジスタはx86-jsonに記載なし
+        pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
+            return 2; // opcode, modrmなので2byte
+        },
+        pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
+            return 2; // opcode, modrmなので2byte
+        },
+        pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
+            return 3;
+        },
+        pattern | ds(TParaToken::ttReg32, _, TParaToken::ttCreg, _) = [&] {
+            return 3;
+        },
         // C6      r8      imm8
         pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
@@ -1053,13 +1066,6 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         // A3      moffs64 rax
         pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
-        // 以下、セグメントレジスタはx86-jsonに記載なし
-        pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
-            return 2; // opcode, modrmなので2byte
-        },
-        pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
-            return 2; // opcode, modrmなので2byte
         },
         pattern | _ = [&] {
             std::stringstream ss;
