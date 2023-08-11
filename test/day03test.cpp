@@ -1192,10 +1192,10 @@ bootpack:
     d->Eval<Program>(pt.get(), "test.img");
 
     // 差分がわかりやすいよう調整
-    constexpr auto max_size = 65536;
-    std::vector<uint8_t> expected;
-    expected.reserve(max_size);
-    std::memset(expected.data(), 0x00, max_size);
+    //constexpr auto max_size = 65536;
+    std::vector<uint8_t> expected = {};
+    //expected.reserve(max_size);
+    //std::memset(expected.data(), 0x00, max_size);
 
     // haribote.nas
     expected.insert(expected.end(), {0xb0, 0x13});

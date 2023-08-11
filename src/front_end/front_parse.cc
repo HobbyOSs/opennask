@@ -30,9 +30,9 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
 
-    constexpr auto max_size = 65536;
-    binout_container.reserve(max_size);
-    std::memset(binout_container.data(), 0x00, max_size);
+    //constexpr auto max_size = 65536;
+    //binout_container.reserve(max_size);
+    //std::memset(binout_container.data(), 0x00, max_size);
 
     using namespace asmjit;
     Environment env;

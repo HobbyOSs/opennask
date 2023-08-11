@@ -592,6 +592,7 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
                 a.out(x86::dx, x86::ax);
             },
             pattern | ds("DX", _, "EAX", _) = [&] {
+                pp.require_67h = false;
                 a.out(x86::dx, x86::eax);
             },
             pattern | _ = [&] {
@@ -606,7 +607,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
     // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = false,
         pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()) = true,
         pattern | ID_32BIT_MODE = false,
@@ -624,7 +625,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
 
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = false,
         pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()||src.IsAsmJitGpw()) = true,
         pattern | ID_32BIT_MODE = false,
