@@ -79,8 +79,6 @@ set(nask_parse_SRCS
   mod_rm.hpp
   string_util.cpp
   string_util.hpp
-  label.cpp
-  label.hpp
   bin_util.cc
   bin_util.hh
   x86.cc

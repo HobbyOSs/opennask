@@ -30,24 +30,20 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
 
+    //constexpr auto max_size = 65536;
+    //binout_container.reserve(max_size);
+    //std::memset(binout_container.data(), 0x00, max_size);
+
     using namespace asmjit;
     Environment env;
     env.setArch(Arch::kX86);
     code_.init(env);
     a_ = std::make_unique<x86::Assembler>(&code_);
-
-    // TODO: 後ほど削除
-    label_dst_list = LabelDstList{};
-    label_src_list = LabelSrcList{};
 }
 
 FrontEnd::~FrontEnd() {
     // メモリの開放
     equ_map.clear();
-    label_dst_list.clear();
-    label_dst_list.shrink_to_fit();
-    label_src_list.clear();
-    label_src_list.shrink_to_fit();
 };
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
@@ -203,6 +199,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
@@ -588,7 +585,8 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
     // TODO: 互換性のため、しばらくこのようにしてbinout_containerを
     // 使えるようにしておく
     binout_container.assign(buf.data(), buf.data() + buf.size());
-    binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
+    binout.write(reinterpret_cast<char*>(binout_container.data()),
+                 binout_container.size());
     //binout.write(reinterpret_cast<char*>(buf.data()), buf.size());
     binout.close();
 

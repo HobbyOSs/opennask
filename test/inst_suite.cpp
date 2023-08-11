@@ -83,34 +83,36 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         // ADD---
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD AL,1", std::vector<uint8_t>{0x04, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD AX,0x0020", std::vector<uint8_t>{0x05, 0x20, 0x00}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EAX,3", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xc0, 0x03}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EAX,3", std::vector<uint8_t>{0x66, 0x83, 0xc0, 0x03}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD BL,1", std::vector<uint8_t>{0x80, 0xc3, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD BH,1", std::vector<uint8_t>{0x80, 0xc7, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD SI,300", std::vector<uint8_t>{0x81, 0xc6, 0x2c, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "ADD SI,1", std::vector<uint8_t>{0x83, 0xc6, 0x01}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,1", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xc3, 0x01}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,300", std::vector<uint8_t>{0x67, 0x66, 0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,1", std::vector<uint8_t>{0x66, 0x83, 0xc3, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "ADD EBX,300", std::vector<uint8_t>{0x66, 0x81, 0xc3, 0x2c, 0x01, 0x00, 0x00}),
+        // ADD---
+        StatementToMachineCodeParam(ID_16BIT_MODE, "AND EAX,0x7fffffff", std::vector<uint8_t>{0x66, 0x25, 0xff, 0xff, 0xff, 0x7f}),
         // CMP---
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP AL,0x01", std::vector<uint8_t>{0x3c, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP AX,0x2000", std::vector<uint8_t>{0x3d, 0x00, 0x20 }),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EAX,0x3000", std::vector<uint8_t>{0x67, 0x66, 0x3d, 0x00, 0x30, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EAX,0x3000", std::vector<uint8_t>{0x66, 0x3d, 0x00, 0x30, 0x00, 0x00}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP BL,1", std::vector<uint8_t>{0x80, 0xfb, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP BH,1", std::vector<uint8_t>{0x80, 0xff, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP SI,300", std::vector<uint8_t>{0x81, 0xfe, 0x2c, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "CMP SI,1", std::vector<uint8_t>{0x83, 0xfe, 0x01}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,1", std::vector<uint8_t>{0x67, 0x66, 0x83, 0xfb, 0x01}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,300", std::vector<uint8_t>{0x67, 0x66, 0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,1", std::vector<uint8_t>{0x66, 0x83, 0xfb, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "CMP EBX,300", std::vector<uint8_t>{0x66, 0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "CMP EBX,1", std::vector<uint8_t>{0x83, 0xfb, 0x01}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "CMP EBX,300", std::vector<uint8_t>{0x81, 0xfb, 0x2c, 0x01, 0x00, 0x00}),
         // OUT---
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,AL", std::vector<uint8_t>{0xe6, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,AX", std::vector<uint8_t>{0xe7, 0x01}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,EAX", std::vector<uint8_t>{0x67, 0x66, 0xe7, 0x01}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT 0x01,EAX", std::vector<uint8_t>{0x66, 0xe7, 0x01}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "OUT 0x01,EAX", std::vector<uint8_t>{0xe7, 0x01}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,AL", std::vector<uint8_t>{0xee}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,AX", std::vector<uint8_t>{0xef}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0x67, 0x66, 0xef}),
-        // StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0xef}), TODO: 正解が不明
+        StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0x66, 0xef}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0xef}),
         // MOV---
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,0x0e", std::vector<uint8_t>{0xb0, 0x0e}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e}),
@@ -122,43 +124,13 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,[SI]", std::vector<uint8_t>{0x8a, 0x24}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,15", std::vector<uint8_t>{0xbb, 0x0f, 0x00}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AX,BX", std::vector<uint8_t>{0x89, 0xD8}),
-        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV ESI,0x7c00", std::vector<uint8_t>{0x67, 0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "MOV ESI,0x7c00", std::vector<uint8_t>{0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "MOV ESI,0x7c00", std::vector<uint8_t>{0xbe, 0x00, 0x7c, 0x00, 0x00}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,0x7c00", std::vector<uint8_t>{0xbc, 0x00, 0x7c}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,SP", std::vector<uint8_t>{0x89, 0xe3}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,BX", std::vector<uint8_t>{0x89, 0xdc}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "JMP 0xc200", std::vector<uint8_t>{0xe9, 0x01, 0xc2}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f})
+        //StatementToMachineCodeParam(ID_16BIT_MODE, "CALL 3", std::vector<uint8_t>{0xe8, 0x00, 0x03})
     )
 );
-
-/**
-TEST_F(InstSuite, MovWithBracket)
-{
-     // Found MOV_with_bracket
-     nask_utility::Instructions inst;
-
-     std::istringstream input_stream0("[BITS 32]            \r\n");
-     std::istringstream input_stream1("[INSTRSET \"i486p\"] \r\n");
-     std::istringstream input_stream2("ECX,[ESP+4]          \r\n");
-     std::istringstream input_stream3("AL,[ESP+8]           \r\n");
-     TParaTokenizer tokenizer0(input_stream0, &inst.token_table);
-     TParaTokenizer tokenizer1(input_stream1, &inst.token_table);
-     TParaTokenizer tokenizer2(input_stream2, &inst.token_table);
-     TParaTokenizer tokenizer3(input_stream3, &inst.token_table);
-
-     std::vector<uint8_t> test;
-     std::vector<uint8_t> answer = { 0x8b, 0x4c, 0x24, 0x04, 0x8a, 0x44, 0x24, 0x08 };
-
-     inst.process_token_BRACKET(tokenizer0, test);
-     inst.process_token_BRACKET(tokenizer1, test);
-     inst.process_token_MOV(tokenizer2, test);
-     inst.process_token_MOV(tokenizer3, test);
-
-     logger->info("output bin: {}", nask_utility::string_to_hex(std::string(test.begin(), test.end())));
-
-     // static member data "support" causes memory leak :<
-     //EXPECT_N_LEAKS(12);
-     EXPECT_TRUE(test == answer);
-}
-*/

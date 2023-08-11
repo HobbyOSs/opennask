@@ -21,12 +21,6 @@ void FrontEnd::visitLabel(Label x) {
     log()->debug("[pass2] label='{}' binout_container[{}]",
                  label, std::to_string(this->binout_container.size()));
 
-    // label: (label_dstと呼ぶ)
-    // 1) label_dstの位置を記録する → label_dst_list
-    // 2) 同名のlabel_srcが保存されていれば、オフセット値を計算して終了
-    LabelJmp::store_label_dst(label, label_dst_list, binout_container);
-    LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
-
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 
@@ -41,50 +35,49 @@ void FrontEnd::visitLabel(Label x) {
 
 void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
 
-    auto operands = std::make_tuple(
-        mnemonic_args[0].AsAttr(),
-        mnemonic_args[0].GetImmSize()
-    );
+    // 0xE8 cw 	CALL rel16 	相対ニアコール、次の命令とディスプレースメント相対
+    // 0xE8 cd 	CALL rel32 	相対ニアコール、次の命令とディスプレースメント相対
+    // 0xFF /2 	CALL r/m16 	絶対間接ニアコール、r/m16でアドレスを指定
+    // 0xFF /2 	CALL r/m32 	絶対間接ニアコール、r/m32でアドレスを指定
+    // 0x9A cd 	CALL ptr16:16 	絶対ファーコール、オペランドでアドレスを指定
+    // 0x9A cp 	CALL ptr16:32 	絶対ファーコール、オペランドでアドレスを指定
+    // 0xFF /3 	CALL m16:16 	絶対間接ファーコール、m16:16でアドレスを指定
+    // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
+
     auto arg = mnemonic_args[0];
+    auto attr = mnemonic_args[0].AsAttr();
 
-    std::vector<uint8_t> machine_codes = match(operands)(
-        // 0xE8 cw 	CALL rel16 	相対ニアコール、次の命令とディスプレースメント相対
-        // 0xE8 cd 	CALL rel32 	相対ニアコール、次の命令とディスプレースメント相対
-        // 0xFF /2 	CALL r/m16 	絶対間接ニアコール、r/m16でアドレスを指定
-        // 0xFF /2 	CALL r/m32 	絶対間接ニアコール、r/m32でアドレスを指定
-        // 0x9A cd 	CALL ptr16:16 	絶対ファーコール、オペランドでアドレスを指定
-        // 0x9A cp 	CALL ptr16:32 	絶対ファーコール、オペランドでアドレスを指定
-        // 0xFF /3 	CALL m16:16 	絶対間接ファーコール、m16:16でアドレスを指定
-        // 0xFF /3 	CALL m16:32 	絶対間接ファーコール、m16:32でアドレスを指定
-
-        pattern | ds(TParaToken::ttLabel, _) = [&] {
+    match(attr)(
+        pattern | TParaToken::ttLabel = [&] {
             log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-            std::string label = arg.AsString();
 
-            if (LabelJmp::dst_is_stored(label, label_dst_list)) {
-                LabelJmp::update_label_src_offset(label, label_dst_list, 0xe8, binout_container);
-            } else {
-                // TODO: rel16/rel32の２通りの値が入る可能性があるが、動的に出力に機械語を入れる仕組みがないので
-                // とりあえずrel16として処理している
-                LabelJmp::store_label_src(label, label_src_list, binout_container);
-                binout_container.push_back(0xe8);
-                binout_container.push_back(0x00);
-                binout_container.push_back(0x00);
-            }
-
-            return std::vector<uint8_t>();
+            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                using namespace asmjit;
+                CodeBuffer& buf = code_.textSection()->buffer();
+                const std::string label = arg.AsString();
+                const auto label_address = sym_table.at(label);
+                const int32_t jmp_offset = label_address - (dollar_position + buf.size());
+                auto asmjit_label = code_.labelByName(label.c_str());
+                if( ! asmjit_label.isValid() ) {
+                    a.newNamedLabel(label.c_str());
+                }
+                match(jmp_offset)(
+                    pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+                        a.db(0xe8);
+                        a.dw(jmp_offset);
+                    },
+                    pattern | _ = [&] {
+                        a.db(0xe8);
+                        a.dd(jmp_offset);
+                    }
+                );
+            });
         },
         pattern | _ = [&] {
             throw std::runtime_error("CALL, Not implemented or not matched!!!");
-            return std::vector<uint8_t>();
         }
     );
 
-    // 結果を投入
-    binout_container.insert(binout_container.end(),
-                            std::begin(machine_codes),
-                            std::end(machine_codes));
-    return;
 }
 
 void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {

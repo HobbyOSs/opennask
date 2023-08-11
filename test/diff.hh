@@ -112,20 +112,34 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n) {
                                       const std::vector<uint8_t>& expected,
                                       const std::vector<uint8_t>& actual) {
 
-    if (std::equal(expected.begin(), expected.end(), actual.begin())) {
+    if (expected.size() == actual.size() &&
+        std::equal(expected.begin(), expected.end(), actual.begin())) {
+        // サイズと内容が一致する場合は成功を返す
         return ::testing::AssertionSuccess();
     }
-    // 差分が有る場合でも最初の700byteまでしか出さない
+
+    // 差分がある場合の処理
     size_t slice_size = 700;
     if (expected.size() <= slice_size && actual.size() <= slice_size) {
-        // 出力が300byte以下だった場合は想定値とテスト結果のうち大きい方のサイズで差分を出す
         slice_size = std::max(expected.size(), actual.size());
     }
     auto expected_slice = slice(expected, 0, slice_size);
     auto actual_slice = slice(actual, 0, slice_size);
 
     const std::string msg = "[diff]\n" + diff(expected_slice, actual_slice);
-    return ::testing::AssertionFailure(::testing::Message(msg.c_str()));
+
+    // テキストのマージ処理を行う
+    std::string merged_msg = msg;
+    if (expected.size() != actual.size()) {
+        merged_msg += "\n\n";
+        merged_msg += "Expected equality of these values:\n";
+        merged_msg += "  " + std::string(expected_name) + ".size()\n";
+        merged_msg += "    Which is: " + std::to_string(expected.size()) + "\n";
+        merged_msg += "  " + std::string(actual_name) + ".size()\n";
+        merged_msg += "    Which is: " + std::to_string(actual.size()) + "\n";
+    }
+
+    return ::testing::AssertionFailure(::testing::Message(merged_msg.c_str()));
 }
 
 #endif // ! DIFF_HH

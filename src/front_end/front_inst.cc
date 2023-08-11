@@ -25,11 +25,12 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr()
     );
     auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
     log()->debug("[pass2] processADD dst={}", dst.AsString());
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, dst);
+        pp.set(bit_mode, dst, src);
 
         match(operands)(
             // 0x04 ib		ADD AL, imm8		imm8をALに加算する
@@ -74,6 +75,69 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
             pattern | _ = [&] {
                 throw std::runtime_error("ADD, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
+void FrontEnd::processAND(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
+    log()->debug("[pass2] processAND dst={}", dst.AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
+
+        match(operands)(
+            // 0x24 ib		AND AL, imm8		ALとimm8とのANDをとる
+            // 0x25 iw		AND AX, imm16		AXとimm16とのANDをとる
+            // 0x25 id		AND EAX, imm32		EAXとimm32とのANDをとる
+            pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                a.and_(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.db(0x25);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.and_(x86::eax, mnemonic_args[1].AsInt32());
+            },
+            // TODO: メモリーアドレッシング
+            // 0x80 /4 ib	AND r/m8, imm8		r/m8とimm8とのANDをとる
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /4 iw	AND r/m16, r/m16とimm16とのANDをとる
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /4 id	AND r/m32, imm32	 	r/m32とimm32とのANDをとる
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.and_(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
+            // 0x83 /4 ib	AND r/m16, imm8		r/m16と拡張符号したimm8とのANDをとる
+            // 0x83 /4 ib	AND r/m32, imm8		r/m32と拡張符号したimm8とのANDをとる
+
+            // 0x20 /r		AND r/m8, r8		r/m8とr8とのANDをとる
+            // 0x21 /r		AND r/m16, r16		r/m16とr16とのANDをとる
+            // 0x21 /r		AND r/m32, r32		r/m32とr32とのANDをとる
+            // 0x22 /r		AND r8, r/m8		r8とr/m8とのANDをとる
+            // 0x23 /r		AND r16, r/m16		r16とr/m16とのANDをとる
+            // 0x23 /r		AND r32, r/m32		r32とr/m32とのANDをとる
+            pattern | _ = [&] {
+                throw std::runtime_error("AND, Not implemented or not matched!!!");
             }
         );
     });
@@ -174,14 +238,24 @@ void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
 
         if (src.AsAttr() == TParaToken::ttImm) {
             auto mem = x86::Mem(src.AsInt32());
-            a.lgdt(mem);
+            // TODO: 自力実装
+            a.db(0x0f);
+            a.db(0x01);
+            a.db(0x00);
+            a.db(0x00);
+            a.db(0x00);
         } else if (src.AsAttr() == TParaToken::ttLabel) {
             CodeBuffer& buf = code_.textSection()->buffer();
             const std::string label = src.AsString();
             const auto label_address = sym_table.at(label);
             const int32_t jmp_offset = label_address - (dollar_position + buf.size());
             auto mem = x86::Mem(jmp_offset);
-            a.lgdt(mem);
+            // TODO: 自力実装
+            a.db(0x0f);
+            a.db(0x01);
+            a.db(0x00);
+            a.db(0x00);
+            a.db(0x00);
         } else {
             throw std::runtime_error("LGDT, Not implemented or not matched!!!");
         }
@@ -440,13 +514,25 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //// A3      moffs64 rax
             //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             //},
-            // 8E/r      Sreg, r/m16
+            // 8E /r      Sreg, r/m16
             pattern | ds(TParaToken::ttSreg, _, TParaToken::ttReg16, _) = [&] {
                 a.mov(dst.AsAsmJitSReg(), src.AsAsmJitGpw());
             },
-            // 8C/r      r/m16, Sreg
+            // 8C /r      r/m16, Sreg
             pattern | ds(TParaToken::ttReg16, _, TParaToken::ttSreg, _) = [&] {
                 a.mov(dst.AsAsmJitGpw(), src.AsAsmJitSReg());
+            },
+            // 0F 22 /r   Creg, r32
+            pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
+                pp.require_67h = false;
+                pp.require_66h = false;
+                a.mov(dst.AsAsmJitCReg(), src.AsAsmJitGpd());
+            },
+            // 0F 20 /r   r32, Creg
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttCreg, _) = [&] {
+                pp.require_67h = false;
+                pp.require_66h = false;
+                a.mov(dst.AsAsmJitGpd(), src.AsAsmJitCReg());
             },
             pattern | _ = [&] {
                 std::stringstream ss;
@@ -506,6 +592,7 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
                 a.out(x86::dx, x86::ax);
             },
             pattern | ds("DX", _, "EAX", _) = [&] {
+                pp.require_67h = false;
                 a.out(x86::dx, x86::eax);
             },
             pattern | _ = [&] {
@@ -520,7 +607,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
     // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = false,
         pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()) = true,
         pattern | ID_32BIT_MODE = false,
@@ -538,7 +625,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
 
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = false,
         pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()||src.IsAsmJitGpw()) = true,
         pattern | ID_32BIT_MODE = false,

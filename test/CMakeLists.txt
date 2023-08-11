@@ -48,11 +48,12 @@ set(nask_parse_SRCS
   ../src/para_token.cc
   ../src/mod_rm.cpp
   ../src/string_util.cpp
-  ../src/label.cpp
   ../src/x86.cc)
 
 # テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする
+# Object Libraryにspdlogを含ませないとテスト時のdebugログが出なかった
 add_library(nask_parse_objects OBJECT ${nask_parse_SRCS})
+target_link_libraries(nask_parse_objects PRIVATE spdlog::spdlog)
 target_compile_features(nask_parse_objects PRIVATE cxx_std_17)
 
 ########### next target ###############
