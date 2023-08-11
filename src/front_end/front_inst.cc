@@ -460,10 +460,14 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             },
             // 0F 22 /r   Creg, r32
             pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
+                pp.require_67h = false;
+                pp.require_66h = false;
                 a.mov(dst.AsAsmJitCReg(), src.AsAsmJitGpd());
             },
             // 0F 20 /r   r32, Creg
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttCreg, _) = [&] {
+                pp.require_67h = false;
+                pp.require_66h = false;
                 a.mov(dst.AsAsmJitGpd(), src.AsAsmJitCReg());
             },
             pattern | _ = [&] {
