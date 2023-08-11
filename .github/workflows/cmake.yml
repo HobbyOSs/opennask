@@ -36,14 +36,16 @@ jobs:
         ninja: 1.9.0
 
     - name: Install build tools
-      uses: awalsh128/cache-apt-pkgs-action@v1.1.0
+      uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: gcc g++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
-        version: 1.0
+        packages: clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
+        version: 1.1
 
     - name: Configure CMake
       run: |
         cmake -B ${{github.workspace}}/build -G Ninja \
+              -DCMAKE_C_COMPILER=clang                \
+              -DCMAKE_CXX_COMPILER=clang++            \
               -DCMAKE_C_COMPILER_LAUNCHER=ccache      \
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
