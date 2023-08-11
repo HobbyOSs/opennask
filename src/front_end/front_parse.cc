@@ -30,6 +30,10 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
 
+    constexpr auto max_size = 65536;
+    binout_container.reserve(max_size);
+    std::memset(binout_container.data(), 0x00, max_size);
+
     using namespace asmjit;
     Environment env;
     env.setArch(Arch::kX86);
@@ -580,7 +584,8 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
     // TODO: 互換性のため、しばらくこのようにしてbinout_containerを
     // 使えるようにしておく
     binout_container.assign(buf.data(), buf.data() + buf.size());
-    binout.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
+    binout.write(reinterpret_cast<char*>(binout_container.data()),
+                 binout_container.size());
     //binout.write(reinterpret_cast<char*>(buf.data()), buf.size());
     binout.close();
 
