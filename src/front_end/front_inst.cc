@@ -217,6 +217,55 @@ void FrontEnd::processHLT() {
     });
 }
 
+void FrontEnd::processIMUL(std::vector<TParaToken>& mnemonic_args) {
+
+    // オペランドが可変長のためoptionalで宣言
+    auto get_optional = [&](std::size_t index) -> std::optional<TParaToken::TIdentiferAttribute> {
+        return index < mnemonic_args.size() ? std::make_optional(mnemonic_args[index].AsAttr()) : std::nullopt ;
+    };
+    auto operands = std::make_tuple(
+        get_optional(0),
+        get_optional(1),
+        get_optional(2)
+    );
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+
+        match(operands)(
+            // 0xF6 /5		IMUL r/m8		ALをr/m8で符号付き乗算し、結果をAXに格納します
+            // 0xF7 /5		IMUL r/m16		AXをr/m16で符号付き乗算し、結果をDX:AXに格納します
+            // 0xF7 /5		IMUL r/m32		EAXをr/m8で符号付き乗算し、結果をEDX:EAXに格納します
+            pattern | ds(TParaToken::ttReg8, std::nullopt, std::nullopt) = [&] {
+                auto reg = mnemonic_args[0];
+                if ( reg.IsAsmJitGpbLo() ) {
+                    a.imul(reg.AsAsmJitGpbLo());
+                } else if ( reg.IsAsmJitGpbHi() ) {
+                    a.imul(reg.AsAsmJitGpbHi());
+                }
+            },
+            pattern | ds(TParaToken::ttReg16, std::nullopt, std::nullopt) = [&] {
+                a.imul(mnemonic_args[0].AsAsmJitGpw());
+            },
+            pattern | ds(TParaToken::ttReg32, std::nullopt, std::nullopt) = [&] {
+                a.imul(mnemonic_args[0].AsAsmJitGpd());
+            },
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), std::nullopt, std::nullopt) = [&] {
+                a.imul(mnemonic_args[0].AsMem());
+            },
+            // 0x3C ib		CMP AL, imm8		imm8をALと比較します
+            // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
+            // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+            // 0x3C ib		CMP AL, imm8		imm8をALと比較します
+            // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
+            // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+            pattern | _ = [&] {
+                throw std::runtime_error("IMUL, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
 void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];

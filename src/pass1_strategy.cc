@@ -206,6 +206,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesAND", std::bind(&Pass1Strategy::processAND, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
+        std::make_pair("OpcodesIMUL", std::bind(&Pass1Strategy::processIMUL, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
         std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
@@ -811,6 +812,118 @@ void Pass1Strategy::processHLT() {
     log()->debug("[pass1] LOC = {}({:x})", loc, loc);
     return;
 }
+
+void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["IMUL"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // ---
+    // F6      r8
+    // F7      r16
+    // F7      r32
+    // F7      r64
+    // F6      m8
+    // F7      m16
+    // F7      m32
+    // F7      m64
+    // AF      r16     r16
+    // AF      r16     m16
+    // AF      r32     r32
+    // AF      r32     m32
+    // AF      r64     r64
+    // AF      r64     m64
+    // 6B      r16     r16     imm8
+    // 69      r16     r16     imm16
+    // 6B      r16     m16     imm8
+    // 69      r16     m16     imm16
+    // 6B      r32     r32     imm8
+    // 69      r32     r32     imm32
+    // 6B      r32     m32     imm8
+    // 69      r32     m32     imm32
+    // 6B      r64     r64     imm8
+    // 69      r64     r64     imm32
+    // 6B      r64     m64     imm8
+    // 69      r64     m64     imm32
+
+    // オペランドが可変長のためoptionalで宣言
+    auto get_optional = [&](std::size_t index) -> std::optional<TParaToken::TIdentiferAttribute> {
+        return index < mnemonic_args.size() ? std::make_optional(mnemonic_args[index].AsAttr()) : std::nullopt ;
+    };
+    auto operands = std::make_tuple(
+        get_optional(0),
+        get_optional(1),
+        get_optional(2)
+    );
+    auto inst = iset->instructions().at("IMUL");
+
+    uint32_t l = match(operands)(
+        // F6      r8
+        // F7      r16
+        // F7      r32
+        // F7      r64
+        // F6      m8
+        // F7      m16
+        // F7      m32
+        // F7      m64
+        pattern | ds(or_(TParaToken::ttReg8,
+                         TParaToken::ttReg16,
+                         TParaToken::ttReg32,
+                         TParaToken::ttReg64,
+                         TParaToken::ttMem8,
+                         TParaToken::ttMem16,
+                         TParaToken::ttMem32,
+                         TParaToken::ttMem64), std::nullopt, std::nullopt) = [&] {
+                             return inst.get_output_size(bit_mode, {mnemonic_args[0]});
+        },
+        // AF      r16     r16
+        // AF      r16     m16
+        // AF      r32     r32
+        // AF      r32     m32
+        // AF      r64     r64
+        // AF      r64     m64
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32, TParaToken::ttReg64),
+                     or_(TParaToken::ttReg16, TParaToken::ttReg32, TParaToken::ttReg64,
+                         TParaToken::ttMem16, TParaToken::ttMem32, TParaToken::ttMem64), std::nullopt) = [&] {
+                             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        // 6B      r16     r16     imm8
+        // 69      r16     r16     imm16
+        // 6B      r16     m16     imm8
+        // 69      r16     m16     imm16
+        // 6B      r32     r32     imm8
+        // 69      r32     r32     imm32
+        // 6B      r32     m32     imm8
+        // 69      r32     m32     imm32
+        // 6B      r64     r64     imm8
+        // 69      r64     r64     imm32
+        // 6B      r64     m64     imm8
+        // 69      r64     m64     imm32
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32, TParaToken::ttReg64),
+                     or_(TParaToken::ttReg16, TParaToken::ttReg32, TParaToken::ttReg64,
+                         TParaToken::ttMem16, TParaToken::ttMem32, TParaToken::ttMem64),
+                     or_(TParaToken::ttImm)) = [&] {
+                         return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1], mnemonic_args[2]});
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] IMUL, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << ", "
+               << mnemonic_args[1].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << ", "
+               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
 
 void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
 

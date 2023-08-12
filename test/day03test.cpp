@@ -1132,7 +1132,7 @@ pipelineflush:
 		MOV		EDI,DSKCAC+512	; 転送先
 		MOV		ECX,0
 		MOV		CL,BYTE [CYLS]
-		;IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
+		IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
 		;SUB		ECX,512/4		; IPLの分だけ差し引く
 		;CALL	memcpy
 
@@ -1255,6 +1255,7 @@ bootpack:
     expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x02, 0x10, 0x00});
     expected.insert(expected.end(), {0x66, 0xb9, 0x00, 0x00, 0x00, 0x00});
     expected.insert(expected.end(), {0x8a, 0x0e, 0xf0, 0x0f});
+    expected.insert(expected.end(), {0x66, 0x69, 0xc9, 0x00, 0x12, 0x00, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない
