@@ -309,11 +309,18 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             },
             // 8A      r8      m8
             pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
-               match( std::make_tuple( dst.IsAsmJitGpbLo() ))(
-                   // "MOV AL,[SI]", "MOV AL,[ESP+8]" のようなパターン
-                   pattern | ds(true)  = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsMem() ); },
-                   pattern | ds(false) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsMem() ); }
-               );
+                match( std::make_tuple( dst.IsAsmJitGpbLo(), src.AsMem().hasBase() ))(
+                    // "MOV AL,[SI]", "MOV AL,[ESP+8]" のようにベースレジスタがあるパターン
+                    pattern | ds(true , true) = [&] { a.mov(dst.AsAsmJitGpbLo(), src.AsMem() ); },
+                    pattern | ds(false, true) = [&] { a.mov(dst.AsAsmJitGpbHi(), src.AsMem() ); },
+                    // TODO: asmjit使用時ベースレジスタがないパターンは機械語が想定と違う
+                    // "MOV CL,BYTE [0x0ff0]" のようなパターン
+                    pattern | ds(_ , false)  = [&] {
+                        a.db(0x8a);
+                        a.db(ModRM::generate_modrm(0x8a, ModRM::REG_REG, src.AsString(), dst.AsString()));
+                        a.dw(src.AsInt32());
+                    }
+                );
             },
             // C7      r16     imm16 (TODO: こっちは実装していない)
             // B8+rw   r16     imm16
@@ -384,14 +391,12 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //},
             // C6      m8      imm8
             pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-                std::string dst_mem = "[" + dst.AsString() + "]";
-                const uint8_t modrm = ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0);
-                // TODO: かなり間に合わせな実装、できればasmtkなどを使ってカスタマイズしたい
-                // asmjit使用時にメモリーアドレッシング時にオフセットのみのMOVは機械語が想定と違う
+                const std::string dst_mem = "[" + dst.AsString() + "]";
+                // TODO: asmjit使用時ベースレジスタがないパターンは機械語が想定と違う
                 a.db(0xc6);
-                a.db(modrm);
-                a.dw(mnemonic_args[0].AsInt32());
-                a.db(mnemonic_args[1].AsInt32());
+                a.db(ModRM::generate_modrm(ModRM::REG_REG, dst_mem, ModRM::SLASH_0));
+                a.dw(dst.AsInt32());
+                a.db(src.AsInt32());
             },
             // A2      moffs8  al
             pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {

@@ -1653,14 +1653,14 @@ void Pass1Strategy::visitArithmeticOperations(T *exp) {
         exp->exp_1->accept(this);
     }
     TParaToken left = this->ctx.top();
-    left.MustBe(TParaToken::ttInteger);
+    //left.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
     if (exp->exp_2) {
         exp->exp_2->accept(this);
     }
     TParaToken right = this->ctx.top();
-    right.MustBe(TParaToken::ttInteger);
+    //right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
     long ans = 0;
