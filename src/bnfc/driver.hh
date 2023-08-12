@@ -45,6 +45,8 @@ public:
     std::shared_ptr<ListMnemonicArgs> pListMnemonicArgs(std::istream &stream);
     std::shared_ptr<MnemonicArgs> pMnemonicArgs(std::istream &stream);
     std::shared_ptr<Exp> pExp(std::istream &stream);
+    std::shared_ptr<Exp> pExp1(std::istream &stream);
+    std::shared_ptr<Exp> pExp2(std::istream &stream);
     std::shared_ptr<MemoryAddr> pMemoryAddr(std::istream &stream);
     std::shared_ptr<IndexExp> pIndexExp(std::istream &stream);
     std::shared_ptr<Factor> pFactor(std::istream &stream);

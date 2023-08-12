@@ -198,6 +198,22 @@ std::shared_ptr<Exp> ModExp::clone() const
 
 
 
+/********************   ImmExp    ********************/
+
+
+
+void ImmExp::accept(Visitor *v)
+{
+    v->visitImmExp(this);
+}
+
+std::shared_ptr<Exp> ImmExp::clone() const
+{
+    return std::make_shared<ImmExp>(*this);
+}
+
+
+
 /********************   DatatypeExp    ********************/
 
 
@@ -226,22 +242,6 @@ void RangeExp::accept(Visitor *v)
 std::shared_ptr<Exp> RangeExp::clone() const
 {
     return std::make_shared<RangeExp>(*this);
-}
-
-
-
-/********************   ImmExp    ********************/
-
-
-
-void ImmExp::accept(Visitor *v)
-{
-    v->visitImmExp(this);
-}
-
-std::shared_ptr<Exp> ImmExp::clone() const
-{
-    return std::make_shared<ImmExp>(*this);
 }
 
 

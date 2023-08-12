@@ -48,6 +48,8 @@
 
 %token              _ERROR_
 %token              _PERCENT      /* % */
+%token              _LPAREN       /* ( */
+%token              _RPAREN       /* ) */
 %token              _STAR         /* * */
 %token              _PLUS         /* + */
 %token              _COMMA        /* , */
@@ -402,6 +404,8 @@
 %type <std::shared_ptr<ListMnemonicArgs>> ListMnemonicArgs
 %type <std::shared_ptr<MnemonicArgs>> MnemonicArgs
 %type <std::shared_ptr<Exp>> Exp
+%type <std::shared_ptr<Exp>> Exp1
+%type <std::shared_ptr<Exp>> Exp2
 %type <std::shared_ptr<MemoryAddr>> MemoryAddr
 %type <std::shared_ptr<IndexExp>> IndexExp
 %type <std::shared_ptr<Factor>> Factor
@@ -429,15 +433,20 @@ ListMnemonicArgs : MnemonicArgs { $$ = std::make_shared<ListMnemonicArgs>(); $$-
 ;
 MnemonicArgs : Exp { $$ = std::make_shared<MnemoArg>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.mnemonicargs_ = $$; }
 ;
-Exp : Exp _PLUS Exp { $$ = std::make_shared<PlusExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | Exp _MINUS Exp { $$ = std::make_shared<MinusExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | Exp _STAR Exp { $$ = std::make_shared<MulExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | Exp _SLASH Exp { $$ = std::make_shared<DivExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | Exp _PERCENT Exp { $$ = std::make_shared<ModExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+Exp : Exp _PLUS Exp1 { $$ = std::make_shared<PlusExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp _MINUS Exp1 { $$ = std::make_shared<MinusExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp1 { $$ = $1; $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | DataType MemoryAddr { $$ = std::make_shared<DatatypeExp>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | DataType Exp _COLON Exp { $$ = std::make_shared<RangeExp>($1, $2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | Factor { $$ = std::make_shared<ImmExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | MemoryAddr { $$ = std::make_shared<MemoryAddrExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+;
+Exp1 : Exp1 _STAR Exp2 { $$ = std::make_shared<MulExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp1 _SLASH Exp2 { $$ = std::make_shared<DivExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp1 _PERCENT Exp2 { $$ = std::make_shared<ModExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp2 { $$ = $1; $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+;
+Exp2 : Factor { $$ = std::make_shared<ImmExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | _LPAREN Exp _RPAREN { $$ = $2; $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
 ;
 MemoryAddr : _LBRACK Factor _RBRACK { $$ = std::make_shared<Direct>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
   | _LBRACK _IDENT_ _PLUS _INTEGER_ _RBRACK { $$ = std::make_shared<BasedOrIndexed>($2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }

@@ -274,7 +274,7 @@ void PrintAbsyn::visitPlusExp(PlusExp* p)
 
   _i_ = 0; p->exp_1->accept(this);
   render('+');
-  _i_ = 0; p->exp_2->accept(this);
+  _i_ = 1; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -287,46 +287,7 @@ void PrintAbsyn::visitMinusExp(MinusExp* p)
 
   _i_ = 0; p->exp_1->accept(this);
   render('-');
-  _i_ = 0; p->exp_2->accept(this);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitMulExp(MulExp* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  _i_ = 0; p->exp_1->accept(this);
-  render('*');
-  _i_ = 0; p->exp_2->accept(this);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitDivExp(DivExp* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  _i_ = 0; p->exp_1->accept(this);
-  render('/');
-  _i_ = 0; p->exp_2->accept(this);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitModExp(ModExp* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  _i_ = 0; p->exp_1->accept(this);
-  render('%');
-  _i_ = 0; p->exp_2->accept(this);
+  _i_ = 1; p->exp_2->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -358,17 +319,6 @@ void PrintAbsyn::visitRangeExp(RangeExp* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitImmExp(ImmExp* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  _i_ = 0; p->factor_->accept(this);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
 {
   int oldi = _i_;
@@ -377,6 +327,56 @@ void PrintAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
   _i_ = 0; p->memoryaddr_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitMulExp(MulExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 1) render(_L_PAREN);
+
+  _i_ = 1; p->exp_1->accept(this);
+  render('*');
+  _i_ = 2; p->exp_2->accept(this);
+
+  if (oldi > 1) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitDivExp(DivExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 1) render(_L_PAREN);
+
+  _i_ = 1; p->exp_1->accept(this);
+  render('/');
+  _i_ = 2; p->exp_2->accept(this);
+
+  if (oldi > 1) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitModExp(ModExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 1) render(_L_PAREN);
+
+  _i_ = 1; p->exp_1->accept(this);
+  render('%');
+  _i_ = 2; p->exp_2->accept(this);
+
+  if (oldi > 1) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitImmExp(ImmExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 2) render(_L_PAREN);
+
+  _i_ = 0; p->factor_->accept(this);
+
+  if (oldi > 2) render(_R_PAREN);
   _i_ = oldi;
 }
 
@@ -4392,6 +4392,48 @@ void ShowAbsyn::visitMinusExp(MinusExp* p)
   bufAppend(')');
 }
 
+
+void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
+{
+  bufAppend('(');
+  bufAppend("DatatypeExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->datatype_)  p->datatype_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitRangeExp(RangeExp* p)
+{
+  bufAppend('(');
+  bufAppend("RangeExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->datatype_)  p->datatype_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  p->exp_1->accept(this);
+  bufAppend(' ');
+  p->exp_2->accept(this);
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
+{
+  bufAppend('(');
+  bufAppend("MemoryAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
 void ShowAbsyn::visitMulExp(MulExp* p)
 {
   bufAppend('(');
@@ -4425,35 +4467,6 @@ void ShowAbsyn::visitModExp(ModExp* p)
   bufAppend(')');
 }
 
-void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
-{
-  bufAppend('(');
-  bufAppend("DatatypeExp");
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->datatype_)  p->datatype_->accept(this);
-  bufAppend(']');
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
-  bufAppend(']');
-  bufAppend(')');
-}
-
-void ShowAbsyn::visitRangeExp(RangeExp* p)
-{
-  bufAppend('(');
-  bufAppend("RangeExp");
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->datatype_)  p->datatype_->accept(this);
-  bufAppend(']');
-  bufAppend(' ');
-  p->exp_1->accept(this);
-  bufAppend(' ');
-  p->exp_2->accept(this);
-  bufAppend(')');
-}
 
 void ShowAbsyn::visitImmExp(ImmExp* p)
 {
@@ -4466,16 +4479,6 @@ void ShowAbsyn::visitImmExp(ImmExp* p)
   bufAppend(')');
 }
 
-void ShowAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
-{
-  bufAppend('(');
-  bufAppend("MemoryAddrExp");
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
-  bufAppend(']');
-  bufAppend(')');
-}
 
 void ShowAbsyn::visitMemoryAddr(MemoryAddr *p) {} //abstract class
 
