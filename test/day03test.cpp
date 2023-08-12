@@ -1099,7 +1099,7 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 		LGDT	[GDTR0]			; 暫定GDTを設定
 		MOV		EAX,CR0
 		AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
-		;OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
+		OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
 		;MOV		CR0,EAX
 		;JMP		pipelineflush
 pipelineflush:
@@ -1226,8 +1226,9 @@ bootpack:
     expected.insert(expected.end(), {0x0f, 0x01, 0x16, 0x2a, 0xc3}); // LGDT[GDTR0]
     expected.insert(expected.end(), {0x0f, 0x20, 0xc0});
     expected.insert(expected.end(), {0x66, 0x25, 0xff, 0xff, 0xff, 0x7f});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc8, 0x01});
 
     // 作成したバイナリの差分assert & diff表示
-    GTEST_SKIP(); // TODO: まだ機能しない
+    //GTEST_SKIP(); // TODO: まだ機能しない
     ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }

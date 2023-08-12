@@ -554,6 +554,69 @@ void FrontEnd::processNOP() {
     });
 }
 
+void FrontEnd::processOR(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
+    log()->debug("[pass2] processOR dst={}", dst.AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
+
+        match(operands)(
+            // 0x0C ib		OR AL, imm8		ALとimm8とのORをとる
+            // 0x0D iw		OR AX, imm16		AXとimm16とのORをとる
+            // 0x0D id		OR EAX, imm32		EAXとimm32とのORをとる
+            pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                a.or_(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.db(0x0d);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.or_(x86::eax, mnemonic_args[1].AsInt32());
+            },
+            // TODO: メモリーアドレッシング
+            // 0x80 /1 ib	OR r/m8, imm8		r/m8とimm8とのORをとる
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.or_(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.or_(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
+            // 0x80 /1 iw	OR r/m16, r/m16とimm16とのORをとる
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.or_(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /1 id	OR r/m32, imm32	 	r/m32とimm32とのORをとる
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.or_(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
+            // 0x83 /1 ib	OR r/m16, imm8		r/m16と拡張符号したimm8とのORをとる
+            // 0x83 /1 ib	OR r/m32, imm8		r/m32と拡張符号したimm8とのORをとる
+
+            // 0x08 /r		OR r/m8, r8		r/m8とr8とのORをとる
+            // 0x09 /r		OR r/m16, r16		r/m16とr16とのORをとる
+            // 0x09 /r		OR r/m32, r32		r/m32とr32とのORをとる
+            // 0x0A /r		OR r8, r/m8		r8とr/m8とのORをとる
+            // 0x0B /r		OR r16, r/m16		r16とr/m16とのORをとる
+            // 0x0B /r		OR r32, r/m32		r32とr/m32とのORをとる
+            pattern | _ = [&] {
+                throw std::runtime_error("OR, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
 void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
 
     auto operands = std::make_tuple(

@@ -117,6 +117,7 @@ public:
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();
+    void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
