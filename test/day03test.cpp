@@ -1100,35 +1100,35 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 		MOV		EAX,CR0
 		AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
 		OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
-		;MOV		CR0,EAX
-		;JMP		pipelineflush
+		MOV		CR0,EAX
+		JMP		pipelineflush
 pipelineflush:
-		;MOV		AX,1*8			;  読み書き可能セグメント32bit
-		;MOV		DS,AX
-		;MOV		ES,AX
-		;MOV		FS,AX
-		;MOV		GS,AX
-		;MOV		SS,AX
+		MOV		AX,1*8			;  読み書き可能セグメント32bit
+		MOV		DS,AX
+		MOV		ES,AX
+		MOV		FS,AX
+		MOV		GS,AX
+		MOV		SS,AX
 
 ; bootpackの転送
 
-		;MOV		ESI,bootpack	; 転送元
-		;MOV		EDI,BOTPAK		; 転送先
-		;MOV		ECX,512*1024/4
-		;CALL	memcpy
+		MOV		ESI,bootpack	; 転送元
+		MOV		EDI,BOTPAK		; 転送先
+		MOV		ECX,512*1024/4
+		CALL	memcpy
 
 ; ついでにディスクデータも本来の位置へ転送
 
 ; まずはブートセクタから
 
-		;MOV		ESI,0x7c00		; 転送元
-		;MOV		EDI,DSKCAC		; 転送先
-		;MOV		ECX,512/4
-		;CALL	memcpy
+		MOV		ESI,0x7c00		; 転送元
+		MOV		EDI,DSKCAC		; 転送先
+		MOV		ECX,512/4
+		CALL	memcpy
 
 ; 残り全部
 
-		;MOV		ESI,DSKCAC0+512	; 転送元
+		MOV		ESI,DSKCAC0+512	; 転送元
 		;MOV		EDI,DSKCAC+512	; 転送先
 		;MOV		ECX,0
 		;MOV		CL,BYTE [CYLS]
@@ -1227,6 +1227,33 @@ bootpack:
     expected.insert(expected.end(), {0x0f, 0x20, 0xc0});
     expected.insert(expected.end(), {0x66, 0x25, 0xff, 0xff, 0xff, 0x7f});
     expected.insert(expected.end(), {0x66, 0x83, 0xc8, 0x01});
+    expected.insert(expected.end(), {0x0f, 0x22, 0xc0});
+    expected.insert(expected.end(), {0xeb, 0x00});
+
+    // pipelineflush:
+    expected.insert(expected.end(), {0xb8, 0x08, 0x00});
+    expected.insert(expected.end(), {0x8e, 0xd8});
+    expected.insert(expected.end(), {0x8e, 0xc0});
+    expected.insert(expected.end(), {0x8e, 0xe0});
+    expected.insert(expected.end(), {0x8e, 0xe8});
+    expected.insert(expected.end(), {0x8e, 0xd0});
+
+    // bootpackの転送
+    expected.insert(expected.end(), {0x66, 0xbe, 0x30, 0xc3, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x00, 0x28, 0x00});
+    expected.insert(expected.end(), {0x66, 0xb9, 0x00, 0x00, 0x02, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x60, 0x00});
+
+    // まずはブートセクタから
+    expected.insert(expected.end(), {0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x00, 0x10, 0x00});
+    expected.insert(expected.end(), {0x66, 0xb9, 0x80, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x60, 0x00});
+
+    // 残り全部
+    //expected.insert(expected.end(), {0x66, 0xbe, 0x00, 0x82, 0x00, 0x00});
+
+
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない
