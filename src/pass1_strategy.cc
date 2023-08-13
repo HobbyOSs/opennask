@@ -885,6 +885,14 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
                          TParaToken::ttMem16, TParaToken::ttMem32, TParaToken::ttMem64), std::nullopt) = [&] {
                              return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
+        // TODO: 即値部分はJSONには記載なし
+        // 6B      r16     imm8
+        // 6B      r32     imm8
+        // 69      r16     imm16
+        // 69      r32     imm32
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), TParaToken::ttImm, std::nullopt) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
         // 6B      r16     r16     imm8
         // 69      r16     r16     imm16
         // 6B      r16     m16     imm8
@@ -1779,14 +1787,19 @@ void Pass1Strategy::visitArithmeticOperations(T *exp) {
     long ans = 0;
     if constexpr (std::is_same_v<T, PlusExp>) {
         ans = left.AsInt32() + right.AsInt32();
+        log()->debug("[pass1] {} = {} + {}", ans, left.AsInt32(), right.AsInt32());
     } else if constexpr (std::is_same_v<T, MinusExp>) {
         ans = left.AsInt32() - right.AsInt32();
+        log()->debug("[pass1] {} = {} - {}", ans, left.AsInt32(), right.AsInt32());
     } else if constexpr (std::is_same_v<T, MulExp>) {
         ans = left.AsInt32() * right.AsInt32();
+        log()->debug("[pass1] {} = {} * {}", ans, left.AsInt32(), right.AsInt32());
     } else if constexpr (std::is_same_v<T, DivExp>) {
         ans = left.AsInt32() / right.AsInt32();
+        log()->debug("[pass1] {} = {} / {}", ans, left.AsInt32(), right.AsInt32());
     } else if constexpr (std::is_same_v<T, ModExp>) {
         ans = left.AsInt32() % right.AsInt32();
+        log()->debug("[pass1] {} = {} % {}", ans, left.AsInt32(), right.AsInt32());
     } else {
         static_assert(false_v<T>, "Bad T!!!! Failed to dedution!!!");
     }

@@ -231,6 +231,7 @@ void FrontEnd::processIMUL(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
+        pp.set(bit_mode, mnemonic_args[0]);
 
         match(operands)(
             // 0xF6 /5		IMUL r/m8		ALをr/m8で符号付き乗算し、結果をAXに格納します
@@ -253,12 +254,13 @@ void FrontEnd::processIMUL(std::vector<TParaToken>& mnemonic_args) {
             pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), std::nullopt, std::nullopt) = [&] {
                 a.imul(mnemonic_args[0].AsMem());
             },
-            // 0x3C ib		CMP AL, imm8		imm8をALと比較します
-            // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
-            // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
-            // 0x3C ib		CMP AL, imm8		imm8をALと比較します
-            // 0x3D iw		CMP AX, imm16		imm16をAXと比較します
-            // 0x3D id		CMP EAX, imm32		imm32をEAXと比較します
+            pattern | ds(TParaToken::ttReg16, TParaToken::ttImm, std::nullopt) = [&] {
+                a.imul(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg32, TParaToken::ttImm, std::nullopt) = [&] {
+                pp.require_66h = true;
+                a.imul(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
             pattern | _ = [&] {
                 throw std::runtime_error("IMUL, Not implemented or not matched!!!");
             }
