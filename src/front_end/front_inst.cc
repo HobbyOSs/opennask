@@ -70,9 +70,37 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
             // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
             // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
+            pattern | ds(_, TParaToken::ttReg8, TParaToken::ttReg8) = [&] {
+                match( std::make_tuple( dst.IsAsmJitGpbLo(), src.IsAsmJitGpbLo() ))(
+                    pattern | ds(true, true)   = [&] { a.add(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(true, false)  = [&] { a.add(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbHi() ); },
+                    pattern | ds(false, true)  = [&] { a.add(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbLo() ); },
+                    pattern | ds(false, false) = [&] { a.add(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbHi() ); }
+                );
+            },
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttReg16) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsAsmJitGpw());
+            },
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttReg32) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsAsmJitGpd());
+            },
+            pattern | ds(_, TParaToken::ttMem8, TParaToken::ttReg8) = [&] {
+                match( src.IsAsmJitGpbLo() )(
+                    pattern | true  = [&] { a.add(dst.AsMem(), src.AsAsmJitGpbLo() ); },
+                    pattern | false = [&] { a.add(dst.AsMem(), src.AsAsmJitGpbHi() ); }
+                );
+            },
+            pattern | ds(_, TParaToken::ttMem16, TParaToken::ttReg16) = [&] {
+                a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsAsmJitGpw());
+            },
+            pattern | ds(_, TParaToken::ttMem32, TParaToken::ttReg32) = [&] {
+                a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsAsmJitGpd());
+            },
+
             // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
             // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
             // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
+
             pattern | _ = [&] {
                 throw std::runtime_error("ADD, Not implemented or not matched!!!");
             }
