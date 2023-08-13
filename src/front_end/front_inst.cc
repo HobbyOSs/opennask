@@ -425,6 +425,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             //},
             // 8B      r32     m32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
+                pp.require_67h = true; // なぜかわからないがここで0x67が付与される
                 a.mov(dst.AsAsmJitGpd(), src.AsMem() );
             },
             //// A1      rax     moffs64
