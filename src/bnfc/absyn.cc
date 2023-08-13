@@ -230,18 +230,18 @@ std::shared_ptr<Exp> DatatypeExp::clone() const
 
 
 
-/********************   RangeExp    ********************/
+/********************   SegmentOffsetExp    ********************/
 
 
 
-void RangeExp::accept(Visitor *v)
+void SegmentOffsetExp::accept(Visitor *v)
 {
-    v->visitRangeExp(this);
+    v->visitSegmentOffsetExp(this);
 }
 
-std::shared_ptr<Exp> RangeExp::clone() const
+std::shared_ptr<Exp> SegmentOffsetExp::clone() const
 {
-    return std::make_shared<RangeExp>(*this);
+    return std::make_shared<SegmentOffsetExp>(*this);
 }
 
 

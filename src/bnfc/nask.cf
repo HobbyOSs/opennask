@@ -33,7 +33,7 @@ ImmExp.                  Exp2  ::= Factor ;
 coercions                Exp 2;
 
 DatatypeExp.             Exp   ::= DataType MemoryAddr ;
-RangeExp.                Exp   ::= DataType Exp ":" Exp ;
+SegmentOffsetExp.        Exp   ::= DataType Exp ":" Exp ;
 MemoryAddrExp.           Exp   ::= MemoryAddr ;
 
 Direct.                  MemoryAddr ::= "[" Factor "]" ;

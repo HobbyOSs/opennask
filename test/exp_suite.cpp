@@ -377,6 +377,8 @@ INSTANTIATE_TEST_SUITE_P(ExpSuite, StatementsToMachineCode,
                                      std::vector<uint8_t>(18, 0x00)),
         StatementsToMachineCodeParam(ID_16BIT_MODE,
                                      "MOV AX,0\nMOV SS,AX",
-                                     std::vector<uint8_t>{0xb8, 0x00, 0x00, 0x8e, 0xd0})
-
+                                     std::vector<uint8_t>{0xb8, 0x00, 0x00, 0x8e, 0xd0}),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     "JMP DWORD 2*8:0x0000001b",
+                                     std::vector<uint8_t>{0x66, 0xea, 0x1b,0x00, 0x00, 0x00, 0x10, 0x00})
     ));

@@ -112,7 +112,7 @@ public:
     ~TParaToken();
     void SetAttribute();
     void SetAttribute(TIdentiferAttribute attr);
-    void SetMem(const asmjit::x86::Mem& mem);
+    void SetMem(const asmjit::x86::Mem& mem, const int16_t _segment = 0);
 
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
@@ -132,6 +132,7 @@ public:
     bool IsNot(const std::string& string) const;
     std::string AsString(void) const;
     asmjit::x86::Mem& AsMem(void) const;
+    int16_t AsSegment(void) const;
 
     // asmjit provides following datatype
     // https://github.com/asmjit/asmjit/blob/master/src/asmjit/x86/x86operand.h
@@ -191,6 +192,7 @@ protected:
     TTokenType _type;
     TIdentiferAttribute _attr;
     std::shared_ptr<asmjit::x86::Mem> _mem;
+    int16_t _segment; // asmjit::x86::Mem にセグメントが記録できないため
 };
 
 

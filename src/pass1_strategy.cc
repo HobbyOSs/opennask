@@ -75,8 +75,8 @@ void Pass1Strategy::visitExp(Exp *t) {
         this->visitModExp(dynamic_cast<ModExp*>(t));
     } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
-    } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
-        this->visitRangeExp(dynamic_cast<RangeExp*>(t));
+    } else if (dynamic_cast<SegmentOffsetExp*>(t) != nullptr) {
+        this->visitSegmentOffsetExp(dynamic_cast<SegmentOffsetExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
@@ -1974,6 +1974,40 @@ void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
     );
 
     this->ctx.push(right);
+}
+
+void Pass1Strategy::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) {
+    if (segment_offset_exp->datatype_) {
+        segment_offset_exp->datatype_->accept(this);
+    }
+    if (segment_offset_exp->exp_1) {
+        segment_offset_exp->exp_1->accept(this);
+    }
+    if (segment_offset_exp->exp_2) {
+        segment_offset_exp->exp_2->accept(this);
+    }
+
+    TParaToken offset = this->ctx.top();
+    this->ctx.pop();
+    TParaToken segment = this->ctx.top();
+    this->ctx.pop();
+    TParaToken data_type = this->ctx.top();
+    this->ctx.pop();
+
+    auto mem = asmjit::x86::Mem();
+    mem.setOffset(offset.AsInt32());
+    offset.SetMem(mem, segment.AsInt32());
+
+    match(data_type.AsString())(
+        pattern | "BYTE"  = [&]{ offset.SetAttribute(TParaToken::ttMem8); },
+        pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
+        pattern | "DWORD" = [&]{ offset.SetAttribute(TParaToken::ttMem32); },
+        pattern | _ = [&] {
+            throw std::runtime_error("[pass2] segment:offset, data type is invalid");
+        }
+    );
+
+    this->ctx.push(offset);
 }
 
 template void Pass1Strategy::visitDataTypes<ByteDataType>(ByteDataType *p);

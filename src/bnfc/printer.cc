@@ -305,7 +305,7 @@ void PrintAbsyn::visitDatatypeExp(DatatypeExp* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitRangeExp(RangeExp* p)
+void PrintAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
@@ -4408,10 +4408,10 @@ void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
   bufAppend(')');
 }
 
-void ShowAbsyn::visitRangeExp(RangeExp* p)
+void ShowAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
 {
   bufAppend('(');
-  bufAppend("RangeExp");
+  bufAppend("SegmentOffsetExp");
   bufAppend(' ');
   bufAppend('[');
   if (p->datatype_)  p->datatype_->accept(this);

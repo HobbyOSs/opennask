@@ -110,6 +110,7 @@ public:
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitSegmentOffsetExp(SegmentOffsetExp *p) override;
     void visitDirect(Direct *direct) override;
     void visitBasedOrIndexed(BasedOrIndexed *p) override;
     void visitIndexed(Indexed *p) override;

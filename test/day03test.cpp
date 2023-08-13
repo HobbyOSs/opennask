@@ -1148,11 +1148,11 @@ pipelineflush:
 		JZ		skip			; 転送するべきものがない
 		MOV		ESI,[EBX+20]	; 転送元
 		ADD		ESI,EBX
-		;MOV		EDI,[EBX+12]	; 転送先
-		;CALL	memcpy
+		MOV		EDI,[EBX+12]	; 転送先
+		CALL	memcpy
 skip:
-		;MOV		ESP,[EBX+12]	; スタック初期値
-		;JMP		DWORD 2*8:0x0000001b
+		MOV		ESP,[EBX+12]	; スタック初期値
+		JMP		DWORD 2*8:0x0000001b
 
 waitkbdout:
 		;IN		 AL,0x64
@@ -1264,6 +1264,11 @@ bootpack:
     expected.insert(expected.end(), {0x74, 0x10});
     expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x73, 0x14});
     expected.insert(expected.end(), {0x66, 0x01, 0xde});
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x7b, 0x0c});
+    expected.insert(expected.end(), {0xe8, 0x14, 0x00});
+    // skip:
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x63, 0x0c});
+    expected.insert(expected.end(), {0x66, 0xea, 0x1b, 0x00, 0x00, 0x00, 0x10, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない

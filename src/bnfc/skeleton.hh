@@ -34,7 +34,7 @@ public:
   void visitModExp(ModExp *p);
   void visitImmExp(ImmExp *p);
   void visitDatatypeExp(DatatypeExp *p);
-  void visitRangeExp(RangeExp *p);
+  void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
