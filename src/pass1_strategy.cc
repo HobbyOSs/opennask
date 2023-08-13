@@ -215,6 +215,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
+        std::make_pair("OpcodesJZ", std::bind(&Pass1Strategy::processJZ, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&Pass1Strategy::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
@@ -1140,6 +1141,31 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
+
+void Pass1Strategy::processJZ(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
+        loc += 2;
+        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        return;
+    }
+
+    uint32_t l = match(t.AsInt32())(
+        // 相対ジャンプ
+        // 0x74      cb JZ rel8    ZF=1 ゼロの場合ショートジャンプします
+        // 0x0F 0x84 cw JZ rel16   ZF=1 ゼロの場合ニアジャンプします
+        // 0x0F 0x84 cd JZ rel32   ZF=1 ゼロの場合ニアジャンプします
+        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
+        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
+        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
 
 void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
     auto t = mnemonic_args[0];

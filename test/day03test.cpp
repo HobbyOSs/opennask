@@ -1145,7 +1145,7 @@ pipelineflush:
 		MOV		ECX,[EBX+16]
 		ADD		ECX,3			; ECX += 3;
 		SHR		ECX,2			; ECX /= 4;
-		;JZ		skip			; 転送するべきものがない
+		JZ		skip			; 転送するべきものがない
 		;MOV		ESI,[EBX+20]	; 転送元
 		;ADD		ESI,EBX
 		;MOV		EDI,[EBX+12]	; 転送先
@@ -1261,6 +1261,7 @@ bootpack:
     expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x4b, 0x10});
     expected.insert(expected.end(), {0x66, 0x83, 0xc1, 0x03});
     expected.insert(expected.end(), {0x66, 0xc1, 0xe9, 0x02});
+    expected.insert(expected.end(), {0x74, 0x10});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない

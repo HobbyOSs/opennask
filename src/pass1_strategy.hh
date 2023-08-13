@@ -97,6 +97,7 @@ public:
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJNC(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processJZ(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();

@@ -330,3 +330,33 @@ void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
         );
     });
 }
+
+void FrontEnd::processJZ(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttIdentifier);
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+
+        CodeBuffer& buf = code_.textSection()->buffer();
+        const std::string label = arg.AsString();
+        const auto label_address = sym_table.at(label);
+        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
+
+        auto asmjit_label = code_.labelByName(label.c_str());
+        if( ! asmjit_label.isValid() ) {
+            asmjit_label = a.newNamedLabel(label.c_str());
+        }
+
+        match(jmp_offset)(
+            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                a.short_().jz(asmjit_label);
+            },
+            pattern | _ = [&] {
+                a.long_().jz(asmjit_label);
+            }
+        );
+    });
+}
