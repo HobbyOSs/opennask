@@ -242,12 +242,13 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[0].GetImmSize()
     );
     auto arg = mnemonic_args[0];
+    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
 
     match(operands)(
         // 0xEB cb  JMP rel8   次の命令との相対オフセットだけ相対ショートジャンプする
         // 0xE9 cw  JMP rel16  次の命令との相対オフセットだけ相対ニアジャンプする
         // 0xE9 cd  JMP rel32  次の命令との相対オフセットだけ相対ニアジャンプする
-        //
+        // ---
         // asmjitでのJMP即値処理はうまい方法がないので下記のように実装しておく
         // そもそも即値へのジャンプというのが一般的ではないのかもしれない
         // MEMO: https://stackoverflow.com/a/63500826/2565527
@@ -271,8 +272,6 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         },
         // ラベル処理
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 using namespace asmjit;
 
@@ -296,32 +295,39 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 );
             });
         },
-        // 0xEA cd | JMP ptr16:16 | オペランドで指定されるアドレスに絶対ファージャンプする
-        // 0xEA cp | JMP ptr16:32 | オペランドで指定されるアドレスに絶対ファージャンプする
-        // asmjitではアドレスへの絶対ファージャンプはサポートされてないので, ベースアドレスがあるかないかで分岐させる
-        pattern | ds(TParaToken::ttMem16, _) | when(!arg.AsMem().hasBase()) = [&] {
-            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-                auto mem = arg.AsMem();
-                a.db(0xea);
-                a.dw(mem.offset());
-                a.dw(arg.AsSegment());
-            });
-        },
-        pattern | ds(TParaToken::ttMem32, _) | when(!arg.AsMem().hasBase()) = [&] {
-            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-                pp.require_66h = true;
-                auto mem = arg.AsMem();
-                a.db(0xea);
-                a.dd(mem.offset());
-                a.dw(arg.AsSegment());
-            });
-        },
-        // 0xFF /5 | JMP m16:16 | m16:16で指定されるアドレスに絶対間接ファージャンプする
-        // 0xFF /5 | JMP m16:32 | m16:32で指定されるアドレスに絶対間接ファージャンプする
-        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) | when(arg.AsMem().hasBase()) = [&] {
-            with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-                a.jmp(arg.AsMem());
-            });
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            match(std::make_tuple(arg.AsAttr(), arg.AsMem().hasBase()))(
+                // 0xEA cd | JMP ptr16:16 | オペランドで指定されるアドレスに絶対ファージャンプする
+                // 0xEA cp | JMP ptr16:32 | オペランドで指定されるアドレスに絶対ファージャンプする
+                // asmjitではアドレスへの絶対ファージャンプはサポートされてないので, ベースアドレスがあるかないかで分岐させる
+                pattern | ds(TParaToken::ttMem16, false) = [&] {
+                    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                        auto mem = arg.AsMem();
+                        a.db(0xea);
+                        a.dw(mem.offset());
+                        a.dw(arg.AsSegment());
+                    });
+                },
+                pattern | ds(TParaToken::ttMem32, false) = [&] {
+                    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                        pp.require_66h = true;
+                        auto mem = arg.AsMem();
+                        a.db(0xea);
+                        a.dd(mem.offset());
+                        a.dw(arg.AsSegment());
+                    });
+                },
+                // 0xFF /5 | JMP m16:16 | m16:16で指定されるアドレスに絶対間接ファージャンプする
+                // 0xFF /5 | JMP m16:32 | m16:32で指定されるアドレスに絶対間接ファージャンプする
+                pattern | ds(_, true) = [&] {
+                    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+                        a.jmp(arg.AsMem());
+                    });
+                },
+                pattern | _ = [&] {
+                    throw std::runtime_error("JMP, Not implemented or not matched!!!");
+                }
+            );
         },
         pattern | _ = [&] {
             throw std::runtime_error("JMP, Not implemented or not matched!!!");

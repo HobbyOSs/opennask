@@ -424,20 +424,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitGpw(), src.AsAsmJitGpw());
             },
             // 8B      r16     m16
-            //pattern | ds(TParaToken::ttReg16, dst, TParaToken::ttMem16, src) = [&] {
-            //    const std::string src_mem = "[" + *src + "]";
-            //    const std::string dst_reg = *dst;
-            //
-            //    const uint8_t base = 0x8b;
-            //    const uint8_t modrm = ModRM::generate_modrm(0x8e, ModRM::REG_REG, src_mem, dst_reg);
-            //    std::vector<uint8_t> b = {base, modrm};
-            //    //return b;
-            //},
-            //// A1      eax     moffs32
-            //pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
-            //
-            //},
+            // A1      eax     moffs32
             // C7      r32     imm32 (TODO: こっちは実装していない)
+
             // 0xB8+rd r32     imm32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
                 a.mov(dst.AsAsmJitGpd(), src.AsInt32());
@@ -448,27 +437,18 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitGpd(), label_address);
             },
 
-            //// 89      r32     r32
-            //pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
-            //},
+            // 89      r32     r32
+
             // 8B      r32     m32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
-                pp.require_67h = true; // なぜかわからないがここで0x67が付与される
                 a.mov(dst.AsAsmJitGpd(), src.AsMem() );
             },
-            //// A1      rax     moffs64
-            //pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
-            //},
-            //// C7      r64     imm32
-            //// B8      r64     imm64
-            //pattern | ds(TParaToken::ttReg64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            //},
-            //// 89      r64     r64
-            //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttReg64, _) = [&] {
-            //},
-            //// 8B      r64     m64
-            //pattern | ds(TParaToken::ttReg64, _, TParaToken::ttMem64, _) = [&] {
-            //},
+            // A1      rax     moffs64
+            // C7      r64     imm32
+            // B8      r64     imm64
+            // 89      r64     r64
+            // 8B      r64     m64
+
             // C6      m8      imm8
             pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
                 const std::string dst_mem = "[" + dst.AsString() + "]";
@@ -485,21 +465,7 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.dw(addr);
             },
             // A3      moffs16 ax
-            //pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, "AX") = [&] {
-            //    const uint8_t base = 0xa3;
-            //    std::vector<uint8_t> b = {base};
-            //    auto addr = mnemonic_args[0].AsUInt16t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    //return b;
-            //},
             // A3      moffs32 eax
-            //pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
-            //    const uint8_t base = 0xa3;
-            //    std::vector<uint8_t> b = {base};
-            //    auto addr = mnemonic_args[0].AsUInt32t();
-            //    std::copy(addr.begin(), addr.end(), std::back_inserter(b));
-            //    //return b;
-            //},
             // 88      m8      r8
             pattern | ds(TParaToken::ttMem8, _, TParaToken::ttReg8, _) = [&] {
                 // TODO: test & メモリーアドレッシング
@@ -587,18 +553,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.dw(dst.AsInt32());
                 a.dd(src.AsInt32());
             },
-            //// 89      m32     r32
-            //pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
-            //},
-            //// C7      m64     imm32
-            //pattern | ds(TParaToken::ttMem64, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            //},
-            //// 89      m64     r64
-            //pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
-            //},
-            //// A3      moffs64 rax
-            //pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
-            //},
+            // 89      m32     r32
+            // C7      m64     imm32
+            // 89      m64     r64
+            // A3      moffs64 rax
             // 8E /r      Sreg, r/m16
             pattern | ds(TParaToken::ttSreg, _, TParaToken::ttReg16, _) = [&] {
                 a.mov(dst.AsAsmJitSReg(), src.AsAsmJitGpw());
