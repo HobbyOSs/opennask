@@ -721,6 +721,72 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsString(),
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[1].AsAttr()
+    );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
+    log()->debug("[pass2] processSUB dst={}", dst.AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst, src);
+
+        match(operands)(
+            // 0x2C ib		SUB AL, imm8		imm8をALから減算する
+            // 0x2D iw		SUB AX, imm16		imm16をAXから減算する
+            // 0x2D id		SUB EAX, imm32		imm32をEAXから減算する
+            pattern | ds("AL", TParaToken::ttReg8 , TParaToken::ttImm) = [&] {
+                a.sub(x86::al, mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("AX", TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                // 他のassemblerだと通常はこの場合0x83で処理するようだ
+                a.db(0x2d);
+                a.dw(mnemonic_args[1].AsInt32());
+            },
+            pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.sub(x86::eax, mnemonic_args[1].AsInt32());
+            },
+            // TODO: メモリーアドレッシング
+            // 0x80 /5 ib	SUB r/m8, imm8		imm8をr/m8から減算する
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.sub(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
+            },
+            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.sub(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
+            },
+            // TODO: asmjitの場合これら２つは区別されるのか?
+            // 0x81 /5 iw	SUB r/m16, imm16	imm16をr/m16から減算する
+            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
+                a.sub(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
+            },
+            // 0x81 /5 id	SUB r/m32, imm32	imm32をr/m32から減算する
+            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
+                a.sub(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            },
+            // 0x83 /5 ib	SUB r/m16, imm8	imm8をr/m16から減算する
+            // 0x83 /5 ib	SUB r/m32, imm8	imm8をr/m32から減算する
+
+
+            // 0x28 /r		SUB r/m8, r8		r8をr/m8から減算する
+            // 0x29 /r		SUB r/m16, r16		r16をr/m16から減算する
+            // 0x29 /r		SUB r/m32, r32		r32をr/m32から減算する
+            // 0x2A /r		SUB r8, r/m8		r/m8をr8から減算する
+            // 0x2B /r		SUB r16, r/m16		r/m16をr16から減算する
+            // 0x2B /r		SUB r32, r/m32		r/m32をr32から減算する
+            pattern | _ = [&] {
+                throw std::runtime_error("SUB, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
 
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要

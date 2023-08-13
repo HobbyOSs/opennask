@@ -122,6 +122,7 @@ public:
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
+    void processSUB(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
