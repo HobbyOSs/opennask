@@ -219,6 +219,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&Pass1Strategy::processOUT, this, _1)),
+        std::make_pair("OpcodesSHR", std::bind(&Pass1Strategy::processSHR, this, _1)),
         std::make_pair("OpcodesSUB", std::bind(&Pass1Strategy::processSUB, this, _1)),
     };
 
@@ -1558,6 +1559,95 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
         pattern | _ = [&] {
             std::stringstream ss;
             ss << "[pass1] OUT, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << ", "
+               << mnemonic_args[1].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << ", "
+               << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processSHR(std::vector<TParaToken>& mnemonic_args) {
+    // cat json-x86-64/x86_64.json | \
+    // jq -r '.instructions["SHR"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // --
+    // D2      r8      cl
+    // D3      r16     cl
+    // D3      r32     cl
+    // D3      r64     cl
+    // D2      m8      cl
+    // D3      m16     cl
+    // D3      m32     cl
+    // D3      m64     cl
+    // C0      r8      imm8
+    // C1      r16     imm8
+    // C1      r32     imm8
+    // C1      r64     imm8
+    // C0      m8      imm8
+    // C1      m16     imm8
+    // C1      m32     imm8
+    // C1      m64     imm8
+    // D0      r8
+    // D1      r16
+    // D1      r32
+    // D1      r64
+    // D0      m8
+    // D1      m16
+    // D1      m32
+    // D1      m64
+    auto operands = std::make_tuple(
+        std::make_optional(mnemonic_args[0].AsAttr()),
+        std::make_optional(mnemonic_args[0].AsString()),
+        (mnemonic_args.size() >= 2) ? std::make_optional(mnemonic_args[1].AsAttr()) : std::nullopt,
+        (mnemonic_args.size() >= 2) ? std::make_optional(mnemonic_args[1].AsString()) : std::nullopt
+    );
+
+    auto inst = iset->instructions().at("SHR");
+
+    uint32_t l = match(operands)(
+        pattern | ds(or_(TParaToken::ttReg8,
+                         TParaToken::ttReg16,
+                         TParaToken::ttReg32,
+                         TParaToken::ttReg64,
+                         TParaToken::ttMem8,
+                         TParaToken::ttMem16,
+                         TParaToken::ttMem32,
+                         TParaToken::ttMem64), _, TParaToken::ttReg8, "CL") = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | ds(or_(TParaToken::ttReg8,
+                         TParaToken::ttReg16,
+                         TParaToken::ttReg32,
+                         TParaToken::ttReg64,
+                         TParaToken::ttMem8,
+                         TParaToken::ttMem16,
+                         TParaToken::ttMem32,
+                         TParaToken::ttMem64), _, TParaToken::ttImm, _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        pattern | ds(or_(TParaToken::ttReg8,
+                         TParaToken::ttReg16,
+                         TParaToken::ttReg32,
+                         TParaToken::ttReg64,
+                         TParaToken::ttMem8,
+                         TParaToken::ttMem16,
+                         TParaToken::ttMem32,
+                         TParaToken::ttMem64), _, std::nullopt, std::nullopt) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0]});
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] SHR, Not implemented or not matched!!! \n"
                << mnemonic_args[0].AsString()
                << ", "
                << mnemonic_args[1].AsString()

@@ -788,6 +788,87 @@ void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
+
+    using namespace matchit;
+    using Attr = TParaToken::TIdentiferAttribute;
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString(),
+        (mnemonic_args.size() >= 2) ? std::make_optional(mnemonic_args[1].AsAttr()) : std::nullopt,
+        (mnemonic_args.size() >= 2) ? std::make_optional(mnemonic_args[1].AsString()) : std::nullopt
+    );
+    auto dst = mnemonic_args[0];
+    auto src = (mnemonic_args.size() >= 2) ? std::make_optional(mnemonic_args[1]) : std::nullopt;
+    log()->debug("[pass2] processSHR dst={}, src={}", dst.AsString(), src.value().AsString());
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, dst);
+
+        match(operands)(
+            // 0xD2 /5	SHR r/m8, CL		r/m8を2でCL回符号なし除算します※
+            // 0xD3 /5	SHR r/m16, CL		r/m16を2でCL回符号なし除算します※
+            // 0xD3 /5	SHR r/m32, CL		r/m32を2でCL回符号なし除算します※
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, "CL") | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.shr(dst.AsAsmJitGpbLo(), src.value().AsAsmJitGpbLo());
+            },
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttReg8, "CL") | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.shr(dst.AsAsmJitGpbHi(), src.value().AsAsmJitGpbLo());
+            },
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttReg8, "CL") = [&] {
+                a.shr(dst.AsAsmJitGpw(), src.value().AsAsmJitGpbLo());
+            },
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg8, "CL") = [&] {
+                a.shr(dst.AsAsmJitGpd(), src.value().AsAsmJitGpbLo());
+            },
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _, TParaToken::ttReg8, "CL") = [&] {
+                a.shr(dst.AsMem(), src.value().AsAsmJitGpbLo());
+            },
+            // 0xC0 /5 ib	SHR r/m8, imm8	r/m8を2でimm8回符号なし除算します※
+            // 0xC1 /5 ib	SHR r/m16, imm8	r/m16を2でimm8回符号なし除算します※
+            // 0xC1 /5 ib	SHR r/m32, imm8	r/m32を2でimm8回符号なし除算します※
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) | when(dst.IsAsmJitGpbLo()) = [&] {
+                a.shr(dst.AsAsmJitGpbLo(), src.value().AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg8, _, TParaToken::ttImm, _) | when(dst.IsAsmJitGpbHi()) = [&] {
+                a.shr(dst.AsAsmJitGpbHi(), src.value().AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg16, _, TParaToken::ttImm, _) = [&] {
+                a.shr(dst.AsAsmJitGpw(), src.value().AsInt32());
+            },
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttImm, _) = [&] {
+                a.shr(dst.AsAsmJitGpd(), src.value().AsInt32());
+            },
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _, TParaToken::ttImm, _) = [&] {
+                a.shr(dst.AsMem(), src.value().AsInt32());
+            },
+            // 0xD0 /5	SHR r/m8		r/m8を2で1回符号なし除算します※
+            // 0xD1 /5	SHR r/m16		r/m16を2で1回符号なし除算します※
+            // 0xD1 /5	SHR r/m32		r/m32を2で1回符号なし除算します※
+            pattern | ds(TParaToken::ttReg8, _, std::nullopt, std::nullopt) = [&] {
+                a.db(0xd0);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG, dst.AsString(), ModRM::SLASH_5));
+            },
+            pattern | ds(TParaToken::ttReg16, _, std::nullopt, std::nullopt) = [&] {
+                a.db(0xd1);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG, dst.AsString(), ModRM::SLASH_5));
+            },
+            pattern | ds(TParaToken::ttReg32, _, std::nullopt, std::nullopt) = [&] {
+                a.db(0xd1);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG, dst.AsString(), ModRM::SLASH_5));
+            },
+            pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _, std::nullopt, std::nullopt) = [&] {
+                a.db(0xd1);
+                a.db(ModRM::generate_modrm(ModRM::REG_REG, "[" + dst.AsString() + "]", ModRM::SLASH_5));
+            },
+            pattern | _ = [&] {
+                throw std::runtime_error("SHR, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
 
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
