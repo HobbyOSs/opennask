@@ -859,17 +859,22 @@ void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
     // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
+    const auto dst_attr = dst.AsAttr();
+
+    // Address size prefix
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = false,
+        // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
         pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16) = true,
         pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
 
     // 16bit命令モードで32bitレジスタが使われていればこれが必要
+    // Operand size prefix
     require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32) = true,
         pattern | ID_16BIT_MODE = false,
         pattern | _ = false
     );
@@ -877,15 +882,22 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
 
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
 
+    const auto dst_attr = dst.AsAttr();
+    const auto src_attr = src.AsAttr();
+
+    // Address size prefix
     require_67h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = false,
+        // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32 && src.IsAsmJitGpd()) = true,
         pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(dst.IsAsmJitGpw()||src.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16 || src_attr == TParaToken::ttReg16) = true,
         pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
+    // Operand size prefix
     require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst.IsAsmJitGpd()||src.IsAsmJitGpd()) = true,
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32||src_attr == TParaToken::ttReg32) = true,
         pattern | ID_16BIT_MODE = false,
         pattern | _ = false
     );
