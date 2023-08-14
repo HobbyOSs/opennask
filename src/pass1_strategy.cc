@@ -207,6 +207,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
         std::make_pair("OpcodesIMUL", std::bind(&Pass1Strategy::processIMUL, this, _1)),
+        std::make_pair("OpcodesIN", std::bind(&Pass1Strategy::processIN, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
         std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
@@ -932,6 +933,43 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
+    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
+    // json-x86-64/x86_64.json に記述なし
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString(),
+        mnemonic_args[1].AsAttr(),
+        mnemonic_args[1].AsString()
+    );
+
+    uint32_t l = match(operands)(
+        pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), TParaToken::ttImm, _) = [&] {
+           return NASK_WORD;
+        },
+        pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), _, "DX") = [&] {
+            return NASK_BYTE;
+        },
+        pattern | _ = [&] {
+           std::stringstream ss;
+           ss << "[pass1] IN, Not implemented or not matched!!! \n"
+              << mnemonic_args[0].AsString()
+              << ", "
+              << mnemonic_args[1].AsString()
+              << "\n"
+              << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+              << ", "
+              << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+              << std::endl;
+
+           throw std::runtime_error(ss.str());
+           return 0;
+        }
+    );
+
+    //loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
 

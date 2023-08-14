@@ -296,6 +296,50 @@ void FrontEnd::processIMUL(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+
+void FrontEnd::processIN(std::vector<TParaToken>& mnemonic_args) {
+
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString(),
+        mnemonic_args[1].AsAttr(),
+        mnemonic_args[1].AsString()
+    );
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, mnemonic_args[0], mnemonic_args[1]);
+        auto src = mnemonic_args[1];
+
+        match(operands)(
+            // 0xE4 ib | IN AL, imm8 | I/Oポートアドレスimm8からALにバイトを入力します
+            // 0xE5 ib | IN AX, imm8 | I/Oポートアドレスimm8からAXにワードを入力します
+            // 0xE5 ib | IN EAX, imm8 | I/Oポートアドレスimm8からEAXにダブルワードを入力します
+            pattern | ds(_, "AL", TParaToken::ttImm, _) = [&] {
+                a.db(0xe4);
+                a.db(src.AsInt32());
+            },
+            pattern | ds(_, or_(std::string("AX"), std::string("EAX")), TParaToken::ttImm, _) = [&] {
+                a.db(0xe5);
+                a.db(src.AsInt32());
+            },
+            // 0xEC | IN AL, DX | DXで指定するI/OポートアドレスからALにバイトを入力します
+            // 0xED | IN AX, DX | DXで指定するI/OポートアドレスからAXにワードを入力します
+            // 0xED | IN EAX, DX | DXで指定するI/OポートアドレスからEAXにダブルワードを入力します
+            pattern | ds(_, "AL", _, "DX") = [&] {
+                a.db(0xec);
+            },
+            pattern | ds(_, or_(std::string("AX"), std::string("EAX")), _, "DX") = [&] {
+                a.db(0xed);
+            },
+            pattern | _ = [&] {
+                throw std::runtime_error("IN, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
+
 void FrontEnd::processINT(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];

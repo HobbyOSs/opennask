@@ -1155,7 +1155,7 @@ skip:
 		JMP		DWORD 2*8:0x0000001b
 
 waitkbdout:
-		;IN		 AL,0x64
+		IN		 AL,0x64
 		;AND		 AL,0x02
 		;JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
 		;RET
@@ -1269,6 +1269,11 @@ bootpack:
     // skip:
     expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x63, 0x0c});
     expected.insert(expected.end(), {0x66, 0xea, 0x1b, 0x00, 0x00, 0x00, 0x10, 0x00});
+
+    // waitkbdout:
+    expected.insert(expected.end(), {0xe4, 0x64});
+
+
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない

@@ -89,6 +89,7 @@ public:
     void processDD(std::vector<TParaToken>& memonic_args);
     void processHLT();
     void processIMUL(std::vector<TParaToken>& memonic_args);
+    void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJAE(std::vector<TParaToken>& memonic_args);
     void processJB(std::vector<TParaToken>& memonic_args);
