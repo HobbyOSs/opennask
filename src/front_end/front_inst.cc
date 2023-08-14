@@ -579,7 +579,6 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 // TODO: test & メモリーアドレッシング
                 a.mov(x86::word_ptr(dst.AsAsmJitGpw()), src.AsAsmJitGpw());
             },
-
             // C7      m32     imm32
             pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
                 // TODO: test & メモリーアドレッシング
@@ -598,6 +597,9 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.dd(src.AsInt32());
             },
             // 89      m32     r32
+            pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
+                a.mov(dst.AsMem(), src.AsAsmJitGpd());
+            },
             // C7      m64     imm32
             // 89      m64     r64
             // A3      moffs64 rax

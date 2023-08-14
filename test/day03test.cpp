@@ -1161,11 +1161,11 @@ waitkbdout:
 		RET
 
 memcpy:
-		;MOV		EAX,[ESI]
-		;ADD		ESI,4
-		;MOV		[EDI],EAX
-		;ADD		EDI,4
-		;SUB		ECX,1
+		MOV		EAX,[ESI]
+		ADD		ESI,4
+		MOV		[EDI],EAX
+		ADD		EDI,4
+		SUB		ECX,1
 		;JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
 		;RET
 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
@@ -1276,6 +1276,12 @@ bootpack:
     expected.insert(expected.end(), {0x75, 0xfa});
     expected.insert(expected.end(), {0xc3});
 
+    // memcpy:
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x06});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc6, 0x04});
+    expected.insert(expected.end(), {0x67, 0x66, 0x89, 0x07});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc7, 0x04});
+    expected.insert(expected.end(), {0x66, 0x83, 0xe9, 0x01});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない
