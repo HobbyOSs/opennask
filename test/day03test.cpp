@@ -1172,13 +1172,13 @@ memcpy:
 
 		ALIGNB	16
 GDT0:
-		;RESB	8				; ヌルセレクタ
-		;DW		0xffff,0x0000,0x9200,0x00cf	; 読み書き可能セグメント32bit
-		;DW		0xffff,0x0000,0x9a28,0x0047	; 実行可能セグメント32bit（bootpack用）
+		RESB	8				; ヌルセレクタ
+		DW		0xffff,0x0000,0x9200,0x00cf	; 読み書き可能セグメント32bit
+		DW		0xffff,0x0000,0x9a28,0x0047	; 実行可能セグメント32bit（bootpack用）
 
-		;DW		0
+		DW		0
 GDTR0:
-		;DW		8*3-1
+		DW		8*3-1
 		;DD		GDT0
 
 		;ALIGNB	16
@@ -1282,11 +1282,18 @@ bootpack:
     expected.insert(expected.end(), {0x67, 0x66, 0x89, 0x07});
     expected.insert(expected.end(), {0x66, 0x83, 0xc7, 0x04});
     expected.insert(expected.end(), {0x66, 0x83, 0xe9, 0x01});
-
     expected.insert(expected.end(), {0x75, 0xea});
     expected.insert(expected.end(), {0xc3});
     std::vector<uint8_t> alignb16(16, 0);
     expected.insert(expected.end(), std::begin(alignb16), std::end(alignb16));
+
+
+    std::vector<uint8_t> resb8(8, 0);
+    expected.insert(expected.end(), std::begin(resb8), std::end(resb8));
+    expected.insert(expected.end(), {0xff, 0xff, 0x00, 0x00, 0x00, 0x92, 0xcf, 0x00});
+    expected.insert(expected.end(), {0xff, 0xff, 0x00, 0x00, 0x28, 0x9a, 0x47, 0x00});
+    expected.insert(expected.end(), {0x00, 0x00});
+    expected.insert(expected.end(), {0x17, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない
