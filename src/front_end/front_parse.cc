@@ -215,6 +215,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&FrontEnd::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
+        std::make_pair("OpcodesJNZ", std::bind(&FrontEnd::processJNZ, this, _1)),
         std::make_pair("OpcodesJZ", std::bind(&FrontEnd::processJZ, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
