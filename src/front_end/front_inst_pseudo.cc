@@ -15,6 +15,19 @@ using namespace std::placeholders;
 using namespace matchit;
 
 
+void FrontEnd::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        using namespace asmjit;
+
+        arg.MustBe(TParaToken::ttInteger);
+        log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsInt32());
+        a.db(0x00, arg.AsInt32());
+    });
+}
+
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {

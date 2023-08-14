@@ -1166,11 +1166,11 @@ memcpy:
 		MOV		[EDI],EAX
 		ADD		EDI,4
 		SUB		ECX,1
-		;JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
-		;RET
+		JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
+		RET
 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
 
-		;ALIGNB	16
+		ALIGNB	16
 GDT0:
 		;RESB	8				; ヌルセレクタ
 		;DW		0xffff,0x0000,0x9200,0x00cf	; 読み書き可能セグメント32bit
@@ -1282,6 +1282,11 @@ bootpack:
     expected.insert(expected.end(), {0x67, 0x66, 0x89, 0x07});
     expected.insert(expected.end(), {0x66, 0x83, 0xc7, 0x04});
     expected.insert(expected.end(), {0x66, 0x83, 0xe9, 0x01});
+
+    expected.insert(expected.end(), {0x75, 0xea});
+    expected.insert(expected.end(), {0xc3});
+    std::vector<uint8_t> alignb16(16, 0);
+    expected.insert(expected.end(), std::begin(alignb16), std::end(alignb16));
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない

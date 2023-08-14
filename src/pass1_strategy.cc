@@ -195,6 +195,7 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         // 疑似命令
+        std::make_pair("OpcodesALIGNB", std::bind(&Pass1Strategy::processALIGNB, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&Pass1Strategy::processDB, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&Pass1Strategy::processDD, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
@@ -260,6 +261,17 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         throw std::runtime_error(opcode + " is not implemented!!!");
     }
 }
+
+void Pass1Strategy::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
+    uint32_t l = 0;
+
+    auto arg = mnemonic_args[0];
+    arg.MustBe(TParaToken::ttInteger);
+    loc += arg.AsInt32();
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
+}
+
 
 void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
     uint32_t l = 0;
