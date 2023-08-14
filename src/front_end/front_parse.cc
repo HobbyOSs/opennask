@@ -249,6 +249,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
         std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
+        std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);

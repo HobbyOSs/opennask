@@ -248,6 +248,7 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
         std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
+        std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -1665,6 +1666,12 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
 
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+}
+
+void Pass1Strategy::processRET() {
+    loc += 1;
+    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+    return;
 }
 
 void Pass1Strategy::processSHR(std::vector<TParaToken>& mnemonic_args) {

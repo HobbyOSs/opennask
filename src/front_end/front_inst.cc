@@ -818,6 +818,12 @@ void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+void FrontEnd::processRET() {
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        a.ret();
+    });
+}
+
 void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;

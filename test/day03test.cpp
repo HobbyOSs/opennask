@@ -1158,7 +1158,7 @@ waitkbdout:
 		IN		 AL,0x64
 		AND		 AL,0x02
 		JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
-		;RET
+		RET
 
 memcpy:
 		;MOV		EAX,[ESI]
@@ -1274,6 +1274,7 @@ bootpack:
     expected.insert(expected.end(), {0xe4, 0x64});
     expected.insert(expected.end(), {0x24, 0x02});
     expected.insert(expected.end(), {0x75, 0xfa});
+    expected.insert(expected.end(), {0xc3});
 
 
     // 作成したバイナリの差分assert & diff表示
