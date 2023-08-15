@@ -1,6 +1,8 @@
 #include "x86.hh"
 #include "matchit.h"
 #include "demangle.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 using namespace matchit;
 
@@ -101,26 +103,34 @@ namespace x86_64 {
         //    output_size += prefix_->get_size();
         //}
         if (REX_ && REX_->mandatory()) {
+            spdlog::get("opennask")->debug("[pass1] bytes rex {}", REX_->get_size());
             output_size += REX_->get_size();
         }
         if (VEX_) {
+            spdlog::get("opennask")->debug("[pass1] bytes vex {}", VEX_->get_size());
             output_size += VEX_->get_size();
         }
 
+        spdlog::get("opennask")->debug("[pass1] bytes opcode {}", opcode_.get_size());
         output_size += opcode_.get_size();
 
         if (ModRM_) {
+            spdlog::get("opennask")->debug("[pass1] bytes modrm {}", ModRM_->get_size());
             output_size += ModRM_->get_size();
         }
         if (immediate_) {
+            spdlog::get("opennask")->debug("[pass1] bytes immediate {}", immediate_->size());
             output_size += immediate_->size();
         }
         if (data_offset_) {
+            spdlog::get("opennask")->debug("[pass1] bytes data offset {}", data_offset_->size());
             output_size += data_offset_->size();
         }
         if (code_offset_) {
+            spdlog::get("opennask")->debug("[pass1] bytes code offset {}", code_offset_->size());
             output_size += code_offset_->size();
         }
+
         return output_size;
     }
 
@@ -198,13 +208,21 @@ namespace x86_64 {
 
         if (it != forms_.end()) {
             auto& found_form = *it;
+
+            std::stringstream ss;
+            auto operands = found_form.operands().value();
+            std::for_each(operands.begin(), operands.end(), [&](const Operand& o) -> void { ss << o.type() << ","; });
+            spdlog::get("opennask")->debug("[pass1] {}", ss.str());
+
             auto encoding = found_form.find_encoding();
             uint32_t size = encoding.get_output_size(mode);
 
             if (_require_66h(mode, tokens)) {
+                spdlog::get("opennask")->debug("[pass1] bytes 66h 1");
                 size += 1;
             }
             if (_require_67h(mode, tokens)) {
+                spdlog::get("opennask")->debug("[pass1] bytes 67h 1");
                 size += 1;
             }
 
