@@ -482,7 +482,8 @@ namespace x86_64 {
             return forms_;
         }
 
-        const uint32_t get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens);
+        const bool find_greedy(OPENNASK_MODES, std::initializer_list<TParaToken>, InstructionForm&);
+        const uint32_t get_output_size(OPENNASK_MODES, std::initializer_list<TParaToken>);
     };
 
     class InstructionSet {

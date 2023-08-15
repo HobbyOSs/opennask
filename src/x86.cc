@@ -45,9 +45,10 @@ namespace x86_64 {
     const int Encoding::get_output_size(OPENNASK_MODES mode) {
         int output_size = 0;
 
-        if (prefix_ && prefix_->mandatory()) {
-            output_size += prefix_->get_size();
-        }
+        // 0x66, 0x67はここで計算できない
+        //if (prefix_ && prefix_->mandatory()) {
+        //    output_size += prefix_->get_size();
+        //}
         if (REX_ && REX_->mandatory()) {
             output_size += REX_->get_size();
         }
@@ -86,61 +87,68 @@ namespace x86_64 {
         return encodings_[1];
     }
 
-    const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+    const bool Instruction::find_greedy(OPENNASK_MODES mode,
+                                        std::initializer_list<TParaToken> tokens,
+                                        InstructionForm &form) {
 
-        std::stringstream error_ss;
-        auto it = std::find_if(forms_.begin(), forms_.end(),
-                               [&](InstructionForm &form) {
-                               if (!form.operands().has_value()) {
-                                   return false;
-                               }
+        if (!form.operands().has_value()) {
+            return false;
+        }
 
-                               auto operands = form.operands().value();
-                               if (operands.size() != tokens.size()) {
-                                   return false;
-                               }
+        auto operands = form.operands().value();
+        if (operands.size() != tokens.size()) {
+            return false;
+        }
 
-                               for (int i = 0; i < tokens.size(); i++) {
+        for (int i = 0; i < tokens.size(); i++) {
 
-                                   auto actual_token_type = token_to_x86_type(tokens.begin() + i);
-                                   auto table_token_type = operands[i].type();
+            auto actual_token_type = token_to_x86_type(tokens.begin() + i);
+            auto table_token_type = operands[i].type();
 
-                                   error_ss << "actual_token_type[" + std::to_string(i) + "]: "
-                                            << actual_token_type
-                                            << "\n"
-                                            << "table_token_type[" + std::to_string(i) + "]: "
-                                            << table_token_type
-                                            << "\n"
-                                            << std::endl;
+            // error_ss << "actual_token_type[" + std::to_string(i) + "]: "
+            //          << actual_token_type
+            //          << "\n"
+            //          << "table_token_type[" + std::to_string(i) + "]: "
+            //          << table_token_type
+            //          << "\n"
+            //          << std::endl;
 
-                                   // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
-                                   if (table_token_type.size() >= actual_token_type.size() &&
-                                       std::equal(std::begin(actual_token_type),
-                                                  std::end(actual_token_type),
-                                                  std::begin(table_token_type))) {
-                                       continue;
-                                   }
-                                   // al,ax,eax,raxでもマッチさせたい
-                                   auto tup = std::make_tuple((tokens.begin() + i)->AsAttr(),
-                                                              (tokens.begin() + i)->AsString(),
-                                                              table_token_type);
+            // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
+            if (table_token_type.size() >= actual_token_type.size() &&
+                std::equal(std::begin(actual_token_type),
+                           std::end(actual_token_type),
+                           std::begin(table_token_type))) {
+                continue;
+            }
+            // al,ax,eax,raxでもマッチさせたい
+            auto tup = std::make_tuple((tokens.begin() + i)->AsAttr(),
+                                       (tokens.begin() + i)->AsString(),
+                                       table_token_type);
 
-                                   bool need_to_continue = match(tup)(
-                                       pattern | ds(TParaToken::ttReg8 , "AL", "al") = true,
-                                       pattern | ds(TParaToken::ttReg16, "AX", "ax") = true,
-                                       pattern | ds(TParaToken::ttReg32, "EAX", "eax") = true,
-                                       pattern | ds(TParaToken::ttReg64, "RAX", "rax") = true,
-                                       pattern | ds(_,_,_) = false
-                                   );
-                                   if (need_to_continue) {
-                                       continue;
-                                   }
+            bool need_to_continue = match(tup)(
+                pattern | ds(TParaToken::ttReg8 , "AL", "al") = true,
+                pattern | ds(TParaToken::ttReg16, "AX", "ax") = true,
+                pattern | ds(TParaToken::ttReg32, "EAX", "eax") = true,
+                pattern | ds(TParaToken::ttReg64, "RAX", "rax") = true,
+                pattern | ds(_,_,_) = false
+            );
+            if (need_to_continue) {
+                continue;
+            }
 
-                                   return false;
-                               }
+            return false;
+        }
 
-                               return true;
-                               });
+        return true;
+    }
+
+    const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
+                                                std::initializer_list<TParaToken> tokens) {
+
+        //std::stringstream error_ss;
+        auto it = std::find_if(forms_.begin(), forms_.end(), [&](InstructionForm& form) {
+            return this->find_greedy(mode, tokens, form);
+        });
 
         if (it != forms_.end()) {
             auto& found_form = *it;
@@ -148,18 +156,18 @@ namespace x86_64 {
             const uint32_t size = encoding.get_output_size(mode);
 
             if (size == 0) {
-                auto error = error_ss.str();
-                std::cerr << "*** machine code size is zero ***\n"
-                          << error
-                          << std::endl;
+                //auto error = error_ss.str();
+                //std::cerr << "*** machine code size is zero ***\n"
+                //          << error
+                //          << std::endl;
             }
             return size;
         }
 
-        auto error = error_ss.str();
-        std::cerr << "*** machine code size is zero ***\n"
-                  << error
-                  << std::endl;
+        //auto error = error_ss.str();
+        //std::cerr << "*** machine code size is zero ***\n"
+        //          << error
+        //          << std::endl;
         return 0;
     }
 };
