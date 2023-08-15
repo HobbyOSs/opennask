@@ -15,8 +15,15 @@ namespace x86_64 {
 
     extern const char* X86_64_JSON;
 
+    const bool _require_67h(OPENNASK_MODES, std::initializer_list<TParaToken>);
+    const bool _require_66h(OPENNASK_MODES, std::initializer_list<TParaToken>);
     const std::string token_to_x86_type(const TParaToken*);
+    const bool _starts_with(std::string const &full_string, std::string const &begining);
+    const std::string _to_lower(const std::string &in);
 
+    //
+    // ここから下はjson-x86-64の読み取り用クラス
+    //
     class Isa {
         std::string id_;
     public:

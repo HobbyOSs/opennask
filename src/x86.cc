@@ -14,8 +14,47 @@ namespace x86_64 {
 
     const char* X86_64_JSON = gx86_json_Data;
 
-    const std::string token_to_x86_type(const TParaToken* operand) {
+    const bool _require_67h(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+        bool require = false;
 
+        for (int i = 0; i < tokens.size(); i++) {
+            auto t = tokens.begin() + i;
+            require = match(mode)(
+                // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+                pattern | ID_16BIT_MODE | when(t->AsAttr() == TParaToken::ttMem32 && t->IsAsmJitGpd()) = true,
+                pattern | ID_16BIT_MODE = false,
+                pattern | ID_32BIT_MODE | when(t->AsAttr() == TParaToken::ttReg16) = true,
+                pattern | ID_32BIT_MODE = false,
+                pattern | _ = false
+            );
+            if (require) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const bool _require_66h(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+        bool require = false;
+
+        for (int i = 0; i < tokens.size(); i++) {
+            auto t = tokens.begin() + i;
+
+            require = match(mode)(
+                pattern | ID_16BIT_MODE | when(t->AsAttr() == TParaToken::ttReg32) = true,
+                pattern | ID_16BIT_MODE = false,
+                pattern | _ = false
+            );
+            if (require) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const std::string token_to_x86_type(const TParaToken* operand) {
         auto tup = std::make_tuple(operand->AsAttr(), operand->AsString());
 
         return match(tup)(
@@ -40,6 +79,21 @@ namespace x86_64 {
                 return "";
             }
         );
+    }
+
+    const bool _starts_with(std::string const &full_string, std::string const &begining) {
+        return full_string.substr(0, begining.size()) == begining;
+    }
+
+    const std::string _to_lower(const std::string &in) {
+        std::string s(in);
+        std::transform(s.begin(),
+                       s.end(),
+                       s.begin(),
+                       [](unsigned char const &c) {
+                           return ::tolower(c);
+                       });
+        return s;
     }
 
     const int Encoding::get_output_size(OPENNASK_MODES mode) {
@@ -114,23 +168,18 @@ namespace x86_64 {
             //          << std::endl;
 
             // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
-            if (table_token_type.size() >= actual_token_type.size() &&
-                std::equal(std::begin(actual_token_type),
-                           std::end(actual_token_type),
-                           std::begin(table_token_type))) {
+            if (_starts_with(table_token_type, _to_lower(actual_token_type))) {
                 continue;
             }
             // al,ax,eax,raxでもマッチさせたい
-            auto tup = std::make_tuple((tokens.begin() + i)->AsAttr(),
-                                       (tokens.begin() + i)->AsString(),
-                                       table_token_type);
+            auto tup = std::make_tuple((tokens.begin() + i)->AsString(), table_token_type);
 
             bool need_to_continue = match(tup)(
-                pattern | ds(TParaToken::ttReg8 , "AL", "al") = true,
-                pattern | ds(TParaToken::ttReg16, "AX", "ax") = true,
-                pattern | ds(TParaToken::ttReg32, "EAX", "eax") = true,
-                pattern | ds(TParaToken::ttReg64, "RAX", "rax") = true,
-                pattern | ds(_,_,_) = false
+                pattern | ds("AL" , "al")  = true,
+                pattern | ds("AX" , "ax")  = true,
+                pattern | ds("EAX", "eax") = true,
+                pattern | ds("RAX", "rax") = true,
+                pattern | ds(_,_)          = false
             );
             if (need_to_continue) {
                 continue;
@@ -153,7 +202,14 @@ namespace x86_64 {
         if (it != forms_.end()) {
             auto& found_form = *it;
             auto encoding = found_form.find_encoding();
-            const uint32_t size = encoding.get_output_size(mode);
+            uint32_t size = encoding.get_output_size(mode);
+
+            if (_require_66h(mode, tokens)) {
+                size += 1;
+            }
+            if (_require_67h(mode, tokens)) {
+                size += 1;
+            }
 
             if (size == 0) {
                 //auto error = error_ss.str();
