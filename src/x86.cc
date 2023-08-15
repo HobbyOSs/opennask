@@ -55,27 +55,24 @@ namespace x86_64 {
     }
 
     const std::string token_to_x86_type(const TParaToken* operand) {
-        auto tup = std::make_tuple(operand->AsAttr(), operand->AsString());
 
-        return match(tup)(
-            pattern | ds(TParaToken::ttReg8 , _) = [&] { return "r8"; },
-            pattern | ds(TParaToken::ttReg16, _) = [&] { return "r16"; },
-            pattern | ds(TParaToken::ttReg32, _) = [&] { return "r32"; },
-            pattern | ds(TParaToken::ttReg64, _) = [&] { return "r64"; },
-            pattern | ds(TParaToken::ttMem8 , _) = [&] { return "m8"; },
-            pattern | ds(TParaToken::ttMem16, _) = [&] { return "m16"; },
-            pattern | ds(TParaToken::ttMem32, _) = [&] { return "m32"; },
-            pattern | ds(TParaToken::ttMem64, _) = [&] { return "m64"; },
-            pattern | ds(TParaToken::ttMem64, _) = [&] { return "m64"; },
-            pattern | ds(TParaToken::ttRel8 , _) = [&] { return "rel8"; },
-            pattern | ds(TParaToken::ttRel16, _) = [&] { return "rel16"; },
-            pattern | ds(TParaToken::ttRel32, _) = [&] { return "rel32"; },
-            pattern | ds(TParaToken::ttImm  , _) = [&] { return "imm"; },
-            pattern | ds(TParaToken::ttLabel, _) = [&] { return "imm"; },
-            pattern | ds(_,_) = [&] {
-                throw std::runtime_error(
-                    operand->to_string() + " Not implemented or not matched!!!"
-                );
+        return match(operand->AsAttr())(
+            pattern | TParaToken::ttReg8  = [&] { return "r8"; },
+            pattern | TParaToken::ttReg16 = [&] { return "r16"; },
+            pattern | TParaToken::ttReg32 = [&] { return "r32"; },
+            pattern | TParaToken::ttReg64 = [&] { return "r64"; },
+            pattern | TParaToken::ttMem8  = [&] { return "m8"; },
+            pattern | TParaToken::ttMem16 = [&] { return "m16"; },
+            pattern | TParaToken::ttMem32 = [&] { return "m32"; },
+            pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+            pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+            pattern | TParaToken::ttRel8  = [&] { return "rel8"; },
+            pattern | TParaToken::ttRel16 = [&] { return "rel16"; },
+            pattern | TParaToken::ttRel32 = [&] { return "rel32"; },
+            pattern | TParaToken::ttImm   = [&] { return "imm"; },
+            pattern | TParaToken::ttLabel = [&] { return "imm"; },
+            pattern | _ = [&] {
+                throw std::runtime_error(operand->to_string() + " Not implemented or not matched!!!");
                 return "";
             }
         );
@@ -173,7 +170,6 @@ namespace x86_64 {
             }
             // al,ax,eax,raxでもマッチさせたい
             auto tup = std::make_tuple((tokens.begin() + i)->AsString(), table_token_type);
-
             bool need_to_continue = match(tup)(
                 pattern | ds("AL" , "al")  = true,
                 pattern | ds("AX" , "ax")  = true,
@@ -181,6 +177,7 @@ namespace x86_64 {
                 pattern | ds("RAX", "rax") = true,
                 pattern | ds(_,_)          = false
             );
+
             if (need_to_continue) {
                 continue;
             }

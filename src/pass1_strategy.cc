@@ -286,7 +286,7 @@ void Pass1Strategy::processDB(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
@@ -432,7 +432,7 @@ void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processAND(std::vector<TParaToken>& mnemonic_args) {
@@ -578,7 +578,7 @@ void Pass1Strategy::processAND(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processCLI() {
@@ -625,7 +625,7 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
@@ -770,7 +770,7 @@ void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processDW(std::vector<TParaToken>& mnemonic_args) {
@@ -785,7 +785,7 @@ void Pass1Strategy::processDW(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
@@ -800,7 +800,7 @@ void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
         }
     }
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
@@ -946,7 +946,7 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
@@ -983,7 +983,7 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
     );
 
     //loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 
@@ -1021,7 +1021,7 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
@@ -1030,7 +1030,7 @@ void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1045,7 +1045,7 @@ void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
@@ -1054,7 +1054,7 @@ void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1069,7 +1069,7 @@ void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
@@ -1078,7 +1078,7 @@ void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1093,7 +1093,7 @@ void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
@@ -1102,7 +1102,7 @@ void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1117,7 +1117,7 @@ void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
@@ -1126,7 +1126,7 @@ void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1141,7 +1141,7 @@ void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
@@ -1150,7 +1150,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1166,7 +1166,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
@@ -1175,7 +1175,7 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1190,7 +1190,7 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processJNZ(std::vector<TParaToken>& mnemonic_args) {
@@ -1199,7 +1199,7 @@ void Pass1Strategy::processJNZ(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1214,7 +1214,7 @@ void Pass1Strategy::processJNZ(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 
@@ -1224,7 +1224,7 @@ void Pass1Strategy::processJZ(std::vector<TParaToken>& mnemonic_args) {
     if (t.AsAttr() == TParaToken::ttLabel) {
         // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
         loc += 2;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
         return;
     }
 
@@ -1239,7 +1239,7 @@ void Pass1Strategy::processJZ(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 
@@ -1250,7 +1250,7 @@ void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
         // ラベルの場合はとりあえずm16として処理する, どちらになるかはpass2で判断する
         loc += 3; // opcode + modrm
         loc += NASK_WORD;
-        log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 3+NASK_WORD);
         return;
     }
 
@@ -1261,7 +1261,7 @@ void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
@@ -1465,7 +1465,7 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processNOP() {
@@ -1478,7 +1478,7 @@ void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
     loc = arg.AsUInt32();
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +0", std::to_string(loc), loc);
 }
 
 void Pass1Strategy::processOR(std::vector<TParaToken>& mnemonic_args) {
@@ -1624,7 +1624,7 @@ void Pass1Strategy::processOR(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 
@@ -1682,7 +1682,7 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
         }
     );
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processRET() {
@@ -1777,7 +1777,7 @@ void Pass1Strategy::processSHR(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 void Pass1Strategy::processSUB(std::vector<TParaToken>& mnemonic_args) {
@@ -1923,7 +1923,7 @@ void Pass1Strategy::processSUB(std::vector<TParaToken>& mnemonic_args) {
     );
 
     loc += l;
-    log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
 
