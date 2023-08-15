@@ -1,3 +1,5 @@
+#include <iostream>
+#include <sstream>
 #include "x86.hh"
 #include "matchit.h"
 #include "demangle.hpp"
@@ -201,7 +203,6 @@ namespace x86_64 {
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
                                                 std::initializer_list<TParaToken> tokens) {
 
-        //std::stringstream error_ss;
         auto it = std::find_if(forms_.begin(), forms_.end(), [&](InstructionForm& form) {
             return this->find_greedy(mode, tokens, form);
         });
@@ -209,9 +210,12 @@ namespace x86_64 {
         if (it != forms_.end()) {
             auto& found_form = *it;
 
-            std::stringstream ss;
+            std::stringstream ss {"["};
             auto operands = found_form.operands().value();
-            std::for_each(operands.begin(), operands.end(), [&](const Operand& o) -> void { ss << o.type() << ","; });
+            std::for_each(operands.begin(),
+                          operands.end(),
+                          [&](const Operand& o) -> void { ss << o.type() << ","; });
+            ss << "]";
             spdlog::get("opennask")->debug("[pass1] {}", ss.str());
 
             auto encoding = found_form.find_encoding();

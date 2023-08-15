@@ -20,6 +20,10 @@ protected:
 
     // 各テストケース実行前に実行
     void SetUp() override {
+        // spdlog
+        if(!spdlog::get("opennask")) {
+            auto logger = spdlog::stdout_color_st("opennask");
+        }
     }
 
     // 各テストケース実行後に実行

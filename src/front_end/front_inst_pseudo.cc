@@ -40,9 +40,6 @@ void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
             if (e.IsInteger() || e.IsHex()) {
                 a.db(e.AsInt32());
-            } else if (e.AsAttr() == TParaToken::ttLabel) {
-                // TODO: スタブ
-                a.db(0x00);
             } else if (e.IsIdentifier()) {
                 const std::string s = e.AsString();
                 std::for_each(s.begin(),
@@ -61,9 +58,6 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
 
             if (e.IsInteger() || e.IsHex()) {
                 a.dw(e.AsInt32());
-            } else if (e.AsAttr() == TParaToken::ttLabel) {
-                // TODO: スタブ
-                a.dw(0x00);
             } else if (e.IsIdentifier()) {
                 throw std::runtime_error("not implemented");
             }
