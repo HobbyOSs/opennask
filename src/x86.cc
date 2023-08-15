@@ -88,6 +88,7 @@ namespace x86_64 {
 
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
 
+        std::stringstream error_ss;
         auto it = std::find_if(forms_.begin(), forms_.end(),
                                [&](InstructionForm &form) {
                                if (!form.operands().has_value()) {
@@ -103,6 +104,14 @@ namespace x86_64 {
 
                                    auto actual_token_type = token_to_x86_type(tokens.begin() + i);
                                    auto table_token_type = operands[i].type();
+
+                                   error_ss << "actual_token_type[" + std::to_string(i) + "]: "
+                                            << actual_token_type
+                                            << "\n"
+                                            << "table_token_type[" + std::to_string(i) + "]: "
+                                            << table_token_type
+                                            << "\n"
+                                            << std::endl;
 
                                    // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
                                    if (table_token_type.size() >= actual_token_type.size() &&
@@ -137,9 +146,20 @@ namespace x86_64 {
             auto& found_form = *it;
             auto encoding = found_form.find_encoding();
             const uint32_t size = encoding.get_output_size(mode);
+
+            if (size == 0) {
+                auto error = error_ss.str();
+                std::cerr << "*** machine code size is zero ***\n"
+                          << error
+                          << std::endl;
+            }
             return size;
         }
 
+        auto error = error_ss.str();
+        std::cerr << "*** machine code size is zero ***\n"
+                  << error
+                  << std::endl;
         return 0;
     }
 };

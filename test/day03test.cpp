@@ -1179,9 +1179,9 @@ GDT0:
 		DW		0
 GDTR0:
 		DW		8*3-1
-		;DD		GDT0
+		DD		GDT0
 
-		;ALIGNB	16
+		ALIGNB	16
 bootpack:
 )";
 
@@ -1284,8 +1284,8 @@ bootpack:
     expected.insert(expected.end(), {0x66, 0x83, 0xe9, 0x01});
     expected.insert(expected.end(), {0x75, 0xea});
     expected.insert(expected.end(), {0xc3});
-    std::vector<uint8_t> alignb16(16, 0);
-    expected.insert(expected.end(), std::begin(alignb16), std::end(alignb16));
+    std::vector<uint8_t> alignb11(11, 0);
+    expected.insert(expected.end(), std::begin(alignb11), std::end(alignb11));
 
 
     std::vector<uint8_t> resb8(8, 0);
@@ -1294,6 +1294,8 @@ bootpack:
     expected.insert(expected.end(), {0xff, 0xff, 0x00, 0x00, 0x28, 0x9a, 0x47, 0x00});
     expected.insert(expected.end(), {0x00, 0x00});
     expected.insert(expected.end(), {0x17, 0x00});
+    expected.insert(expected.end(), {0x10, 0xc3});
+    expected.insert(expected.end(), {0x00, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
     //GTEST_SKIP(); // TODO: まだ機能しない

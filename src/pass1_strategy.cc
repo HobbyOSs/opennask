@@ -185,13 +185,14 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         this->ctx.pop();
     }
 
-    //std::string debug_str = this->join(mnemonic_args->to_string(), ",");
+    const std::string opcode = type(*mnemonic_stmt->opcode_);
+
     std::vector<std::string> debug_args;
     std::transform(mnemonic_args.begin(), mnemonic_args.end(),
                    std::back_inserter(debug_args),
                    [](TParaToken x) { return "{ " + x.to_string() + " }"; });
 
-    log()->debug("[pass1] mnemonic_args=[{}]", this->join(debug_args, ","));
+    log()->debug("[pass1] {} mnemonic_args=[{}]", opcode, this->join(debug_args, ","));
 
     funcs_type funcs {
         // 疑似命令
@@ -227,7 +228,6 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesSUB", std::bind(&Pass1Strategy::processSUB, this, _1)),
     };
 
-    const std::string opcode = type(*mnemonic_stmt->opcode_);
     funcs_type::iterator func_iter = funcs.find(opcode);
 
     if (func_iter == funcs.end()) {
@@ -253,6 +253,7 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
+    log()->debug("[pass1] {}", opcode);
 
     funcs_type::iterator it = funcs.find(opcode);
     if (it != funcs.end()) {
@@ -608,9 +609,7 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, {mnemonic_args[0]});
         },
         pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            auto token = TParaToken(mnemonic_args[0]);
-            token.SetAttribute(TParaToken::ttRel32);
-            return inst.get_output_size(bit_mode, {token});
+            return 3; // opcode + iw
         },
         pattern | _ = [&] {
             std::stringstream ss;
@@ -1312,19 +1311,42 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     auto inst = iset->instructions().at("MOV");
 
     uint32_t l = match(operands)(
-        // 以下、セグメントレジスタはx86-jsonに記載なし
+
+        // セグメントレジスタ
         pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
             return 2; // opcode, modrmなので2byte
         },
         pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
             return 2; // opcode, modrmなので2byte
         },
+        // コントロールレジスタ
         pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
             return 3;
         },
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttCreg, _) = [&] {
             return 3;
         },
+        // A2      moffs8  al
+        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, "AL") = [&] {
+            return 3; // opcode + moffs8
+        },
+        // A3      moffs32 eax
+        pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        // A3      moffs64 rax
+        pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        // A1      eax     moffs32
+        pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+        // A1      rax     moffs64
+        pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
+        },
+
         // C6      r8      imm8
         pattern | ds(TParaToken::ttReg8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
@@ -1352,10 +1374,6 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttReg16, _, TParaToken::ttMem16, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
-        // A1      eax     moffs32
-        pattern | ds(TParaToken::ttReg32, "EAX", _, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
         // C7      r32     imm32
         pattern | ds(TParaToken::ttReg32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
@@ -1366,10 +1384,6 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // 8B      r32     m32
         pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
-        // A1      rax     moffs64
-        pattern | ds(TParaToken::ttReg64, "RAX", _, _) = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         // C7      r64     imm32
@@ -1431,14 +1445,6 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         },
         // 89      m64     r64
         pattern | ds(TParaToken::ttMem64, _, TParaToken::ttReg64, _) = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
-        // A3      moffs32 eax
-        pattern | ds(_, _, TParaToken::ttReg32, "EAX") = [&] {
-            return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
-        },
-        // A3      moffs64 rax
-        pattern | ds(_, _, TParaToken::ttReg64, "RAX") = [&] {
             return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1]});
         },
         pattern | _ = [&] {
@@ -1675,7 +1681,6 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
             return 0;
         }
     );
-
     loc += l;
     log()->debug("[pass1] LOC = {}({:x})", std::to_string(loc), loc);
 }
