@@ -889,7 +889,9 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
                          TParaToken::ttMem16,
                          TParaToken::ttMem32,
                          TParaToken::ttMem64), std::nullopt, std::nullopt) = [&] {
-                             return inst.get_output_size(bit_mode, mnemonic_args);
+                             // 1個だけ渡す
+                             std::vector<TParaToken> slice(mnemonic_args.begin(), mnemonic_args.begin() + 1);
+                             return inst.get_output_size(bit_mode, slice);
         },
         // AF      r16     r16
         // AF      r16     m16
@@ -908,7 +910,9 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
         // 69      r16     imm16
         // 69      r32     imm32
         pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), TParaToken::ttImm, std::nullopt) = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            // 2個渡す
+            std::vector<TParaToken> slice(mnemonic_args.begin(), mnemonic_args.begin() + 2);
+            return inst.get_output_size(bit_mode, slice);
         },
         // 6B      r16     r16     imm8
         // 69      r16     r16     imm16
@@ -926,7 +930,7 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
                      or_(TParaToken::ttReg16, TParaToken::ttReg32, TParaToken::ttReg64,
                          TParaToken::ttMem16, TParaToken::ttMem32, TParaToken::ttMem64),
                      or_(TParaToken::ttImm)) = [&] {
-                         return inst.get_output_size(bit_mode, {mnemonic_args[0], mnemonic_args[1], mnemonic_args[2]});
+                         return inst.get_output_size(bit_mode, mnemonic_args);
         },
         pattern | _ = [&] {
             std::stringstream ss;

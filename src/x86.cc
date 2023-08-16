@@ -98,39 +98,38 @@ namespace x86_64 {
     }
 
     const int Encoding::get_output_size(OPENNASK_MODES mode) const {
+
+        auto logger = spdlog::get("opennask");
         int output_size = 0;
 
         // 0x66, 0x67はここで計算できない
-        //if (prefix_ && prefix_->mandatory()) {
-        //    output_size += prefix_->get_size();
-        //}
-        spdlog::get("opennask")->debug("[pass1] --- get_output_size ---");
+        logger->trace("[pass1] --- get_output_size ---");
         if (REX_ && REX_->mandatory()) {
-            spdlog::get("opennask")->debug("[pass1] bytes rex {}", REX_->get_size());
+            logger->trace("[pass1] bytes rex {}", REX_->get_size());
             output_size += REX_->get_size();
         }
         if (VEX_) {
-            spdlog::get("opennask")->debug("[pass1] bytes vex {}", VEX_->get_size());
+            logger->trace("[pass1] bytes vex {}", VEX_->get_size());
             output_size += VEX_->get_size();
         }
 
-        spdlog::get("opennask")->debug("[pass1] bytes opcode {}", opcode_.get_size());
+        logger->trace("[pass1] bytes opcode {}", opcode_.get_size());
         output_size += opcode_.get_size();
 
         if (ModRM_) {
-            spdlog::get("opennask")->debug("[pass1] bytes modrm {}", ModRM_->get_size());
+            logger->trace("[pass1] bytes modrm {}", ModRM_->get_size());
             output_size += ModRM_->get_size();
         }
         if (immediate_) {
-            spdlog::get("opennask")->debug("[pass1] bytes immediate {}", immediate_->size());
+            logger->trace("[pass1] bytes immediate {}", immediate_->size());
             output_size += immediate_->size();
         }
         if (data_offset_) {
-            spdlog::get("opennask")->debug("[pass1] bytes data offset {}", data_offset_->size());
+            logger->trace("[pass1] bytes data offset {}", data_offset_->size());
             output_size += data_offset_->size();
         }
         if (code_offset_) {
-            spdlog::get("opennask")->debug("[pass1] bytes code offset {}", code_offset_->size());
+            logger->trace("[pass1] bytes code offset {}", code_offset_->size());
             output_size += code_offset_->size();
         }
 
@@ -164,7 +163,6 @@ namespace x86_64 {
 
         auto operands = form.operands().value();
         if (operands.size() != tokens.size()) {
-            logger->trace("[pass1] operands size(={}) != tokens size(={})", operands.size(), tokens.size());
             return false;
         }
 
@@ -175,31 +173,46 @@ namespace x86_64 {
             std::stringstream ss;
             ss << "actual_token_type[" + std::to_string(i) + "]: "
                << actual_token_type
-               << "\n"
+               << ", "
                << "table_token_type[" + std::to_string(i) + "]: "
-               << table_token_type
-               << "\n"
-               << std::endl;
-            logger->trace("[pass1] searching => {}", ss.str());
+               << table_token_type;
+            logger->trace("[pass1] find_greedy => {}", ss.str());
 
-            // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
-            if (_starts_with(table_token_type, _to_lower(actual_token_type))) {
+            // 素直にマッチしたら次へ
+            if (actual_token_type==table_token_type)
                 continue;
-            }
-            // jsonの中に直接レジスタ名が書いてある場合でもマッチさせたい
-            // al,ax,eax,rax,dx など
-            auto tup = std::make_tuple(tokens[i].AsString(), table_token_type);
-            bool need_to_continue = match(tup)(
+
+            // x86_64.jsonの中に直接レジスタ名が書いてある場合でもマッチさせたい
+            // al,ax,eax,rax,dx... など
+            bool reg_name_matched  = match( std::make_tuple(tokens[i].AsString(), table_token_type) )(
                 pattern | ds("AL" , "al")  = true,
                 pattern | ds("AX" , "ax")  = true,
                 pattern | ds("EAX", "eax") = true,
                 pattern | ds("RAX", "rax") = true,
-                pattern | ds("DX", "dx") = true,
+                pattern | ds("DX", "dx")   = true,
                 pattern | ds(_,_)          = false
             );
 
-            if (need_to_continue) {
+            if (reg_name_matched)
                 continue;
+
+            // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
+            // しかしながら、token側のサイズが既定に満たないならば除外
+            if (_starts_with(table_token_type, "imm") && tokens[i].IsImmediate() ) {
+                const int32_t actual_imm = tokens[i].AsInt32();
+
+                if (table_token_type == "imm8" && -0x80 <= actual_imm && actual_imm <= 0x7f) {
+                    //std::cout << "imm8 match!!" << actual_imm << std::endl;
+                    continue;
+                }
+                if (table_token_type == "imm16" && -0x8000 <= actual_imm && actual_imm <= 0x7fff) {
+                    //std::cout << "imm16 match!!" << actual_imm << std::endl;
+                    continue;
+                }
+                if (table_token_type == "imm32") {
+                    //std::cout << "imm32 match!!" << actual_imm << std::endl;
+                    continue;
+                }
             }
 
             return false;

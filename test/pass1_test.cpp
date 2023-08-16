@@ -8,7 +8,7 @@ class Pass1Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     Pass1Suite() {
-        spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::trace);
     }
 
     // 試験終了時に一回だけ実行

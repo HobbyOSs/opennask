@@ -211,24 +211,29 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
                                    {
                                        TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
-                                       TParaToken("0", TParaToken::ttIdentifier, TParaToken::ttImm)
+                                       TParaToken("0", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
                                    3),
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
                                    {
-                                       TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
+                                       TParaToken("[0x0ff0]", TParaToken::ttHex, TParaToken::ttMem8),
                                        TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
                                    },
                                    2), // +2byteはpass1側で足す
-
         // 0x0D id    = 1(prefix) + 1 + 4 byte     = 6byte
         // 0x83 /1 ib = 1(prefix) + 1 + 1 + 1 byte = 4byte
         // 出力される機械語が少ない方を優先的に選ぶ
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "OR",
                                    {
                                        TParaToken("EAX", TParaToken::ttIdentifier, TParaToken::ttReg32),
-                                       TParaToken("0x00000001", TParaToken::ttIdentifier, TParaToken::ttImm)
+                                       TParaToken("0x00000001", TParaToken::ttHex, TParaToken::ttImm)
                                    },
-                                   4)
+                                   4),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "IMUL",
+                                   {
+                                       TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("4608", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   7)
     )
 );
