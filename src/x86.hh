@@ -410,7 +410,7 @@ namespace x86_64 {
             return data_offset_;
         }
 
-        const int get_output_size(OPENNASK_MODES mode);
+        const int get_output_size(OPENNASK_MODES mode) const;
     };
 
     class InstructionForm {
@@ -464,7 +464,7 @@ namespace x86_64 {
         }
 
         // 複数機械語の出力があり得る場合がたまにある
-        const Encoding find_encoding();
+        Encoding find_encoding() const;
     };
 
     class Instruction {
@@ -489,8 +489,8 @@ namespace x86_64 {
             return forms_;
         }
 
-        const bool find_greedy(OPENNASK_MODES, const std::vector<TParaToken>&, InstructionForm&);
-        const uint32_t get_output_size(OPENNASK_MODES, const std::vector<TParaToken>&);
+        const bool find_greedy(OPENNASK_MODES, const std::vector<TParaToken>&, const InstructionForm&) const;
+        const uint32_t get_output_size(OPENNASK_MODES, const std::vector<TParaToken>&) const;
     };
 
     class InstructionSet {

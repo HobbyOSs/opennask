@@ -97,13 +97,14 @@ namespace x86_64 {
         return s;
     }
 
-    const int Encoding::get_output_size(OPENNASK_MODES mode) {
+    const int Encoding::get_output_size(OPENNASK_MODES mode) const {
         int output_size = 0;
 
         // 0x66, 0x67はここで計算できない
         //if (prefix_ && prefix_->mandatory()) {
         //    output_size += prefix_->get_size();
         //}
+        spdlog::get("opennask")->debug("[pass1] --- get_output_size ---");
         if (REX_ && REX_->mandatory()) {
             spdlog::get("opennask")->debug("[pass1] bytes rex {}", REX_->get_size());
             output_size += REX_->get_size();
@@ -136,7 +137,7 @@ namespace x86_64 {
         return output_size;
     }
 
-    const Encoding InstructionForm::find_encoding() {
+    Encoding InstructionForm::find_encoding() const {
         if (encodings_.size() == 1) {
             return encodings_[0];
         }
@@ -152,7 +153,7 @@ namespace x86_64 {
 
     const bool Instruction::find_greedy(OPENNASK_MODES mode,
                                         const std::vector<TParaToken>& tokens,
-                                        InstructionForm &form) {
+                                        const InstructionForm &form) const {
 
         if (!form.operands().has_value()) {
             spdlog::get("opennask")->error("*** form has no value ***");
@@ -169,7 +170,7 @@ namespace x86_64 {
 
             auto actual_token_type = token_to_x86_type(tokens[i]);
             auto table_token_type = operands[i].type();
-
+            /**
             std::cerr << "actual_token_type[" + std::to_string(i) + "]: "
                       << actual_token_type
                       << "\n"
@@ -177,7 +178,7 @@ namespace x86_64 {
                       << table_token_type
                       << "\n"
                       << std::endl;
-
+            */
             // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
             if (_starts_with(table_token_type, _to_lower(actual_token_type))) {
                 continue;
@@ -203,44 +204,77 @@ namespace x86_64 {
     }
 
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
-                                                const std::vector<TParaToken>& tokens) {
+                                                const std::vector<TParaToken>& tokens) const {
 
-        spdlog::get("opennask")->error("[pass1] passed tokens size {}", tokens.size());
-
-        auto it = std::find_if(forms_.begin(), forms_.end(), [&](InstructionForm& form) {
-            return this->find_greedy(mode, tokens, form);
+        // 条件に一致したオペランドを集める
+        std::vector<InstructionForm> matching_forms;
+        std::copy_if(forms_.begin(), forms_.end(), std::back_inserter(matching_forms), [&](const InstructionForm& form) {
+            return find_greedy(mode, tokens, form);
         });
 
-        if (it != forms_.end()) {
-            auto& found_form = *it;
+        // 最小の機械語サイズを見つけるための初期値を設定(番兵)
+        uint32_t min_size = std::numeric_limits<uint32_t>::max();
+        const InstructionForm* min_size_form = nullptr;
+        spdlog::get("opennask")->debug("[pass1] matching_forms size:{}", matching_forms.size());
 
-            std::stringstream ss {"["};
+        // 条件に合致するフォームの中から機械語サイズが最小のものを選ぶ
+        for (const InstructionForm& form : matching_forms) {
+
+            std::stringstream ss;
+            auto operands = form.operands().value();
+            ss << "[";
+            std::for_each(operands.begin(),
+                          operands.end(),
+                          [&](const Operand& o) -> void { ss << o.type() << ","; });
+            ss << "]";
+            spdlog::get("opennask")->debug("[pass1] operands {}", ss.str());
+
+            const auto e = form.find_encoding();
+            const int size = e.get_output_size(mode);
+
+            // 0x66,0x67も考慮に入れたいところだがロジックがおかしくなるのでここでは入れない
+            // 最終結果には0x66, 0x67も考慮したサイズを計算して返す
+            if (size < min_size) {
+                min_size = size;
+                min_size_form = &form;
+            }
+        }
+
+        if (min_size_form != nullptr) {
+            auto& found_form = *min_size_form;
+
+            std::stringstream ss;
             auto operands = found_form.operands().value();
+
+            ss << "[";
             std::for_each(operands.begin(),
                           operands.end(),
                           [&](const Operand& o) -> void { ss << o.type() << ","; });
             ss << "]";
             spdlog::get("opennask")->debug("[pass1] detected operands {}", ss.str());
 
-            auto encoding = found_form.find_encoding();
-            uint32_t size = encoding.get_output_size(mode);
+            int require_66h = 0;
+            int require_67h = 0;
 
             if (_require_66h(mode, tokens)) {
-                spdlog::get("opennask")->debug("[pass1] bytes 66h 1");
-                size += 1;
+                require_66h = 1;
             }
             if (_require_67h(mode, tokens)) {
-                spdlog::get("opennask")->debug("[pass1] bytes 67h 1");
-                size += 1;
+                require_67h = 1;
             }
+            spdlog::get("opennask")->debug("[pass1] selected form with minimum machine code size: {}", min_size+require_66h+require_67h);
 
-            if (size == 0) {
-                spdlog::get("opennask")->error("*** machine code size is zero ***");
-            }
-            return size;
+            return min_size+require_66h+require_67h;
         }
 
-        spdlog::get("opennask")->error("*** machine code size is zero ***");
+        // エラー処理
+        std::stringstream no_matching_message {"["};
+        std::for_each(tokens.begin(),
+                      tokens.end(),
+                      [&](const TParaToken& t) -> void { no_matching_message << t.to_string() << ","; });
+        no_matching_message << "]";
+        throw std::runtime_error(no_matching_message.str());
+
         return 0;
     }
 };

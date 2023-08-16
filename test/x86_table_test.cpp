@@ -148,6 +148,10 @@ protected:
     // 試験開始時に一回だけ実行
     InstToMachineCodeSize() {
         _iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
+        // spdlog
+        if(!spdlog::get("opennask")) {
+            auto logger = spdlog::stdout_color_st("opennask");
+        }
     }
 
     // 試験終了時に一回だけ実行
@@ -156,10 +160,7 @@ protected:
 
     // 各テストケース実行前に実行
     void SetUp() override {
-        // spdlog
-        if(!spdlog::get("opennask")) {
-            auto logger = spdlog::stdout_color_st("opennask");
-        }
+        spdlog::set_level(spdlog::level::debug);
     }
 
     // 各テストケース実行後に実行
@@ -217,6 +218,16 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
                                        TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
                                    },
-                                   2) // +2byteはpass1側で足す
+                                   2), // +2byteはpass1側で足す
+
+        // 0x0D id    = 1(prefix) + 1 + 4 byte     = 6byte
+        // 0x83 /1 ib = 1(prefix) + 1 + 1 + 1 byte = 4byte
+        // 出力される機械語が少ない方を優先的に選ぶ
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "OR",
+                                   {
+                                       TParaToken("EAX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("0x00000001", TParaToken::ttIdentifier, TParaToken::ttImm)
+                                   },
+                                   4)
     )
 );
