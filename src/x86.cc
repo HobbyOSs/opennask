@@ -193,8 +193,15 @@ namespace x86_64 {
                 pattern | ds(_,_)          = false
             );
 
-            if (reg_name_matched)
+            if (reg_name_matched) {
+                // 直接レジスタ名がマッチ
                 continue;
+            }
+
+            if (_starts_with(table_token_type, "imm") && tokens[i].AsAttr()==TParaToken::ttLabel) {
+                // x86_64.json側が即値表記、tokenはラベルの場合マッチ
+                continue;
+            }
 
             // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
             // しかしながら、token側のサイズが既定に満たないならば除外
@@ -202,15 +209,12 @@ namespace x86_64 {
                 const int32_t actual_imm = tokens[i].AsInt32();
 
                 if (table_token_type == "imm8" && -0x80 <= actual_imm && actual_imm <= 0x7f) {
-                    //std::cout << "imm8 match!!" << actual_imm << std::endl;
                     continue;
                 }
                 if (table_token_type == "imm16" && -0x8000 <= actual_imm && actual_imm <= 0x7fff) {
-                    //std::cout << "imm16 match!!" << actual_imm << std::endl;
                     continue;
                 }
                 if (table_token_type == "imm32") {
-                    //std::cout << "imm32 match!!" << actual_imm << std::endl;
                     continue;
                 }
             }
