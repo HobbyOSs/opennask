@@ -79,12 +79,12 @@ gtest_discover_tests(inst_suite_test)
 ########### next target ###############
 
 # lexer, parser testing
-# `ctest -R parsertest`
+# `ctest -R exp_suite_test`
 set(parsertest_SRCS
   exp_suite.cpp)
 
-add_executable(parsertest ${parsertest_SRCS})
-target_link_libraries(parsertest PRIVATE
+add_executable(exp_suite_test ${parsertest_SRCS})
+target_link_libraries(exp_suite_test PRIVATE
   nask_parse_objects
   Threads::Threads
   spdlog::spdlog
@@ -92,12 +92,12 @@ target_link_libraries(parsertest PRIVATE
   parasol
   GTest::gtest_main)
 if(WITH_BACKWARDS_CPP)
-  target_link_libraries(parsertest PUBLIC -lbfd)
-  target_link_libraries(parsertest PUBLIC backward)
+  target_link_libraries(exp_suite_test PUBLIC -lbfd)
+  target_link_libraries(exp_suite_test PUBLIC backward)
 endif()
 
-target_compile_features(parsertest PRIVATE cxx_std_17)
-gtest_discover_tests(parsertest)
+target_compile_features(exp_suite_test PRIVATE cxx_std_17)
+gtest_discover_tests(exp_suite_test)
 
 # `ctest -R modrmtest`
 set(modrmtest_SRCS

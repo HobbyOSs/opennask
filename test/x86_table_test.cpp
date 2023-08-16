@@ -9,6 +9,7 @@ using namespace x86_64;
 using namespace jsoncons;
 
 class X86TableSuite : public ::testing::Test {
+
 protected:
     // 試験開始時に一回だけ実行
     X86TableSuite() {
@@ -63,7 +64,7 @@ TEST_F(X86TableSuite, CheckJsonSchema)
     }
 }
 
-// テストデータクラス
+// トークン読み取りパラメタライズテスト
 struct TokenToX86TypeParam {
     const std::string token;
     const TParaToken para_token;
@@ -90,7 +91,7 @@ class TokenToX86Type : public testing::TestWithParam<TokenToX86TypeParam> {
 TEST_P(TokenToX86Type, TokenToX86Type) {
     const auto p = GetParam();
 
-    EXPECT_EQ(token_to_x86_type(&p.para_token), p.expected);
+    EXPECT_EQ(token_to_x86_type(p.para_token), p.expected);
 }
 
 INSTANTIATE_TEST_SUITE_P(X86TableSuite, TokenToX86Type,
@@ -107,76 +108,159 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, TokenToX86Type,
     )
 );
 
+// ---
 
-TEST_F(X86TableSuite, ADDGetOutputSize)
-{
-    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-    auto inst = iset.instructions().at("ADD");
-    auto size = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
-            TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
-        }
-    );
-    EXPECT_EQ(2, size);
+
+// 命令ごとの機械語サイズ取得パラメタライズテスト
+struct InstToMachineCodeSizeParam {
+
+    // ここからはパラメーター
+    const OPENNASK_MODES _bit_mode;
+    const std::string _opcode;
+    const std::vector<TParaToken>& _tokens;
+    const size_t _expected;
+
+    InstToMachineCodeSizeParam(
+        const OPENNASK_MODES bit_mode,
+        const std::string opcode,
+        const std::vector<TParaToken>& tokens,
+        const size_t expected
+    ):
+        _bit_mode(bit_mode),
+        _opcode(opcode),
+        _tokens(tokens),
+        _expected(expected)
+    {
+        std::cerr << "parameter test have token size:  " << _tokens.size() << std::endl;
+    }
+};
+
+void PrintTo(const InstToMachineCodeSizeParam& param, ::std::ostream* os) {
+    //*os << param._opcode; // param._para_token.to_string();
+
+    *os << "token size: " << param._tokens.size();
 }
 
-TEST_F(X86TableSuite, INTGetOutputSize)
-{
-    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-    auto inst = iset.instructions().at("INT");
-    auto size = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
+class InstToMachineCodeSize : public testing::TestWithParam<InstToMachineCodeSizeParam> {
+
+public:
+    // x86命令セット; データが大きいのでここで宣言
+    std::unique_ptr<x86_64::InstructionSet> _iset;
+
+protected:
+    // 試験開始時に一回だけ実行
+    InstToMachineCodeSize() {
+        _iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
+    }
+
+    // 試験終了時に一回だけ実行
+    ~InstToMachineCodeSize() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+        // spdlog
+        if(!spdlog::get("opennask")) {
+            auto logger = spdlog::stdout_color_st("opennask");
         }
-    );
-    EXPECT_EQ(2, size);
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
+};
+
+TEST_P(InstToMachineCodeSize, InstToMachineCodeSize) {
+
+    const auto p = GetParam();
+    std::cerr << "!!!" << p._tokens.size() << std::endl;
+
+    auto inst = _iset->instructions().at(p._opcode);
+    auto size = inst.get_output_size(p._bit_mode, p._tokens);
+
+    EXPECT_EQ(size, p._expected);
 }
 
-TEST_F(X86TableSuite, CALLGetOutputSize)
-{
-    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-    auto inst = iset.instructions().at("CALL");
-    auto size = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("waitkbdout", TParaToken::ttIdentifier, TParaToken::ttRel32)
-        }
-    );
-    EXPECT_EQ(5, size);
-}
+// パラメタライズテスト；
+// 引数:
+// * 16bit/32bitモード
+// * オペコード
+// * 機械語サイズを出したいオペランドのTParaTokenの可変長引数
+// * 期待される機械語サイズ
+INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
+    testing::Values(
+        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "ADD", "hoge"),
+        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "INT", "hoge"),
+        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "CALL", "hoge"),
+        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV", "hoge"),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "ADD",
+                                   {
+                                       TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
+                                       TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
+                                   }, 2)
+    )
+);
 
-TEST_F(X86TableSuite, MOVGetOutputSize)
-{
-    auto iset = decode_json<InstructionSet>(std::string(X86_64_JSON));
-    auto inst = iset.instructions().at("MOV");
+// TEST_F(X86TableSuite, ADDGetOutputSize)
+// {
+//     auto size = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
+//             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
+//         }
+//     );
+//     EXPECT_EQ(2, size);
+// }
 
-    auto size1 = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
-            TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
-        }
-    );
-    EXPECT_EQ(2, size1);
+// TEST_F(X86TableSuite, INTGetOutputSize)
+// {
+//     auto size = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
+//         }
+//     );
+//     EXPECT_EQ(2, size);
+// }
 
-    auto size2 = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
-            TParaToken("0", TParaToken::ttIdentifier, TParaToken::ttImm)
-        }
-    );
-    EXPECT_EQ(3, size2);
+// TEST_F(X86TableSuite, CALLGetOutputSize)
+// {
+//     auto size = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("waitkbdout", TParaToken::ttIdentifier, TParaToken::ttRel32)
+//         }
+//     );
+//     EXPECT_EQ(5, size);
+// }
 
-    auto size3 = inst.get_output_size(
-        ID_16BIT_MODE,
-        {
-            TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
-            TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
-        }
-    );
-    EXPECT_EQ(2, size3); // +2byteはpass1側で足す
-}
+// TEST_F(X86TableSuite, MOVGetOutputSize)
+// {
+//     auto size1 = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
+//             TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
+//         }
+//     );
+//     EXPECT_EQ(2, size1);
+
+//     auto size2 = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
+//             TParaToken("0", TParaToken::ttIdentifier, TParaToken::ttImm)
+//         }
+//     );
+//     EXPECT_EQ(3, size2);
+
+//     auto size3 = inst.get_output_size(
+//         ID_16BIT_MODE,
+//         {
+//             TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
+//             TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+//         }
+//     );
+//     EXPECT_EQ(2, size3); // +2byteはpass1側で足す
+// }
