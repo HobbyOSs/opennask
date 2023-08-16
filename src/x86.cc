@@ -205,6 +205,8 @@ namespace x86_64 {
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
                                                 const std::vector<TParaToken>& tokens) {
 
+        spdlog::get("opennask")->error("[pass1] passed tokens size {}", tokens.size());
+
         auto it = std::find_if(forms_.begin(), forms_.end(), [&](InstructionForm& form) {
             return this->find_greedy(mode, tokens, form);
         });

@@ -117,7 +117,7 @@ struct InstToMachineCodeSizeParam {
     // ここからはパラメーター
     const OPENNASK_MODES _bit_mode;
     const std::string _opcode;
-    const std::vector<TParaToken>& _tokens;
+    const std::vector<TParaToken> _tokens; // 「&」ではなく実体にしないとテスト実行時データが消える
     const size_t _expected;
 
     InstToMachineCodeSizeParam(
@@ -131,14 +131,11 @@ struct InstToMachineCodeSizeParam {
         _tokens(tokens),
         _expected(expected)
     {
-        std::cerr << "parameter test have token size:  " << _tokens.size() << std::endl;
     }
 };
 
 void PrintTo(const InstToMachineCodeSizeParam& param, ::std::ostream* os) {
-    //*os << param._opcode; // param._para_token.to_string();
-
-    *os << "token size: " << param._tokens.size();
+    *os << param._opcode;
 }
 
 class InstToMachineCodeSize : public testing::TestWithParam<InstToMachineCodeSizeParam> {
@@ -173,8 +170,6 @@ protected:
 TEST_P(InstToMachineCodeSize, InstToMachineCodeSize) {
 
     const auto p = GetParam();
-    std::cerr << "!!!" << p._tokens.size() << std::endl;
-
     auto inst = _iset->instructions().at(p._opcode);
     auto size = inst.get_output_size(p._bit_mode, p._tokens);
 
@@ -189,78 +184,39 @@ TEST_P(InstToMachineCodeSize, InstToMachineCodeSize) {
 // * 期待される機械語サイズ
 INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
     testing::Values(
-        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "ADD", "hoge"),
-        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "INT", "hoge"),
-        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "CALL", "hoge"),
-        //InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV", "hoge"),
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "ADD",
                                    {
                                        TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
                                        TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
-                                   }, 2)
+                                   },
+                                   2),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "INT",
+                                   {
+                                       TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
+                                   },
+                                   2),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "CALL",
+                                   {
+                                       TParaToken("waitkbdout", TParaToken::ttIdentifier, TParaToken::ttRel32)
+                                   },
+                                   5),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
+                                       TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
+                                   },
+                                   2),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
+                                       TParaToken("0", TParaToken::ttIdentifier, TParaToken::ttImm)
+                                   },
+                                   3),
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
+                                       TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+                                   },
+                                   2) // +2byteはpass1側で足す
     )
 );
-
-// TEST_F(X86TableSuite, ADDGetOutputSize)
-// {
-//     auto size = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
-//             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
-//         }
-//     );
-//     EXPECT_EQ(2, size);
-// }
-
-// TEST_F(X86TableSuite, INTGetOutputSize)
-// {
-//     auto size = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("0x10", TParaToken::ttHex, TParaToken::ttImm)
-//         }
-//     );
-//     EXPECT_EQ(2, size);
-// }
-
-// TEST_F(X86TableSuite, CALLGetOutputSize)
-// {
-//     auto size = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("waitkbdout", TParaToken::ttIdentifier, TParaToken::ttRel32)
-//         }
-//     );
-//     EXPECT_EQ(5, size);
-// }
-
-// TEST_F(X86TableSuite, MOVGetOutputSize)
-// {
-//     auto size1 = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
-//             TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
-//         }
-//     );
-//     EXPECT_EQ(2, size1);
-
-//     auto size2 = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
-//             TParaToken("0", TParaToken::ttIdentifier, TParaToken::ttImm)
-//         }
-//     );
-//     EXPECT_EQ(3, size2);
-
-//     auto size3 = inst.get_output_size(
-//         ID_16BIT_MODE,
-//         {
-//             TParaToken("[0x0ff0]", TParaToken::ttIdentifier, TParaToken::ttMem8),
-//             TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
-//         }
-//     );
-//     EXPECT_EQ(2, size3); // +2byteはpass1側で足す
-// }
