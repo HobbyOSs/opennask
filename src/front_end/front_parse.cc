@@ -90,8 +90,8 @@ void FrontEnd::visitExp(Exp *t) {
         this->visitModExp(dynamic_cast<ModExp*>(t));
     } else if (dynamic_cast<DatatypeExp*>(t) != nullptr) {
         this->visitDatatypeExp(dynamic_cast<DatatypeExp*>(t));
-    } else if (dynamic_cast<RangeExp*>(t) != nullptr) {
-        this->visitRangeExp(dynamic_cast<RangeExp*>(t));
+    } else if (dynamic_cast<SegmentOffsetExp*>(t) != nullptr) {
+        this->visitSegmentOffsetExp(dynamic_cast<SegmentOffsetExp*>(t));
     } else if (dynamic_cast<ImmExp*>(t) != nullptr) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
@@ -199,12 +199,15 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     funcs_type funcs {
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesALIGNB", std::bind(&FrontEnd::processALIGNB, this, _1)),
         std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
         std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&FrontEnd::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&FrontEnd::processDD, this, _1)),
+        std::make_pair("OpcodesIMUL", std::bind(&FrontEnd::processIMUL, this, _1)),
+        std::make_pair("OpcodesIN", std::bind(&FrontEnd::processIN, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&FrontEnd::processINT, this, _1)),
         std::make_pair("OpcodesJAE", std::bind(&FrontEnd::processJAE, this, _1)),
         std::make_pair("OpcodesJB", std::bind(&FrontEnd::processJB, this, _1)),
@@ -213,11 +216,16 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesJE", std::bind(&FrontEnd::processJE, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
         std::make_pair("OpcodesJNC", std::bind(&FrontEnd::processJNC, this, _1)),
+        std::make_pair("OpcodesJNZ", std::bind(&FrontEnd::processJNZ, this, _1)),
+        std::make_pair("OpcodesJZ", std::bind(&FrontEnd::processJZ, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
+        std::make_pair("OpcodesOR", std::bind(&FrontEnd::processOR, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
+        std::make_pair("OpcodesSHR", std::bind(&FrontEnd::processSHR, this, _1)),
+        std::make_pair("OpcodesSUB", std::bind(&FrontEnd::processSUB, this, _1)),
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
@@ -242,6 +250,7 @@ void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
         std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
         std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
         std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
+        std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this)),
     };
 
     const std::string opcode = type(*opcode_stmt->opcode_);
@@ -281,6 +290,39 @@ void FrontEnd::visitImmExp(ImmExp *imm_exp) {
     TParaToken t = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(t);
+}
+
+void FrontEnd::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) {
+    if (segment_offset_exp->datatype_) {
+        segment_offset_exp->datatype_->accept(this);
+    }
+    if (segment_offset_exp->exp_1) {
+        segment_offset_exp->exp_1->accept(this);
+    }
+    if (segment_offset_exp->exp_2) {
+        segment_offset_exp->exp_2->accept(this);
+    }
+    TParaToken offset = this->ctx.top();
+    this->ctx.pop();
+    TParaToken segment = this->ctx.top();
+    this->ctx.pop();
+    TParaToken data_type = this->ctx.top();
+    this->ctx.pop();
+
+    auto mem = asmjit::x86::Mem();
+    mem.setOffset(offset.AsInt32());
+    offset.SetMem(mem, segment.AsInt32());
+
+    match(data_type.AsString())(
+        pattern | "BYTE"  = [&]{ offset.SetAttribute(TParaToken::ttMem8); },
+        pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
+        pattern | "DWORD" = [&]{ offset.SetAttribute(TParaToken::ttMem32); },
+        pattern | _ = [&] {
+            throw std::runtime_error("[pass2] segment:offset, data type is invalid");
+        }
+    );
+
+    this->ctx.push(offset);
 }
 
 template void FrontEnd::visitDataTypes<ByteDataType>(ByteDataType *p);
@@ -345,14 +387,14 @@ void FrontEnd::visitArithmeticOperations(T *exp) {
         exp->exp_1->accept(this);
     }
     TParaToken left = this->ctx.top();
-    left.MustBe(TParaToken::ttInteger);
+    //left.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
     if (exp->exp_2) {
         exp->exp_2->accept(this);
     }
     TParaToken right = this->ctx.top();
-    right.MustBe(TParaToken::ttInteger);
+    //right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
     long ans = 0;

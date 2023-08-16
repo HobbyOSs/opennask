@@ -81,6 +81,8 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"*"      	 return token::_STAR;
 <INITIAL>"/"      	 return token::_SLASH;
 <INITIAL>"%"      	 return token::_PERCENT;
+<INITIAL>"("      	 return token::_LPAREN;
+<INITIAL>")"      	 return token::_RPAREN;
 <INITIAL>":"      	 return token::_COLON;
 <INITIAL>"AAA"      	 return token::_KW_AAA;
 <INITIAL>"AAD"      	 return token::_KW_AAD;

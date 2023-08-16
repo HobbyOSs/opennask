@@ -79,6 +79,7 @@ public:
     void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
 
     // opcodeの処理
+    void processALIGNB(std::vector<TParaToken>& memonic_args);
     void processADD(std::vector<TParaToken>& memonic_args);
     void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
@@ -88,6 +89,8 @@ public:
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
     void processHLT();
+    void processIMUL(std::vector<TParaToken>& memonic_args);
+    void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJAE(std::vector<TParaToken>& memonic_args);
     void processJB(std::vector<TParaToken>& memonic_args);
@@ -95,16 +98,23 @@ public:
     void processJC(std::vector<TParaToken>& memonic_args);
     void processJE(std::vector<TParaToken>& memonic_args);
     void processJNC(std::vector<TParaToken>& memonic_args);
+    void processJNZ(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processJZ(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();
+    void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
+    void processRET();
     void processRESB(std::vector<TParaToken>& memonic_args);
+    void processSHR(std::vector<TParaToken>& memonic_args);
+    void processSUB(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitSegmentOffsetExp(SegmentOffsetExp *p) override;
     void visitDirect(Direct *direct) override;
     void visitBasedOrIndexed(BasedOrIndexed *p) override;
     void visitIndexed(Indexed *p) override;

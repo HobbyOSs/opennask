@@ -1,6 +1,10 @@
+#include <iostream>
+#include <sstream>
 #include "x86.hh"
 #include "matchit.h"
 #include "demangle.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 using namespace matchit;
 
@@ -14,61 +18,121 @@ namespace x86_64 {
 
     const char* X86_64_JSON = gx86_json_Data;
 
+    const bool _require_67h(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+        bool require = false;
+
+        for (int i = 0; i < tokens.size(); i++) {
+            auto t = tokens.begin() + i;
+            require = match(mode)(
+                // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+                pattern | ID_16BIT_MODE | when(t->AsAttr() == TParaToken::ttMem32 && t->IsAsmJitGpd()) = true,
+                pattern | ID_16BIT_MODE = false,
+                pattern | ID_32BIT_MODE | when(t->AsAttr() == TParaToken::ttReg16) = true,
+                pattern | ID_32BIT_MODE = false,
+                pattern | _ = false
+            );
+            if (require) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const bool _require_66h(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+        bool require = false;
+
+        for (int i = 0; i < tokens.size(); i++) {
+            auto t = tokens.begin() + i;
+
+            require = match(mode)(
+                pattern | ID_16BIT_MODE | when(t->AsAttr() == TParaToken::ttReg32) = true,
+                pattern | ID_16BIT_MODE = false,
+                pattern | _ = false
+            );
+            if (require) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     const std::string token_to_x86_type(const TParaToken* operand) {
 
-        auto tup = std::make_tuple(operand->AsAttr(), operand->AsString());
-
-        return match(tup)(
-            pattern | ds(TParaToken::ttReg8 , _) = [&] { return "r8"; },
-            pattern | ds(TParaToken::ttReg16, _) = [&] { return "r16"; },
-            pattern | ds(TParaToken::ttReg32, _) = [&] { return "r32"; },
-            pattern | ds(TParaToken::ttReg64, _) = [&] { return "r64"; },
-            pattern | ds(TParaToken::ttMem8 , _) = [&] { return "m8"; },
-            pattern | ds(TParaToken::ttMem16, _) = [&] { return "m16"; },
-            pattern | ds(TParaToken::ttMem32, _) = [&] { return "m32"; },
-            pattern | ds(TParaToken::ttMem64, _) = [&] { return "m64"; },
-            pattern | ds(TParaToken::ttMem64, _) = [&] { return "m64"; },
-            pattern | ds(TParaToken::ttRel8 , _) = [&] { return "rel8"; },
-            pattern | ds(TParaToken::ttRel16, _) = [&] { return "rel16"; },
-            pattern | ds(TParaToken::ttRel32, _) = [&] { return "rel32"; },
-            pattern | ds(TParaToken::ttImm  , _) = [&] { return "imm"; },
-            pattern | ds(TParaToken::ttLabel, _) = [&] { return "imm"; },
-            pattern | ds(_,_) = [&] {
-                throw std::runtime_error(
-                    operand->to_string() + " Not implemented or not matched!!!"
-                );
+        return match(operand->AsAttr())(
+            pattern | TParaToken::ttReg8  = [&] { return "r8"; },
+            pattern | TParaToken::ttReg16 = [&] { return "r16"; },
+            pattern | TParaToken::ttReg32 = [&] { return "r32"; },
+            pattern | TParaToken::ttReg64 = [&] { return "r64"; },
+            pattern | TParaToken::ttMem8  = [&] { return "m8"; },
+            pattern | TParaToken::ttMem16 = [&] { return "m16"; },
+            pattern | TParaToken::ttMem32 = [&] { return "m32"; },
+            pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+            pattern | TParaToken::ttMem64 = [&] { return "m64"; },
+            pattern | TParaToken::ttRel8  = [&] { return "rel8"; },
+            pattern | TParaToken::ttRel16 = [&] { return "rel16"; },
+            pattern | TParaToken::ttRel32 = [&] { return "rel32"; },
+            pattern | TParaToken::ttImm   = [&] { return "imm"; },
+            pattern | TParaToken::ttLabel = [&] { return "imm"; },
+            pattern | _ = [&] {
+                throw std::runtime_error(operand->to_string() + " Not implemented or not matched!!!");
                 return "";
             }
         );
     }
 
+    const bool _starts_with(std::string const &full_string, std::string const &begining) {
+        return full_string.substr(0, begining.size()) == begining;
+    }
+
+    const std::string _to_lower(const std::string &in) {
+        std::string s(in);
+        std::transform(s.begin(),
+                       s.end(),
+                       s.begin(),
+                       [](unsigned char const &c) {
+                           return ::tolower(c);
+                       });
+        return s;
+    }
+
     const int Encoding::get_output_size(OPENNASK_MODES mode) {
         int output_size = 0;
 
-        if (prefix_ && prefix_->mandatory()) {
-            output_size += prefix_->get_size();
-        }
+        // 0x66, 0x67はここで計算できない
+        //if (prefix_ && prefix_->mandatory()) {
+        //    output_size += prefix_->get_size();
+        //}
         if (REX_ && REX_->mandatory()) {
+            spdlog::get("opennask")->debug("[pass1] bytes rex {}", REX_->get_size());
             output_size += REX_->get_size();
         }
         if (VEX_) {
+            spdlog::get("opennask")->debug("[pass1] bytes vex {}", VEX_->get_size());
             output_size += VEX_->get_size();
         }
 
+        spdlog::get("opennask")->debug("[pass1] bytes opcode {}", opcode_.get_size());
         output_size += opcode_.get_size();
 
         if (ModRM_) {
+            spdlog::get("opennask")->debug("[pass1] bytes modrm {}", ModRM_->get_size());
             output_size += ModRM_->get_size();
         }
         if (immediate_) {
+            spdlog::get("opennask")->debug("[pass1] bytes immediate {}", immediate_->size());
             output_size += immediate_->size();
         }
         if (data_offset_) {
+            spdlog::get("opennask")->debug("[pass1] bytes data offset {}", data_offset_->size());
             output_size += data_offset_->size();
         }
         if (code_offset_) {
+            spdlog::get("opennask")->debug("[pass1] bytes code offset {}", code_offset_->size());
             output_size += code_offset_->size();
         }
+
         return output_size;
     }
 
@@ -86,60 +150,99 @@ namespace x86_64 {
         return encodings_[1];
     }
 
-    const uint32_t Instruction::get_output_size(OPENNASK_MODES mode, std::initializer_list<TParaToken> tokens) {
+    const bool Instruction::find_greedy(OPENNASK_MODES mode,
+                                        std::initializer_list<TParaToken> tokens,
+                                        InstructionForm &form) {
 
-        auto it = std::find_if(forms_.begin(), forms_.end(),
-                               [&](InstructionForm &form) {
-                               if (!form.operands().has_value()) {
-                                   return false;
-                               }
+        if (!form.operands().has_value()) {
+            return false;
+        }
 
-                               auto operands = form.operands().value();
-                               if (operands.size() != tokens.size()) {
-                                   return false;
-                               }
+        auto operands = form.operands().value();
+        if (operands.size() != tokens.size()) {
+            return false;
+        }
 
-                               for (int i = 0; i < tokens.size(); i++) {
+        for (int i = 0; i < tokens.size(); i++) {
 
-                                   auto actual_token_type = token_to_x86_type(tokens.begin() + i);
-                                   auto table_token_type = operands[i].type();
+            auto actual_token_type = token_to_x86_type(tokens.begin() + i);
+            auto table_token_type = operands[i].type();
 
-                                   // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
-                                   if (table_token_type.size() >= actual_token_type.size() &&
-                                       std::equal(std::begin(actual_token_type),
-                                                  std::end(actual_token_type),
-                                                  std::begin(table_token_type))) {
-                                       continue;
-                                   }
-                                   // al,ax,eax,raxでもマッチさせたい
-                                   auto tup = std::make_tuple((tokens.begin() + i)->AsAttr(),
-                                                              (tokens.begin() + i)->AsString(),
-                                                              table_token_type);
+            // error_ss << "actual_token_type[" + std::to_string(i) + "]: "
+            //          << actual_token_type
+            //          << "\n"
+            //          << "table_token_type[" + std::to_string(i) + "]: "
+            //          << table_token_type
+            //          << "\n"
+            //          << std::endl;
 
-                                   bool need_to_continue = match(tup)(
-                                       pattern | ds(TParaToken::ttReg8 , "AL", "al") = true,
-                                       pattern | ds(TParaToken::ttReg16, "AX", "ax") = true,
-                                       pattern | ds(TParaToken::ttReg32, "EAX", "eax") = true,
-                                       pattern | ds(TParaToken::ttReg64, "RAX", "rax") = true,
-                                       pattern | ds(_,_,_) = false
-                                   );
-                                   if (need_to_continue) {
-                                       continue;
-                                   }
+            // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
+            if (_starts_with(table_token_type, _to_lower(actual_token_type))) {
+                continue;
+            }
+            // al,ax,eax,raxでもマッチさせたい
+            auto tup = std::make_tuple((tokens.begin() + i)->AsString(), table_token_type);
+            bool need_to_continue = match(tup)(
+                pattern | ds("AL" , "al")  = true,
+                pattern | ds("AX" , "ax")  = true,
+                pattern | ds("EAX", "eax") = true,
+                pattern | ds("RAX", "rax") = true,
+                pattern | ds(_,_)          = false
+            );
 
-                                   return false;
-                               }
+            if (need_to_continue) {
+                continue;
+            }
 
-                               return true;
-                               });
+            return false;
+        }
+
+        return true;
+    }
+
+    const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
+                                                std::initializer_list<TParaToken> tokens) {
+
+        auto it = std::find_if(forms_.begin(), forms_.end(), [&](InstructionForm& form) {
+            return this->find_greedy(mode, tokens, form);
+        });
 
         if (it != forms_.end()) {
             auto& found_form = *it;
+
+            std::stringstream ss {"["};
+            auto operands = found_form.operands().value();
+            std::for_each(operands.begin(),
+                          operands.end(),
+                          [&](const Operand& o) -> void { ss << o.type() << ","; });
+            ss << "]";
+            spdlog::get("opennask")->debug("[pass1] {}", ss.str());
+
             auto encoding = found_form.find_encoding();
-            const uint32_t size = encoding.get_output_size(mode);
+            uint32_t size = encoding.get_output_size(mode);
+
+            if (_require_66h(mode, tokens)) {
+                spdlog::get("opennask")->debug("[pass1] bytes 66h 1");
+                size += 1;
+            }
+            if (_require_67h(mode, tokens)) {
+                spdlog::get("opennask")->debug("[pass1] bytes 67h 1");
+                size += 1;
+            }
+
+            if (size == 0) {
+                //auto error = error_ss.str();
+                //std::cerr << "*** machine code size is zero ***\n"
+                //          << error
+                //          << std::endl;
+            }
             return size;
         }
 
+        //auto error = error_ss.str();
+        //std::cerr << "*** machine code size is zero ***\n"
+        //          << error
+        //          << std::endl;
         return 0;
     }
 };

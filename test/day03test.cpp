@@ -1099,89 +1099,89 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 		LGDT	[GDTR0]			; 暫定GDTを設定
 		MOV		EAX,CR0
 		AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
-		;OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
-		;MOV		CR0,EAX
-		;JMP		pipelineflush
+		OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
+		MOV		CR0,EAX
+		JMP		pipelineflush
 pipelineflush:
-		;MOV		AX,1*8			;  読み書き可能セグメント32bit
-		;MOV		DS,AX
-		;MOV		ES,AX
-		;MOV		FS,AX
-		;MOV		GS,AX
-		;MOV		SS,AX
+		MOV		AX,1*8			;  読み書き可能セグメント32bit
+		MOV		DS,AX
+		MOV		ES,AX
+		MOV		FS,AX
+		MOV		GS,AX
+		MOV		SS,AX
 
 ; bootpackの転送
 
-		;MOV		ESI,bootpack	; 転送元
-		;MOV		EDI,BOTPAK		; 転送先
-		;MOV		ECX,512*1024/4
-		;CALL	memcpy
+		MOV		ESI,bootpack	; 転送元
+		MOV		EDI,BOTPAK		; 転送先
+		MOV		ECX,512*1024/4
+		CALL	memcpy
 
 ; ついでにディスクデータも本来の位置へ転送
 
 ; まずはブートセクタから
 
-		;MOV		ESI,0x7c00		; 転送元
-		;MOV		EDI,DSKCAC		; 転送先
-		;MOV		ECX,512/4
-		;CALL	memcpy
+		MOV		ESI,0x7c00		; 転送元
+		MOV		EDI,DSKCAC		; 転送先
+		MOV		ECX,512/4
+		CALL	memcpy
 
 ; 残り全部
 
-		;MOV		ESI,DSKCAC0+512	; 転送元
-		;MOV		EDI,DSKCAC+512	; 転送先
-		;MOV		ECX,0
-		;MOV		CL,BYTE [CYLS]
-		;IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
-		;SUB		ECX,512/4		; IPLの分だけ差し引く
-		;CALL	memcpy
+		MOV		ESI,DSKCAC0+512	; 転送元
+		MOV		EDI,DSKCAC+512	; 転送先
+		MOV		ECX,0
+		MOV		CL,BYTE [CYLS]
+		IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
+		SUB		ECX,512/4		; IPLの分だけ差し引く
+		CALL	memcpy
 
 ; asmheadでしなければいけないことは全部し終わったので、
 ;	あとはbootpackに任せる
 
 ; bootpackの起動
 
-		;MOV		EBX,BOTPAK
-		;MOV		ECX,[EBX+16]
-		;ADD		ECX,3			; ECX += 3;
-		;SHR		ECX,2			; ECX /= 4;
-		;JZ		skip			; 転送するべきものがない
-		;MOV		ESI,[EBX+20]	; 転送元
-		;ADD		ESI,EBX
-		;MOV		EDI,[EBX+12]	; 転送先
-		;CALL	memcpy
+		MOV		EBX,BOTPAK
+		MOV		ECX,[EBX+16]
+		ADD		ECX,3			; ECX += 3;
+		SHR		ECX,2			; ECX /= 4;
+		JZ		skip			; 転送するべきものがない
+		MOV		ESI,[EBX+20]	; 転送元
+		ADD		ESI,EBX
+		MOV		EDI,[EBX+12]	; 転送先
+		CALL	memcpy
 skip:
-		;MOV		ESP,[EBX+12]	; スタック初期値
-		;JMP		DWORD 2*8:0x0000001b
+		MOV		ESP,[EBX+12]	; スタック初期値
+		JMP		DWORD 2*8:0x0000001b
 
 waitkbdout:
-		;IN		 AL,0x64
-		;AND		 AL,0x02
-		;JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
-		;RET
+		IN		 AL,0x64
+		AND		 AL,0x02
+		JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
+		RET
 
 memcpy:
-		;MOV		EAX,[ESI]
-		;ADD		ESI,4
-		;MOV		[EDI],EAX
-		;ADD		EDI,4
-		;SUB		ECX,1
-		;JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
-		;RET
+		MOV		EAX,[ESI]
+		ADD		ESI,4
+		MOV		[EDI],EAX
+		ADD		EDI,4
+		SUB		ECX,1
+		JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
+		RET
 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
 
-		;ALIGNB	16
+		ALIGNB	16
 GDT0:
-		;RESB	8				; ヌルセレクタ
-		;DW		0xffff,0x0000,0x9200,0x00cf	; 読み書き可能セグメント32bit
-		;DW		0xffff,0x0000,0x9a28,0x0047	; 実行可能セグメント32bit（bootpack用）
+		RESB	8				; ヌルセレクタ
+		DW		0xffff,0x0000,0x9200,0x00cf	; 読み書き可能セグメント32bit
+		DW		0xffff,0x0000,0x9a28,0x0047	; 実行可能セグメント32bit（bootpack用）
 
-		;DW		0
+		DW		0
 GDTR0:
-		;DW		8*3-1
-		;DD		GDT0
+		DW		8*3-1
+		DD		GDT0
 
-		;ALIGNB	16
+		ALIGNB	16
 bootpack:
 )";
 
@@ -1192,10 +1192,7 @@ bootpack:
     d->Eval<Program>(pt.get(), "test.img");
 
     // 差分がわかりやすいよう調整
-    //constexpr auto max_size = 65536;
     std::vector<uint8_t> expected = {};
-    //expected.reserve(max_size);
-    //std::memset(expected.data(), 0x00, max_size);
 
     // haribote.nas
     expected.insert(expected.end(), {0xb0, 0x13});
@@ -1226,6 +1223,79 @@ bootpack:
     expected.insert(expected.end(), {0x0f, 0x01, 0x16, 0x2a, 0xc3}); // LGDT[GDTR0]
     expected.insert(expected.end(), {0x0f, 0x20, 0xc0});
     expected.insert(expected.end(), {0x66, 0x25, 0xff, 0xff, 0xff, 0x7f});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc8, 0x01});
+    expected.insert(expected.end(), {0x0f, 0x22, 0xc0});
+    expected.insert(expected.end(), {0xeb, 0x00});
+
+    // pipelineflush:
+    expected.insert(expected.end(), {0xb8, 0x08, 0x00});
+    expected.insert(expected.end(), {0x8e, 0xd8});
+    expected.insert(expected.end(), {0x8e, 0xc0});
+    expected.insert(expected.end(), {0x8e, 0xe0});
+    expected.insert(expected.end(), {0x8e, 0xe8});
+    expected.insert(expected.end(), {0x8e, 0xd0});
+
+    // bootpackの転送
+    expected.insert(expected.end(), {0x66, 0xbe, 0x30, 0xc3, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x00, 0x28, 0x00});
+    expected.insert(expected.end(), {0x66, 0xb9, 0x00, 0x00, 0x02, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x60, 0x00});
+
+    // まずはブートセクタから
+    expected.insert(expected.end(), {0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x00, 0x10, 0x00});
+    expected.insert(expected.end(), {0x66, 0xb9, 0x80, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x60, 0x00});
+
+    // 残り全部
+    expected.insert(expected.end(), {0x66, 0xbe, 0x00, 0x82, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x02, 0x10, 0x00});
+    expected.insert(expected.end(), {0x66, 0xb9, 0x00, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), {0x8a, 0x0e, 0xf0, 0x0f});
+    expected.insert(expected.end(), {0x66, 0x69, 0xc9, 0x00, 0x12, 0x00, 0x00});
+    expected.insert(expected.end(), {0x66, 0x81, 0xe9, 0x80, 0x00, 0x00, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x39, 0x00});
+
+    // bootpackの起動
+    expected.insert(expected.end(), {0x66, 0xbb, 0x00, 0x00, 0x28, 0x00});
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x4b, 0x10});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc1, 0x03});
+    expected.insert(expected.end(), {0x66, 0xc1, 0xe9, 0x02});
+    expected.insert(expected.end(), {0x74, 0x10});
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x73, 0x14});
+    expected.insert(expected.end(), {0x66, 0x01, 0xde});
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x7b, 0x0c});
+    expected.insert(expected.end(), {0xe8, 0x14, 0x00});
+    // skip:
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x63, 0x0c});
+    expected.insert(expected.end(), {0x66, 0xea, 0x1b, 0x00, 0x00, 0x00, 0x10, 0x00});
+
+    // waitkbdout:
+    expected.insert(expected.end(), {0xe4, 0x64});
+    expected.insert(expected.end(), {0x24, 0x02});
+    expected.insert(expected.end(), {0x75, 0xfa});
+    expected.insert(expected.end(), {0xc3});
+
+    // memcpy:
+    expected.insert(expected.end(), {0x67, 0x66, 0x8b, 0x06});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc6, 0x04});
+    expected.insert(expected.end(), {0x67, 0x66, 0x89, 0x07});
+    expected.insert(expected.end(), {0x66, 0x83, 0xc7, 0x04});
+    expected.insert(expected.end(), {0x66, 0x83, 0xe9, 0x01});
+    expected.insert(expected.end(), {0x75, 0xea});
+    expected.insert(expected.end(), {0xc3});
+    std::vector<uint8_t> alignb11(11, 0);
+    expected.insert(expected.end(), std::begin(alignb11), std::end(alignb11));
+
+
+    std::vector<uint8_t> resb8(8, 0);
+    expected.insert(expected.end(), std::begin(resb8), std::end(resb8));
+    expected.insert(expected.end(), {0xff, 0xff, 0x00, 0x00, 0x00, 0x92, 0xcf, 0x00});
+    expected.insert(expected.end(), {0xff, 0xff, 0x00, 0x00, 0x28, 0x9a, 0x47, 0x00});
+    expected.insert(expected.end(), {0x00, 0x00});
+    expected.insert(expected.end(), {0x17, 0x00});
+    expected.insert(expected.end(), {0x10, 0xc3});
+    expected.insert(expected.end(), {0x00, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
     GTEST_SKIP(); // TODO: まだ機能しない

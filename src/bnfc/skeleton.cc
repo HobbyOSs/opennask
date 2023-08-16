@@ -125,6 +125,14 @@ void Skeleton::visitModExp(ModExp *mod_exp)
 
 }
 
+void Skeleton::visitImmExp(ImmExp *imm_exp)
+{
+  /* Code For ImmExp Goes Here */
+
+  if (imm_exp->factor_) imm_exp->factor_->accept(this);
+
+}
+
 void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
 {
   /* Code For DatatypeExp Goes Here */
@@ -134,21 +142,13 @@ void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
 
 }
 
-void Skeleton::visitRangeExp(RangeExp *range_exp)
+void Skeleton::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp)
 {
-  /* Code For RangeExp Goes Here */
+  /* Code For SegmentOffsetExp Goes Here */
 
-  if (range_exp->datatype_) range_exp->datatype_->accept(this);
-  if (range_exp->exp_1) range_exp->exp_1->accept(this);
-  if (range_exp->exp_2) range_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitImmExp(ImmExp *imm_exp)
-{
-  /* Code For ImmExp Goes Here */
-
-  if (imm_exp->factor_) imm_exp->factor_->accept(this);
+  if (segment_offset_exp->datatype_) segment_offset_exp->datatype_->accept(this);
+  if (segment_offset_exp->exp_1) segment_offset_exp->exp_1->accept(this);
+  if (segment_offset_exp->exp_2) segment_offset_exp->exp_2->accept(this);
 
 }
 

@@ -32,9 +32,9 @@ public:
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
-  void visitDatatypeExp(DatatypeExp *p);
-  void visitRangeExp(RangeExp *p);
   void visitImmExp(ImmExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);

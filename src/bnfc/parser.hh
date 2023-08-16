@@ -15,6 +15,8 @@ Statement* pStatement(std::istream &stream);
 ListMnemonicArgs* pListMnemonicArgs(std::istream &stream);
 MnemonicArgs* pMnemonicArgs(std::istream &stream);
 Exp* pExp(std::istream &stream);
+Exp* pExp1(std::istream &stream);
+Exp* pExp2(std::istream &stream);
 MemoryAddr* pMemoryAddr(std::istream &stream);
 IndexExp* pIndexExp(std::istream &stream);
 Factor* pFactor(std::istream &stream);

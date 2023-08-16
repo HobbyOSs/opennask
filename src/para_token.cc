@@ -31,6 +31,7 @@ TParaToken::TParaToken(void) {
     _token_string = "";
     _type = ttEmpty;
     _mem = std::make_shared<x86::Mem>();
+    _segment = 0;
 }
 
 TParaToken::TParaToken(const string& token_string,
@@ -39,6 +40,7 @@ TParaToken::TParaToken(const string& token_string,
     _token_string = token_string;
     _type = type;
     _mem = nullptr;
+    _segment = 0;
     SetAttribute();
 }
 
@@ -49,6 +51,7 @@ TParaToken::TParaToken(const string& token_string,
     _token_string = token_string;
     _type = type;
     _mem = nullptr;
+    _segment = 0;
     SetAttribute(attr);
 }
 
@@ -57,13 +60,15 @@ TParaToken::TParaToken(const TParaToken& token) {
     _type = token._type;
     _attr = token._attr;
     _mem = token._mem;
+    _segment = token._segment;
 }
 
 TParaToken::~TParaToken() {
 }
 
-void TParaToken::SetMem(const x86::Mem& mem) {
+void TParaToken::SetMem(const x86::Mem& mem, const int16_t segment) {
     _mem = std::make_shared<x86::Mem>(mem);
+    _segment = segment;
 }
 
 x86::Mem& TParaToken::AsMem() const {
@@ -71,6 +76,10 @@ x86::Mem& TParaToken::AsMem() const {
         throw std::runtime_error("memory is not set");
 
     return *_mem.get();
+}
+
+int16_t TParaToken::AsSegment() const {
+    return _segment;
 }
 
 void TParaToken::SetAttribute() {

@@ -46,9 +46,9 @@ class MinusExp;
 class MulExp;
 class DivExp;
 class ModExp;
-class DatatypeExp;
-class RangeExp;
 class ImmExp;
+class DatatypeExp;
+class SegmentOffsetExp;
 class MemoryAddrExp;
 class Direct;
 class BasedOrIndexed;
@@ -424,9 +424,9 @@ public:
     virtual void visitMulExp(MulExp *p) = 0;
     virtual void visitDivExp(DivExp *p) = 0;
     virtual void visitModExp(ModExp *p) = 0;
-    virtual void visitDatatypeExp(DatatypeExp *p) = 0;
-    virtual void visitRangeExp(RangeExp *p) = 0;
     virtual void visitImmExp(ImmExp *p) = 0;
+    virtual void visitDatatypeExp(DatatypeExp *p) = 0;
+    virtual void visitSegmentOffsetExp(SegmentOffsetExp *p) = 0;
     virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
     virtual void visitDirect(Direct *p) = 0;
     virtual void visitBasedOrIndexed(BasedOrIndexed *p) = 0;
@@ -1044,6 +1044,20 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
+class ImmExp : public Exp
+{
+public:
+    std::shared_ptr<Factor> factor_;
+
+    ImmExp(std::shared_ptr<Factor> p1)
+    : Exp(), factor_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
 class DatatypeExp : public Exp
 {
 public:
@@ -1059,29 +1073,15 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
-class RangeExp : public Exp
+class SegmentOffsetExp : public Exp
 {
 public:
     std::shared_ptr<DataType> datatype_;
     std::shared_ptr<Exp> exp_1;
     std::shared_ptr<Exp> exp_2;
 
-    RangeExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2, std::shared_ptr<Exp> p3)
+    SegmentOffsetExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2, std::shared_ptr<Exp> p3)
     : Exp(), datatype_{p1}, exp_1{p2}, exp_2{p3}
-    {};
-
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Exp>  clone() const;
-};
-
-class ImmExp : public Exp
-{
-public:
-    std::shared_ptr<Factor> factor_;
-
-    ImmExp(std::shared_ptr<Factor> p1)
-    : Exp(), factor_{p1}
     {};
 
 

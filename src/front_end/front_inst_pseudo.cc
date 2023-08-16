@@ -15,6 +15,23 @@ using namespace std::placeholders;
 using namespace matchit;
 
 
+void FrontEnd::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
+
+    auto arg = mnemonic_args[0];
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        using namespace asmjit;
+
+        arg.MustBe(TParaToken::ttInteger);
+        const auto unit = arg.AsInt32();
+        CodeBuffer& buf = code_.textSection()->buffer();
+        const auto nearest_size = buf.size() / unit + 1;
+        const auto times = nearest_size * unit - buf.size();
+        log()->debug("[pass2] ALIGNB 0x00 {}times", times);
+        a.db(0x00, times);
+    });
+}
+
 void FrontEnd::processDB(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
@@ -56,6 +73,14 @@ void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
 
             if (e.IsInteger() || e.IsHex()) {
                 a.dd(e.AsInt32());
+            } else if (e.AsAttr() == TParaToken::ttLabel) {
+                // TODO: スタブ
+                using namespace asmjit;
+                CodeBuffer& buf = code_.textSection()->buffer();
+                const std::string label = e.AsString();
+                const auto label_address = sym_table.at(label);
+                const int16_t jmp_offset = label_address - (dollar_position + buf.size());
+                a.dw(jmp_offset);
             } else if (e.IsIdentifier()) {
                 throw std::runtime_error("not implemented");
             }

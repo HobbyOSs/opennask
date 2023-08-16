@@ -52,13 +52,13 @@ class PrintAbsyn : public Visitor
   void visitExp(Exp *p); /* abstract class */
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetExp(SegmentOffsetExp *p);
+  void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
-  void visitDatatypeExp(DatatypeExp *p);
-  void visitRangeExp(RangeExp *p);
   void visitImmExp(ImmExp *p);
-  void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
@@ -495,13 +495,13 @@ class ShowAbsyn : public Visitor
   void visitExp(Exp *p); /* abstract class */
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
+  void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetExp(SegmentOffsetExp *p);
+  void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
-  void visitDatatypeExp(DatatypeExp *p);
-  void visitRangeExp(RangeExp *p);
   void visitImmExp(ImmExp *p);
-  void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
