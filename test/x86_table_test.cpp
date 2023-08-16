@@ -25,6 +25,7 @@ protected:
         if(!spdlog::get("opennask")) {
             auto logger = spdlog::stdout_color_st("opennask");
         }
+        spdlog::set_level(spdlog::level::trace);
     }
 
     // 各テストケース実行後に実行
@@ -148,7 +149,6 @@ protected:
     // 試験開始時に一回だけ実行
     InstToMachineCodeSize() {
         _iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
-        // spdlog
         if(!spdlog::get("opennask")) {
             auto logger = spdlog::stdout_color_st("opennask");
         }
@@ -160,7 +160,8 @@ protected:
 
     // 各テストケース実行前に実行
     void SetUp() override {
-        spdlog::set_level(spdlog::level::debug);
+        //spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::trace);
     }
 
     // 各テストケース実行後に実行

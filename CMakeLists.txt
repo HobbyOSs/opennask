@@ -5,8 +5,14 @@ project(root CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 project(root)
 
+#-----------------------------------------------------------------------
+# Dev macro
+#
+
+#set(CMAKE_BUILD_TYPE "Debug" CACHE INTERNAL "cmake build type")
 #set(CMAKE_C_COMPILER "/usr/bin/clang" CACHE INTERNAL "clang compiler")
 #set(CMAKE_CXX_COMPILER "/usr/bin/clang++" CACHE INTERNAL "clang++ compiler")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
 
 set(WINE "/usr/bin/wine" CACHE INTERNAL "")

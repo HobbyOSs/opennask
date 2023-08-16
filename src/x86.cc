@@ -155,41 +155,46 @@ namespace x86_64 {
                                         const std::vector<TParaToken>& tokens,
                                         const InstructionForm &form) const {
 
+        auto logger = spdlog::get("opennask");
+
         if (!form.operands().has_value()) {
-            spdlog::get("opennask")->error("*** form has no value ***");
+            logger->trace("[pass1] form has no value");
             return false;
         }
 
         auto operands = form.operands().value();
         if (operands.size() != tokens.size()) {
-            spdlog::get("opennask")->error("*** operands size(={}) != tokens size(={}) ***", operands.size(), tokens.size());
+            logger->trace("[pass1] operands size(={}) != tokens size(={})", operands.size(), tokens.size());
             return false;
         }
 
         for (int i = 0; i < tokens.size(); i++) {
-
             auto actual_token_type = token_to_x86_type(tokens[i]);
             auto table_token_type = operands[i].type();
-            /**
-            std::cerr << "actual_token_type[" + std::to_string(i) + "]: "
-                      << actual_token_type
-                      << "\n"
-                      << "table_token_type[" + std::to_string(i) + "]: "
-                      << table_token_type
-                      << "\n"
-                      << std::endl;
-            */
+
+            std::stringstream ss;
+            ss << "actual_token_type[" + std::to_string(i) + "]: "
+               << actual_token_type
+               << "\n"
+               << "table_token_type[" + std::to_string(i) + "]: "
+               << table_token_type
+               << "\n"
+               << std::endl;
+            logger->trace("[pass1] searching => {}", ss.str());
+
             // "imm"でも"imm8"とマッチさせたいので前方一致で比較する
             if (_starts_with(table_token_type, _to_lower(actual_token_type))) {
                 continue;
             }
-            // al,ax,eax,raxでもマッチさせたい
+            // jsonの中に直接レジスタ名が書いてある場合でもマッチさせたい
+            // al,ax,eax,rax,dx など
             auto tup = std::make_tuple(tokens[i].AsString(), table_token_type);
             bool need_to_continue = match(tup)(
                 pattern | ds("AL" , "al")  = true,
                 pattern | ds("AX" , "ax")  = true,
                 pattern | ds("EAX", "eax") = true,
                 pattern | ds("RAX", "rax") = true,
+                pattern | ds("DX", "dx") = true,
                 pattern | ds(_,_)          = false
             );
 
@@ -207,6 +212,8 @@ namespace x86_64 {
                                                 const std::vector<TParaToken>& tokens) const {
 
         // 条件に一致したオペランドを集める
+        auto logger = spdlog::get("opennask");
+
         std::vector<InstructionForm> matching_forms;
         std::copy_if(forms_.begin(), forms_.end(), std::back_inserter(matching_forms), [&](const InstructionForm& form) {
             return find_greedy(mode, tokens, form);
@@ -215,7 +222,7 @@ namespace x86_64 {
         // 最小の機械語サイズを見つけるための初期値を設定(番兵)
         uint32_t min_size = std::numeric_limits<uint32_t>::max();
         const InstructionForm* min_size_form = nullptr;
-        spdlog::get("opennask")->debug("[pass1] matching_forms size:{}", matching_forms.size());
+        logger->trace("[pass1] matching_forms size:{}", matching_forms.size());
 
         // 条件に合致するフォームの中から機械語サイズが最小のものを選ぶ
         for (const InstructionForm& form : matching_forms) {
@@ -227,7 +234,7 @@ namespace x86_64 {
                           operands.end(),
                           [&](const Operand& o) -> void { ss << o.type() << ","; });
             ss << "]";
-            spdlog::get("opennask")->debug("[pass1] operands {}", ss.str());
+            logger->trace("[pass1] operands {}", ss.str());
 
             const auto e = form.find_encoding();
             const int size = e.get_output_size(mode);
@@ -251,7 +258,7 @@ namespace x86_64 {
                           operands.end(),
                           [&](const Operand& o) -> void { ss << o.type() << ","; });
             ss << "]";
-            spdlog::get("opennask")->debug("[pass1] detected operands {}", ss.str());
+            logger->trace("[pass1] detected operands {}", ss.str());
 
             int require_66h = 0;
             int require_67h = 0;
@@ -262,17 +269,19 @@ namespace x86_64 {
             if (_require_67h(mode, tokens)) {
                 require_67h = 1;
             }
-            spdlog::get("opennask")->debug("[pass1] selected form with minimum machine code size: {}", min_size+require_66h+require_67h);
-
+            logger->debug("[pass1] selected form with minimum machine code size: {}", min_size+require_66h+require_67h);
             return min_size+require_66h+require_67h;
         }
 
         // エラー処理
-        std::stringstream no_matching_message {"["};
+        std::stringstream no_matching_message;
+        no_matching_message << " [";
         std::for_each(tokens.begin(),
                       tokens.end(),
                       [&](const TParaToken& t) -> void { no_matching_message << t.to_string() << ","; });
         no_matching_message << "]";
+
+        logger->error("[pass1] {}", no_matching_message.str());
         throw std::runtime_error(no_matching_message.str());
 
         return 0;
