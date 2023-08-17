@@ -58,6 +58,24 @@ namespace x86_64 {
         return false;
     }
 
+    const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens) {
+
+        size_t offset_byte_size = 0;
+
+        for (int i = 0; i < tokens.size(); i++) {
+            auto t = tokens[i];
+            if (t.IsMem() /** && ! t.AsMem().hasBase() */) {
+                offset_byte_size += match(t.AsAttr())(
+                    pattern | TParaToken::ttMem8  = 1,
+                    pattern | TParaToken::ttMem16 = 2,
+                    pattern | TParaToken::ttMem32 = 4,
+                    pattern | _ = 0
+                );
+            }
+        }
+        return offset_byte_size;
+    }
+
     const std::string token_to_x86_type(const TParaToken& operand) {
 
         return match(operand.AsAttr())(
@@ -286,8 +304,11 @@ namespace x86_64 {
             if (_require_67h(mode, tokens)) {
                 require_67h = 1;
             }
-            logger->debug("[pass1] selected form with minimum machine code size: {}", min_size+require_66h+require_67h);
-            return min_size+require_66h+require_67h;
+            const auto offset_byte_size = _calc_offset_byte_size(tokens); // 直接アドレス表現等で使用されるバイト数計算
+
+            logger->debug("[pass1] selected form with minimum machine code size: {}",
+                          min_size + require_66h + require_67h + offset_byte_size);
+            return min_size + require_66h + require_67h + offset_byte_size;
         }
 
         // エラー処理
