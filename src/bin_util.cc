@@ -20,6 +20,22 @@ const std::array<uint8_t, 4> BinUtil::LongAsDword(const long dword) {
     };
 }
 
+template<typename T>
+const std::string BinUtil::int_to_hex(T i) {
+    std::stringstream stream;
+    stream << "0x"
+           << std::setfill ('0') << std::setw(sizeof(T)*2)
+           << std::hex << i;
+    return stream.str();
+}
+
+template const std::string BinUtil::int_to_hex(int8_t i);
+template const std::string BinUtil::int_to_hex(int16_t i);
+template const std::string BinUtil::int_to_hex(int32_t i);
+template const std::string BinUtil::int_to_hex(uint8_t i);
+template const std::string BinUtil::int_to_hex(uint16_t i);
+template const std::string BinUtil::int_to_hex(uint32_t i);
+
 const std::string BinUtil::bytes_to_hex(std::vector<uint8_t>& bytes) {
     std::vector<std::string> debug_args = {};
     std::transform(bytes.begin(), bytes.end(),

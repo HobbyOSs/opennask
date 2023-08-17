@@ -47,6 +47,7 @@ namespace x86_64 {
 
             require = match(mode)(
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttReg32) = true,
+                pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32) = true,
                 pattern | ID_16BIT_MODE = false,
                 pattern | _ = false
             );
@@ -58,21 +59,40 @@ namespace x86_64 {
         return false;
     }
 
+    /**
+     * メモリーアドレス表現にあるoffset値について機械語サイズの計算をする
+     *   ベースを持たない直接のアドレス表現 ex) MOV CL,[0x0ff0]; の場合2byteを返す
+     *   ベースがある場合のアドレス表現     ex) MOV ECX,[EBX+16]; の場合1byteを返す
+     */
     const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens) {
 
         size_t offset_byte_size = 0;
 
-        for (int i = 0; i < tokens.size(); i++) {
-            auto t = tokens[i];
-            if (t.IsMem() /** && ! t.AsMem().hasBase() */) {
-                offset_byte_size += match(t.AsAttr())(
-                    pattern | TParaToken::ttMem8  = 1,
-                    pattern | TParaToken::ttMem16 = 2,
-                    pattern | TParaToken::ttMem32 = 4,
-                    pattern | _ = 0
-                );
+        for (auto t : tokens) {
+
+            if (t.IsMem() && ! t.HasMemBase()) {
+                offset_byte_size += t.GetOffsetSize();
+                continue;
+            }
+
+            if (t.IsMem() && t.HasMemBase()) {
+                auto offset = t.AsMem().offset();
+                if (offset == 0) {
+                    continue; // offsetなし
+                }
+
+                if (-0x80 <= offset && offset <= 0x7f) {
+                    offset_byte_size += 1;
+                    continue; // byte
+                }
+                if (-0x8000 <= offset && offset <= 0x7fff) {
+                    offset_byte_size += 2;
+                    continue; // word
+                }
+                offset_byte_size += 4; // dword
             }
         }
+
         return offset_byte_size;
     }
 
@@ -246,9 +266,9 @@ namespace x86_64 {
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
                                                 const std::vector<TParaToken>& tokens) const {
 
-        // 条件に一致したオペランドを集める
         auto logger = spdlog::get("opennask");
 
+        // 条件に一致したオペランドを集める
         std::vector<InstructionForm> matching_forms;
         std::copy_if(forms_.begin(), forms_.end(), std::back_inserter(matching_forms), [&](const InstructionForm& form) {
             return find_greedy(mode, tokens, form);
@@ -299,13 +319,15 @@ namespace x86_64 {
             int require_67h = 0;
 
             if (_require_66h(mode, tokens)) {
+                logger->trace("[pass1] bytes 0x66h 1");
                 require_66h = 1;
             }
             if (_require_67h(mode, tokens)) {
+                logger->trace("[pass1] bytes 0x67h 1");
                 require_67h = 1;
             }
             const auto offset_byte_size = _calc_offset_byte_size(tokens); // 直接アドレス表現等で使用されるバイト数計算
-
+            logger->trace("[pass1] bytes offset byte size {}", offset_byte_size);
             logger->debug("[pass1] selected form with minimum machine code size: {}",
                           min_size + require_66h + require_67h + offset_byte_size);
             return min_size + require_66h + require_67h + offset_byte_size;

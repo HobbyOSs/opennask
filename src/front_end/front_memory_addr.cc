@@ -63,6 +63,7 @@ void FrontEnd::visitDirect(Direct *direct) {
             t.SetMem(mem);
         }
     );
+
     this->ctx.pop();
     this->ctx.push(t);
 };
@@ -138,7 +139,7 @@ void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
         pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
         pattern | "DWORD" = [&]{ right.SetAttribute(TParaToken::ttMem32); },
         pattern | _ = [&] {
-            throw std::runtime_error("datatype, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] datatype, Not implemented or not matched!!!");
         }
     );
 

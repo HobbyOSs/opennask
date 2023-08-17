@@ -112,7 +112,7 @@ public:
     ~TParaToken();
     void SetAttribute();
     void SetAttribute(TIdentiferAttribute attr);
-    void SetMem(const asmjit::x86::Mem& mem, const int16_t _segment = 0);
+    TParaToken& SetMem(const asmjit::x86::Mem& mem, const int16_t _segment = 0);
 
     std::string to_string() const;
     TParaToken& operator=(const TParaToken& token);
@@ -133,6 +133,7 @@ public:
     std::string AsString(void) const;
     asmjit::x86::Mem& AsMem(void) const;
     bool IsMem(void) const;
+    bool HasMemBase(void) const;
     int16_t AsSegment(void) const;
 
     // asmjit provides following datatype
@@ -176,7 +177,9 @@ public:
     std::array<uint8_t, 1> AsUInt8t(void) const noexcept(false);
     std::array<uint8_t, 2> AsUInt16t(void) const noexcept(false);
     std::array<uint8_t, 4> AsUInt32t(void) const noexcept(false);
+    size_t GetOffsetSize() const;
     size_t GetImmSize() const;
+
     TTokenType AsType() const;
     TIdentiferAttribute AsAttr() const;
     TParaToken& RemoveQuotation(char quoter = '\0');

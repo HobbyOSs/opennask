@@ -21,6 +21,8 @@ public:
     const std::array<uint8_t, NASK_WORD> IntAsWord(const int);
     const std::array<uint8_t, NASK_DWORD> LongAsDword(const long);
 
+    template<typename T>
+    const std::string int_to_hex(T i);
     const std::string bytes_to_hex(std::vector<uint8_t>& bytes);
     const std::string join(std::vector<std::string>&, const std::string& = "");
 

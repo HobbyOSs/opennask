@@ -8,6 +8,7 @@
 using namespace x86_64;
 using namespace jsoncons;
 
+
 class X86TableSuite : public ::testing::Test {
 
 protected:
@@ -65,7 +66,9 @@ TEST_F(X86TableSuite, CheckJsonSchema)
     }
 }
 
+//
 // トークン読み取りパラメタライズテスト
+//
 struct TokenToX86TypeParam {
     const std::string token;
     const TParaToken para_token;
@@ -109,10 +112,9 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, TokenToX86Type,
     )
 );
 
-// ---
-
-
+//
 // 命令ごとの機械語サイズ取得パラメタライズテスト
+//
 struct InstToMachineCodeSizeParam {
 
     // ここからはパラメーター
@@ -136,7 +138,14 @@ struct InstToMachineCodeSizeParam {
 };
 
 void PrintTo(const InstToMachineCodeSizeParam& param, ::std::ostream* os) {
-    *os << param._opcode;
+    *os << param._opcode << "_";
+    for (int i = 0; i < param._tokens.size(); i++ ) {
+        auto t = param._tokens[i];
+        *os << t.AsString();
+        if (i != param._tokens.size() - 1) {
+            *os << "_";
+        }
+    }
 }
 
 class InstToMachineCodeSize : public testing::TestWithParam<InstToMachineCodeSizeParam> {
@@ -188,7 +197,7 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
     testing::Values(
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "ADD",
                                    {
-                                       TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16),
+                                       TParaToken("[BX]", TParaToken::ttIdentifier, TParaToken::ttMem16).SetMem(asmjit::x86::ptr(asmjit::x86::bx)),
                                        TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16)
                                    },
                                    2),
@@ -205,7 +214,7 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
                                    {
                                        TParaToken("AL", TParaToken::ttIdentifier, TParaToken::ttReg8),
-                                       TParaToken("SI", TParaToken::ttIdentifier, TParaToken::ttMem8)
+                                       TParaToken("[SI]", TParaToken::ttIdentifier, TParaToken::ttMem8).SetMem(asmjit::x86::ptr(asmjit::x86::si))
                                    },
                                    2),
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
@@ -214,12 +223,37 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("0", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
                                    3),
+        // 0xc6, 0x06, 0xf2, 0x0f, 0x08
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
                                    {
-                                       TParaToken("[0x0ff0]", TParaToken::ttHex, TParaToken::ttMem8),
-                                       TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+                                       TParaToken("0x0ff2", TParaToken::ttHex, TParaToken::ttMem8),
+                                       TParaToken("8", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
-                                   2), // +2byteはpass1側で足す
+                                   5),
+        // 0xc7, 0x06, 0xf4, 0x0f, 0x40, 0x01
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("0x0ff4", TParaToken::ttHex, TParaToken::ttMem16),
+                                       TParaToken("320", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   6),
+        // 0x66, 0xc7, 0x06, 0xf8, 0x0f, 0x00, 0x00, 0x0a, 0x00
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("0x0ff8", TParaToken::ttHex, TParaToken::ttMem32),
+                                       TParaToken("0x000a0000", TParaToken::ttHex, TParaToken::ttImm)
+                                   },
+                                   9),
+        // 0x8A, 0x0E, 0xF00F = 4byte
+        // 通常の機械語サイズにメモリーアドレス表現で示されるオフセット部分のサイズを足す
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("CL", TParaToken::ttIdentifier, TParaToken::ttReg8),
+                                       TParaToken("0x0ff0", TParaToken::ttHex, TParaToken::ttMem8)
+                                       // ↑本来 BYTE [0x0ff0] と設定されるが単体テスト上こうなる
+                                       // parseされる中でtokenがこの値を保持するようになる
+                                   },
+                                   4),
         // 0x0D id    = 1(prefix) + 1 + 4 byte     = 6byte
         // 0x83 /1 ib = 1(prefix) + 1 + 1 + 1 byte = 4byte
         // 出力される機械語が少ない方を優先的に選ぶ
@@ -234,6 +268,30 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
                                        TParaToken("4608", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
-                                   7)
+                                   7),
+        // 0x88,0x2e,0xf0,0x0f
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       // pass1でttMem16->ttMem8に変換される
+                                       // 本来 BYTE [0x0ff0] と設定されるが単体テスト上こうなる
+                                       // parseされる中でtokenがこの値を保持するようになる
+                                       TParaToken("0x0ff0", TParaToken::ttHex, TParaToken::ttMem8),
+                                       TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+                                   },
+                                   4),
+        // 0x66, 0x81, 0xe9, 0x80, 0x00, 0x00, 0x00
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "SUB",
+                                   {
+                                       TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("128", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   7),
+        // 0x67, 0x66, 0x8b, 0x4b, 0x10
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("EBX", TParaToken::ttIdentifier, TParaToken::ttMem32).SetMem(asmjit::x86::ptr(asmjit::x86::ebx, 16))
+                                   },
+                                   5)
     )
 );

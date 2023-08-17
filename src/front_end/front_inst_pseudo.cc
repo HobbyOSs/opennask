@@ -74,13 +74,11 @@ void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
             if (e.IsInteger() || e.IsHex()) {
                 a.dd(e.AsInt32());
             } else if (e.AsAttr() == TParaToken::ttLabel) {
-                // TODO: スタブ
                 using namespace asmjit;
                 CodeBuffer& buf = code_.textSection()->buffer();
                 const std::string label = e.AsString();
-                const auto label_address = sym_table.at(label);
-                const int16_t jmp_offset = label_address - (dollar_position + buf.size());
-                a.dw(jmp_offset);
+                const auto label_address = static_cast<uint16_t>(sym_table.at(label));
+                a.dw(label_address);
             } else if (e.IsIdentifier()) {
                 throw std::runtime_error("not implemented");
             }

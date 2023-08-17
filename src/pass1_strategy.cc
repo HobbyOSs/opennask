@@ -264,12 +264,15 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 }
 
 void Pass1Strategy::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
-    uint32_t l = 0;
-
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttInteger);
-    loc += arg.AsInt32();
-    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+
+    const auto unit = arg.AsInt32();
+    const auto nearest_size = loc / unit + 1;
+    const auto l = nearest_size * unit - loc;
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", loc, loc, l);
     return;
 }
 
@@ -794,6 +797,8 @@ void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
         if (e.IsInteger() || e.IsHex()) {
             l += NASK_DWORD;
+        } else if (e.AsAttr() == TParaToken::ttLabel) {
+            l += NASK_WORD;
         } else if (e.IsIdentifier()) {
             std::string s = e.AsString();
             l += s.size();
@@ -986,7 +991,7 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
         }
     );
 
-    //loc += l;
+    loc += l;
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
@@ -1158,15 +1163,40 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
-    // TODO: 絶対ジャンプについては後ほど実装
-    uint32_t l = match(t.AsInt32())(
+    uint32_t l = match(std::make_tuple(t.AsAttr(), t.HasMemBase()))(
         // 相対ジャンプ
         // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
         // 0xE9 cw JMP rel16   次の命令との相対オフセットだけ相対ニアジャンプする
         // 0xE9 cd JMP rel32   次の命令との相対オフセットだけ相対ニアジャンプする
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 2,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 5
+        pattern | ds(TParaToken::ttImm, _) = [&] {
+            return match(t.AsInt32())(
+                pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&]   { return 2; },
+                pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] { return 3; },
+                pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] { return 5; }
+            );
+        },
+        // 絶対ジャンプ
+        // 0xEA cd | JMP ptr16:16 | オペランドで指定されるアドレスに絶対ファージャンプする
+        // 0xEA cp | JMP ptr16:32 | オペランドで指定されるアドレスに絶対ファージャンプする
+        // 処理的に修正したい場合はFRONTのコードを見る
+        pattern | ds(TParaToken::ttMem16, false) = [&] {
+            // opcode(1) + offset(2) + segment(2)
+            return 1 + 2 + 2;
+        },
+        pattern | ds(TParaToken::ttMem32, false) = [&] {
+            // 66h(1) + opcode(1) + offset(4) + segment(2)
+            return 1 + 1 + 4 + 2;
+        },
+        // 0xFF /5 | JMP m16:16 | m16:16で指定されるアドレスに絶対間接ファージャンプする
+        // 0xFF /5 | JMP m16:32 | m16:32で指定されるアドレスに絶対間接ファージャンプする
+        pattern | ds(_, true) = [&] {
+            // opcode(1) + modrm(1)
+            return 1 + 1;
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("JMP, Far jump syntax is invalid !!!");
+            return 0;
+        }
     );
 
     loc += l;
@@ -1406,25 +1436,19 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         // C6      m8      imm8
         pattern | ds(TParaToken::ttMem8, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             // `MOV BYTE [addr_size], X`
-            auto addr_size = mnemonic_args[0].GetImmSize();
-            auto size = addr_size + inst.get_output_size(bit_mode, mnemonic_args);
-            return size;
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 88      m8      r8
-        // 88      m16     r8 (m16の場合下位8ビットが使われる)
+        // ex) `MOV [0x0ff0],CH`
+        // カッコ内部のアドレスの大きさに関わらずdstのオペランドはm8扱いになる(転送元レジスタによって決まる)
         pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, _) = [&] {
-            auto token = TParaToken(mnemonic_args[0]);
-            token.SetAttribute(TParaToken::ttMem8);
-            // `MOV [0x0ff0],CH` だと0x0ff0部分を機械語に足す
-            auto size = token.GetImmSize() + inst.get_output_size(bit_mode, {token, mnemonic_args[1]});
-            return size;
+            mnemonic_args[0].SetAttribute(TParaToken::ttMem8);
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // C7      m16     imm16
         pattern | ds(TParaToken::ttMem16, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             // `MOV WORD [addr_size], X`
-            auto addr_size = mnemonic_args[0].GetImmSize();
-            auto size = addr_size + inst.get_output_size(bit_mode, mnemonic_args);
-            return size;
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 89      m16     r16
         pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
@@ -1433,11 +1457,7 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
         // C7      m32     imm32
         pattern | ds(TParaToken::ttMem32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             // `MOV DWORD [addr_size], X`
-            // TODO: x86 tableの定義に`prefix`の定義がない
-            auto override_prefix_size = (bit_mode != ID_32BIT_MODE) ? 1 : 0;
-            auto addr_size = mnemonic_args[0].GetImmSize();
-            auto size = override_prefix_size + addr_size + inst.get_output_size(bit_mode, mnemonic_args);
-            return size;
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 89      m32     r32
         pattern | ds(TParaToken::ttMem32, _, TParaToken::ttReg32, _) = [&] {
@@ -1959,8 +1979,11 @@ void Pass1Strategy::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
+// TODO: 処理的にほとんどfrontと同じため、基底クラスに定義するか
+// mixinのような仕組みでDRYに書きたい
 void Pass1Strategy::visitDirect(Direct *direct) {
     if (direct->factor_) direct->factor_->accept(this);
+    using namespace asmjit;
 
     TParaToken t = this->ctx.top();
     log()->debug("[pass1] visitDirect [{}]", t.AsString());
@@ -1968,27 +1991,41 @@ void Pass1Strategy::visitDirect(Direct *direct) {
     match(t)(
         pattern | _ | when(t.IsAsmJitGpbLo()) = [&] {
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbLo()));
         },
         pattern | _ | when(t.IsAsmJitGpbHi()) = [&] {
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbHi()));
         },
         pattern | _ | when(t.IsAsmJitGpw()) = [&] {
             t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(x86::ptr(t.AsAsmJitGpw()));
         },
         pattern | _ | when(t.IsAsmJitSReg()) = [&] {
             t.SetAttribute(TParaToken::ttMem16);
+            //t.SetMem(x86::ptr(t.AsAsmJitSReg())); TODO: コンパイルできない
         },
         pattern | _ | when(t.IsAsmJitGpd()) = [&] {
             t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(x86::ptr(t.AsAsmJitGpd()));
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 1) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(mem);
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 2) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(mem);
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 4) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(mem);
         }
     );
 
@@ -2016,18 +2053,23 @@ void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
     match(left)(
         pattern | _ | when(left.IsAsmJitGpbLo()) = [&] {
             left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbLo(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitGpbHi()) = [&] {
             left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbHi(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitGpw()) = [&] {
             left.SetAttribute(TParaToken::ttMem16);
+            left.SetMem(x86::ptr(left.AsAsmJitGpw(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitSReg()) = [&] {
             left.SetAttribute(TParaToken::ttMem16);
+            //left.SetMem(x86::ptr(left.AsAsmJitSReg(), right.AsInt32())); TODO: コンパイルできない
         },
         pattern | _ | when(left.IsAsmJitGpd()) = [&] {
             left.SetAttribute(TParaToken::ttMem32);
+            left.SetMem(x86::ptr(left.AsAsmJitGpd(), right.AsInt32()));
         }
     );
 
