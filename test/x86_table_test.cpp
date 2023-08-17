@@ -278,6 +278,20 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("0x0ff0", TParaToken::ttHex, TParaToken::ttMem8),
                                        TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
                                    },
-                                   4)
+                                   4),
+        // 0x66, 0x81, 0xe9, 0x80, 0x00, 0x00, 0x00
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "SUB",
+                                   {
+                                       TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("128", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   7),
+        // 0x67, 0x66, 0x8b, 0x4b, 0x10
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
+                                       TParaToken("EBX", TParaToken::ttIdentifier, TParaToken::ttMem32).SetMem(asmjit::x86::ptr(asmjit::x86::ebx, 16))
+                                   },
+                                   5)
     )
 );

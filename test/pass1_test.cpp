@@ -323,11 +323,11 @@ bootpack:
 
     // 0xc200=49664
     EXPECT_EQ(0xc200 + 87,  pass1->sym_table["pipelineflush"]);
+    EXPECT_EQ(0xc200 + 218, pass1->sym_table["skip"]);
     GTEST_SKIP(); // TODO: まだ機能しない
-    EXPECT_EQ(0xc200 + 217, pass1->sym_table["skip"]);
-    EXPECT_EQ(0xc200 + 230, pass1->sym_table["waitkbdout"]);
-    EXPECT_EQ(0xc200 + 237, pass1->sym_table["memcpy"]);
-    EXPECT_EQ(0xc200 + 271, pass1->sym_table["GDT0"]);
-    EXPECT_EQ(0xc200 + 297, pass1->sym_table["GDTR0"]);
-    EXPECT_EQ(0xc200 + 303, pass1->sym_table["bootpack"]);
+    EXPECT_EQ(0xc200 + 231, pass1->sym_table["waitkbdout"]);
+    EXPECT_EQ(0xc200 + 238, pass1->sym_table["memcpy"]);
+    EXPECT_EQ(0xc200 + 272, pass1->sym_table["GDT0"]);
+    EXPECT_EQ(0xc200 + 298, pass1->sym_table["GDTR0"]);
+    EXPECT_EQ(0xc200 + 304, pass1->sym_table["bootpack"]);
 }

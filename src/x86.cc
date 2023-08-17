@@ -60,18 +60,36 @@ namespace x86_64 {
     }
 
     /**
-     * ベースを持たない直接のアドレス表現が存在する際に機械語サイズの計算をする
-     * MOV CL,[0x0ff0]; の場合2byteを返す
+     * メモリーアドレス表現にあるoffset値について機械語サイズの計算をする
+     *   ベースを持たない直接のアドレス表現 ex) MOV CL,[0x0ff0]; の場合2byteを返す
+     *   ベースがある場合のアドレス表現     ex) MOV ECX,[EBX+16]; の場合1byteを返す
      */
     const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens) {
 
         size_t offset_byte_size = 0;
 
         for (auto t : tokens) {
+
             if (t.IsMem() && ! t.HasMemBase()) {
                 offset_byte_size += t.GetOffsetSize();
+                continue;
+            }
+
+            if (t.IsMem() && t.HasMemBase()) {
+                auto offset = t.AsMem().offset();
+
+                if (-0x80 <= offset && offset <= 0x7f) {
+                    offset_byte_size += 1;
+                    continue; // byte
+                }
+                if (-0x8000 <= offset && offset <= 0x7fff) {
+                    offset_byte_size += 2;
+                    continue; // word
+                }
+                offset_byte_size += 4; // dword
             }
         }
+
         return offset_byte_size;
     }
 
