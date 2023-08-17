@@ -343,7 +343,32 @@ struct StatementsToMachineCodeParam {
 };
 
 void PrintTo(const StatementsToMachineCodeParam& param, ::std::ostream* os) {
-    *os << param._statement;
+    std::istringstream iss(param._statement);
+    std::vector<std::string> lines(std::istream_iterator<std::string>{iss},
+                                   std::istream_iterator<std::string>());
+
+    for (auto& line : lines) {
+        // trim
+        line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](int ch) {
+            return !std::isspace(ch);
+        }));
+        line.erase(std::find_if(line.rbegin(), line.rend(), [](int ch) {
+            return !std::isspace(ch);
+        }).base(), line.end());
+
+        // スペースとカンマは「_」に変換
+        std::replace(line.begin(), line.end(), ' ', '_');
+        std::replace(line.begin(), line.end(), ',', '_');
+
+        // ブラケットは「/」に変換
+        std::replace(line.begin(), line.end(), '[', '/');
+        std::replace(line.begin(), line.end(), ']', '/');
+    }
+
+    std::ostringstream oss;
+    std::copy(lines.begin(), lines.end(), std::ostream_iterator<std::string>(oss, "_"));
+
+    *os << oss.str();
 }
 
 class StatementsToMachineCode : public testing::TestWithParam<StatementsToMachineCodeParam> {};
@@ -367,7 +392,9 @@ TEST_P(StatementsToMachineCode, StatementsToMachineCode) {
 INSTANTIATE_TEST_SUITE_P(ExpSuite, StatementsToMachineCode,
     testing::Values(
         StatementsToMachineCodeParam(ID_16BIT_MODE,
-                                     "DB 0x01\nDB 0x02\nDB 0x03",
+                                     R"(DB 0x01
+                                        DB 0x02
+                                        DB 0x03)",
                                      std::vector<uint8_t>{0x01, 0x02, 0x03}),
         StatementsToMachineCodeParam(ID_16BIT_MODE,
                                      "RESB 18",
@@ -376,9 +403,23 @@ INSTANTIATE_TEST_SUITE_P(ExpSuite, StatementsToMachineCode,
                                      "RESB 0x12-$",
                                      std::vector<uint8_t>(18, 0x00)),
         StatementsToMachineCodeParam(ID_16BIT_MODE,
-                                     "MOV AX,0\nMOV SS,AX",
+                                     R"(MOV AX,0
+                                        MOV SS,AX)",
                                      std::vector<uint8_t>{0xb8, 0x00, 0x00, 0x8e, 0xd0}),
         StatementsToMachineCodeParam(ID_16BIT_MODE,
                                      "JMP DWORD 2*8:0x0000001b",
-                                     std::vector<uint8_t>{0x66, 0xea, 0x1b,0x00, 0x00, 0x00, 0x10, 0x00})
+                                     std::vector<uint8_t>{0x66, 0xea, 0x1b,0x00, 0x00, 0x00, 0x10, 0x00}),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     R"([INSTRSET "i486p"]
+                                        MOV [EDI],EAX)",
+                                     std::vector<uint8_t>{0x67, 0x66, 0x89, 0x07}),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     R"([INSTRSET "i486p"]
+                                        MOV EAX,[ESI])",
+                                     std::vector<uint8_t>{0x67, 0x66, 0x8b, 0x06}),
+        StatementsToMachineCodeParam(ID_16BIT_MODE,
+                                     R"([INSTRSET "i486p"]
+                                        MOV ESI,[EBX+20]
+                                        MOV EDI,[EBX+12])",
+                                     std::vector<uint8_t>{0x67, 0x66, 0x8b, 0x73, 0x14, 0x67, 0x66, 0x8b, 0x7b, 0x0c})
     ));

@@ -222,15 +222,20 @@ gtest_discover_tests(day03test)
 
 # `ctest -R day04`
 set(day04test_SRCS
-    day04test.cpp
-    ../src/tinyexpr.c
-    ../src/nask_utility.cpp
-    ../src/mod_rm.cpp
-    ../src/string_util.cpp)
+  day04test.cpp)
 
 add_executable(day04test ${day04test_SRCS})
 target_link_libraries(day04test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  nask_parse_objects
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
+if(WITH_BACKWARDS_CPP)
+  target_link_libraries(day04test PUBLIC -lbfd)
+  target_link_libraries(day04test PUBLIC backward)
+endif()
 
 target_compile_features(day04test PRIVATE cxx_std_17)
 gtest_discover_tests(day04test)
