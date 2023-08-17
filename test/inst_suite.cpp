@@ -52,7 +52,30 @@ void PrintTo(const StatementToMachineCodeParam& param, ::std::ostream* os) {
     *os << param._statement;
 }
 
-class StatementToMachineCode : public testing::TestWithParam<StatementToMachineCodeParam> {};
+class StatementToMachineCode : public testing::TestWithParam<StatementToMachineCodeParam> {
+
+protected:
+    // 試験開始時に一回だけ実行
+    StatementToMachineCode() {
+        if(!spdlog::get("opennask")) {
+            auto logger = spdlog::stdout_color_st("opennask");
+        }
+    }
+
+    // 試験終了時に一回だけ実行
+    ~StatementToMachineCode() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+        //spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::trace);
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
+};
 
 TEST_P(StatementToMachineCode, StatementToMachineCode) {
     const auto p = GetParam();

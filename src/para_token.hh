@@ -132,6 +132,7 @@ public:
     bool IsNot(const std::string& string) const;
     std::string AsString(void) const;
     asmjit::x86::Mem& AsMem(void) const;
+    bool IsMem(void) const;
     int16_t AsSegment(void) const;
 
     // asmjit provides following datatype

@@ -24,8 +24,8 @@ $ ninja
 $ CMAKE_OPT="-DWITH_BACKWARDS_CPP=ON" ./ninja_build.sh
 
 # clang is faster than gcc
-$ CMAKE_OPT="CMAKE_C_COMPILER=clang CMAKE_CXX_COMPILER=clang++" ./ninja_build.sh
-```
+$ CMAKE_OPT="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++" ./ninja_build.sh
+  ```
 
 # Build osask project files (debian)
 

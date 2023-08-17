@@ -15,9 +15,10 @@ namespace x86_64 {
 
     extern const char* X86_64_JSON;
 
-    const bool _require_67h(OPENNASK_MODES, std::initializer_list<TParaToken>);
-    const bool _require_66h(OPENNASK_MODES, std::initializer_list<TParaToken>);
-    const std::string token_to_x86_type(const TParaToken*);
+    const bool _require_67h(OPENNASK_MODES, const std::vector<TParaToken>&);
+    const bool _require_66h(OPENNASK_MODES, const std::vector<TParaToken>&);
+    const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens);
+    const std::string token_to_x86_type(const TParaToken&);
     const bool _starts_with(std::string const &full_string, std::string const &begining);
     const std::string _to_lower(const std::string &in);
 
@@ -410,7 +411,7 @@ namespace x86_64 {
             return data_offset_;
         }
 
-        const int get_output_size(OPENNASK_MODES mode);
+        const int get_output_size(OPENNASK_MODES mode) const;
     };
 
     class InstructionForm {
@@ -464,7 +465,7 @@ namespace x86_64 {
         }
 
         // 複数機械語の出力があり得る場合がたまにある
-        const Encoding find_encoding();
+        Encoding find_encoding() const;
     };
 
     class Instruction {
@@ -489,8 +490,8 @@ namespace x86_64 {
             return forms_;
         }
 
-        const bool find_greedy(OPENNASK_MODES, std::initializer_list<TParaToken>, InstructionForm&);
-        const uint32_t get_output_size(OPENNASK_MODES, std::initializer_list<TParaToken>);
+        const bool find_greedy(OPENNASK_MODES, const std::vector<TParaToken>&, const InstructionForm&) const;
+        const uint32_t get_output_size(OPENNASK_MODES, const std::vector<TParaToken>&) const;
     };
 
     class InstructionSet {

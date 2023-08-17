@@ -78,6 +78,10 @@ x86::Mem& TParaToken::AsMem() const {
     return *_mem.get();
 }
 
+bool TParaToken::IsMem() const {
+    return _mem != nullptr;
+}
+
 int16_t TParaToken::AsSegment() const {
     return _segment;
 }
