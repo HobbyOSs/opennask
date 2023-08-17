@@ -926,6 +926,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
     // Operand size prefix
     require_66h = match(bit_mode)(
         pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32) = true,
         pattern | ID_16BIT_MODE = false,
         pattern | _ = false
     );
@@ -949,6 +950,7 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) 
     // Operand size prefix
     require_66h = match(bit_mode)(
         pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32||src_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32||src_attr == TParaToken::ttMem32) = true,
         pattern | ID_16BIT_MODE = false,
         pattern | _ = false
     );

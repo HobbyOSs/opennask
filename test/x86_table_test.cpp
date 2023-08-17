@@ -223,6 +223,27 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("0", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
                                    3),
+        // 0xc6, 0x06, 0xf2, 0x0f, 0x08
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("0x0ff2", TParaToken::ttHex, TParaToken::ttMem8),
+                                       TParaToken("8", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   5),
+        // 0xc7, 0x06, 0xf4, 0x0f, 0x40, 0x01
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("0x0ff4", TParaToken::ttHex, TParaToken::ttMem16),
+                                       TParaToken("320", TParaToken::ttInteger, TParaToken::ttImm)
+                                   },
+                                   6),
+        // 0x66, 0xc7, 0x06, 0xf8, 0x0f, 0x00, 0x00, 0x0a, 0x00
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("0x0ff8", TParaToken::ttHex, TParaToken::ttMem32),
+                                       TParaToken("0x000a0000", TParaToken::ttHex, TParaToken::ttImm)
+                                   },
+                                   9),
         // 0x8A, 0x0E, 0xF00F = 4byte
         // 通常の機械語サイズにメモリーアドレス表現で示されるオフセット部分のサイズを足す
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
@@ -247,6 +268,16 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
                                        TParaToken("4608", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
-                                   7)
+                                   7),
+        // 0x88,0x2e,0xf0,0x0f
+        InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
+                                   {
+                                       // pass1でttMem16->ttMem8に変換される
+                                       // 本来 BYTE [0x0ff0] と設定されるが単体テスト上こうなる
+                                       // parseされる中でtokenがこの値を保持するようになる
+                                       TParaToken("0x0ff0", TParaToken::ttHex, TParaToken::ttMem8),
+                                       TParaToken("CH", TParaToken::ttIdentifier, TParaToken::ttReg8)
+                                   },
+                                   4)
     )
 );
