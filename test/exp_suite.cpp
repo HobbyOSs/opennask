@@ -14,7 +14,7 @@ class ExpSuite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
     ExpSuite() {
-        spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::trace);
     }
 
     // 試験終了時に一回だけ実行

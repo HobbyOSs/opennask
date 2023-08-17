@@ -49,7 +49,18 @@ struct StatementToMachineCodeParam {
 };
 
 void PrintTo(const StatementToMachineCodeParam& param, ::std::ostream* os) {
-    *os << param._statement;
+
+    // テストケース名のspaceとカンマは「_」にしたい
+    std::string case_name = param._statement;
+    for (char& c : case_name) {
+        if (c == ' ' || c == ',') {
+            c = '_';
+        }
+        if (c == '[' || c == ']') {
+            c = '/';
+        }
+    }
+    *os << case_name;
 }
 
 class StatementToMachineCode : public testing::TestWithParam<StatementToMachineCodeParam> {

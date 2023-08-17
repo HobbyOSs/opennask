@@ -1959,8 +1959,11 @@ void Pass1Strategy::visitImmExp(ImmExp *imm_exp) {
     this->ctx.push(t);
 }
 
+// TODO: 処理的にほとんどfrontと同じため、基底クラスに定義するか
+// mixinのような仕組みでDRYに書きたい
 void Pass1Strategy::visitDirect(Direct *direct) {
     if (direct->factor_) direct->factor_->accept(this);
+    using namespace asmjit;
 
     TParaToken t = this->ctx.top();
     log()->debug("[pass1] visitDirect [{}]", t.AsString());
@@ -1968,27 +1971,41 @@ void Pass1Strategy::visitDirect(Direct *direct) {
     match(t)(
         pattern | _ | when(t.IsAsmJitGpbLo()) = [&] {
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbLo()));
         },
         pattern | _ | when(t.IsAsmJitGpbHi()) = [&] {
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(x86::ptr(t.AsAsmJitGpbHi()));
         },
         pattern | _ | when(t.IsAsmJitGpw()) = [&] {
             t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(x86::ptr(t.AsAsmJitGpw()));
         },
         pattern | _ | when(t.IsAsmJitSReg()) = [&] {
             t.SetAttribute(TParaToken::ttMem16);
+            //t.SetMem(x86::ptr(t.AsAsmJitSReg())); TODO: コンパイルできない
         },
         pattern | _ | when(t.IsAsmJitGpd()) = [&] {
             t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(x86::ptr(t.AsAsmJitGpd()));
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 1) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem8);
+            t.SetMem(mem);
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 2) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem16);
+            t.SetMem(mem);
         },
         pattern | _ | when(t.IsImmediate() && t.GetImmSize() == 4) = [&] {
+            auto mem = x86::Mem();
+            mem.setOffset(t.AsInt32());
             t.SetAttribute(TParaToken::ttMem32);
+            t.SetMem(mem);
         }
     );
 
@@ -2016,18 +2033,23 @@ void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
     match(left)(
         pattern | _ | when(left.IsAsmJitGpbLo()) = [&] {
             left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbLo(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitGpbHi()) = [&] {
             left.SetAttribute(TParaToken::ttMem8);
+            left.SetMem(x86::ptr(left.AsAsmJitGpbHi(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitGpw()) = [&] {
             left.SetAttribute(TParaToken::ttMem16);
+            left.SetMem(x86::ptr(left.AsAsmJitGpw(), right.AsInt32()));
         },
         pattern | _ | when(left.IsAsmJitSReg()) = [&] {
             left.SetAttribute(TParaToken::ttMem16);
+            //left.SetMem(x86::ptr(left.AsAsmJitSReg(), right.AsInt32())); TODO: コンパイルできない
         },
         pattern | _ | when(left.IsAsmJitGpd()) = [&] {
             left.SetAttribute(TParaToken::ttMem32);
+            left.SetMem(x86::ptr(left.AsAsmJitGpd(), right.AsInt32()));
         }
     );
 

@@ -66,9 +66,10 @@ TParaToken::TParaToken(const TParaToken& token) {
 TParaToken::~TParaToken() {
 }
 
-void TParaToken::SetMem(const x86::Mem& mem, const int16_t segment) {
+TParaToken& TParaToken::SetMem(const x86::Mem& mem, const int16_t segment) {
     _mem = std::make_shared<x86::Mem>(mem);
     _segment = segment;
+    return *this;
 }
 
 x86::Mem& TParaToken::AsMem() const {
@@ -79,7 +80,22 @@ x86::Mem& TParaToken::AsMem() const {
 }
 
 bool TParaToken::IsMem() const {
-    return _mem != nullptr;
+    return _attr == TIdentiferAttribute::ttMem8 ||
+        _attr == TIdentiferAttribute::ttMem16 ||
+        _attr == TIdentiferAttribute::ttMem32;
+}
+
+bool TParaToken::HasMemBase(void) const {
+
+    if (!IsMem()) {
+        return false;
+    }
+
+    if (_mem == nullptr) {
+        return false;
+    }
+
+    return _mem->hasBase();
 }
 
 int16_t TParaToken::AsSegment() const {
@@ -417,6 +433,18 @@ std::array<uint8_t, 4> TParaToken::AsUInt32t() const {
         static_cast<uint8_t>( (dword >> 16) & 0xff ),
         static_cast<uint8_t>( (dword >> 24) & 0xff ),
     };
+}
+
+size_t TParaToken::GetOffsetSize() const {
+    const int32_t imm = AsInt32();
+
+    if (-0x80 <= imm && imm <= 0x7f) {
+        return 1;
+    }
+    if (-0x8000 <= imm && imm <= 0x7fff) {
+        return 2 ;
+    }
+    return 4;
 }
 
 size_t TParaToken::GetImmSize() const {

@@ -58,19 +58,17 @@ namespace x86_64 {
         return false;
     }
 
+    /**
+     * ベースを持たない直接のアドレス表現が存在する際に機械語サイズの計算をする
+     * MOV CL,[0x0ff0]; の場合2byteを返す
+     */
     const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens) {
 
         size_t offset_byte_size = 0;
 
-        for (int i = 0; i < tokens.size(); i++) {
-            auto t = tokens[i];
-            if (t.IsMem() /** && ! t.AsMem().hasBase() */) {
-                offset_byte_size += match(t.AsAttr())(
-                    pattern | TParaToken::ttMem8  = 1,
-                    pattern | TParaToken::ttMem16 = 2,
-                    pattern | TParaToken::ttMem32 = 4,
-                    pattern | _ = 0
-                );
+        for (auto t : tokens) {
+            if (t.IsMem() && ! t.HasMemBase()) {
+                offset_byte_size += t.GetOffsetSize();
             }
         }
         return offset_byte_size;
@@ -246,9 +244,9 @@ namespace x86_64 {
     const uint32_t Instruction::get_output_size(OPENNASK_MODES mode,
                                                 const std::vector<TParaToken>& tokens) const {
 
-        // 条件に一致したオペランドを集める
         auto logger = spdlog::get("opennask");
 
+        // 条件に一致したオペランドを集める
         std::vector<InstructionForm> matching_forms;
         std::copy_if(forms_.begin(), forms_.end(), std::back_inserter(matching_forms), [&](const InstructionForm& form) {
             return find_greedy(mode, tokens, form);

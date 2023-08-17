@@ -482,7 +482,6 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
             },
 
             // 89      r32     r32
-
             // 8B      r32     m32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
                 a.mov(dst.AsAsmJitGpd(), src.AsMem() );
