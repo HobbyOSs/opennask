@@ -360,25 +360,20 @@ void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
         using namespace asmjit;
 
         if (src.AsAttr() == TParaToken::ttImm) {
-            auto mem = x86::Mem(src.AsInt32());
-            // TODO: 自力実装
+            auto src_mem = "[" + src.AsString() + "]";
             a.db(0x0f);
             a.db(0x01);
-            a.db(0x00);
-            a.db(0x00);
-            a.db(0x00);
+            a.db(ModRM::generate_modrm(ModRM::REG_REG, src_mem, ModRM::SLASH_2));
+            a.dw(src.AsInt32());
         } else if (src.AsAttr() == TParaToken::ttLabel) {
             CodeBuffer& buf = code_.textSection()->buffer();
             const std::string label = src.AsString();
-            const auto label_address = sym_table.at(label);
-            const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-            auto mem = x86::Mem(jmp_offset);
-            // TODO: 自力実装
+            const auto label_address = static_cast<uint16_t>(sym_table.at(label));
+            auto src_mem = "[" + int_to_hex(label_address) + "]";
             a.db(0x0f);
             a.db(0x01);
-            a.db(0x00);
-            a.db(0x00);
-            a.db(0x00);
+            a.db(ModRM::generate_modrm(ModRM::REG_REG, src_mem, ModRM::SLASH_2));
+            a.dw(label_address);
         } else {
             throw std::runtime_error("LGDT, Not implemented or not matched!!!");
         }

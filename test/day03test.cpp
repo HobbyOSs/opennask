@@ -1239,7 +1239,7 @@ bootpack:
     expected.insert(expected.end(), {0x66, 0xbe, 0x30, 0xc3, 0x00, 0x00});
     expected.insert(expected.end(), {0x66, 0xbf, 0x00, 0x00, 0x28, 0x00});
     expected.insert(expected.end(), {0x66, 0xb9, 0x00, 0x00, 0x02, 0x00});
-    expected.insert(expected.end(), {0xe8, 0x60, 0x00});
+    expected.insert(expected.end(), {0xe8, 0x75, 0x00});
 
     // まずはブートセクタから
     expected.insert(expected.end(), {0x66, 0xbe, 0x00, 0x7c, 0x00, 0x00});
@@ -1298,6 +1298,5 @@ bootpack:
     expected.insert(expected.end(), {0x00, 0x00});
 
     // 作成したバイナリの差分assert & diff表示
-    GTEST_SKIP(); // TODO: まだ機能しない
     ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
