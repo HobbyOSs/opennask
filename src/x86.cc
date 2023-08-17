@@ -77,6 +77,9 @@ namespace x86_64 {
 
             if (t.IsMem() && t.HasMemBase()) {
                 auto offset = t.AsMem().offset();
+                if (offset == 0) {
+                    continue; // offsetなし
+                }
 
                 if (-0x80 <= offset && offset <= 0x7f) {
                     offset_byte_size += 1;

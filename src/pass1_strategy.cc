@@ -264,12 +264,15 @@ void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
 }
 
 void Pass1Strategy::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
-    uint32_t l = 0;
-
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttInteger);
-    loc += arg.AsInt32();
-    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
+
+    const auto unit = arg.AsInt32();
+    const auto nearest_size = loc / unit + 1;
+    const auto l = nearest_size * unit - loc;
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", loc, loc, l);
     return;
 }
 
@@ -794,6 +797,8 @@ void Pass1Strategy::processDD(std::vector<TParaToken>& mnemonic_args) {
     for (const auto& e : mnemonic_args) {
         if (e.IsInteger() || e.IsHex()) {
             l += NASK_DWORD;
+        } else if (e.AsAttr() == TParaToken::ttLabel) {
+            l += NASK_WORD;
         } else if (e.IsIdentifier()) {
             std::string s = e.AsString();
             l += s.size();
@@ -986,7 +991,7 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
         }
     );
 
-    //loc += l;
+    loc += l;
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
@@ -1158,15 +1163,40 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
-    // TODO: 絶対ジャンプについては後ほど実装
-    uint32_t l = match(t.AsInt32())(
+    uint32_t l = match(std::make_tuple(t.AsAttr(), t.HasMemBase()))(
         // 相対ジャンプ
         // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
         // 0xE9 cw JMP rel16   次の命令との相対オフセットだけ相対ニアジャンプする
         // 0xE9 cd JMP rel32   次の命令との相対オフセットだけ相対ニアジャンプする
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 2,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 5
+        pattern | ds(TParaToken::ttImm, _) = [&] {
+            return match(t.AsInt32())(
+                pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&]   { return 2; },
+                pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] { return 3; },
+                pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = [&] { return 5; }
+            );
+        },
+        // 絶対ジャンプ
+        // 0xEA cd | JMP ptr16:16 | オペランドで指定されるアドレスに絶対ファージャンプする
+        // 0xEA cp | JMP ptr16:32 | オペランドで指定されるアドレスに絶対ファージャンプする
+        // 処理的に修正したい場合はFRONTのコードを見る
+        pattern | ds(TParaToken::ttMem16, false) = [&] {
+            // opcode(1) + offset(2) + segment(2)
+            return 1 + 2 + 2;
+        },
+        pattern | ds(TParaToken::ttMem32, false) = [&] {
+            // 66h(1) + opcode(1) + offset(4) + segment(2)
+            return 1 + 1 + 4 + 2;
+        },
+        // 0xFF /5 | JMP m16:16 | m16:16で指定されるアドレスに絶対間接ファージャンプする
+        // 0xFF /5 | JMP m16:32 | m16:32で指定されるアドレスに絶対間接ファージャンプする
+        pattern | ds(_, true) = [&] {
+            // opcode(1) + modrm(1)
+            return 1 + 1;
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("JMP, Far jump syntax is invalid !!!");
+            return 0;
+        }
     );
 
     loc += l;
