@@ -42,9 +42,9 @@ class PrintAbsyn : public Visitor
   void visitStatement(Statement *p); /* abstract class */
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
+  void visitExportSymStmt(ExportSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
-  void visitOpcodeStmt(OpcodeStmt *p);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -416,6 +416,7 @@ class PrintAbsyn : public Visitor
   void visitIdent(String s);
   void visitHex(String s);
   void visitLabel(String s);
+  void visitId(String s);
  protected:
   char *buf_;
   size_t cur_, buf_size;
@@ -485,9 +486,9 @@ class ShowAbsyn : public Visitor
   void visitStatement(Statement *p); /* abstract class */
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
+  void visitExportSymStmt(ExportSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
-  void visitOpcodeStmt(OpcodeStmt *p);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -859,6 +860,7 @@ class ShowAbsyn : public Visitor
   void visitIdent(String s);
   void visitHex(String s);
   void visitLabel(String s);
+  void visitId(String s);
  protected:
   char *buf_;
   size_t cur_, buf_size;

@@ -221,6 +221,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"FXTRACT"      	 return token::_KW_FXTRACT;
 <INITIAL>"FYL2X"      	 return token::_KW_FYL2X;
 <INITIAL>"FYL2XP1"      	 return token::_KW_FYL2XP1;
+<INITIAL>"GLOBAL"      	 return token::_KW_GLOBAL;
 <INITIAL>"HLT"      	 return token::_KW_HLT;
 <INITIAL>"IDIV"      	 return token::_KW_IDIV;
 <INITIAL>"IMUL"      	 return token::_KW_IMUL;
@@ -426,7 +427,8 @@ IDENT [a-zA-Z0-9'_]
 <COMMENT1>[^\n] /* skip */;
 
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
-<INITIAL>(\_|{LETTER})(\_|({DIGIT}|{LETTER}))*\:\r?\n    	 yylval->emplace<std::string>(yytext); return token::T_Label;
+<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:    	 yylval->emplace<std::string>(yytext); return token::T_Label;
+<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;
 <STRING>\"             	 yylval->emplace<std::string>(LITERAL_BUFFER_HARVEST()); BEGIN INITIAL; return token::_STRING_;
@@ -440,7 +442,6 @@ IDENT [a-zA-Z0-9'_]
 <ESCAPED>.             	 LITERAL_BUFFER_APPEND(yytext);    BEGIN STRING;
 <STRING,ESCAPED><<EOF>>	 LITERAL_BUFFER_FREE(); return token::_ERROR_;
 <INITIAL>{DIGIT}+      	 yylval->emplace<int>(atoi(yytext)); return token::_INTEGER_;
-<INITIAL>{LETTER}{IDENT}*      	 yylval->emplace<std::string>(yytext); return token::_IDENT_;
 <INITIAL>[ \t\r\n\f]      	 /* ignore white space. */;
 <INITIAL>.      	 return token::_ERROR_;
 

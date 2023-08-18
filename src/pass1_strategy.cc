@@ -7,7 +7,6 @@
 #include "x86.hh"
 
 using namespace std::placeholders;
-using namespace matchit;
 
 typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
 typedef std::map<std::string, nim_callback> funcs_type;
@@ -49,8 +48,8 @@ void Pass1Strategy::visitStatement(Statement *t) {
         this->visitConfigStmt(dynamic_cast<ConfigStmt*>(t));
     } else if (dynamic_cast<MnemonicStmt*>(t) != nullptr) {
         this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
-    } else if (dynamic_cast<OpcodeStmt*>(t) != nullptr) {
-        this->visitOpcodeStmt(dynamic_cast<OpcodeStmt*>(t));
+    } else if (dynamic_cast<ExportSymStmt*>(t) != nullptr) {
+        this->visitExportSymStmt(dynamic_cast<ExportSymStmt*>(t));
     }
 }
 
@@ -152,7 +151,7 @@ void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {
 
 void Pass1Strategy::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
-    visitIdent(declare_stmt->ident_);
+    visitIdent(declare_stmt->id_);
     TParaToken key = this->ctx.top();
     this->ctx.pop();
 
@@ -164,6 +163,15 @@ void Pass1Strategy::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("[pass1] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
+}
+
+void Pass1Strategy::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
+
+    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
+    TParaToken symbol = this->ctx.top();
+    this->ctx.pop();
+
+    log()->debug("[pass1] symbol {}", symbol.AsString());
 }
 
 void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -202,7 +210,12 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
-        // x86命令
+        // x86命令(引数なし)
+        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
+        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
+        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
+        std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this)),
+        // x86命令(引数あり)
         // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
         std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
         std::make_pair("OpcodesAND", std::bind(&Pass1Strategy::processAND, this, _1)),
@@ -235,32 +248,6 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     }
 
     func_iter->second(mnemonic_args);
-}
-
-void Pass1Strategy::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
-    if (opcode_stmt->opcode_) {
-        opcode_stmt->opcode_->accept(this);
-    }
-
-    typedef std::function<void()> nim_callback;
-    typedef std::map<std::string, nim_callback> funcs_type;
-
-    funcs_type funcs {
-        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
-        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
-        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
-        std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this)),
-    };
-
-    const std::string opcode = type(*opcode_stmt->opcode_);
-    log()->debug("[pass1] {}", opcode);
-
-    funcs_type::iterator it = funcs.find(opcode);
-    if (it != funcs.end()) {
-        it->second();
-    } else {
-        throw std::runtime_error(opcode + " is not implemented!!!");
-    }
 }
 
 void Pass1Strategy::processALIGNB(std::vector<TParaToken>& mnemonic_args) {
@@ -335,6 +322,7 @@ void Pass1Strategy::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     auto inst = iset->instructions().at("ADD");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, mnemonic_args);
@@ -480,6 +468,7 @@ void Pass1Strategy::processAND(std::vector<TParaToken>& mnemonic_args) {
     );
 
     auto inst = iset->instructions().at("AND");
+    using namespace matchit;
 
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
@@ -603,6 +592,7 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
     );
 
     auto inst = iset->instructions().at("CALL");
+    using namespace matchit;
 
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg64, _) = [&] {
@@ -672,6 +662,7 @@ void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
     );
 
     auto inst = iset->instructions().at("CMP");
+    using namespace matchit;
 
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
@@ -876,6 +867,7 @@ void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
         get_optional(2)
     );
     auto inst = iset->instructions().at("IMUL");
+    using namespace matchit;
 
     uint32_t l = match(operands)(
         // F6      r8
@@ -967,6 +959,7 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsString()
     );
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), TParaToken::ttImm, _) = [&] {
            return NASK_WORD;
@@ -1004,6 +997,7 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
     );
 
     auto inst = iset->instructions().at("INT");
+    using namespace matchit;
 
     uint32_t l = match(operands)(
         pattern | ds(_, "3") = [&] {
@@ -1043,6 +1037,7 @@ void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x73      cb JAE rel8    CF=0 より上か等しい場合ショートジャンプします
@@ -1067,6 +1062,7 @@ void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x72      cb JB rel8    CF=1 より下の場合ショートジャンプします
@@ -1091,6 +1087,7 @@ void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x76      cb JBE rel8    CF=1 or ZF=1 より下か等しい場合ショートジャンプします
@@ -1115,6 +1112,7 @@ void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x72      cb JC rel8    CF=1 キャリーがある場合ショートジャンプします
@@ -1139,6 +1137,7 @@ void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x74      cb JE rel8    ZF=1 等しい場合ショートジャンプします
@@ -1163,6 +1162,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(std::make_tuple(t.AsAttr(), t.HasMemBase()))(
         // 相対ジャンプ
         // 0xEB cb JMP rel8    次の命令との相対オフセットだけ相対ショートジャンプする
@@ -1213,6 +1213,7 @@ void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x73      cb JNC rel8    キャリーがない場合ショートジャンプします
@@ -1237,6 +1238,7 @@ void Pass1Strategy::processJNZ(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x75      cb JNZ rel8    ゼロでない場合ショートジャンプします
@@ -1262,6 +1264,7 @@ void Pass1Strategy::processJZ(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // 相対ジャンプ
         // 0x74      cb JZ rel8    ZF=1 ゼロの場合ショートジャンプします
@@ -1288,6 +1291,7 @@ void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
         return;
     }
 
+    using namespace matchit;
     uint32_t l = match(t.AsInt32())(
         // m16 or m32
         pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3 + NASK_WORD,
@@ -1344,6 +1348,7 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // A3      moffs64 rax
     auto inst = iset->instructions().at("MOV");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
 
         // セグメントレジスタ
@@ -1548,6 +1553,7 @@ void Pass1Strategy::processOR(std::vector<TParaToken>& mnemonic_args) {
 
     auto inst = iset->instructions().at("OR");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, mnemonic_args);
@@ -1670,6 +1676,7 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
 
     auto inst = iset->instructions().at("OUT");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _, TParaToken::ttReg8, "AL") = [&] {
             return inst.get_output_size(bit_mode, mnemonic_args);
@@ -1752,6 +1759,7 @@ void Pass1Strategy::processSHR(std::vector<TParaToken>& mnemonic_args) {
 
     auto inst = iset->instructions().at("SHR");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(or_(TParaToken::ttReg8,
                          TParaToken::ttReg16,
@@ -1847,6 +1855,7 @@ void Pass1Strategy::processSUB(std::vector<TParaToken>& mnemonic_args) {
 
     auto inst = iset->instructions().at("SUB");
 
+    using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(TParaToken::ttReg8, "AL", or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
             return inst.get_output_size(bit_mode, mnemonic_args);
@@ -1988,6 +1997,7 @@ void Pass1Strategy::visitDirect(Direct *direct) {
     TParaToken t = this->ctx.top();
     log()->debug("[pass1] visitDirect [{}]", t.AsString());
 
+    using namespace matchit;
     match(t)(
         pattern | _ | when(t.IsAsmJitGpbLo()) = [&] {
             t.SetAttribute(TParaToken::ttMem8);
@@ -2035,7 +2045,7 @@ void Pass1Strategy::visitDirect(Direct *direct) {
 
 void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
 
-    visitIdent(based_or_indexed->ident_);
+    visitIdent(based_or_indexed->id_);
     TParaToken left = this->ctx.top();
     left.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
@@ -2045,11 +2055,11 @@ void Pass1Strategy::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
     right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
 
-    using namespace asmjit;
-
     log()->debug("[pass1] visitBasedOrIndexed [{} + {}]",
                  left.AsString(), right.AsString());
 
+    using namespace asmjit;
+    using namespace matchit;
     match(left)(
         pattern | _ | when(left.IsAsmJitGpbLo()) = [&] {
             left.SetAttribute(TParaToken::ttMem8);
@@ -2098,6 +2108,7 @@ void Pass1Strategy::visitDatatypeExp(DatatypeExp *datatype_exp) {
     TParaToken right = this->ctx.top();
     this->ctx.pop();
 
+    using namespace matchit;
     match(left.AsString())(
         pattern | "BYTE" = [&]{ right.SetAttribute(TParaToken::ttMem8); },
         pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
@@ -2132,6 +2143,7 @@ void Pass1Strategy::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) 
     mem.setOffset(offset.AsInt32());
     offset.SetMem(mem, segment.AsInt32());
 
+    using namespace matchit;
     match(data_type.AsString())(
         pattern | "BYTE"  = [&]{ offset.SetAttribute(TParaToken::ttMem8); },
         pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
@@ -2260,7 +2272,7 @@ void Pass1Strategy::visitHexFactor(HexFactor *hex_factor) {
 }
 
 void Pass1Strategy::visitIdentFactor(IdentFactor *ident_factor) {
-    visitIdent(ident_factor->ident_);
+    visitIdent(ident_factor->id_);
     TParaToken t = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(t);
@@ -2321,10 +2333,18 @@ void Pass1Strategy::visitLabel(Label x) {
 
     // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
     sym_table[label] = loc;
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
+}
 
-    // LabelJmp::store_label_dst(label, label_dst_list, binout_container);
-    // LabelJmp::update_label_dst_offset(label, label_src_list, dollar_position, binout_container);
-
+void Pass1Strategy::visitId(Id x) {
+    if (equ_map.count(x) > 0) {
+        // 変数定義があれば展開する
+        log()->debug("[pass1] EQU {} = {}", x, equ_map[x].AsString());
+        TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
+        this->ctx.push(t);
+        return;
+    }
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

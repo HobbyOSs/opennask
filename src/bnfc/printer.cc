@@ -187,9 +187,21 @@ void PrintAbsyn::visitDeclareStmt(DeclareStmt* p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  visitIdent(p->ident_);
+  visitId(p->id_);
   render("EQU");
   _i_ = 0; p->exp_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitExportSymStmt(ExportSymStmt* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("GLOBAL");
+  _i_ = 0; p->factor_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -216,17 +228,6 @@ void PrintAbsyn::visitMnemonicStmt(MnemonicStmt* p)
 
   _i_ = 0; p->opcode_->accept(this);
   _i_ = 0; visitListMnemonicArgs(p->listmnemonicargs_.get());
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodeStmt(OpcodeStmt* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  _i_ = 0; p->opcode_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -401,7 +402,7 @@ void PrintAbsyn::visitBasedOrIndexed(BasedOrIndexed* p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  visitIdent(p->ident_);
+  visitId(p->id_);
   render('+');
   visitInteger(p->integer_);
   render(']');
@@ -431,9 +432,9 @@ void PrintAbsyn::visitBasedIndexed(BasedIndexed* p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  visitIdent(p->ident_1);
+  visitId(p->id_1);
   render('+');
-  visitIdent(p->ident_2);
+  visitId(p->id_2);
   render(']');
 
   if (oldi > 0) render(_R_PAREN);
@@ -446,9 +447,9 @@ void PrintAbsyn::visitBasedIndexedDisp(BasedIndexedDisp* p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  visitIdent(p->ident_1);
+  visitId(p->id_1);
   render('+');
-  visitIdent(p->ident_2);
+  visitId(p->id_2);
   render('+');
   visitInteger(p->integer_);
   render(']');
@@ -463,7 +464,7 @@ void PrintAbsyn::visitBasedIndexedDispScale(BasedIndexedDispScale* p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  visitIdent(p->ident_);
+  visitId(p->id_);
   render('+');
   _i_ = 0; p->indexexp_->accept(this);
   render('+');
@@ -481,7 +482,7 @@ void PrintAbsyn::visitIndexScaleExp(IndexScaleExp* p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  visitIdent(p->ident_);
+  visitId(p->id_);
   render('*');
   visitInteger(p->integer_);
 
@@ -518,7 +519,7 @@ void PrintAbsyn::visitIdentFactor(IdentFactor* p)
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
-  visitIdent(p->ident_);
+  visitId(p->id_);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4239,6 +4240,12 @@ void PrintAbsyn::visitLabel(String s)
 }
 
 
+void PrintAbsyn::visitId(String s)
+{
+  render(s);
+}
+
+
 ShowAbsyn::ShowAbsyn(void)
 {
   buf_ = 0;
@@ -4297,9 +4304,20 @@ void ShowAbsyn::visitDeclareStmt(DeclareStmt* p)
   bufAppend('(');
   bufAppend("DeclareStmt");
   bufAppend(' ');
-  visitIdent(p->ident_);  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
   bufAppend('[');
   if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitExportSymStmt(ExportSymStmt* p)
+{
+  bufAppend('(');
+  bufAppend("ExportSymStmt");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->factor_)  p->factor_->accept(this);
   bufAppend(']');
   bufAppend(')');
 }
@@ -4331,17 +4349,6 @@ void ShowAbsyn::visitMnemonicStmt(MnemonicStmt* p)
   bufAppend(' ');
   bufAppend('[');
   if (p->listmnemonicargs_)  p->listmnemonicargs_->accept(this);
-  bufAppend(']');
-  bufAppend(')');
-}
-
-void ShowAbsyn::visitOpcodeStmt(OpcodeStmt* p)
-{
-  bufAppend('(');
-  bufAppend("OpcodeStmt");
-  bufAppend(' ');
-  bufAppend('[');
-  if (p->opcode_)  p->opcode_->accept(this);
   bufAppend(']');
   bufAppend(')');
 }
@@ -4499,7 +4506,7 @@ void ShowAbsyn::visitBasedOrIndexed(BasedOrIndexed* p)
   bufAppend('(');
   bufAppend("BasedOrIndexed");
   bufAppend(' ');
-  visitIdent(p->ident_);  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
   visitInteger(p->integer_);  bufAppend(' ');
   bufAppend(')');
 }
@@ -4522,8 +4529,8 @@ void ShowAbsyn::visitBasedIndexed(BasedIndexed* p)
   bufAppend('(');
   bufAppend("BasedIndexed");
   bufAppend(' ');
-  visitIdent(p->ident_1);  bufAppend(' ');
-  visitIdent(p->ident_2);  bufAppend(' ');
+  visitId(p->id_1);  bufAppend(' ');
+  visitId(p->id_2);  bufAppend(' ');
   bufAppend(')');
 }
 
@@ -4532,8 +4539,8 @@ void ShowAbsyn::visitBasedIndexedDisp(BasedIndexedDisp* p)
   bufAppend('(');
   bufAppend("BasedIndexedDisp");
   bufAppend(' ');
-  visitIdent(p->ident_1);  bufAppend(' ');
-  visitIdent(p->ident_2);  bufAppend(' ');
+  visitId(p->id_1);  bufAppend(' ');
+  visitId(p->id_2);  bufAppend(' ');
   visitInteger(p->integer_);  bufAppend(' ');
   bufAppend(')');
 }
@@ -4543,7 +4550,7 @@ void ShowAbsyn::visitBasedIndexedDispScale(BasedIndexedDispScale* p)
   bufAppend('(');
   bufAppend("BasedIndexedDispScale");
   bufAppend(' ');
-  visitIdent(p->ident_);  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
   bufAppend('[');
   if (p->indexexp_)  p->indexexp_->accept(this);
   bufAppend(']');
@@ -4559,7 +4566,7 @@ void ShowAbsyn::visitIndexScaleExp(IndexScaleExp* p)
   bufAppend('(');
   bufAppend("IndexScaleExp");
   bufAppend(' ');
-  visitIdent(p->ident_);  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
   visitInteger(p->integer_);  bufAppend(')');
 }
 
@@ -4586,7 +4593,7 @@ void ShowAbsyn::visitIdentFactor(IdentFactor* p)
   bufAppend('(');
   bufAppend("IdentFactor");
   bufAppend(' ');
-  visitIdent(p->ident_);  bufAppend(')');
+  visitId(p->id_);  bufAppend(')');
 }
 
 void ShowAbsyn::visitStringFactor(StringFactor* p)
@@ -6303,6 +6310,14 @@ void ShowAbsyn::visitHex(String s)
 
 
 void ShowAbsyn::visitLabel(String s)
+{
+  bufAppend('\"');
+  bufAppend(s);
+  bufAppend('\"');
+}
+
+
+void ShowAbsyn::visitId(String s)
 {
   bufAppend('\"');
   bufAppend(s);

@@ -54,6 +54,22 @@ std::shared_ptr<Statement> DeclareStmt::clone() const
 
 
 
+/********************   ExportSymStmt    ********************/
+
+
+
+void ExportSymStmt::accept(Visitor *v)
+{
+    v->visitExportSymStmt(this);
+}
+
+std::shared_ptr<Statement> ExportSymStmt::clone() const
+{
+    return std::make_shared<ExportSymStmt>(*this);
+}
+
+
+
 /********************   ConfigStmt    ********************/
 
 
@@ -82,22 +98,6 @@ void MnemonicStmt::accept(Visitor *v)
 std::shared_ptr<Statement> MnemonicStmt::clone() const
 {
     return std::make_shared<MnemonicStmt>(*this);
-}
-
-
-
-/********************   OpcodeStmt    ********************/
-
-
-
-void OpcodeStmt::accept(Visitor *v)
-{
-    v->visitOpcodeStmt(this);
-}
-
-std::shared_ptr<Statement> OpcodeStmt::clone() const
-{
-    return std::make_shared<OpcodeStmt>(*this);
 }
 
 

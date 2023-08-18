@@ -12,7 +12,6 @@
 
 
 using namespace std::placeholders;
-using namespace matchit;
 
 
 FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
@@ -29,10 +28,6 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     // nask
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
-
-    //constexpr auto max_size = 65536;
-    //binout_container.reserve(max_size);
-    //std::memset(binout_container.data(), 0x00, max_size);
 
     using namespace asmjit;
     Environment env;
@@ -64,8 +59,8 @@ void FrontEnd::visitStatement(Statement *t) {
         this->visitConfigStmt(dynamic_cast<ConfigStmt*>(t));
     } else if (dynamic_cast<MnemonicStmt*>(t) != nullptr) {
         this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
-    } else if (dynamic_cast<OpcodeStmt*>(t) != nullptr) {
-        this->visitOpcodeStmt(dynamic_cast<OpcodeStmt*>(t));
+    } else if (dynamic_cast<ExportSymStmt*>(t) != nullptr) {
+        this->visitExportSymStmt(dynamic_cast<ExportSymStmt*>(t));
     }
 }
 
@@ -153,7 +148,7 @@ void FrontEnd::visitLabelStmt(LabelStmt *label_stmt) {
 
 void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
-    visitIdent(declare_stmt->ident_);
+    visitIdent(declare_stmt->id_);
     TParaToken key = this->ctx.top();
     this->ctx.pop();
 
@@ -165,6 +160,15 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("[pass2] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
+}
+
+void FrontEnd::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
+
+    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
+    TParaToken symbol = this->ctx.top();
+    this->ctx.pop();
+
+    log()->debug("[pass2] symbol {}", symbol.AsString());
 }
 
 void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -198,6 +202,11 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     typedef std::map<std::string, nim_callback> funcs_type;
 
     funcs_type funcs {
+        std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
+        std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
+        std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
+        std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this)),
+
         std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
         std::make_pair("OpcodesALIGNB", std::bind(&FrontEnd::processALIGNB, this, _1)),
         std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
@@ -237,32 +246,6 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         throw std::runtime_error(opcode + " is not implemented!!!");
     }
 }
-
-void FrontEnd::visitOpcodeStmt(OpcodeStmt *opcode_stmt) {
-    if (opcode_stmt->opcode_) {
-        opcode_stmt->opcode_->accept(this);
-    }
-
-    typedef std::function<void()> nim_callback;
-    typedef std::map<std::string, nim_callback> funcs_type;
-
-    funcs_type funcs {
-        std::make_pair("OpcodesCLI", std::bind(&FrontEnd::processCLI, this)),
-        std::make_pair("OpcodesHLT", std::bind(&FrontEnd::processHLT, this)),
-        std::make_pair("OpcodesNOP", std::bind(&FrontEnd::processNOP, this)),
-        std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this)),
-    };
-
-    const std::string opcode = type(*opcode_stmt->opcode_);
-
-    funcs_type::iterator it = funcs.find(opcode);
-    if (it != funcs.end()) {
-        it->second();
-    } else {
-        throw std::runtime_error(opcode + " is not implemented!!!");
-    }
-}
-
 
 //
 // Visit Opcode系の処理
@@ -313,6 +296,7 @@ void FrontEnd::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) {
     mem.setOffset(offset.AsInt32());
     offset.SetMem(mem, segment.AsInt32());
 
+    using namespace matchit;
     match(data_type.AsString())(
         pattern | "BYTE"  = [&]{ offset.SetAttribute(TParaToken::ttMem8); },
         pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
@@ -436,7 +420,7 @@ void FrontEnd::visitHexFactor(HexFactor *hex_factor) {
 }
 
 void FrontEnd::visitIdentFactor(IdentFactor *ident_factor) {
-    visitIdent(ident_factor->ident_);
+    visitIdent(ident_factor->id_);
     TParaToken t = this->ctx.top();
     this->ctx.pop();
     this->ctx.push(t);
@@ -488,6 +472,18 @@ void FrontEnd::visitIdent(Ident x) {
 
 void FrontEnd::visitHex(Hex x) {
     TParaToken t = TParaToken(x, TParaToken::ttHex);
+    this->ctx.push(t);
+}
+
+void FrontEnd::visitId(Id x) {
+    if (equ_map.count(x) > 0) {
+        // 変数定義があれば展開する
+        log()->debug("[pass2] EQU {} = {}", x, equ_map[x].AsString());
+        TParaToken t = TParaToken(equ_map[x].AsString(), equ_map[x].AsType());
+        this->ctx.push(t);
+        return;
+    }
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }
 

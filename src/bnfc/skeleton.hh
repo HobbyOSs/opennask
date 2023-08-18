@@ -23,9 +23,9 @@ public:
   void visitProg(Prog *p);
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
+  void visitExportSymStmt(ExportSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
-  void visitOpcodeStmt(OpcodeStmt *p);
   void visitMnemoArg(MnemoArg *p);
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
@@ -389,6 +389,7 @@ public:
   void visitIdent(Ident x);
   void visitHex(Hex x);
   void visitLabel(Label x);
+  void visitId(Id x);
 
 };
 
