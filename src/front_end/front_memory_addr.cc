@@ -70,7 +70,7 @@ void FrontEnd::visitDirect(Direct *direct) {
 
 void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
 
-    visitIdent(based_or_indexed->ident_);
+    visitIdent(based_or_indexed->id_);
     TParaToken left = this->ctx.top();
     left.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();

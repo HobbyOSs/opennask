@@ -20,6 +20,7 @@ using Ident = std::string;
 
 using Hex = std::string;
 using Label = std::string;
+using Id = std::string;
 
 
 /********************   Forward Declarations    ********************/
@@ -37,9 +38,9 @@ class Opcode;
 class Prog;
 class LabelStmt;
 class DeclareStmt;
+class ExportSymStmt;
 class ConfigStmt;
 class MnemonicStmt;
-class OpcodeStmt;
 class MnemoArg;
 class PlusExp;
 class MinusExp;
@@ -415,9 +416,9 @@ public:
     virtual void visitProg(Prog *p) = 0;
     virtual void visitLabelStmt(LabelStmt *p) = 0;
     virtual void visitDeclareStmt(DeclareStmt *p) = 0;
+    virtual void visitExportSymStmt(ExportSymStmt *p) = 0;
     virtual void visitConfigStmt(ConfigStmt *p) = 0;
     virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
-    virtual void visitOpcodeStmt(OpcodeStmt *p) = 0;
     virtual void visitMnemoArg(MnemoArg *p) = 0;
     virtual void visitPlusExp(PlusExp *p) = 0;
     virtual void visitMinusExp(MinusExp *p) = 0;
@@ -782,6 +783,7 @@ public:
     virtual void visitIdent(Ident x) = 0;
     virtual void visitHex(Hex x) = 0;
     virtual void visitLabel(Label x) = 0;
+    virtual void visitId(Id x) = 0;
 
 };
 
@@ -899,11 +901,25 @@ public:
 class DeclareStmt : public Statement
 {
 public:
-    Ident ident_;
+    Id id_;
     std::shared_ptr<Exp> exp_;
 
-    DeclareStmt(Ident p1, std::shared_ptr<Exp> p2)
-    : Statement(), ident_{p1}, exp_{p2}
+    DeclareStmt(Id p1, std::shared_ptr<Exp> p2)
+    : Statement(), id_{p1}, exp_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Statement>  clone() const;
+};
+
+class ExportSymStmt : public Statement
+{
+public:
+    std::shared_ptr<Factor> factor_;
+
+    ExportSymStmt(std::shared_ptr<Factor> p1)
+    : Statement(), factor_{p1}
     {};
 
 
@@ -934,20 +950,6 @@ public:
 
     MnemonicStmt(std::shared_ptr<Opcode> p1, std::shared_ptr<ListMnemonicArgs> p2)
     : Statement(), opcode_{p1}, listmnemonicargs_{p2}
-    {};
-
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Statement>  clone() const;
-};
-
-class OpcodeStmt : public Statement
-{
-public:
-    std::shared_ptr<Opcode> opcode_;
-
-    OpcodeStmt(std::shared_ptr<Opcode> p1)
-    : Statement(), opcode_{p1}
     {};
 
 
@@ -1120,11 +1122,11 @@ public:
 class BasedOrIndexed : public MemoryAddr
 {
 public:
-    Ident ident_;
+    Id id_;
     Integer integer_;
 
-    BasedOrIndexed(Ident p1, Integer p2)
-    : MemoryAddr(), ident_{p1}, integer_{p2}
+    BasedOrIndexed(Id p1, Integer p2)
+    : MemoryAddr(), id_{p1}, integer_{p2}
     {};
 
 
@@ -1150,11 +1152,11 @@ public:
 class BasedIndexed : public MemoryAddr
 {
 public:
-    Ident ident_1;
-    Ident ident_2;
+    Id id_1;
+    Id id_2;
 
-    BasedIndexed(Ident p1, Ident p2)
-    : MemoryAddr(), ident_1{p1}, ident_2{p2}
+    BasedIndexed(Id p1, Id p2)
+    : MemoryAddr(), id_1{p1}, id_2{p2}
     {};
 
 
@@ -1165,12 +1167,12 @@ public:
 class BasedIndexedDisp : public MemoryAddr
 {
 public:
-    Ident ident_1;
-    Ident ident_2;
+    Id id_1;
+    Id id_2;
     Integer integer_;
 
-    BasedIndexedDisp(Ident p1, Ident p2, Integer p3)
-    : MemoryAddr(), ident_1{p1}, ident_2{p2}, integer_{p3}
+    BasedIndexedDisp(Id p1, Id p2, Integer p3)
+    : MemoryAddr(), id_1{p1}, id_2{p2}, integer_{p3}
     {};
 
 
@@ -1181,12 +1183,12 @@ public:
 class BasedIndexedDispScale : public MemoryAddr
 {
 public:
-    Ident ident_;
+    Id id_;
     std::shared_ptr<IndexExp> indexexp_;
     Integer integer_;
 
-    BasedIndexedDispScale(Ident p1, std::shared_ptr<IndexExp> p2, Integer p3)
-    : MemoryAddr(), ident_{p1}, indexexp_{p2}, integer_{p3}
+    BasedIndexedDispScale(Id p1, std::shared_ptr<IndexExp> p2, Integer p3)
+    : MemoryAddr(), id_{p1}, indexexp_{p2}, integer_{p3}
     {};
 
 
@@ -1197,11 +1199,11 @@ public:
 class IndexScaleExp : public IndexExp
 {
 public:
-    Ident ident_;
+    Id id_;
     Integer integer_;
 
-    IndexScaleExp(Ident p1, Integer p2)
-    : IndexExp(), ident_{p1}, integer_{p2}
+    IndexScaleExp(Id p1, Integer p2)
+    : IndexExp(), id_{p1}, integer_{p2}
     {};
 
 
@@ -1240,10 +1242,10 @@ public:
 class IdentFactor : public Factor
 {
 public:
-    Ident ident_;
+    Id id_;
 
-    IdentFactor(Ident p1)
-    : Factor(), ident_{p1}
+    IdentFactor(Id p1)
+    : Factor(), id_{p1}
     {};
 
 

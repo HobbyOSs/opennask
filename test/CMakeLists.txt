@@ -8,16 +8,19 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # general settings
-include_directories(${root_SOURCE_DIR}/parasol
+include_directories(
+  ${ASMJIT_DIR}/src
+  ${root_SOURCE_DIR}/matchit.cpp/include
+  ${root_SOURCE_DIR}/parasol
+  ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/src
   ${root_SOURCE_DIR}/src/bnfc
+  ${root_SOURCE_DIR}/src/coffi
   ${root_SOURCE_DIR}/src/incbin
-  ${ASMJIT_DIR}/src
   ${root_SOURCE_DIR}/src/jsoncons/include
-  ${root_SOURCE_DIR}/spdlog/include
-  ${root_SOURCE_DIR}/matchit.cpp/include
+  ${gtest_SOURCE_DIR}
   ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR})
+)
 
 # http://google.github.io/googletest/quickstart-cmake.html
 include(GoogleTest)
@@ -48,7 +51,8 @@ set(nask_parse_SRCS
   ../src/para_token.cc
   ../src/mod_rm.cpp
   ../src/string_util.cpp
-  ../src/x86.cc)
+  ../src/x86.cc
+  ../src/object_file_writer.cc)
 
 # テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする
 # Object Libraryにspdlogを含ませないとテスト時のdebugログが出なかった
@@ -222,15 +226,20 @@ gtest_discover_tests(day03test)
 
 # `ctest -R day04`
 set(day04test_SRCS
-    day04test.cpp
-    ../src/tinyexpr.c
-    ../src/nask_utility.cpp
-    ../src/mod_rm.cpp
-    ../src/string_util.cpp)
+  day04test.cpp)
 
 add_executable(day04test ${day04test_SRCS})
 target_link_libraries(day04test PRIVATE
-  parasol spdlog::spdlog Threads::Threads GTest::gtest_main)
+  nask_parse_objects
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
+if(WITH_BACKWARDS_CPP)
+  target_link_libraries(day04test PUBLIC -lbfd)
+  target_link_libraries(day04test PUBLIC backward)
+endif()
 
 target_compile_features(day04test PRIVATE cxx_std_17)
 gtest_discover_tests(day04test)

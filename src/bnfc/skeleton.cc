@@ -41,8 +41,16 @@ void Skeleton::visitDeclareStmt(DeclareStmt *declare_stmt)
 {
   /* Code For DeclareStmt Goes Here */
 
-  visitIdent(declare_stmt->ident_);
+  visitId(declare_stmt->id_);
   if (declare_stmt->exp_) declare_stmt->exp_->accept(this);
+
+}
+
+void Skeleton::visitExportSymStmt(ExportSymStmt *export_sym_stmt)
+{
+  /* Code For ExportSymStmt Goes Here */
+
+  if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
 
 }
 
@@ -61,14 +69,6 @@ void Skeleton::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt)
 
   if (mnemonic_stmt->opcode_) mnemonic_stmt->opcode_->accept(this);
   if (mnemonic_stmt->listmnemonicargs_) mnemonic_stmt->listmnemonicargs_->accept(this);
-
-}
-
-void Skeleton::visitOpcodeStmt(OpcodeStmt *opcode_stmt)
-{
-  /* Code For OpcodeStmt Goes Here */
-
-  if (opcode_stmt->opcode_) opcode_stmt->opcode_->accept(this);
 
 }
 
@@ -172,7 +172,7 @@ void Skeleton::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed)
 {
   /* Code For BasedOrIndexed Goes Here */
 
-  visitIdent(based_or_indexed->ident_);
+  visitId(based_or_indexed->id_);
   visitInteger(based_or_indexed->integer_);
 
 }
@@ -190,8 +190,8 @@ void Skeleton::visitBasedIndexed(BasedIndexed *based_indexed)
 {
   /* Code For BasedIndexed Goes Here */
 
-  visitIdent(based_indexed->ident_1);
-  visitIdent(based_indexed->ident_2);
+  visitId(based_indexed->id_1);
+  visitId(based_indexed->id_2);
 
 }
 
@@ -199,8 +199,8 @@ void Skeleton::visitBasedIndexedDisp(BasedIndexedDisp *based_indexed_disp)
 {
   /* Code For BasedIndexedDisp Goes Here */
 
-  visitIdent(based_indexed_disp->ident_1);
-  visitIdent(based_indexed_disp->ident_2);
+  visitId(based_indexed_disp->id_1);
+  visitId(based_indexed_disp->id_2);
   visitInteger(based_indexed_disp->integer_);
 
 }
@@ -209,7 +209,7 @@ void Skeleton::visitBasedIndexedDispScale(BasedIndexedDispScale *based_indexed_d
 {
   /* Code For BasedIndexedDispScale Goes Here */
 
-  visitIdent(based_indexed_disp_scale->ident_);
+  visitId(based_indexed_disp_scale->id_);
   if (based_indexed_disp_scale->indexexp_) based_indexed_disp_scale->indexexp_->accept(this);
   visitInteger(based_indexed_disp_scale->integer_);
 
@@ -219,7 +219,7 @@ void Skeleton::visitIndexScaleExp(IndexScaleExp *index_scale_exp)
 {
   /* Code For IndexScaleExp Goes Here */
 
-  visitIdent(index_scale_exp->ident_);
+  visitId(index_scale_exp->id_);
   visitInteger(index_scale_exp->integer_);
 
 }
@@ -244,7 +244,7 @@ void Skeleton::visitIdentFactor(IdentFactor *ident_factor)
 {
   /* Code For IdentFactor Goes Here */
 
-  visitIdent(ident_factor->ident_);
+  visitId(ident_factor->id_);
 
 }
 
@@ -2631,6 +2631,11 @@ void Skeleton::visitHex(Hex x)
 void Skeleton::visitLabel(Label x)
 {
   /* Code for Label Goes Here */
+}
+
+void Skeleton::visitId(Id x)
+{
+  /* Code for Id Goes Here */
 }
 
 

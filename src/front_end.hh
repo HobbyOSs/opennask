@@ -67,8 +67,8 @@ public:
     void visitLabelStmt(LabelStmt *label_stmt) override;
     void visitConfigStmt(ConfigStmt *config_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
+    void visitExportSymStmt(ExportSymStmt *export_sym_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
-    void visitOpcodeStmt(OpcodeStmt *opcode_stmt) override;
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
@@ -170,6 +170,7 @@ public:
     void visitIdent(Ident x) override;
     void visitHex(Hex x) override;
     void visitLabel(Label x) override;
+    void visitId(Id x) override;
 
     // パースする
     template <class T>

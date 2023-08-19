@@ -25,3 +25,6 @@
 [submodule "asmjit"]
 	path = asmjit
 	url = https://github.com/asmjit/asmjit
+[submodule "src/coffi"]
+	path = src/coffi
+	url = https://github.com/serge1/COFFI.git
