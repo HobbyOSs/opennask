@@ -1,15 +1,10 @@
-#include <fstream>
-#include <typeinfo>
-#include <type_traits>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "matchit.h"
+#include "coffi/coffi.hpp"
 #include "front_end.hh"
-#include "driver.hh"
-#include "parser.hh"
 #include "demangle.hpp"
-#include "mod_rm.hpp"
-
+#include "object_file_writer.hh"
 
 using namespace std::placeholders;
 using namespace matchit;
@@ -33,8 +28,15 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
         pattern | "BitsConfig" = [&] {
             throw std::runtime_error("Invalid bit_mode: " + t.AsString());
         },
-        pattern | "INSTRSET" = [&] {
+        pattern | "FormConfig" | when (t.AsString() == "WCOFF") = [&] {
+            auto writer = std::make_unique<ObjectFileWriter>();
+            writer->write_coff(*a_);
+        },
+        pattern | "InstConfig" = [&] {
             // NOP
+        },
+        pattern | _ = [&] {
+            throw std::runtime_error("Invalid config type = " + config_type + ", str = " + t.AsString());
         }
     );
 

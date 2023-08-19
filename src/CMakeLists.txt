@@ -23,13 +23,14 @@ set(ASMJIT_DIR ${root_SOURCE_DIR}/asmjit)
 include("${ASMJIT_DIR}/CMakeLists.txt")
 
 include_directories(
-  ${root_SOURCE_DIR}/parasol
-  ${root_SOURCE_DIR}/src/incbin
   ${ASMJIT_DIR}/src
-  ${root_SOURCE_DIR}/src
-  ${root_SOURCE_DIR}/spdlog/include
   ${root_SOURCE_DIR}/jsoncons/include
   ${root_SOURCE_DIR}/matchit.cpp/include
+  ${root_SOURCE_DIR}/parasol
+  ${root_SOURCE_DIR}/spdlog/include
+  ${root_SOURCE_DIR}/src
+  ${root_SOURCE_DIR}/src/coffi
+  ${root_SOURCE_DIR}/src/incbin
 )
 
 ########### next target ###############
@@ -83,8 +84,11 @@ set(nask_parse_SRCS
   bin_util.hh
   x86.cc
   x86.hh
+  object_file_writer.cc
+  object_file_writer.hh
   ${nask_parse_bnfc_SRCS}
-  incbin/incbin.h)
+  incbin/incbin.h
+)
 
 if (WIN32)
   LIST(APPEND nask_parse_SRCS getopt.h getopt.c)
@@ -102,6 +106,7 @@ target_include_directories(nask_parse PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/bnfc
   ${CMAKE_CURRENT_SOURCE_DIR}/incbin
   ${CMAKE_CURRENT_SOURCE_DIR}/jsoncons/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/coffi
 )
 target_compile_features(nask_parse PRIVATE cxx_std_17)
 
