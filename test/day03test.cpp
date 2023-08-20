@@ -1325,8 +1325,8 @@ TEST_F(Day03Suite, Harib00j) {
 ;[SECTION .text]		; オブジェクトファイルではこれを書いてからプログラムを書く
 ;
 ;_io_hlt:	; void io_hlt(void);
-;    	HLT
-;    	RET
+    	HLT
+    	RET
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`

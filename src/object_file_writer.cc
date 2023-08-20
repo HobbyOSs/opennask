@@ -49,9 +49,10 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
 
     CodeBuffer& buf = code_.textSection()->buffer();
 
-    // .textに最終的な機械語を差し込む
+    /**
+     * section header
+     */
     section* text = writer_->add_section(".text");
-    text->set_data(reinterpret_cast<const char*>(buf.data()), buf.size());
     text->set_flags(IMAGE_SCN_CNT_CODE    | // The section contains executable code
                     IMAGE_SCN_MEM_READ    |
                     IMAGE_SCN_MEM_EXECUTE |
@@ -61,17 +62,35 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
                     IMAGE_SCN_MEM_WRITE            |
                     IMAGE_SCN_MEM_READ             |
                     IMAGE_SCN_ALIGN_1BYTES);
+    //const char empty_data[] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    //data->set_data(empty_data, sizeof(empty_data));
+
     section* bss = writer_->add_section(".bss");
     bss->set_flags(IMAGE_SCN_CNT_UNINITIALIZED_DATA | // The section contains uninitialized data.
                    IMAGE_SCN_MEM_WRITE              |
                    IMAGE_SCN_MEM_READ               |
                    IMAGE_SCN_ALIGN_1BYTES);
+    // .bssに最終的な機械語を差し込む
+    bss->set_data(reinterpret_cast<const char*>(buf.data()), buf.size());
+
+    symbol* sym_text = writer_->add_symbol(".text");
+    sym_text->set_type(IMAGE_SYM_TYPE_NOT_FUNCTION);
+    sym_text->set_storage_class(IMAGE_SYM_CLASS_STATIC);
+    sym_text->set_section_number(1);
+    sym_text->set_aux_symbols_number(1);
+
+    symbol* sym_data = writer_->add_symbol(".data");
+    sym_data->set_type(IMAGE_SYM_TYPE_NOT_FUNCTION);
+    sym_data->set_storage_class(IMAGE_SYM_CLASS_STATIC);
+    sym_data->set_section_number(2);
+    sym_data->set_aux_symbols_number(1);
 
     // WCOFFを出力する
     std::ostringstream oss;
     writer_->save(oss);
     std::string hex_dump = oss.str();
 
+    // debug用
     for (int i = 0; i < hex_dump.size(); i++) {
         if (i % 16 == 0) {
             std::cout << std::endl;
@@ -84,5 +103,10 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     }
     std::cout << std::dec << std::endl; // 16進数表示を元に戻す
 
-    a.embed(hex_dump.c_str(), hex_dump.size());
+
+    // もともとasmjitのバッファに書き込まれているデータをリセットして上書きする
+    memset(buf._data, 0, buf.size());
+    memcpy(buf.begin(), hex_dump.c_str(), hex_dump.size());
+    buf._size = hex_dump.size();
+    a._bufferPtr = buf.data() + hex_dump.size(); // asmjit/src/asmjit/core/assembler.h L.40
 };
