@@ -1,22 +1,33 @@
 #include <iostream>
 #include <iomanip>
 #include "object_file_writer.hh"
-#include <coffi/coffi.hpp>
+
 
 using namespace COFFI;
+using namespace asmjit;
 
-void ObjectFileWriter::write_coff(asmjit::x86::Assembler& a) {
 
-    coffi writer;
+ObjectFileWriter::ObjectFileWriter() {
+    writer_ = std::make_unique<coffi>();
+    writer_->create(COFFI_ARCHITECTURE_PE);
 
-    writer.create(COFFI_ARCHITECTURE_PE);
-    writer.get_header()->set_flags(IMAGE_FILE_32BIT_MACHINE);
-    writer.get_header()->set_sections_count(3);
+    // TODO: なぜかoptional headerをつけるとマジックバイトが0x4d5a(=exe)になってしまう
+    // writer_->create_optional_header();
+    writer_->get_header()->set_flags(IMAGE_FILE_32BIT_MACHINE);
 
-    // sectionを設定する
-    section* text = writer.add_section(".text");
+}
 
-    // 下記のように最終的なバイナリを差し込める
+
+void ObjectFileWriter::set_file_name(std::string& file_name) {
+    //writer->();
+}
+
+void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assembler& a) {
+
+    CodeBuffer& buf = code_.textSection()->buffer();
+
+    // .textに最終的な機械語を差し込む
+    section* text = writer_->add_section(".text");
     //char text[] = {
     //    '\x55',                                 // push   %ebp
     //    '\x89', '\xE5',                         // mov    %esp,%ebp
@@ -28,19 +39,26 @@ void ObjectFileWriter::write_coff(asmjit::x86::Assembler& a) {
     //    '\x90',                                 // nop
     //    '\x90',                                 // nop
     //};
-    //text_sec->set_data(text, sizeof(text));
-    section* data = writer.add_section(".data");
-    section* bss = writer.add_section(".bss");
+    text->set_data(reinterpret_cast<const char*>(buf.data()), buf.size());
+    section* data = writer_->add_section(".data");
+    section* bss = writer_->add_section(".bss");
 
-    // WCOFFのヘッダーを出力する
-    coff_header* header = writer.get_header();
+    // WCOFFを出力する
     std::ostringstream oss;
-    header->save(oss);
-
+    writer_->save(oss);
     std::string hex_dump = oss.str();
-    //for (char c : hex_dump) {
-    //    std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)(unsigned char)c << " ";
-    //}
-    //std::cout << std::dec << std::endl; // 16進数表示を元に戻す
+
+    for (int i = 0; i < hex_dump.size(); i++) {
+        if (i % 16 == 0) {
+            std::cout << std::endl;
+        }
+
+        std::cout << std::hex
+                  << std::setw(2)
+                  << std::setfill('0')
+                  << (int)(unsigned char) hex_dump[i] << " ";
+    }
+    std::cout << std::dec << std::endl; // 16進数表示を元に戻す
+
     a.embed(hex_dump.c_str(), hex_dump.size());
 };

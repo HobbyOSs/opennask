@@ -29,8 +29,7 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
             throw std::runtime_error("Invalid bit_mode: " + t.AsString());
         },
         pattern | "FormConfig" | when (t.AsString() == "WCOFF") = [&] {
-            auto writer = std::make_unique<ObjectFileWriter>();
-            writer->write_coff(*a_);
+            o_writer_ = std::make_unique<ObjectFileWriter>();
         },
         pattern | "InstConfig" = [&] {
             // NOP
