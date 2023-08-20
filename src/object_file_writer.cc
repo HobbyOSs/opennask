@@ -52,8 +52,20 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     // .textに最終的な機械語を差し込む
     section* text = writer_->add_section(".text");
     text->set_data(reinterpret_cast<const char*>(buf.data()), buf.size());
+    text->set_flags(IMAGE_SCN_CNT_CODE    | // The section contains executable code
+                    IMAGE_SCN_MEM_READ    |
+                    IMAGE_SCN_MEM_EXECUTE |
+                    IMAGE_SCN_ALIGN_1BYTES);
     section* data = writer_->add_section(".data");
+    data->set_flags(IMAGE_SCN_CNT_INITIALIZED_DATA | // The section contains initialized data.
+                    IMAGE_SCN_MEM_WRITE            |
+                    IMAGE_SCN_MEM_READ             |
+                    IMAGE_SCN_ALIGN_1BYTES);
     section* bss = writer_->add_section(".bss");
+    bss->set_flags(IMAGE_SCN_CNT_UNINITIALIZED_DATA | // The section contains uninitialized data.
+                   IMAGE_SCN_MEM_WRITE              |
+                   IMAGE_SCN_MEM_READ               |
+                   IMAGE_SCN_ALIGN_1BYTES);
 
     // WCOFFを出力する
     std::ostringstream oss;
