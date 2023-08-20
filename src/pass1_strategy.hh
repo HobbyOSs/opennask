@@ -50,6 +50,7 @@ public:
     void visitConfigStmt(ConfigStmt *config_stmt) override;
     void visitDeclareStmt(DeclareStmt *declare_stmt) override;
     void visitExportSymStmt(ExportSymStmt *export_sym_stmt) override;
+    void visitExternSymStmt(ExternSymStmt *extern_sym_stmt) override;
     void visitMnemonicStmt(MnemonicStmt *mnemonic_stmt) override;
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;

@@ -63,3 +63,16 @@ const std::string BinUtil::join(std::vector<std::string>& array, const std::stri
     }
     return ss.str();
 }
+
+const std::vector<std::string> BinUtil::split(const std::string &s, char delim) {
+
+    std::vector<std::string> elems;
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+        if (!item.empty()) {
+            elems.push_back(item);
+        }
+    }
+    return elems;
+}

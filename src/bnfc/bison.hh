@@ -405,32 +405,35 @@ namespace nask_ {
       // IndexExp
       char dummy6[sizeof (std::shared_ptr<IndexExp>)];
 
+      // ListFactor
+      char dummy7[sizeof (std::shared_ptr<ListFactor>)];
+
       // ListMnemonicArgs
-      char dummy7[sizeof (std::shared_ptr<ListMnemonicArgs>)];
+      char dummy8[sizeof (std::shared_ptr<ListMnemonicArgs>)];
 
       // ListStatement
-      char dummy8[sizeof (std::shared_ptr<ListStatement>)];
+      char dummy9[sizeof (std::shared_ptr<ListStatement>)];
 
       // MemoryAddr
-      char dummy9[sizeof (std::shared_ptr<MemoryAddr>)];
+      char dummy10[sizeof (std::shared_ptr<MemoryAddr>)];
 
       // MnemonicArgs
-      char dummy10[sizeof (std::shared_ptr<MnemonicArgs>)];
+      char dummy11[sizeof (std::shared_ptr<MnemonicArgs>)];
 
       // Opcode
-      char dummy11[sizeof (std::shared_ptr<Opcode>)];
+      char dummy12[sizeof (std::shared_ptr<Opcode>)];
 
       // Program
-      char dummy12[sizeof (std::shared_ptr<Program>)];
+      char dummy13[sizeof (std::shared_ptr<Program>)];
 
       // Statement
-      char dummy13[sizeof (std::shared_ptr<Statement>)];
+      char dummy14[sizeof (std::shared_ptr<Statement>)];
 
       // T_Hex
       // T_Id
       // T_Label
       // _STRING_
-      char dummy14[sizeof (std::string)];
+      char dummy15[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -1207,17 +1210,18 @@ namespace nask_ {
         S_Program = 355,                         // Program
         S_ListStatement = 356,                   // ListStatement
         S_Statement = 357,                       // Statement
-        S_ListMnemonicArgs = 358,                // ListMnemonicArgs
-        S_MnemonicArgs = 359,                    // MnemonicArgs
-        S_Exp = 360,                             // Exp
-        S_Exp1 = 361,                            // Exp1
-        S_Exp2 = 362,                            // Exp2
-        S_MemoryAddr = 363,                      // MemoryAddr
-        S_IndexExp = 364,                        // IndexExp
-        S_Factor = 365,                          // Factor
-        S_ConfigType = 366,                      // ConfigType
-        S_DataType = 367,                        // DataType
-        S_Opcode = 368                           // Opcode
+        S_ListFactor = 358,                      // ListFactor
+        S_ListMnemonicArgs = 359,                // ListMnemonicArgs
+        S_MnemonicArgs = 360,                    // MnemonicArgs
+        S_Exp = 361,                             // Exp
+        S_Exp1 = 362,                            // Exp1
+        S_Exp2 = 363,                            // Exp2
+        S_MemoryAddr = 364,                      // MemoryAddr
+        S_IndexExp = 365,                        // IndexExp
+        S_Factor = 366,                          // Factor
+        S_ConfigType = 367,                      // ConfigType
+        S_DataType = 368,                        // DataType
+        S_Opcode = 369                           // Opcode
       };
     };
 
@@ -1278,6 +1282,10 @@ namespace nask_ {
 
       case symbol_kind::S_IndexExp: // IndexExp
         value.move< std::shared_ptr<IndexExp> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_ListFactor: // ListFactor
+        value.move< std::shared_ptr<ListFactor> > (std::move (that.value));
         break;
 
       case symbol_kind::S_ListMnemonicArgs: // ListMnemonicArgs
@@ -1416,6 +1424,20 @@ namespace nask_ {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::shared_ptr<IndexExp>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<ListFactor>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<ListFactor>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -1582,6 +1604,10 @@ switch (yykind)
 
       case symbol_kind::S_IndexExp: // IndexExp
         value.template destroy< std::shared_ptr<IndexExp> > ();
+        break;
+
+      case symbol_kind::S_ListFactor: // ListFactor
+        value.template destroy< std::shared_ptr<ListFactor> > ();
         break;
 
       case symbol_kind::S_ListMnemonicArgs: // ListMnemonicArgs
@@ -7400,8 +7426,8 @@ switch (yykind)
     enum
     {
       yylast_ = 692,     ///< Last index in yytable_.
-      yynnts_ = 15,  ///< Number of nonterminal symbols.
-      yyfinal_ = 345 ///< Termination state number.
+      yynnts_ = 16,  ///< Number of nonterminal symbols.
+      yyfinal_ = 347 ///< Termination state number.
     };
 
 
@@ -7413,7 +7439,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7417 "bison.hh"
+#line 7443 "bison.hh"
 
 
 

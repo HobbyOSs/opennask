@@ -50,6 +50,8 @@ void Pass1Strategy::visitStatement(Statement *t) {
         this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
     } else if (dynamic_cast<ExportSymStmt*>(t) != nullptr) {
         this->visitExportSymStmt(dynamic_cast<ExportSymStmt*>(t));
+    } else if (dynamic_cast<ExternSymStmt*>(t) != nullptr) {
+        this->visitExternSymStmt(dynamic_cast<ExternSymStmt*>(t));
     }
 }
 
@@ -167,11 +169,40 @@ void Pass1Strategy::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
 void Pass1Strategy::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
 
-    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
-    TParaToken symbol = this->ctx.top();
-    this->ctx.pop();
+    if (export_sym_stmt->listfactor_) export_sym_stmt->listfactor_->accept(this);
 
-    log()->debug("[pass1] symbol {}", symbol.AsString());
+    std::vector<TParaToken> symbols;
+    size_t size = this->ctx.size();
+
+    for (int i = 0; i < size; i++ ) {
+        // stackなので上から順に取得している
+        TParaToken t = this->ctx.top();
+        symbols.insert(symbols.begin(), t);
+        this->ctx.pop();
+    }
+
+    for (auto sym : symbols) {
+        log()->debug("[pass1] symbol {}", sym.AsString());
+    }
+}
+
+void Pass1Strategy::visitExternSymStmt(ExternSymStmt *extern_sym_stmt) {
+
+    if (extern_sym_stmt->listfactor_) extern_sym_stmt->listfactor_->accept(this);
+
+    std::vector<TParaToken> symbols;
+    size_t size = this->ctx.size();
+
+    for (int i = 0; i < size; i++ ) {
+        // stackなので上から順に取得している
+        TParaToken t = this->ctx.top();
+        symbols.insert(symbols.begin(), t);
+        this->ctx.pop();
+    }
+
+    for (auto sym : symbols) {
+        log()->debug("[pass1] symbol {}", sym.AsString());
+    }
 }
 
 void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){

@@ -12,6 +12,7 @@
 Program* pProgram(std::istream &stream);
 ListStatement* pListStatement(std::istream &stream);
 Statement* pStatement(std::istream &stream);
+ListFactor* pListFactor(std::istream &stream);
 ListMnemonicArgs* pListMnemonicArgs(std::istream &stream);
 MnemonicArgs* pMnemonicArgs(std::istream &stream);
 Exp* pExp(std::istream &stream);

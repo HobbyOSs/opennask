@@ -11,12 +11,42 @@ using namespace matchit;
 
 void FrontEnd::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
 
-    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
-    TParaToken symbol = this->ctx.top();
-    o_writer_->add_global_symbol(symbol.AsString());
-    this->ctx.pop();
+    if (export_sym_stmt->listfactor_) export_sym_stmt->listfactor_->accept(this);
 
-    log()->debug("[pass2] symbol {}", symbol.AsString());
+    std::vector<TParaToken> symbols;
+    size_t size = this->ctx.size();
+
+    for (int i = 0; i < size; i++ ) {
+        // stackなので上から順に取得している
+        TParaToken t = this->ctx.top();
+        symbols.insert(symbols.begin(), t);
+        this->ctx.pop();
+    }
+
+    for (auto sym : symbols) {
+        o_writer_->add_global_symbol(sym.AsString());
+        log()->debug("[pass2] symbol {}", sym.AsString());
+    }
+}
+
+void FrontEnd::visitExternSymStmt(ExternSymStmt *extern_sym_stmt) {
+
+    if (extern_sym_stmt->listfactor_) extern_sym_stmt->listfactor_->accept(this);
+
+    std::vector<TParaToken> symbols;
+    size_t size = this->ctx.size();
+
+    for (int i = 0; i < size; i++ ) {
+        // stackなので上から順に取得している
+        TParaToken t = this->ctx.top();
+        symbols.insert(symbols.begin(), t);
+        this->ctx.pop();
+    }
+
+    for (auto sym : symbols) {
+        o_writer_->add_extern_symbol(sym.AsString());
+        log()->debug("[pass2] symbol {}", sym.AsString());
+    }
 }
 
 void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {

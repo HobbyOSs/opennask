@@ -65,6 +65,8 @@ void FrontEnd::visitStatement(Statement *t) {
         this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
     } else if (dynamic_cast<ExportSymStmt*>(t) != nullptr) {
         this->visitExportSymStmt(dynamic_cast<ExportSymStmt*>(t));
+    } else if (dynamic_cast<ExternSymStmt*>(t) != nullptr) {
+        this->visitExternSymStmt(dynamic_cast<ExternSymStmt*>(t));
     }
 }
 

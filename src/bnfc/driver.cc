@@ -106,6 +106,14 @@ NaskDriver::pStatement(std::istream &stream)
     return this->statement_;
 }
 
+std::shared_ptr<ListFactor>
+NaskDriver::pListFactor(std::istream &stream)
+{
+    parse_helper( stream );
+    this->listfactor_->reverse();
+    return this->listfactor_;
+}
+
 std::shared_ptr<ListMnemonicArgs>
 NaskDriver::pListMnemonicArgs(std::istream &stream)
 {

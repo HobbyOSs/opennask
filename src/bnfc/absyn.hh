@@ -39,6 +39,7 @@ class Prog;
 class LabelStmt;
 class DeclareStmt;
 class ExportSymStmt;
+class ExternSymStmt;
 class ConfigStmt;
 class MnemonicStmt;
 class MnemoArg;
@@ -119,7 +120,6 @@ class OpcodesDT;
 class OpcodesDW;
 class OpcodesEND;
 class OpcodesENTER;
-class OpcodesEXTERN;
 class OpcodesF2XM1;
 class OpcodesFABS;
 class OpcodesFADD;
@@ -395,6 +395,7 @@ class OpcodesXCHG;
 class OpcodesXLATB;
 class OpcodesXOR;
 class ListStatement;
+class ListFactor;
 class ListMnemonicArgs;
 
 
@@ -417,6 +418,7 @@ public:
     virtual void visitLabelStmt(LabelStmt *p) = 0;
     virtual void visitDeclareStmt(DeclareStmt *p) = 0;
     virtual void visitExportSymStmt(ExportSymStmt *p) = 0;
+    virtual void visitExternSymStmt(ExternSymStmt *p) = 0;
     virtual void visitConfigStmt(ConfigStmt *p) = 0;
     virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
     virtual void visitMnemoArg(MnemoArg *p) = 0;
@@ -497,7 +499,6 @@ public:
     virtual void visitOpcodesDW(OpcodesDW *p) = 0;
     virtual void visitOpcodesEND(OpcodesEND *p) = 0;
     virtual void visitOpcodesENTER(OpcodesENTER *p) = 0;
-    virtual void visitOpcodesEXTERN(OpcodesEXTERN *p) = 0;
     virtual void visitOpcodesF2XM1(OpcodesF2XM1 *p) = 0;
     virtual void visitOpcodesFABS(OpcodesFABS *p) = 0;
     virtual void visitOpcodesFADD(OpcodesFADD *p) = 0;
@@ -773,6 +774,7 @@ public:
     virtual void visitOpcodesXLATB(OpcodesXLATB *p) = 0;
     virtual void visitOpcodesXOR(OpcodesXOR *p) = 0;
     virtual void visitListStatement(ListStatement *p) = 0;
+    virtual void visitListFactor(ListFactor *p) = 0;
     virtual void visitListMnemonicArgs(ListMnemonicArgs *p) = 0;
 
 
@@ -916,10 +918,24 @@ public:
 class ExportSymStmt : public Statement
 {
 public:
-    std::shared_ptr<Factor> factor_;
+    std::shared_ptr<ListFactor> listfactor_;
 
-    ExportSymStmt(std::shared_ptr<Factor> p1)
-    : Statement(), factor_{p1}
+    ExportSymStmt(std::shared_ptr<ListFactor> p1)
+    : Statement(), listfactor_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Statement>  clone() const;
+};
+
+class ExternSymStmt : public Statement
+{
+public:
+    std::shared_ptr<ListFactor> listfactor_;
+
+    ExternSymStmt(std::shared_ptr<ListFactor> p1)
+    : Statement(), listfactor_{p1}
     {};
 
 
@@ -1832,16 +1848,6 @@ class OpcodesENTER : public Opcode
 public:
 
     OpcodesENTER(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesEXTERN : public Opcode
-{
-public:
-
-    OpcodesEXTERN(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -4608,6 +4614,29 @@ public:
     virtual void accept(Visitor *v);
     std::shared_ptr<ListStatement>  clone() const;
     void cons(std::shared_ptr<Statement>);
+    void reverse();
+};
+
+
+class ListFactor : public Visitable
+{
+public:
+    ListFactor() : listfactor_{}
+    {}
+
+    std::list<std::shared_ptr<Factor>> listfactor_;
+
+    // define iterator and const_iterator, expose it
+    using iterator = typename std::list<std::shared_ptr<Factor>>::iterator;
+    using const_iterator = typename std::list<std::shared_ptr<Factor>>::const_iterator;
+    auto begin() const { return listfactor_.begin(); }
+    auto begin()       { return listfactor_.begin(); }
+    auto end()   const { return listfactor_.end(); }
+    auto end()         { return listfactor_.end(); }
+
+    virtual void accept(Visitor *v);
+    std::shared_ptr<ListFactor>  clone() const;
+    void cons(std::shared_ptr<Factor>);
     void reverse();
 };
 

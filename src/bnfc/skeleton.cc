@@ -50,7 +50,15 @@ void Skeleton::visitExportSymStmt(ExportSymStmt *export_sym_stmt)
 {
   /* Code For ExportSymStmt Goes Here */
 
-  if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
+  if (export_sym_stmt->listfactor_) export_sym_stmt->listfactor_->accept(this);
+
+}
+
+void Skeleton::visitExternSymStmt(ExternSymStmt *extern_sym_stmt)
+{
+  /* Code For ExternSymStmt Goes Here */
+
+  if (extern_sym_stmt->listfactor_) extern_sym_stmt->listfactor_->accept(this);
 
 }
 
@@ -651,13 +659,6 @@ void Skeleton::visitOpcodesEND(OpcodesEND *opcodes_end)
 void Skeleton::visitOpcodesENTER(OpcodesENTER *opcodes_enter)
 {
   /* Code For OpcodesENTER Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesEXTERN(OpcodesEXTERN *opcodes_extern)
-{
-  /* Code For OpcodesEXTERN Goes Here */
 
 
 }
@@ -2584,6 +2585,14 @@ void Skeleton::visitOpcodesXOR(OpcodesXOR *opcodes_xor)
 void Skeleton::visitListStatement(ListStatement *list_statement)
 {
   for (ListStatement::iterator i = list_statement->begin() ; i != list_statement->end() ; ++i)
+  {
+    (*i)->accept(this);
+  }
+}
+
+void Skeleton::visitListFactor(ListFactor *list_factor)
+{
+  for (ListFactor::iterator i = list_factor->begin() ; i != list_factor->end() ; ++i)
   {
     (*i)->accept(this);
   }
