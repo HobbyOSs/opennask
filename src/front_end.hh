@@ -16,6 +16,7 @@
 #include "skeleton.hh"
 #include "bin_util.hh"
 #include "pass1_strategy.hh"
+#include "object_file_writer.hh"
 
 class FrontEnd : public Skeleton, public BinUtil {
 
@@ -32,6 +33,9 @@ private:
     asmjit::Environment env_;
     asmjit::CodeHolder code_;
     std::unique_ptr<asmjit::x86::Assembler> a_;
+
+    // coff/elf...
+    std::unique_ptr<ObjectFileWriter> o_writer_;
 
 public:
     // visitorのcontext情報

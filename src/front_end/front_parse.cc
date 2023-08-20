@@ -29,11 +29,15 @@ FrontEnd::FrontEnd(bool trace_scanning, bool trace_parsing) {
     dollar_position = 0;
     equ_map = std::map<std::string, TParaToken>{};
 
+    // asmjit
     using namespace asmjit;
     Environment env;
     env.setArch(Arch::kX86);
     code_.init(env);
     a_ = std::make_unique<x86::Assembler>(&code_);
+
+    // coff, elf
+    o_writer_ = nullptr;
 }
 
 FrontEnd::~FrontEnd() {
@@ -160,15 +164,6 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
 
     log()->debug("[pass2] declare {} = {}", key.AsString(), value.AsString());
     equ_map[key.AsString()] = value;
-}
-
-void FrontEnd::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
-
-    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
-    TParaToken symbol = this->ctx.top();
-    this->ctx.pop();
-
-    log()->debug("[pass2] symbol {}", symbol.AsString());
 }
 
 void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
@@ -574,8 +569,8 @@ template std::shared_ptr<Opcode> FrontEnd::Parse<Opcode>(std::istream &input);
 template <class T>
 int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
 
-    std::ofstream binout(assembly_dst, std::ios::trunc | std::ios::binary);
-    if ( binout.bad() || binout.fail() ) {
+    std::ofstream img_out(assembly_dst, std::ios::trunc | std::ios::binary);
+    if ( img_out.bad() || img_out.fail() ) {
         std::cerr << "NASK : can't open " << assembly_dst << std::endl;
         return 17;
     }
@@ -620,13 +615,15 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
 
     using namespace asmjit;
     CodeBuffer& buf = code_.textSection()->buffer();
-    // TODO: 互換性のため、しばらくこのようにしてbinout_containerを
-    // 使えるようにしておく
+
+    if (o_writer_ != nullptr) {
+        // オブジェクトファイル書き出しモード
+        o_writer_->write_coff(code_, *a_);
+    }
     binout_container.assign(buf.data(), buf.data() + buf.size());
-    binout.write(reinterpret_cast<char*>(binout_container.data()),
-                 binout_container.size());
-    //binout.write(reinterpret_cast<char*>(buf.data()), buf.size());
-    binout.close();
+
+    img_out.write(reinterpret_cast<char*>(binout_container.data()), binout_container.size());
+    img_out.close();
 
     return 0;
 }

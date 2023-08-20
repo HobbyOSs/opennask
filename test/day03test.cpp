@@ -1315,18 +1315,18 @@ TEST_F(Day03Suite, Harib00j) {
 
 ; オブジェクトファイルのための情報
 
-;[FILE "naskfunc.nas"]			; ソースファイル名情報
+[FILE "naskfunc.nas"]			; ソースファイル名情報
 
-;		GLOBAL	_io_hlt			; このプログラムに含まれる関数名
+		GLOBAL	_io_hlt			; このプログラムに含まれる関数名
 
 
 ; 以下は実際の関数
 
-;[SECTION .text]		; オブジェクトファイルではこれを書いてからプログラムを書く
-;
-;_io_hlt:	; void io_hlt(void);
-;    	HLT
-;    	RET
+[SECTION .text]		; オブジェクトファイルではこれを書いてからプログラムを書く
+
+_io_hlt:	; void io_hlt(void);
+    	HLT
+    	RET
 )";
 
     // od形式で出力する際は `od -t x1 test/test.img > test_img.txt`
@@ -1347,7 +1347,6 @@ TEST_F(Day03Suite, Harib00j) {
             0x00, 0x00,             // sizeOfOptionalHeader
             0x00, 0x00              // flags
         });
-    /**
     // COFFの各種section
     expected.insert(expected.end(), {
             0x2e, 0x74, 0x65, 0x78, 0x74, 0x00, 0x00, 0x00, // .text
@@ -1413,9 +1412,7 @@ TEST_F(Day03Suite, Harib00j) {
             0x5f, 0x69, 0x6f, 0x5f, 0x68, 0x6c, 0x74, 0x00, // シンボル情報
             0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
             0x02, 0x00, 0x04, 0x00, 0x00, 0x00 });
-    */
 
     // 作成したバイナリの差分assert & diff表示
-    GTEST_SKIP(); // 差分を実装中
     ASSERT_PRED_FORMAT2(checkTextF, expected, d->binout_container);
 }
