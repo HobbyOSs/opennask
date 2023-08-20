@@ -1315,7 +1315,7 @@ TEST_F(Day03Suite, Harib00j) {
 
 ; オブジェクトファイルのための情報
 
-;[FILE "naskfunc.nas"]			; ソースファイル名情報
+[FILE "naskfunc.nas"]			; ソースファイル名情報
 
 ;		GLOBAL	_io_hlt			; このプログラムに含まれる関数名
 

@@ -31,6 +31,10 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
         pattern | "FormConfig" | when (t.AsString() == "WCOFF") = [&] {
             o_writer_ = std::make_unique<ObjectFileWriter>();
         },
+        pattern | "FileConfig" = [&] {
+            auto file_name = t.AsString();
+            o_writer_->set_file_name(file_name);
+        },
         pattern | "InstConfig" = [&] {
             // NOP
         },

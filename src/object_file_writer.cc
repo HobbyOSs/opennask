@@ -19,7 +19,15 @@ ObjectFileWriter::ObjectFileWriter() {
 
 
 void ObjectFileWriter::set_file_name(std::string& file_name) {
-    //writer->();
+    // coffiでは`auxiliary_symbol_record_4` で定義される
+    // https://coffi.readthedocs.io/en/latest/annotated.html
+    symbol* sym1 = writer_->add_symbol(".file");
+    auxiliary_symbol_record_4 record;
+    std::strncpy(record.file_name, file_name.c_str(), sizeof(record.file_name) - 2);
+    for (size_t i = file_name.size(); i < sizeof(record.file_name) - 1; i++) {
+        record.file_name[i] = '\0';
+    }
+    sym1->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&record);
 }
 
 void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assembler& a) {
