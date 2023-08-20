@@ -1322,7 +1322,7 @@ TEST_F(Day03Suite, Harib00j) {
 
 ; 以下は実際の関数
 
-;[SECTION .text]		; オブジェクトファイルではこれを書いてからプログラムを書く
+[SECTION .text]		; オブジェクトファイルではこれを書いてからプログラムを書く
 
 _io_hlt:	; void io_hlt(void);
     	HLT

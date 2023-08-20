@@ -38,11 +38,14 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
             throw std::runtime_error("Invalid bit_mode: " + t.AsString());
         },
         pattern | "FormConfig" | when (t.AsString() == "WCOFF") = [&] {
-            o_writer_ = std::make_unique<ObjectFileWriter>();
+            o_writer_ = std::make_unique<ObjectFileWriter>(); // TODO: ELFも出したい場合ObjectFileWriterのIFを作って内部で分岐
         },
         pattern | "FileConfig" = [&] {
             auto file_name = t.AsString();
             o_writer_->set_file_name(file_name);
+        },
+        pattern | "SectConfig" = [&] {
+            // TODO: [SECTION .text] 以外の処理にも対応する(?) しかしその場合BNFの構文自体変えたほうが良さそうである
         },
         pattern | "InstConfig" = [&] {
             // NOP

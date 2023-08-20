@@ -10,7 +10,6 @@ using namespace asmjit;
 ObjectFileWriter::ObjectFileWriter() {
     writer_ = std::make_unique<coffi>();
     writer_->create(COFFI_ARCHITECTURE_PE);
-    writer_->get_header()->set_flags(IMAGE_FILE_32BIT_MACHINE);
 
     global_symbol_list = {};
     extern_symbol_list = {};
@@ -70,7 +69,8 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
                     IMAGE_SCN_ALIGN_1BYTES);
     // .textに最終的な機械語を差し込む
     text->set_data(reinterpret_cast<const char*>(buf.data()), buf.size());
-
+    text->set_reloc_count(142);  // PointerToRelocatio=142(=0x8e)固定, 要はCOFFのヘッダーサイズ+2byte
+    text->set_line_num_count(0); // PointerToLinenumbers=0, 使われていないので0に設定（しかし設定が効かない）
 
     section* data = writer_->add_section(".data");
     data->set_flags(IMAGE_SCN_CNT_INITIALIZED_DATA | // The section contains initialized data.
@@ -92,9 +92,11 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     sym_text->set_storage_class(IMAGE_SYM_CLASS_STATIC);
     sym_text->set_section_number(1);
     sym_text->set_aux_symbols_number(1);
-    auxiliary_symbol_record_5 empty_aux_text;
-    std::memset(&empty_aux_text, 0, sizeof(auxiliary_symbol_record_5)); // naskでも使われていないようなので構造体を0で初期化
-    sym_text->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&empty_aux_text);
+    auxiliary_symbol_record_5 aux_symbol_record_text;
+    std::memset(&aux_symbol_record_text, 0, sizeof(auxiliary_symbol_record_5)); // 一度0で初期化
+    aux_symbol_record_text.length = buf.size();       // .textのサイズを設定
+    // aux_symbol_record_text.number_of_relocations = // TODO: EXTERNするシンボルの数を設定する必要がある
+    sym_text->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&aux_symbol_record_text);
 
     symbol* sym_data = writer_->add_symbol(".data");
     sym_data->set_type(IMAGE_SYM_TYPE_NOT_FUNCTION);
@@ -117,34 +119,39 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     // シンボル情報を書き込む
     for (auto gl_symbol : global_symbol_list) {
         symbol* sym = writer_->add_symbol(gl_symbol);
-        sym->set_type(IMAGE_SYM_TYPE_FUNCTION);
         sym->set_storage_class(IMAGE_SYM_CLASS_EXTERNAL);
-        sym->set_section_number(1); // .text
+        sym->set_section_number(1); // .textのsection番号
         sym->set_aux_symbols_number(0);
     }
 
     // WCOFFを出力する
     std::ostringstream oss;
     writer_->save(oss);
-    std::string hex_dump = oss.str();
+
+    std::string object_file = oss.str();
+
+    // TODO: なぜかpointerToLineNumbersが0x00にならないのでパッチしている
+    std::for_each(object_file.begin() + 49, object_file.begin() + 52 + 1, [](char& c) { c = '\x00'; });
+    // TODO: 謎に末尾に4byteついてるので真似ている
+    std::string_view unknown_data("\x04\x00\x00\x00", 4);
+    object_file.append(unknown_data);
 
     // debug用
-    for (int i = 0; i < hex_dump.size(); i++) {
-        if (i % 16 == 0) {
-            std::cout << std::endl;
-        }
-
-        std::cout << std::hex
-                  << std::setw(2)
-                  << std::setfill('0')
-                  << (int)(unsigned char) hex_dump[i] << " ";
-    }
-    std::cout << std::dec << std::endl; // 16進数表示を元に戻す
-
+    //for (int i = 0; i < object_file.size(); i++) {
+    //    if (i % 16 == 0) {
+    //        std::cout << std::endl;
+    //    }
+    //
+    //    std::cout << std::hex
+    //              << std::setw(2)
+    //              << std::setfill('0')
+    //              << (int)(unsigned char) object_file[i] << " ";
+    //}
+    //std::cout << std::dec << std::endl; // 16進数表示を元に戻す
 
     // もともとasmjitのバッファに書き込まれているデータをリセットして上書きする
     memset(buf._data, 0, buf.size());
-    memcpy(buf.begin(), hex_dump.c_str(), hex_dump.size());
-    buf._size = hex_dump.size();
-    a._bufferPtr = buf.data() + hex_dump.size(); // asmjit/src/asmjit/core/assembler.h L.40
+    memcpy(buf.begin(), object_file.c_str(), object_file.size());
+    buf._size = object_file.size();
+    a._bufferPtr = buf.data() + object_file.size(); // asmjit/src/asmjit/core/assembler.h L.40
 };
