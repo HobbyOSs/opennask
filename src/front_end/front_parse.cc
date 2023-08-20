@@ -166,15 +166,6 @@ void FrontEnd::visitDeclareStmt(DeclareStmt *declare_stmt) {
     equ_map[key.AsString()] = value;
 }
 
-void FrontEnd::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
-
-    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
-    TParaToken symbol = this->ctx.top();
-    this->ctx.pop();
-
-    log()->debug("[pass2] symbol {}", symbol.AsString());
-}
-
 void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
 
     if (mnemonic_stmt->opcode_) {

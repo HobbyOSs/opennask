@@ -9,6 +9,15 @@
 using namespace std::placeholders;
 using namespace matchit;
 
+void FrontEnd::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
+
+    if (export_sym_stmt->factor_) export_sym_stmt->factor_->accept(this);
+    TParaToken symbol = this->ctx.top();
+    o_writer_->add_global_symbol(symbol.AsString());
+    this->ctx.pop();
+
+    log()->debug("[pass2] symbol {}", symbol.AsString());
+}
 
 void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
 

@@ -10,15 +10,18 @@ using namespace asmjit;
 ObjectFileWriter::ObjectFileWriter() {
     writer_ = std::make_unique<coffi>();
     writer_->create(COFFI_ARCHITECTURE_PE);
-
-    // TODO: なぜかoptional headerをつけるとマジックバイトが0x4d5a(=exe)になってしまう
-    // writer_->create_optional_header();
     writer_->get_header()->set_flags(IMAGE_FILE_32BIT_MACHINE);
 
+    global_symbol_list = {};
+    extern_symbol_list = {};
 }
 
+ObjectFileWriter::~ObjectFileWriter() {
+    global_symbol_list.clear();
+    extern_symbol_list.clear();
+}
 
-void ObjectFileWriter::set_file_name(std::string& file_name) {
+void ObjectFileWriter::set_file_name(const std::string& file_name) {
     // coffiでは`auxiliary_symbol_record_4` で定義される
     // https://coffi.readthedocs.io/en/latest/annotated.html
     // ちょっとしつこいコメントになるが設定値の意味も付記する
@@ -43,6 +46,14 @@ void ObjectFileWriter::set_file_name(std::string& file_name) {
     record.file_name[sizeof(record.file_name) - 1] = '\0'; // 末尾を0で埋める
 
     sym1->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&record);
+}
+
+void ObjectFileWriter::add_global_symbol(const std::string& symbol) {
+    global_symbol_list.push_back(symbol);
+}
+
+void ObjectFileWriter::add_extern_symbol(const std::string& symbol) {
+    extern_symbol_list.push_back(symbol);
 }
 
 void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assembler& a) {
@@ -103,6 +114,14 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     std::memset(&empty_aux_bss, 0, sizeof(auxiliary_symbol_record_5)); // naskでも使われていないようなので構造体を0で初期化
     sym_bss->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&empty_aux_bss);
 
+    // シンボル情報を書き込む
+    for (auto gl_symbol : global_symbol_list) {
+        symbol* sym = writer_->add_symbol(gl_symbol);
+        sym->set_type(IMAGE_SYM_TYPE_FUNCTION);
+        sym->set_storage_class(IMAGE_SYM_CLASS_EXTERNAL);
+        sym->set_section_number(1); // .text
+        sym->set_aux_symbols_number(0);
+    }
 
     // WCOFFを出力する
     std::ostringstream oss;

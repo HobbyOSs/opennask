@@ -28,6 +28,11 @@ void FrontEnd::with_asmjit(F && f) {
 
     f(*a_, pp);
 
+    const size_t after_size = buf.size();
+    if (before_size == after_size) {
+        return; // 何も出力がないときはskip
+    }
+
     // asmjitはデフォルトは32bitモード
     // 0x67, 0x66の制御
     std::vector<uint8_t> old_data(buf.data(), buf.data() + buf.size());
