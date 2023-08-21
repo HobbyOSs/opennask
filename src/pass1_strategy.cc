@@ -1475,9 +1475,9 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 88      m8      r8
-        // ex) `MOV [0x0ff0],CH`
+        // ex) `MOV [0x0ff0],CH`, ex) `MOV [ECX],AL`
         // カッコ内部のアドレスの大きさに関わらずdstのオペランドはm8扱いになる(転送元レジスタによって決まる)
-        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16), _, TParaToken::ttReg8, _) = [&] {
+        pattern | ds(or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _, TParaToken::ttReg8, _) = [&] {
             mnemonic_args[0].SetAttribute(TParaToken::ttMem8);
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
