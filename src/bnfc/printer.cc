@@ -201,7 +201,19 @@ void PrintAbsyn::visitExportSymStmt(ExportSymStmt* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("GLOBAL");
-  _i_ = 0; p->factor_->accept(this);
+  _i_ = 0; visitListFactor(p->listfactor_.get());
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitExternSymStmt(ExternSymStmt* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("EXTERN");
+  _i_ = 0; visitListFactor(p->listfactor_.get());
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -231,6 +243,24 @@ void PrintAbsyn::visitMnemonicStmt(MnemonicStmt* p)
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
+}
+
+void PrintAbsyn::visitListFactor(ListFactor* listfactor)
+{
+  iterListFactor(listfactor->begin(), listfactor->end());
+}
+
+void PrintAbsyn::iterListFactor(ListFactor::const_iterator i, ListFactor::const_iterator j)
+{
+  if (i == j) return;
+  if (i == std::prev(j, 1))
+  { /* last */
+    (*i)->accept(this);
+  }
+  else
+  { /* cons */
+    (*i)->accept(this); render(','); iterListFactor(std::next(i,1), j);
+  }
 }
 
 void PrintAbsyn::visitListMnemonicArgs(ListMnemonicArgs* listmnemonicargs)
@@ -1164,17 +1194,6 @@ void PrintAbsyn::visitOpcodesENTER(OpcodesENTER* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("ENTER");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesEXTERN(OpcodesEXTERN* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("EXTERN");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4317,7 +4336,18 @@ void ShowAbsyn::visitExportSymStmt(ExportSymStmt* p)
   bufAppend("ExportSymStmt");
   bufAppend(' ');
   bufAppend('[');
-  if (p->factor_)  p->factor_->accept(this);
+  if (p->listfactor_)  p->listfactor_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitExternSymStmt(ExternSymStmt* p)
+{
+  bufAppend('(');
+  bufAppend("ExternSymStmt");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->listfactor_)  p->listfactor_->accept(this);
   bufAppend(']');
   bufAppend(')');
 }
@@ -4351,6 +4381,15 @@ void ShowAbsyn::visitMnemonicStmt(MnemonicStmt* p)
   if (p->listmnemonicargs_)  p->listmnemonicargs_->accept(this);
   bufAppend(']');
   bufAppend(')');
+}
+
+void ShowAbsyn::visitListFactor(ListFactor *listfactor)
+{
+  for (ListFactor::const_iterator i = listfactor->begin() ; i != listfactor->end() ; ++i)
+  {
+    (*i)->accept(this);
+    if (i != std::prev(listfactor->end(), 1)) bufAppend(", ");
+  }
 }
 
 void ShowAbsyn::visitListMnemonicArgs(ListMnemonicArgs *listmnemonicargs)
@@ -4893,11 +4932,6 @@ void ShowAbsyn::visitOpcodesEND(OpcodesEND* p)
 void ShowAbsyn::visitOpcodesENTER(OpcodesENTER* p)
 {
   bufAppend("OpcodesENTER");
-}
-
-void ShowAbsyn::visitOpcodesEXTERN(OpcodesEXTERN* p)
-{
-  bufAppend("OpcodesEXTERN");
 }
 
 void ShowAbsyn::visitOpcodesF2XM1(OpcodesF2XM1* p)

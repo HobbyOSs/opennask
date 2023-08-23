@@ -24,6 +24,7 @@ public:
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
   void visitExportSymStmt(ExportSymStmt *p);
+  void visitExternSymStmt(ExternSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
   void visitMnemoArg(MnemoArg *p);
@@ -104,7 +105,6 @@ public:
   void visitOpcodesDW(OpcodesDW *p);
   void visitOpcodesEND(OpcodesEND *p);
   void visitOpcodesENTER(OpcodesENTER *p);
-  void visitOpcodesEXTERN(OpcodesEXTERN *p);
   void visitOpcodesF2XM1(OpcodesF2XM1 *p);
   void visitOpcodesFABS(OpcodesFABS *p);
   void visitOpcodesFADD(OpcodesFADD *p);
@@ -380,6 +380,7 @@ public:
   void visitOpcodesXLATB(OpcodesXLATB *p);
   void visitOpcodesXOR(OpcodesXOR *p);
   void visitListStatement(ListStatement *p);
+  void visitListFactor(ListFactor *p);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
 
   void visitInteger(Integer x);

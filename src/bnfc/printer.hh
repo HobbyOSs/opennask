@@ -43,8 +43,11 @@ class PrintAbsyn : public Visitor
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
   void visitExportSymStmt(ExportSymStmt *p);
+  void visitExternSymStmt(ExternSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitListFactor(ListFactor *p);
+  void iterListFactor(ListFactor::const_iterator i, ListFactor::const_iterator j);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -133,7 +136,6 @@ class PrintAbsyn : public Visitor
   void visitOpcodesDW(OpcodesDW *p);
   void visitOpcodesEND(OpcodesEND *p);
   void visitOpcodesENTER(OpcodesENTER *p);
-  void visitOpcodesEXTERN(OpcodesEXTERN *p);
   void visitOpcodesF2XM1(OpcodesF2XM1 *p);
   void visitOpcodesFABS(OpcodesFABS *p);
   void visitOpcodesFADD(OpcodesFADD *p);
@@ -487,8 +489,11 @@ class ShowAbsyn : public Visitor
   void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
   void visitExportSymStmt(ExportSymStmt *p);
+  void visitExternSymStmt(ExternSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitListFactor(ListFactor *p);
+  void iterListFactor(ListFactor::const_iterator i, ListFactor::const_iterator j);
   void visitListMnemonicArgs(ListMnemonicArgs *p);
   void iterListMnemonicArgs(ListMnemonicArgs::const_iterator i, ListMnemonicArgs::const_iterator j);
   void visitMnemonicArgs(MnemonicArgs *p); /* abstract class */
@@ -577,7 +582,6 @@ class ShowAbsyn : public Visitor
   void visitOpcodesDW(OpcodesDW *p);
   void visitOpcodesEND(OpcodesEND *p);
   void visitOpcodesENTER(OpcodesENTER *p);
-  void visitOpcodesEXTERN(OpcodesEXTERN *p);
   void visitOpcodesF2XM1(OpcodesF2XM1 *p);
   void visitOpcodesFABS(OpcodesFABS *p);
   void visitOpcodesFADD(OpcodesFADD *p);

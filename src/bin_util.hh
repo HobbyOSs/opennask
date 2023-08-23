@@ -23,8 +23,9 @@ public:
 
     template<typename T>
     const std::string int_to_hex(T i);
-    const std::string bytes_to_hex(std::vector<uint8_t>& bytes);
+    const std::string bytes_to_hex(std::vector<uint8_t>&);
     const std::string join(std::vector<std::string>&, const std::string& = "");
+    const std::vector<std::string> split(const std::string&, char);
 
     template<typename T>
     std::vector<T> slice(std::vector<T> const &v, int m, int n) {

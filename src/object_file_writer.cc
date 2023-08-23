@@ -55,7 +55,8 @@ void ObjectFileWriter::add_extern_symbol(const std::string& symbol) {
     extern_symbol_list.push_back(symbol);
 }
 
-void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assembler& a) {
+void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assembler& a,
+                                  std::map<std::string, uint32_t>& sym_table) {
 
     CodeBuffer& buf = code_.textSection()->buffer();
 
@@ -116,38 +117,79 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     std::memset(&empty_aux_bss, 0, sizeof(auxiliary_symbol_record_5)); // naskでも使われていないようなので構造体を0で初期化
     sym_bss->get_auxiliary_symbols().push_back(*(auxiliary_symbol_record*)&empty_aux_bss);
 
-    // シンボル情報を書き込む
-    for (auto gl_symbol : global_symbol_list) {
-        symbol* sym = writer_->add_symbol(gl_symbol);
-        sym->set_storage_class(IMAGE_SYM_CLASS_EXTERNAL);
-        sym->set_section_number(1); // .textのsection番号
-        sym->set_aux_symbols_number(0);
-    }
-
-    // WCOFFを出力する
+    // いったんシンボルテーブル以外のWCOFFを出力する
     std::ostringstream oss;
     writer_->save(oss);
 
+    // longなシンボル用のサイズカウンタ
+    // 4byteが初期値となり、そのサイズのバイナリが格納される
+    uint32_t long_symbols_size = 4;
+    auto long_symbols = std::vector<std::string>{};
+
+    for (int i = 0; i < global_symbol_list.size(); i++) {
+        auto symbol_name = global_symbol_list[i];
+
+        if (symbol_name.size() <= 8) {
+            // shortなシンボル情報を書き込む
+            symbol_record sym_record;
+            std::memset(&sym_record, 0, sizeof(symbol_record)); // 構造体を0で初期化
+            std::strncpy(sym_record.name, global_symbol_list[i].c_str(), sizeof(sym_record.name));
+            sym_record.section_number = 1;
+            sym_record.storage_class = IMAGE_SYM_CLASS_EXTERNAL;
+            oss.write(reinterpret_cast<const char*>(&sym_record), sizeof(sym_record));
+        } else {
+            // longなシンボルへのオフセットを書き込む
+            coff_symbol_record offs_record;
+            std::memset(&offs_record, 0, sizeof(symbol_record)); // 構造体を0で初期化
+            // longなシンボル名のサイズを表す32ビット整数をバイト単位で record.name フィールドに格納
+            offs_record.e.e.zeroes = 0;
+            offs_record.e.e.offset = long_symbols_size; // 文字列テーブルのシンボル名へのオフセット
+            offs_record.value = 2; // TODO: シンボル間のオフセット値
+            offs_record.section_number = 1;
+            offs_record.storage_class = IMAGE_SYM_CLASS_EXTERNAL;
+            offs_record.aux_symbols_number = 0;
+
+            oss.write(reinterpret_cast<const char*>(&offs_record), 18);
+
+            long_symbols_size += symbol_name.size() + 1; // 終端文字をプラス
+            long_symbols.push_back(symbol_name + '\0');
+        }
+    }
+
+    // string tableにlong symbolを書き込む
+    // string tableは単純な構造で
+    //  * uint32_t size
+    //  * char value[size]
+    // という構造になっているので、そのように書き込む
+    oss.write(reinterpret_cast<const char*>(&long_symbols_size), sizeof(long_symbols_size));
+    for (auto sym : long_symbols) {
+        oss.write(reinterpret_cast<const char*>(sym.c_str()), sym.size());
+    }
+
     std::string object_file = oss.str();
 
-    // TODO: なぜかpointerToLineNumbersが0x00にならないのでパッチしている
+    // なぜかpointerToLineNumbersが0x00にならないのでパッチしている
     std::for_each(object_file.begin() + 49, object_file.begin() + 52 + 1, [](char& c) { c = '\x00'; });
-    // TODO: 謎に末尾に4byteついてるので真似ている
-    std::string_view unknown_data("\x04\x00\x00\x00", 4);
-    object_file.append(unknown_data);
 
-    // debug用
-    //for (int i = 0; i < object_file.size(); i++) {
-    //    if (i % 16 == 0) {
-    //        std::cout << std::endl;
-    //    }
-    //
-    //    std::cout << std::hex
-    //              << std::setw(2)
-    //              << std::setfill('0')
-    //              << (int)(unsigned char) object_file[i] << " ";
-    //}
-    //std::cout << std::dec << std::endl; // 16進数表示を元に戻す
+    int all_sym_size = 8 + global_symbol_list.size();
+    object_file[12] = all_sym_size & 0xff;
+    object_file[13] = (all_sym_size >> 8)  & 0xff;
+    object_file[14] = (all_sym_size >> 16) & 0xff;
+    object_file[15] = (all_sym_size >> 24) & 0xff;
+
+    /** debug用
+    for (int i = 0; i < object_file.size(); i++) {
+        if (i % 16 == 0) {
+            std::cout << std::endl;
+        }
+
+        std::cout << std::hex
+                  << std::setw(2)
+                  << std::setfill('0')
+                  << (int)(unsigned char) object_file[i] << " ";
+    }
+    std::cout << std::dec << std::endl; // 16進数表示を元に戻す
+    */
 
     // もともとasmjitのバッファに書き込まれているデータをリセットして上書きする
     memset(buf._data, 0, buf.size());

@@ -65,6 +65,8 @@ void FrontEnd::visitStatement(Statement *t) {
         this->visitMnemonicStmt(dynamic_cast<MnemonicStmt*>(t));
     } else if (dynamic_cast<ExportSymStmt*>(t) != nullptr) {
         this->visitExportSymStmt(dynamic_cast<ExportSymStmt*>(t));
+    } else if (dynamic_cast<ExternSymStmt*>(t) != nullptr) {
+        this->visitExternSymStmt(dynamic_cast<ExternSymStmt*>(t));
     }
 }
 
@@ -618,7 +620,7 @@ int FrontEnd::Eval(T *parse_tree, const char* assembly_dst) {
 
     if (o_writer_ != nullptr) {
         // オブジェクトファイル書き出しモード
-        o_writer_->write_coff(code_, *a_);
+        o_writer_->write_coff(code_, *a_, sym_table);
     }
     binout_container.assign(buf.data(), buf.data() + buf.size());
 

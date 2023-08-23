@@ -28,6 +28,7 @@ public:
     std::shared_ptr<Program> program_;
     std::shared_ptr<ListStatement> liststatement_;
     std::shared_ptr<Statement> statement_;
+    std::shared_ptr<ListFactor> listfactor_;
     std::shared_ptr<ListMnemonicArgs> listmnemonicargs_;
     std::shared_ptr<MnemonicArgs> mnemonicargs_;
     std::shared_ptr<Exp> exp_;
@@ -42,6 +43,7 @@ public:
     std::shared_ptr<Program> pProgram(std::istream &stream);
     std::shared_ptr<ListStatement> pListStatement(std::istream &stream);
     std::shared_ptr<Statement> pStatement(std::istream &stream);
+    std::shared_ptr<ListFactor> pListFactor(std::istream &stream);
     std::shared_ptr<ListMnemonicArgs> pListMnemonicArgs(std::istream &stream);
     std::shared_ptr<MnemonicArgs> pMnemonicArgs(std::istream &stream);
     std::shared_ptr<Exp> pExp(std::istream &stream);

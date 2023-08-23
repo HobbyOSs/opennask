@@ -402,6 +402,7 @@
 %type <std::shared_ptr<Program>> Program
 %type <std::shared_ptr<ListStatement>> ListStatement
 %type <std::shared_ptr<Statement>> Statement
+%type <std::shared_ptr<ListFactor>> ListFactor
 %type <std::shared_ptr<ListMnemonicArgs>> ListMnemonicArgs
 %type <std::shared_ptr<MnemonicArgs>> MnemonicArgs
 %type <std::shared_ptr<Exp>> Exp
@@ -425,9 +426,14 @@ ListStatement : Statement { $$ = std::make_shared<ListStatement>(); $$->cons($1)
 ;
 Statement : T_Label { $$ = std::make_shared<LabelStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | T_Id _KW_EQU Exp { $$ = std::make_shared<DeclareStmt>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
-  | _KW_GLOBAL Factor { $$ = std::make_shared<ExportSymStmt>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+  | _KW_GLOBAL ListFactor { $2->reverse();$$ = std::make_shared<ExportSymStmt>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+  | _KW_EXTERN ListFactor { $2->reverse();$$ = std::make_shared<ExternSymStmt>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | _LBRACK ConfigType Factor _RBRACK { $$ = std::make_shared<ConfigStmt>($2, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | Opcode ListMnemonicArgs { $2->reverse();$$ = std::make_shared<MnemonicStmt>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+;
+ListFactor : /* empty */ { $$ = std::make_shared<ListFactor>(); driver.listfactor_ = $$; }
+  | Factor { $$ = std::make_shared<ListFactor>(); $$->cons($1); driver.listfactor_ = $$; }
+  | Factor _COMMA ListFactor { $3->cons($1); $$ = $3; driver.listfactor_ = $$; }
 ;
 ListMnemonicArgs : /* empty */ { $$ = std::make_shared<ListMnemonicArgs>(); driver.listmnemonicargs_ = $$; }
   | MnemonicArgs { $$ = std::make_shared<ListMnemonicArgs>(); $$->cons($1); driver.listmnemonicargs_ = $$; }
@@ -523,7 +529,6 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_DW { $$ = std::make_shared<OpcodesDW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_END { $$ = std::make_shared<OpcodesEND>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ENTER { $$ = std::make_shared<OpcodesENTER>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_EXTERN { $$ = std::make_shared<OpcodesEXTERN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_F2XM1 { $$ = std::make_shared<OpcodesF2XM1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FABS { $$ = std::make_shared<OpcodesFABS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FADD { $$ = std::make_shared<OpcodesFADD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }

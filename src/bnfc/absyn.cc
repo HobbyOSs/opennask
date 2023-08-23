@@ -70,6 +70,22 @@ std::shared_ptr<Statement> ExportSymStmt::clone() const
 
 
 
+/********************   ExternSymStmt    ********************/
+
+
+
+void ExternSymStmt::accept(Visitor *v)
+{
+    v->visitExternSymStmt(this);
+}
+
+std::shared_ptr<Statement> ExternSymStmt::clone() const
+{
+    return std::make_shared<ExternSymStmt>(*this);
+}
+
+
+
 /********************   ConfigStmt    ********************/
 
 
@@ -1346,22 +1362,6 @@ void OpcodesENTER::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesENTER::clone() const
 {
     return std::make_shared<OpcodesENTER>(*this);
-}
-
-
-
-/********************   OpcodesEXTERN    ********************/
-
-
-
-void OpcodesEXTERN::accept(Visitor *v)
-{
-    v->visitOpcodesEXTERN(this);
-}
-
-std::shared_ptr<Opcode> OpcodesEXTERN::clone() const
-{
-    return std::make_shared<OpcodesEXTERN>(*this);
 }
 
 
@@ -5773,6 +5773,31 @@ std::shared_ptr<ListStatement> consListStatement(std::shared_ptr<Statement> x, s
 
 void ListStatement::reverse() {
     std::reverse(liststatement_.begin(), liststatement_.end());
+}
+
+
+/********************   ListFactor    ********************/
+void ListFactor::accept(Visitor *v)
+{
+    v->visitListFactor(this);
+}
+
+std::shared_ptr<ListFactor> ListFactor::clone() const
+{
+    return std::make_shared<ListFactor>(*this);
+}
+
+void ListFactor::cons(std::shared_ptr<Factor> x) {
+    listfactor_.push_back(x);
+}
+
+std::shared_ptr<ListFactor> consListFactor(std::shared_ptr<Factor> x, std::shared_ptr<ListFactor> xs) {
+    xs->listfactor_.push_front(x);
+    return xs;
+}
+
+void ListFactor::reverse() {
+    std::reverse(listfactor_.begin(), listfactor_.end());
 }
 
 
