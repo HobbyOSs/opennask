@@ -43,10 +43,14 @@ set(nask_parse_front_SRCS
   ../src/front_end/front_memory_addr.cc
   ../src/front_end/front_parse.cc)
 
+set(nask_parse_pass1_SRCS
+  ../src/pass1/pass1_inst_no_param.cc
+  ../src/pass1/pass1_strategy.cc)
+
 set(nask_parse_SRCS
   ${nask_parse_bnfc_SRCS}
   ${nask_parse_front_SRCS}
-  ../src/pass1_strategy.cc
+  ${nask_parse_pass1_SRCS}
   ../src/bin_util.cc
   ../src/demangle.cpp
   ../src/para_token.cc

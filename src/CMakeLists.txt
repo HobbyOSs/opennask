@@ -67,11 +67,15 @@ set(nask_parse_front_SRCS
   front_end/front_memory_addr.cc
   front_end/front_parse.cc)
 
+set(nask_parse_pass1_SRCS
+  pass1/pass1_inst_no_param.cc
+  pass1/pass1_strategy.cc)
+
 set(nask_parse_SRCS
   nask_parse.cpp
   ${nask_parse_front_SRCS}
   front_end.hh
-  pass1_strategy.cc
+  ${nask_parse_pass1_SRCS}
   pass1_strategy.hh
   para_token.cc
   para_token.hh
