@@ -36,11 +36,12 @@ set(nask_parse_bnfc_SRCS
 
 set(nask_parse_front_SRCS
   ../src/front_end/front_config.cc
-  ../src/front_end/front_parse.cc
-  ../src/front_end/front_memory_addr.cc
   ../src/front_end/front_inst.cc
   ../src/front_end/front_inst_jmp.cc
-  ../src/front_end/front_inst_pseudo.cc)
+  ../src/front_end/front_inst_no_param.cc
+  ../src/front_end/front_inst_pseudo.cc
+  ../src/front_end/front_memory_addr.cc
+  ../src/front_end/front_parse.cc)
 
 set(nask_parse_SRCS
   ${nask_parse_bnfc_SRCS}

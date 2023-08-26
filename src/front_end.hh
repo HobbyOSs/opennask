@@ -77,41 +77,15 @@ public:
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
-    // opcodeの読み取り(空の実装)
-    void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
-    void visitOpcodesCALL(OpcodesCALL *opcodes_call) override {};
-    void visitOpcodesCLI(OpcodesCLI *opcodes_cli) override {};
-    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
-    void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
-    void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
-    void visitOpcodesDD(OpcodesDD *opcodes_dd) override {};
-    void visitOpcodesHLT(OpcodesHLT *opcodes_hlt) override {};
-    void visitOpcodesINT(OpcodesINT *opcodes_int) override {};
-    void visitOpcodesJAE(OpcodesJAE *opcodes_jae) override {};
-    void visitOpcodesJB(OpcodesJB *opcodes_jb) override {};
-    void visitOpcodesJBE(OpcodesJBE *opcodes_jbe) override {};
-    void visitOpcodesJC(OpcodesJC *opcodes_jc) override {};
-    void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
-    void visitOpcodesJNC(OpcodesJNC *opcodes_jnc) override {};
-    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
-    void visitOpcodesLGDT(OpcodesLGDT *opcodes_lgdt) override {};
-    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
-    void visitOpcodesNOP(OpcodesNOP *opcodes_nop) override {};
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
-    void visitOpcodesOUT(OpcodesOUT *opcodes_out) override {};
-    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
-
     // opcodeの処理
     void processALIGNB(std::vector<TParaToken>& memonic_args);
     void processADD(std::vector<TParaToken>& memonic_args);
     void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
-    void processCLI();
     void processCMP(std::vector<TParaToken>& memonic_args);
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
-    void processHLT();
     void processIMUL(std::vector<TParaToken>& memonic_args);
     void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
@@ -126,14 +100,17 @@ public:
     void processJZ(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
-    void processNOP();
     void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
-    void processRET();
     void processRESB(std::vector<TParaToken>& memonic_args);
+    void processRET(std::vector<TParaToken>& memonic_args);
     void processSHR(std::vector<TParaToken>& memonic_args);
     void processSUB(std::vector<TParaToken>& memonic_args);
+
+    // 引数なしオペコードはtemplate化
+    template <asmjit::x86::Inst::Id id>
+    void processEmit();
 
     // expression
     void visitImmExp(ImmExp *p) override;

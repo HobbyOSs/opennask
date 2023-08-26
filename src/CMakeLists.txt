@@ -60,11 +60,12 @@ set(nask_parse_bnfc_SRCS
 
 set(nask_parse_front_SRCS
   front_end/front_config.cc
-  front_end/front_parse.cc
-  front_end/front_memory_addr.cc
   front_end/front_inst.cc
   front_end/front_inst_jmp.cc
-  front_end/front_inst_pseudo.cc)
+  front_end/front_inst_no_param.cc
+  front_end/front_inst_pseudo.cc
+  front_end/front_memory_addr.cc
+  front_end/front_parse.cc)
 
 set(nask_parse_SRCS
   nask_parse.cpp

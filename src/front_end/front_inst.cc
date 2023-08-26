@@ -171,12 +171,6 @@ void FrontEnd::processAND(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
-void FrontEnd::processCLI() {
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        a.cli();
-    });
-}
-
 void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
@@ -236,12 +230,6 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
                 throw std::runtime_error("CMP, Not implemented or not matched!!!");
             }
         );
-    });
-}
-
-void FrontEnd::processHLT() {
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        a.hlt();
     });
 }
 
@@ -613,12 +601,6 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
-void FrontEnd::processNOP() {
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        a.nop();
-    });
-}
-
 void FrontEnd::processOR(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
@@ -730,6 +712,16 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+void FrontEnd::processRET(std::vector<TParaToken>& mnemonic_args) {
+    // 0xC3 	RET 	呼び出し元にニアリターンします
+    // 0xCB 	RET 	呼び出し元にファーリターンします
+    // 0xC2 iw 	RET imm16 	呼び出し元にニアリターンし、imm16バイトをスタックからPOPします
+    // 0xCA iw 	RET imm16 	呼び出し元にファーリターンし、imm16バイトをスタックからPOPします
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
+        a.ret();
+    });
+}
+
 void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
@@ -793,12 +785,6 @@ void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
                 throw std::runtime_error("SUB, Not implemented or not matched!!!");
             }
         );
-    });
-}
-
-void FrontEnd::processRET() {
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& _) {
-        a.ret();
     });
 }
 
