@@ -89,15 +89,7 @@ public:
     void processIMUL(std::vector<TParaToken>& memonic_args);
     void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
-    void processJAE(std::vector<TParaToken>& memonic_args);
-    void processJB(std::vector<TParaToken>& memonic_args);
-    void processJBE(std::vector<TParaToken>& memonic_args);
-    void processJC(std::vector<TParaToken>& memonic_args);
-    void processJE(std::vector<TParaToken>& memonic_args);
-    void processJNC(std::vector<TParaToken>& memonic_args);
-    void processJNZ(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
-    void processJZ(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processOR(std::vector<TParaToken>& memonic_args);
@@ -111,6 +103,8 @@ public:
     // 引数なしオペコードはtemplate化
     template <asmjit::x86::Inst::Id id>
     void processEmit();
+    template <asmjit::x86::Inst::Id id>
+    void processEmitJcc(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;
