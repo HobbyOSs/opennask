@@ -5,7 +5,8 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
+#include "old_nask_defs.hpp"
 
 namespace nask_utility {
 

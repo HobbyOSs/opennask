@@ -3,7 +3,6 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "x86.hh"
 #include <gtest/gtest.h>
-#include "nask_defs.hpp"
 
 using namespace x86_64;
 using namespace jsoncons;

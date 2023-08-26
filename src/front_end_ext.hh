@@ -4,7 +4,8 @@
 
 #include <asmjit/asmjit.h>
 #include "para_token.hh"
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
+
 
 // asmjitはデフォルトで32bitモードなので、辻褄あわせのため
 class PrefixInfo {

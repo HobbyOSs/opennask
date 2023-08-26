@@ -315,9 +315,12 @@ void FrontEnd::processIN(std::vector<TParaToken>& mnemonic_args) {
             // 0xED | IN AX, DX | DXで指定するI/OポートアドレスからAXにワードを入力します
             // 0xED | IN EAX, DX | DXで指定するI/OポートアドレスからEAXにダブルワードを入力します
             pattern | ds(_, "AL", _, "DX") = [&] {
+                pp.require_67h = false;
                 a.db(0xec);
             },
             pattern | ds(_, or_(std::string("AX"), std::string("EAX")), _, "DX") = [&] {
+                pp.require_67h = false;
+                pp.require_66h = true;
                 a.db(0xed);
             },
             pattern | _ = [&] {

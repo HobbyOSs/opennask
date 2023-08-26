@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <optional>
 #include <jsoncons/json.hpp>
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
 #include "para_token.hh"
 
 namespace x86_64 {

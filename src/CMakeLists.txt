@@ -128,7 +128,7 @@ set(opennask_SRCS
   string_util.hpp
   nask_utility.cpp
   nask_utility.hpp
-  nask_defs.hpp
+  nask_parse_common.hh
   tinyexpr.c
   tinyexpr.h)
 

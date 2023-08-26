@@ -7,7 +7,7 @@
 #include "printer.hh"
 #include "absyn.hh"
 #include "parsererror.hh"
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
 #include "skeleton.hh"
 #include "bin_util.hh"
 #include "x86.hh"

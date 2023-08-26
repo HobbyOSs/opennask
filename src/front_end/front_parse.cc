@@ -187,14 +187,6 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         this->ctx.pop();
     }
 
-    //std::string debug_str = this->join(mnemonic_args->to_string(), ",");
-    std::vector<std::string> debug_args;
-    std::transform(mnemonic_args.begin(), mnemonic_args.end(),
-                   std::back_inserter(debug_args),
-                   [](TParaToken x) { return "{ " + x.to_string() + " }"; });
-
-    log()->debug("[pass2] mnemonic_args=[{}]", this->join(debug_args, ","));
-
     typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
     typedef std::map<std::string, nim_callback> funcs_type;
     using namespace asmjit::x86;
@@ -362,6 +354,14 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     };
 
     const std::string opcode = type(*mnemonic_stmt->opcode_);
+
+    //std::string debug_str = this->join(mnemonic_args->to_string(), ",");
+    std::vector<std::string> debug_args;
+    std::transform(mnemonic_args.begin(), mnemonic_args.end(),
+                   std::back_inserter(debug_args),
+                   [](TParaToken x) { return "{ " + x.to_string() + " }"; });
+
+    log()->debug("[pass2] opcode={} mnemonic_args=[{}]", opcode, this->join(debug_args, ","));
 
     funcs_type::iterator it = funcs.find(opcode);
     if (it != funcs.end()) {

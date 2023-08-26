@@ -1,8 +1,7 @@
-#ifndef NASK_DEFS_HPP_
-#define NASK_DEFS_HPP_
+#ifndef OLD_NASK_DEFS_HPP_
+#define OLD_NASK_DEFS_HPP_
 
-#include "spdlog/spdlog.h"
-
+// TODO: このファイル自体後で削除
 #include <cstdint>
 #include <array>
 #include <sstream>
@@ -10,10 +9,6 @@
 #include <bitset>
 #include <regex>
 #include <tuple>
-
-static const std::shared_ptr<spdlog::logger> log() {
-    return spdlog::get("opennask");
-}
 
 // 80x86 Opcodes
 // https://courses.engr.illinois.edu/ece390/resources/opcodes.html
@@ -124,14 +119,7 @@ constexpr size_t imm32 = 4;
 constexpr size_t imm64 = 8;
 constexpr size_t offs  = 12;
 
-// 現在のnaskのモード
-// [BITS 16], [BITS 32], [BITS 64]で指定する
-// デフォルトは16bitモード
-enum OPENNASK_MODES {
-    ID_16BIT_MODE = 0,
-    ID_32BIT_MODE,
-    ID_64BIT_MODE
-};
+
 
 // オペランドの種類
 // @see https://courses.engr.illinois.edu/ece390/resources/opcodes.html
@@ -592,4 +580,4 @@ static std::array<INST_TABLE, MAX_SUPPORTED_OPECODE> instruction = {{
         { "", 0, 0 }
     }};
 
-#endif /* NASK_DEFS_HPP_ */
+#endif /* OLD_NASK_DEFS_HPP_ */
