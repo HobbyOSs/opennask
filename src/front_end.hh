@@ -95,6 +95,8 @@ public:
     void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
+    void processPOP(std::vector<TParaToken>& memonic_args);
+    void processPUSH(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
     void processRET(std::vector<TParaToken>& memonic_args);
     void processSHR(std::vector<TParaToken>& memonic_args);

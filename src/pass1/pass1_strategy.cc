@@ -391,6 +391,8 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&Pass1Strategy::processOUT, this, _1)),
+        std::make_pair("OpcodesPOP", std::bind(&Pass1Strategy::processPOP, this, _1)),
+        std::make_pair("OpcodesPUSH", std::bind(&Pass1Strategy::processPUSH, this, _1)),
         std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this, _1)),
         std::make_pair("OpcodesSHR", std::bind(&Pass1Strategy::processSHR, this, _1)),
         std::make_pair("OpcodesSUB", std::bind(&Pass1Strategy::processSUB, this, _1)),
@@ -1600,6 +1602,119 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
                << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
                << ", "
                << TParaToken::TIAttributeNames[mnemonic_args[1].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
+}
+
+void Pass1Strategy::processPOP(std::vector<TParaToken>& mnemonic_args) {
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["POP"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // 58      r16
+    // 58      r64
+    // 8F      m16
+    // 8F      m64
+    // TODO: 下記はJSONに記述なし
+    // 0x1F 	POP DS 	スタックのトップからDSをPOPし、スタックポインタをインクリメントします
+    // 0x07 	POP ES 	スタックのトップからESをPOPし、スタックポインタをインクリメントします
+    // 0x17 	POP SS 	スタックのトップからSSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA1 	POP FS 	スタックのトップからFSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA9 	POP GS 	スタックのトップからGSをPOPし、スタックポインタをインクリメントします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("POP");
+
+    using namespace matchit;
+    uint32_t l = match(operands)(
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), _) = [&] {
+            return 1;
+        },
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            return 2;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+            return 2;
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] POP, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
+}
+
+void Pass1Strategy::processPUSH(std::vector<TParaToken>& mnemonic_args) {
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["PUSH"].forms[] | [.encodings[0].opcode.byte, .operands[0].type ] | @tsv'
+    // 6A      imm8
+    // 68      imm32
+    // 50      r16
+    // 50      r64
+    // FF      m16
+    // FF      m64
+    // TODO: 下記はJSONに記述なし
+    // 0xFF /6 	PUSH r/m16 	r/m16をPUSHします
+    // 0xFF /6 	PUSH r/m32 	r/m32をPUSHします
+    // 0x50+rw 	PUSH r16 	r16をPUSHします
+    // 0x50+rd 	PUSH r32 	r32をPUSHします
+    // 0x6A 	PUSH imm8 	imm8をPUSHします
+    // 0x68 	PUSH imm16 	imm16をPUSHします
+    // 0x68 	PUSH imm32 	imm32をPUSHします
+    // 0x0E 	PUSH CS 	CSをPUSHします
+    // 0x16 	PUSH SS 	SSをPUSHします
+    // 0x1E 	PUSH DS 	DSをPUSHします
+    // 0x06 	PUSH ES 	ESをPUSHします
+    // 0x0F 0xA0 	PUSH FS 	FSをPUSHします
+    // 0x0F 0xA8 	PUSH GS 	GSをPUSHします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("PUSH");
+
+    using namespace matchit;
+    uint32_t l = match(operands)(
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), _) = [&] {
+            return 1;
+        },
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            return 2;
+        },
+        pattern | ds(TParaToken::ttImm, _) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("CS"), std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+            return 2;
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] PUSH, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
                << std::endl;
 
             throw std::runtime_error(ss.str());

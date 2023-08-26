@@ -353,6 +353,8 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
         std::make_pair("OpcodesOR", std::bind(&FrontEnd::processOR, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
+        std::make_pair("OpcodesPOP", std::bind(&FrontEnd::processPOP, this, _1)),
+        std::make_pair("OpcodesPUSH", std::bind(&FrontEnd::processPUSH, this, _1)),
         std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
         std::make_pair("OpcodesSHR", std::bind(&FrontEnd::processSHR, this, _1)),
@@ -365,7 +367,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     if (it != funcs.end()) {
         it->second(mnemonic_args);
     } else {
-        throw std::runtime_error(opcode + " is not implemented!!!");
+        throw std::runtime_error(opcode + " is not implemented");
     }
 }
 

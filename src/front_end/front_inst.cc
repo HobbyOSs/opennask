@@ -712,6 +712,100 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
     });
 }
 
+
+void FrontEnd::processPOP(std::vector<TParaToken>& mnemonic_args) {
+    // 0x8F /0 	POP m16 	スタックのトップからm16をPOPし、スタックポインタをインクリメントします
+    // 0x8F /0 	POP m32 	スタックのトップからm32をPOPし、スタックポインタをインクリメントします
+    // 0x58+rw 	POP r16 	スタックのトップからr16をPOPし、スタックポインタをインクリメントします
+    // 0x58+rd 	POP r32 	スタックのトップからr32をPOPし、スタックポインタをインクリメントします
+    // 0x1F 	POP DS 	スタックのトップからDSをPOPし、スタックポインタをインクリメントします
+    // 0x07 	POP ES 	スタックのトップからESをPOPし、スタックポインタをインクリメントします
+    // 0x17 	POP SS 	スタックのトップからSSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA1 	POP FS 	スタックのトップからFSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA9 	POP GS 	スタックのトップからGSをPOPし、スタックポインタをインクリメントします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+    auto src = mnemonic_args[0];
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, src);
+
+        match(operands)(
+            pattern | ds(TParaToken::ttReg16, _) = [&] {
+                a.pop(src.AsAsmJitGpw());
+            },
+            pattern | ds(TParaToken::ttReg32, _) = [&] {
+                a.pop(src.AsAsmJitGpd());
+            },
+            pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+                a.pop(src.AsMem());
+            },
+            pattern | ds(TParaToken::ttSreg, or_(std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+                a.pop(src.AsAsmJitSReg());
+            },
+            pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+                a.pop(src.AsAsmJitSReg());
+            },
+            pattern | _ = [&] {
+                throw std::runtime_error("POP, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
+void FrontEnd::processPUSH(std::vector<TParaToken>& mnemonic_args) {
+    // 0xFF /6 	PUSH r/m16 	r/m16をPUSHします
+    // 0xFF /6 	PUSH r/m32 	r/m32をPUSHします
+    // 0x50+rw 	PUSH r16 	r16をPUSHします
+    // 0x50+rd 	PUSH r32 	r32をPUSHします
+    // 0x6A 	PUSH imm8 	imm8をPUSHします
+    // 0x68 	PUSH imm16 	imm16をPUSHします
+    // 0x68 	PUSH imm32 	imm32をPUSHします
+    // 0x0E 	PUSH CS 	CSをPUSHします
+    // 0x16 	PUSH SS 	SSをPUSHします
+    // 0x1E 	PUSH DS 	DSをPUSHします
+    // 0x06 	PUSH ES 	ESをPUSHします
+    // 0x0F 0xA0 	PUSH FS 	FSをPUSHします
+    // 0x0F 0xA8 	PUSH GS 	GSをPUSHします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+    auto src = mnemonic_args[0];
+
+    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
+        using namespace asmjit;
+        pp.set(bit_mode, src);
+
+        match(operands)(
+            pattern | ds(TParaToken::ttReg16, _) = [&] {
+                a.push(src.AsAsmJitGpw());
+            },
+            pattern | ds(TParaToken::ttReg32, _) = [&] {
+                a.push(src.AsAsmJitGpd());
+            },
+            pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+                a.push(src.AsMem());
+            },
+            pattern | ds(TParaToken::ttImm, _) = [&] {
+                a.push(src.AsInt32());
+            },
+            pattern | ds(TParaToken::ttSreg, or_(std::string("CS"), std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+                a.push(src.AsAsmJitSReg());
+            },
+            pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+                a.push(src.AsAsmJitSReg());
+            },
+            pattern | _ = [&] {
+                throw std::runtime_error("PUSH, Not implemented or not matched!!!");
+            }
+        );
+    });
+}
+
 void FrontEnd::processRET(std::vector<TParaToken>& mnemonic_args) {
     // 0xC3 	RET 	呼び出し元にニアリターンします
     // 0xCB 	RET 	呼び出し元にファーリターンします
