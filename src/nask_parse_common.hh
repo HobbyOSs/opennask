@@ -16,4 +16,10 @@ enum OPENNASK_MODES {
     ID_64BIT_MODE
 };
 
+static constexpr const char* OPENNASK_MODES_NAMES[] = {
+    "16BIT_MODE",
+    "32BIT_MODE",
+    "64BIT_MODE"
+};
+
 #endif // ! NASK_PARSE_COMMON_HH

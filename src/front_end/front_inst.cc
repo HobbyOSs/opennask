@@ -30,7 +30,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, dst, src);
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x04 ib		ADD AL, imm8		imm8をALに加算する
@@ -123,7 +123,7 @@ void FrontEnd::processAND(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, dst, src);
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0x24 ib		AND AL, imm8		ALとimm8とのANDをとる
@@ -293,11 +293,12 @@ void FrontEnd::processIN(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[1].AsAttr(),
         mnemonic_args[1].AsString()
     );
+    auto dst = mnemonic_args[0];
+    auto src = mnemonic_args[1];
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, mnemonic_args[0], mnemonic_args[1]);
-        auto src = mnemonic_args[1];
+        pp.set(bit_mode, dst);
 
         match(operands)(
             // 0xE4 ib | IN AL, imm8 | I/Oポートアドレスimm8からALにバイトを入力します
@@ -320,7 +321,6 @@ void FrontEnd::processIN(std::vector<TParaToken>& mnemonic_args) {
             },
             pattern | ds(_, or_(std::string("AX"), std::string("EAX")), _, "DX") = [&] {
                 pp.require_67h = false;
-                pp.require_66h = true;
                 a.db(0xed);
             },
             pattern | _ = [&] {
@@ -680,7 +680,7 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
-        pp.set(bit_mode, dst, src);
+        pp.set(bit_mode, src);
 
         match(operands)(
             // 0xE6 ib	OUT imm8, AL	ALのバイト値をI/Oポートアドレスimm8に出力します
@@ -699,9 +699,11 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
             // 0xEF	OUT DX, AX	AXのワード値をDXの値にあるI/Oポートアドレスに出力します
             // 0xEF	OUT DX, EAX	EAXのダブルワード値をDXの値にあるI/Oポートアドレスに出力します
             pattern | ds("DX", _, "AL", _) = [&] {
+                pp.require_67h = false;
                 a.out(x86::dx, x86::al);
             },
             pattern | ds("DX", _, "AX", _) = [&] {
+                pp.require_67h = false;
                 a.out(x86::dx, x86::ax);
             },
             pattern | ds("DX", _, "EAX", _) = [&] {
@@ -967,31 +969,31 @@ void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
 }
 
 
-void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst) {
+void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& operand) {
     // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
     // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
-    const auto dst_attr = dst.AsAttr();
+    const auto operand_attr = operand.AsAttr();
 
     // Address size prefix
     require_67h = match(bit_mode)(
         // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
-        pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE = false,
+        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttMem32 && operand.IsAsmJitGpd()) = true,
+        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttReg16) = true,
         pattern | _ = false
     );
 
     // 16bit命令モードで32bitレジスタが使われていればこれが必要
     // Operand size prefix
     require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32) = true,
-        pattern | ID_16BIT_MODE = false,
+        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttMem32) = true,
+        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttReg16) = true,
+        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttMem16) = true,
         pattern | _ = false
     );
 }
 
+// 片方のレジスタのみが可変の場合, ↑の関数を使うこと
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
 
     const auto dst_attr = dst.AsAttr();
@@ -1002,16 +1004,15 @@ void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) 
         // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
         pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
         pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32 && src.IsAsmJitGpd()) = true,
-        pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16 || src_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
     // Operand size prefix
     require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32||src_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32||src_attr == TParaToken::ttMem32) = true,
-        pattern | ID_16BIT_MODE = false,
+        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttReg32||dst_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32||dst_attr == TParaToken::ttMem32) = true,
+        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttReg16||dst_attr == TParaToken::ttReg16) = true,
+        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttMem16||dst_attr == TParaToken::ttMem16) = true,
         pattern | _ = false
     );
 }

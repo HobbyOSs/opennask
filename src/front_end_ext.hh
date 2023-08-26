@@ -43,10 +43,14 @@ void FrontEnd::with_asmjit(F && f) {
     std::advance(it, before_size);
     std::copy(old_data.begin(), it, std::back_inserter(new_data));
 
-    log()->debug("[pass2] require 67H={}, 66H={}", pp.require_67h, pp.require_66h);
+    log()->debug("[pass2] mode={}, require 67H={}, 66H={}",
+                 OPENNASK_MODES_NAMES[this->bit_mode],
+                 pp.require_67h,
+                 pp.require_66h);
+
     if (pp.require_67h) {
         if (*it == 0x67) {
-            std::advance(it, 1);
+            // NOP
         } else {
             new_data.push_back(0x67);
         }
@@ -57,7 +61,7 @@ void FrontEnd::with_asmjit(F && f) {
 
     if (pp.require_66h) {
         if (*it == 0x66) {
-            std::advance(it, 1);
+            // NOP
         } else {
             new_data.push_back(0x66);
         }
@@ -65,6 +69,21 @@ void FrontEnd::with_asmjit(F && f) {
         if (*it == 0x66)
             std::advance(it, 1);
     }
+
+    /** debug用
+    for (int i = 0; i < new_data.size(); i++) {
+        if (i % 16 == 0) {
+            std::cout << std::endl;
+        }
+
+        std::cout << std::hex
+                  << std::setw(2)
+                  << std::setfill('0')
+                  << (int)(unsigned char) new_data[i] << " ";
+    }
+    std::cout << std::dec << std::endl; // 16進数表示を元に戻す
+    */
+
     std::copy(it, old_data.end(), std::back_inserter(new_data));
 
     // asmjitのbufferに関する調整

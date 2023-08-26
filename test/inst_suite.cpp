@@ -217,8 +217,13 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,AX", std::vector<uint8_t>{0xef}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0x66, 0xef}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0xef}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,AL", std::vector<uint8_t>{0xee}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,AX", std::vector<uint8_t>{0x66, 0xef}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "OUT DX,EAX", std::vector<uint8_t>{0xef}),
         // IN---
         StatementToMachineCodeParam(ID_32BIT_MODE, "IN AL,DX", std::vector<uint8_t>{0xec}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "IN AX,DX", std::vector<uint8_t>{0x66, 0xed}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "IN EAX,DX", std::vector<uint8_t>{0xed}),
         // MOV---
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AL,0x0e", std::vector<uint8_t>{0xb0, 0x0e}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV AH,0x0e", std::vector<uint8_t>{0xb4, 0x0e}),
