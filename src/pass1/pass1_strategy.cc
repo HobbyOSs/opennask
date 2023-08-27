@@ -1328,8 +1328,11 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 8B      r16     m16
-        pattern | ds(TParaToken::ttReg16, _, TParaToken::ttMem16, _) = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+        pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            // x86 tableの検索に引っかからなくなるのでttMem16に変換する.もっといい方法がないか検討
+            auto token = TParaToken(mnemonic_args[1]);
+            token.SetAttribute(TParaToken::ttMem16);
+            return inst.get_output_size(bit_mode, {mnemonic_args[0], token});
         },
         // C7      r32     imm32
         pattern | ds(TParaToken::ttReg32, _, or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {

@@ -454,6 +454,19 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 a.mov(dst.AsAsmJitGpw(), src.AsAsmJitGpw());
             },
             // 8B      r16     m16
+            pattern | ds(TParaToken::ttReg16, _, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+                match( src.AsMem().hasBase() )(
+                    // "MOV AL,[SI]", "MOV AL,[ESP+8]" のようにベースレジスタがあるパターン
+                    pattern | true = [&] { a.mov(dst.AsAsmJitGpw(), src.AsMem() ); },
+                    // TODO: asmjit使用時ベースレジスタがないパターンは機械語が想定と違う
+                    // "MOV CL,BYTE [0x0ff0]" のようなパターン
+                    pattern | false  = [&] {
+                        a.db(0x8b);
+                        a.db(ModRM::generate_modrm(0x8b, ModRM::REG_REG, src.AsString(), dst.AsString()));
+                        a.dw(src.AsInt32());
+                    }
+                );
+            },
             // A1      eax     moffs32
             // C7      r32     imm32 (TODO: こっちは実装していない)
 
@@ -970,49 +983,60 @@ void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
 
 
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& operand) {
-    // 16bit命令モードで32bitのアドレッシング・モードを使うときこれが必要
-    // 32bit命令モードで16bit命令が現れるのであれば16bitレジスタを選択するためこれが必要
     const auto operand_attr = operand.AsAttr();
 
     // Address size prefix
+    // メモリーアドレス表現によるアドレスサイズプレフィックスが必要か判定する
     require_67h = match(bit_mode)(
-        // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+        // ex) [EBX], [EBX+16]
         pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttMem32 && operand.IsAsmJitGpd()) = true,
-        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttReg16) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttMem16 && operand.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
 
-    // 16bit命令モードで32bitレジスタが使われていればこれが必要
     // Operand size prefix
+    // オペランドサイズプレフィックスが必要かどうか判定する
     require_66h = match(bit_mode)(
         pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttMem32) = true,
+        pattern | ID_16BIT_MODE | when(operand.IsImmediate() && operand.AsInt32() > 0x7fff) = true,
+        pattern | ID_16BIT_MODE = false,
         pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttMem16) = true,
+        pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
 }
 
-// 片方のレジスタのみが可変の場合, ↑の関数を使うこと
 void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
 
     const auto dst_attr = dst.AsAttr();
     const auto src_attr = src.AsAttr();
 
     // Address size prefix
+    // メモリーアドレス表現によるアドレスサイズプレフィックスが必要か判定する
     require_67h = match(bit_mode)(
-        // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
+        // ex) [EBX], [EBX+16]
         pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
         pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32 && src.IsAsmJitGpd()) = true,
-        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16 || src_attr == TParaToken::ttReg16) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttMem16 && dst.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttMem16 && src.IsAsmJitGpw()) = true,
+        pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
+
     // Operand size prefix
+    // オペランドサイズプレフィックスが必要かどうか判定する
     require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttReg32||dst_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32||dst_attr == TParaToken::ttMem32) = true,
-        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttReg16||dst_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttMem16||dst_attr == TParaToken::ttMem16) = true,
+        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttReg32) = true,
+        pattern | ID_16BIT_MODE | when(dst.IsImmediate() && dst.AsInt32() > 0x7fff) = true,
+        pattern | ID_16BIT_MODE | when(src.IsImmediate() && src.AsInt32() > 0x7fff) = true,
+        pattern | ID_16BIT_MODE = false,
+        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16) = true,
+        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttReg16) = true,
+        pattern | ID_32BIT_MODE = false,
         pattern | _ = false
     );
 }

@@ -27,7 +27,7 @@ namespace x86_64 {
                 // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32 && t.IsAsmJitGpd()) = true,
                 pattern | ID_16BIT_MODE = false,
-                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttReg16) = true,
+                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttMem16 && t.IsAsmJitGpw()) = true,
                 pattern | ID_32BIT_MODE = false,
                 pattern | _ = false
             );
@@ -47,10 +47,9 @@ namespace x86_64 {
 
             require = match(mode)(
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttReg32) = true,
-                pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32) = true,
+                pattern | ID_16BIT_MODE | when(t.IsImmediate() && t.AsInt32() > 0x7fff) = true,
                 pattern | ID_16BIT_MODE = false,
                 pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttReg16) = true,
-                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttMem16) = true,
                 pattern | ID_32BIT_MODE = false,
                 pattern | _ = false
             );
