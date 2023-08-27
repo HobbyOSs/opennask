@@ -242,7 +242,8 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,BX", std::vector<uint8_t>{0x89, 0xdc}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "JMP 0xc200", std::vector<uint8_t>{0xe9, 0x01, 0xc2}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f}),
-        StatementToMachineCodeParam(ID_32BIT_MODE, "MOV EDX,[ESP+4]", std::vector<uint8_t>{0x8b, 0x54, 0x24, 0x04})
+        StatementToMachineCodeParam(ID_32BIT_MODE, "MOV EDX,[ESP+4]", std::vector<uint8_t>{0x8b, 0x54, 0x24, 0x04}),
+        StatementToMachineCodeParam(ID_32BIT_MODE, "MOV AX,[ESP+4]", std::vector<uint8_t>{0x66, 0x8b, 0x44, 0x24, 0x04})
         //StatementToMachineCodeParam(ID_16BIT_MODE, "CALL 3", std::vector<uint8_t>{0xe8, 0x00, 0x03})
     )
 );

@@ -146,7 +146,7 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
             // longなシンボル名のサイズを表す32ビット整数をバイト単位で record.name フィールドに格納
             offs_record.e.e.zeroes = 0;
             offs_record.e.e.offset = long_symbols_size; // 文字列テーブルのシンボル名へのオフセット
-            offs_record.value = sym_table[symbol_name]; // TODO: pass1の数がまた合ってない…
+            offs_record.value = sym_table[symbol_name]; // ここが違っている場合pass1の数が合っていない可能性がある
             offs_record.section_number = 1;
             offs_record.storage_class = IMAGE_SYM_CLASS_EXTERNAL;
             offs_record.aux_symbols_number = 0;

@@ -3,7 +3,6 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "front_end.hh"
 #include "demangle.hpp"
-#include "tinyexpr.h"
 #include "diff.hh"
 
 class Day04Suite : public ::testing::Test {

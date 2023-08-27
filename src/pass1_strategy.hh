@@ -73,6 +73,7 @@ public:
     void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
+    void processLIDT(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();

@@ -236,6 +236,7 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("320", TParaToken::ttInteger, TParaToken::ttImm)
                                    },
                                    6),
+        // MOV DWORD [VRAM],0x000a0000  ; VRAM=0x0ff8
         // 0x66, 0xc7, 0x06, 0xf8, 0x0f, 0x00, 0x00, 0x0a, 0x00
         InstToMachineCodeSizeParam(ID_16BIT_MODE, "MOV",
                                    {
