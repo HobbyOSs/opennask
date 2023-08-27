@@ -162,6 +162,7 @@ void Pass1Strategy::define_funcs() {
         std::make_pair("OpcodesIN", std::bind(&Pass1Strategy::processIN, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
+        std::make_pair("OpcodesLIDT", std::bind(&Pass1Strategy::processLIDT, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&Pass1Strategy::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
         std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
@@ -1198,6 +1199,38 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
+void Pass1Strategy::processLIDT(std::vector<TParaToken>& mnemonic_args) {
+    auto t = mnemonic_args[0];
+
+    if (t.AsAttr() == TParaToken::ttLabel) {
+        // ラベルの場合はとりあえずm16として処理する, どちらになるかはpass2で判断する
+        loc += 3; // opcode + modrm
+        loc += NASK_WORD;
+        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 3+NASK_WORD);
+        return;
+    }
+
+    using namespace matchit;
+    // m16 or m32
+    uint32_t l = match(t.AsAttr())(
+        pattern | or_(TParaToken::ttMem16, TParaToken::ttMem32) = [&] {
+            // opcode(2byte) + modrm(1byte) = 3byte
+            auto size = 3;
+            size += x86_64::_calc_offset_byte_size(mnemonic_args);
+            if (x86_64::_require_sib_byte(mnemonic_args)) {
+                size += 1;
+            }
+            return size;
+        },
+        pattern | TParaToken::ttImm = [&] {
+            return 3 + NASK_WORD;
+        }
+    );
+
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
+}
+
 void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
     auto t = mnemonic_args[0];
 
@@ -1210,10 +1243,20 @@ void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
     }
 
     using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // m16 or m32
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 3 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 3 + NASK_DWORD
+    // m16 or m32
+    uint32_t l = match(t.AsAttr())(
+        pattern | or_(TParaToken::ttMem16, TParaToken::ttMem32) = [&] {
+            // opcode(2byte) + modrm(1byte) = 3byte
+            auto size = 3;
+            size += x86_64::_calc_offset_byte_size(mnemonic_args);
+            if (x86_64::_require_sib_byte(mnemonic_args)) {
+                size += 1;
+            }
+            return size;
+        },
+        pattern | TParaToken::ttImm = [&] {
+            return 3 + NASK_WORD;
+        }
     );
 
     loc += l;
@@ -1377,7 +1420,8 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // 89      m16     r16
-        pattern | ds(TParaToken::ttMem16, _, TParaToken::ttReg16, _) = [&] {
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _, TParaToken::ttReg16, _) = [&] {
+            mnemonic_args[0].SetAttribute(TParaToken::ttMem16);
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // C7      m32     imm32

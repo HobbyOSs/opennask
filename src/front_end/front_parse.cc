@@ -164,6 +164,7 @@ void FrontEnd::define_funcs() {
         std::make_pair("OpcodesIN", std::bind(&FrontEnd::processIN, this, _1)),
         std::make_pair("OpcodesINT", std::bind(&FrontEnd::processINT, this, _1)),
         std::make_pair("OpcodesJMP", std::bind(&FrontEnd::processJMP, this, _1)),
+        std::make_pair("OpcodesLIDT", std::bind(&FrontEnd::processLIDT, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
         std::make_pair("OpcodesOR", std::bind(&FrontEnd::processOR, this, _1)),
