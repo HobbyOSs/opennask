@@ -37,6 +37,10 @@ private:
     // coff/elf...
     std::unique_ptr<ObjectFileWriter> o_writer_;
 
+    // オペコード処理のコールバック
+    FuncsType funcs;
+    void define_funcs();
+
 public:
     // visitorのcontext情報
     std::stack<TParaToken> ctx;

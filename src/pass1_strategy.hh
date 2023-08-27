@@ -31,6 +31,9 @@ public:
     std::map<std::string, TParaToken> equ_map;
     // x86命令セット
     std::unique_ptr<x86_64::InstructionSet> iset;
+    // オペコード処理のコールバック
+    FuncsType funcs;
+    void define_funcs();
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
