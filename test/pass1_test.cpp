@@ -78,7 +78,9 @@ TEST_P(StatementToMachineCodeSize, StatementToMachineCodeSize) {
 
 INSTANTIATE_TEST_SUITE_P(Pass1Suite, StatementToMachineCodeSize,
     testing::Values(
-        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "MOV EDX,[ESP+4]", 4)
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "MOV EDX,[ESP+4]", 4),
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "OUT DX,AL", 1),
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "OUT DX,AX", 2)
     )
 );
 

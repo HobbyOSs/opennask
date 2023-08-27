@@ -1079,10 +1079,13 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
     using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), TParaToken::ttImm, _) = [&] {
-           return NASK_WORD;
+           return 2;
         },
-        pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), _, "DX") = [&] {
-            return NASK_BYTE;
+        pattern | ds(_, or_(std::string("AL"), std::string("EAX")), _, "DX") = [&] {
+            return 1;
+        },
+        pattern | ds(_, std::string("AX"), _, "DX") = [&] {
+            return 2;
         },
         pattern | _ = [&] {
            std::stringstream ss;
@@ -1597,13 +1600,13 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg8, "AL") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 1;
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg16, "AX") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 2; // TODO: 正しい計算方法に修正する
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg32, "EAX") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 1;
         },
         pattern | _ = [&] {
             std::stringstream ss;
