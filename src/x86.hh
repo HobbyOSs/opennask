@@ -17,7 +17,10 @@ namespace x86_64 {
 
     const bool _require_67h(OPENNASK_MODES, const std::vector<TParaToken>&);
     const bool _require_66h(OPENNASK_MODES, const std::vector<TParaToken>&);
+
     const size_t _calc_offset_byte_size(const std::vector<TParaToken>& tokens);
+    const bool _require_sib_byte(const std::vector<TParaToken>& tokens);
+
     const std::string token_to_x86_type(const TParaToken&);
     const bool _starts_with(std::string const &full_string, std::string const &begining);
     const std::string _to_lower(const std::string &in);
