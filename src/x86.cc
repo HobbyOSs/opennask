@@ -351,7 +351,7 @@ namespace x86_64 {
                 logger->trace("[pass1] {} bytes 0x67h 1", OPENNASK_MODES_NAMES[mode]);
                 require_67h = 1;
             }
-            if (_require_sib_byte(tokens)) {
+            if (mode == ID_32BIT_MODE && _require_sib_byte(tokens)) {
                 logger->trace("[pass1] {} sib-byte 1", OPENNASK_MODES_NAMES[mode]);
                 require_sib_byte = 1;
             }
