@@ -1,9 +1,10 @@
 #ifndef OBJECT_FILE_WRITER_HH
 #define OBJECT_FILE_WRITER_HH
 
+#include <map>
 #include <asmjit/asmjit.h>
 #include <coffi/coffi.hpp>
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
 
 // http://www.delorie.com/djgpp/doc/coff/symtab.html
 typedef struct {

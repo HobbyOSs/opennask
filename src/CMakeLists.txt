@@ -60,17 +60,23 @@ set(nask_parse_bnfc_SRCS
 
 set(nask_parse_front_SRCS
   front_end/front_config.cc
-  front_end/front_parse.cc
-  front_end/front_memory_addr.cc
   front_end/front_inst.cc
   front_end/front_inst_jmp.cc
-  front_end/front_inst_pseudo.cc)
+  front_end/front_inst_no_param.cc
+  front_end/front_inst_pseudo.cc
+  front_end/front_memory_addr.cc
+  front_end/front_parse.cc)
+
+set(nask_parse_pass1_SRCS
+  pass1/pass1_inst_jmp.cc
+  pass1/pass1_inst_no_param.cc
+  pass1/pass1_strategy.cc)
 
 set(nask_parse_SRCS
   nask_parse.cpp
   ${nask_parse_front_SRCS}
   front_end.hh
-  pass1_strategy.cc
+  ${nask_parse_pass1_SRCS}
   pass1_strategy.hh
   para_token.cc
   para_token.hh
@@ -122,7 +128,7 @@ set(opennask_SRCS
   string_util.hpp
   nask_utility.cpp
   nask_utility.hpp
-  nask_defs.hpp
+  nask_parse_common.hh
   tinyexpr.c
   tinyexpr.h)
 

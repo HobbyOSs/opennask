@@ -8,8 +8,171 @@
 
 using namespace std::placeholders;
 
-typedef std::function<void(std::vector<TParaToken>&)> nim_callback;
-typedef std::map<std::string, nim_callback> funcs_type;
+void Pass1Strategy::define_funcs() {
+    this->funcs = {
+        // 疑似命令
+        std::make_pair("OpcodesALIGNB", std::bind(&Pass1Strategy::processALIGNB, this, _1)),
+        std::make_pair("OpcodesDB", std::bind(&Pass1Strategy::processDB, this, _1)),
+        std::make_pair("OpcodesDD", std::bind(&Pass1Strategy::processDD, this, _1)),
+        std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
+        std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
+        std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
+        // x86命令(引数なし)
+        std::make_pair("OpcodesAAA", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdAaa, 1>, this)),
+        std::make_pair("OpcodesAAS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdAas, 1>, this)),
+        std::make_pair("OpcodesCBW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCbw, 1>, this)),
+        std::make_pair("OpcodesCDQ", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCdq, 1>, this)),
+        std::make_pair("OpcodesCLC", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdClc, 1>, this)),
+        std::make_pair("OpcodesCLD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCld, 1>, this)),
+        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCli, 1>, this)),
+        std::make_pair("OpcodesCLTS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdClts, 2>, this)),
+        std::make_pair("OpcodesCMC", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCmc, 1>, this)),
+        //std::make_pair("OpcodesCMPSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCmpsb, 1>, this)),
+        //std::make_pair("OpcodesCMPSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCmpsd, 1>, this)),
+        //std::make_pair("OpcodesCMPSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCmpsw, 1>, this)),
+        std::make_pair("OpcodesCWD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCwd, 1>, this)),
+        std::make_pair("OpcodesCWDE", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdCwde, 1>, this)),
+        std::make_pair("OpcodesDAA", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdDaa, 1>, this)),
+        std::make_pair("OpcodesDAS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdDas, 1>, this)),
+        std::make_pair("OpcodesF2XM1", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdF2xm1, 2>, this)),
+        std::make_pair("OpcodesFABS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFabs, 2>, this)),
+        std::make_pair("OpcodesFCHS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFchs, 2>, this)),
+        std::make_pair("OpcodesFCLEX", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFclex, 3>, this)),
+        std::make_pair("OpcodesFCOMPP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFcompp, 2>, this)),
+        std::make_pair("OpcodesFCOS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFcos, 2>, this)),
+        std::make_pair("OpcodesFDECSTP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFdecstp, 2>, this)),
+        //std::make_pair("OpcodesFDISI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFdisi, 1>, this)),
+        //std::make_pair("OpcodesFENI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFeni, 1>, this)),
+        std::make_pair("OpcodesFINCSTP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFincstp, 2>, this)),
+        std::make_pair("OpcodesFINIT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFinit, 3>, this)),
+        std::make_pair("OpcodesFLD1", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFld1, 2>, this)),
+        std::make_pair("OpcodesFLDL2E", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldl2e, 2>, this)),
+        std::make_pair("OpcodesFLDL2T", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldl2t, 2>, this)),
+        std::make_pair("OpcodesFLDLG2", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldlg2, 2>, this)),
+        std::make_pair("OpcodesFLDLN2", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldln2, 2>, this)),
+        std::make_pair("OpcodesFLDPI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldpi, 2>, this)),
+        std::make_pair("OpcodesFLDZ", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFldz, 2>, this)),
+        std::make_pair("OpcodesFNCLEX", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFnclex, 2>, this)),
+        //std::make_pair("OpcodesFNDISI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFndisi, 1>, this)),
+        //std::make_pair("OpcodesFNENI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFneni, 1>, this)),
+        std::make_pair("OpcodesFNINIT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFninit, 2>, this)),
+        std::make_pair("OpcodesFNOP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFnop, 2>, this)),
+        std::make_pair("OpcodesFPATAN", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFpatan, 2>, this)),
+        std::make_pair("OpcodesFPTAN", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFptan, 2>, this)),
+        std::make_pair("OpcodesFPREM", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFprem, 2>, this)),
+        std::make_pair("OpcodesFPREM1", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFprem1, 2>, this)),
+        std::make_pair("OpcodesFRNDINT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFrndint, 2>, this)),
+        std::make_pair("OpcodesFSCALE", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFscale, 2>, this)),
+        //std::make_pair("OpcodesFSETPM", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFsetpm, 1>, this)),
+        std::make_pair("OpcodesFSIN", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFsin, 2>, this)),
+        std::make_pair("OpcodesFSINCOS", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFsincos, 2>, this)),
+        std::make_pair("OpcodesFSQRT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFsqrt, 2>, this)),
+        std::make_pair("OpcodesFTST", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFtst, 2>, this)),
+        std::make_pair("OpcodesFUCOMPP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFucompp, 2>, this)),
+        std::make_pair("OpcodesFXAM", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFxam, 2>, this)),
+        std::make_pair("OpcodesFXTRACT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFxtract, 2>, this)),
+        std::make_pair("OpcodesFYL2X", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFyl2x, 2>, this)),
+        std::make_pair("OpcodesFYL2XP1", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdFyl2xp1, 2>, this)),
+        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdHlt, 1>, this)),
+        //std::make_pair("OpcodesINSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInsb, 1>, this)),
+        //std::make_pair("OpcodesINSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInsd, 1>, this)),
+        //std::make_pair("OpcodesINSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInsw, 1>, this)),
+        std::make_pair("OpcodesINT3", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInt3, 1>, this)),
+        std::make_pair("OpcodesINTO", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInto, 1>, this)),
+        std::make_pair("OpcodesINVD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdInvd, 2>, this)),
+        std::make_pair("OpcodesIRET", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdIret, 1>, this)),
+        std::make_pair("OpcodesIRETD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdIretd, 1>, this)),
+        //std::make_pair("OpcodesIRETW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdIretw, 1>, this)),
+        std::make_pair("OpcodesLAHF", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdLahf, 1>, this)),
+        std::make_pair("OpcodesLEAVE", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdLeave, 1>, this)),
+        //std::make_pair("OpcodesLODSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdLodsb, 1>, this)),
+        //std::make_pair("OpcodesLODSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdLodsd, 1>, this)),
+        //std::make_pair("OpcodesLODSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdLodsw, 1>, this)),
+        //std::make_pair("OpcodesMOVSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdMovsb, 1>, this)),
+        std::make_pair("OpcodesMOVSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdMovsd, 1>, this)),
+        //std::make_pair("OpcodesMOVSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdMovsw, 1>, this)),
+        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdNop, 1>, this)),
+        //std::make_pair("OpcodesOUTSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdOutsb, 1>, this)),
+        //std::make_pair("OpcodesOUTSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdOutsd, 1>, this)),
+        //std::make_pair("OpcodesOUTSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdOutsw, 1>, this)),
+        std::make_pair("OpcodesPOPA", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopa, 1>, this)),
+        std::make_pair("OpcodesPOPAD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopad, 1>, this)),
+        //std::make_pair("OpcodesPOPAW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopaw, 1>, this)),
+        std::make_pair("OpcodesPOPF", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopf, 1>, this)),
+        std::make_pair("OpcodesPOPFD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopfd, 1>, this)),
+        //std::make_pair("OpcodesPOPFW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPopfw, 1>, this)),
+        std::make_pair("OpcodesPUSHA", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPusha, 1>, this)),
+        std::make_pair("OpcodesPUSHAD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPushad, 1>, this)),
+        //std::make_pair("OpcodesPUSHAW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPushaw, 1>, this)),
+        std::make_pair("OpcodesPUSHF", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPushf, 1>, this)),
+        std::make_pair("OpcodesPUSHFD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPushfd, 1>, this)),
+        //std::make_pair("OpcodesPUSHFW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdPushfw, 1>, this)),
+        std::make_pair("OpcodesSAHF", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdSahf, 1>, this)),
+        //std::make_pair("OpcodesSCASB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdScasb, 1>, this)),
+        //std::make_pair("OpcodesSCASD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdScasd, 1>, this)),
+        //std::make_pair("OpcodesSCASW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdScasw, 1>, this)),
+        std::make_pair("OpcodesSTC", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdStc, 1>, this)),
+        std::make_pair("OpcodesSTD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdStd, 1>, this)),
+        std::make_pair("OpcodesSTI", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdSti, 1>, this)),
+        //std::make_pair("OpcodesSTOSB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdStosb, 1>, this)),
+        //std::make_pair("OpcodesSTOSD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdStosd, 1>, this)),
+        //std::make_pair("OpcodesSTOSW", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdStosw, 1>, this)),
+        //std::make_pair("OpcodesWAIT", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdWait, 1>, this)),
+        std::make_pair("OpcodesWBINVD", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdWbinvd, 2>, this)),
+        std::make_pair("OpcodesXLATB", std::bind(&Pass1Strategy::processCalc<asmjit::x86::Inst::kIdXlatb, 1>, this)),
+        // JCC系オペコード
+        std::make_pair("OpcodesJA", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJa>, this, _1)),
+        std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJae>, this, _1)),
+        std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJb>, this, _1)),
+        std::make_pair("OpcodesJBE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJbe>, this, _1)),
+        std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJc>, this, _1)),
+        std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJe>, this, _1)),
+        std::make_pair("OpcodesJG", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJg>, this, _1)),
+        std::make_pair("OpcodesJGE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJge>, this, _1)),
+        std::make_pair("OpcodesJL", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJl>, this, _1)),
+        std::make_pair("OpcodesJLE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJle>, this, _1)),
+        std::make_pair("OpcodesJNA", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJna>, this, _1)),
+        std::make_pair("OpcodesJNAE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnae>, this, _1)),
+        std::make_pair("OpcodesJNB", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnb>, this, _1)),
+        std::make_pair("OpcodesJNBE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnbe>, this, _1)),
+        std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnc>, this, _1)),
+        std::make_pair("OpcodesJNE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJne>, this, _1)),
+        std::make_pair("OpcodesJNG", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJng>, this, _1)),
+        std::make_pair("OpcodesJNGE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnge>, this, _1)),
+        std::make_pair("OpcodesJNL", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnl>, this, _1)),
+        std::make_pair("OpcodesJNLE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnle>, this, _1)),
+        std::make_pair("OpcodesJNO", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJno>, this, _1)),
+        std::make_pair("OpcodesJNP", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnp>, this, _1)),
+        std::make_pair("OpcodesJNS", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJns>, this, _1)),
+        std::make_pair("OpcodesJNZ", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJnz>, this, _1)),
+        std::make_pair("OpcodesJO", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJo>, this, _1)),
+        std::make_pair("OpcodesJP", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJp>, this, _1)),
+        std::make_pair("OpcodesJPE", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJpe>, this, _1)),
+        std::make_pair("OpcodesJPO", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJpo>, this, _1)),
+        std::make_pair("OpcodesJS", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJs>, this, _1)),
+        std::make_pair("OpcodesJZ", std::bind(&Pass1Strategy::processCalcJcc<asmjit::x86::Inst::kIdJz>, this, _1)),
+
+        // x86命令(引数あり)
+        // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
+        std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
+        std::make_pair("OpcodesAND", std::bind(&Pass1Strategy::processAND, this, _1)),
+        std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
+        std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
+        std::make_pair("OpcodesIMUL", std::bind(&Pass1Strategy::processIMUL, this, _1)),
+        std::make_pair("OpcodesIN", std::bind(&Pass1Strategy::processIN, this, _1)),
+        std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
+        std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
+        std::make_pair("OpcodesLGDT", std::bind(&Pass1Strategy::processLGDT, this, _1)),
+        std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
+        std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
+        std::make_pair("OpcodesOUT", std::bind(&Pass1Strategy::processOUT, this, _1)),
+        std::make_pair("OpcodesPOP", std::bind(&Pass1Strategy::processPOP, this, _1)),
+        std::make_pair("OpcodesPUSH", std::bind(&Pass1Strategy::processPUSH, this, _1)),
+        std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this, _1)),
+        std::make_pair("OpcodesSHR", std::bind(&Pass1Strategy::processSHR, this, _1)),
+        std::make_pair("OpcodesSUB", std::bind(&Pass1Strategy::processSUB, this, _1))
+    };
+}
 
 Pass1Strategy::Pass1Strategy() {
     // spdlog
@@ -22,6 +185,8 @@ Pass1Strategy::Pass1Strategy() {
     equ_map = std::map<std::string, TParaToken>{};
     loc = 0;
     iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
+
+    define_funcs();
 }
 
 Pass1Strategy::~Pass1Strategy() {
@@ -131,14 +296,27 @@ void Pass1Strategy::visitProg(Prog *prog) {
 
 void Pass1Strategy::visitConfigStmt(ConfigStmt *config_stmt) {
 
-    // TODO: 必要な設定を行う
-    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
+    // pass1処理に必要な設定を行う
+    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"]
+    // [BITS 32] ... 使用するbit_modeは機械語サイズに影響するので読み取って設定する
     if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
     if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
     TParaToken t = this->ctx.top();
-    this->ctx.pop();
+    const std::string config_type = type(*config_stmt->configtype_);
     log()->debug("[pass1] visitConfigStmt: args = {}", t.to_string());
+    log()->debug("[pass1] config_type = {}, str = {}", config_type, t.AsString());
+
+    using namespace matchit;
+    match(config_type)(
+        pattern | "BitsConfig" | when (t.AsString() == "16") = [&] { this->bit_mode = ID_16BIT_MODE; },
+        pattern | "BitsConfig" | when (t.AsString() == "32") = [&] { this->bit_mode = ID_32BIT_MODE; },
+        pattern | _ = [&] {
+            // NOP
+        }
+    );
+
+    this->ctx.pop();
 }
 
 void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {
@@ -232,48 +410,9 @@ void Pass1Strategy::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
                    [](TParaToken x) { return "{ " + x.to_string() + " }"; });
 
     log()->debug("[pass1] {} mnemonic_args=[{}]", opcode, this->join(debug_args, ","));
+    using namespace asmjit::x86;
 
-    funcs_type funcs {
-        // 疑似命令
-        std::make_pair("OpcodesALIGNB", std::bind(&Pass1Strategy::processALIGNB, this, _1)),
-        std::make_pair("OpcodesDB", std::bind(&Pass1Strategy::processDB, this, _1)),
-        std::make_pair("OpcodesDD", std::bind(&Pass1Strategy::processDD, this, _1)),
-        std::make_pair("OpcodesDW", std::bind(&Pass1Strategy::processDW, this, _1)),
-        std::make_pair("OpcodesORG", std::bind(&Pass1Strategy::processORG, this, _1)),
-        std::make_pair("OpcodesRESB", std::bind(&Pass1Strategy::processRESB, this, _1)),
-        // x86命令(引数なし)
-        std::make_pair("OpcodesCLI", std::bind(&Pass1Strategy::processCLI, this)),
-        std::make_pair("OpcodesHLT", std::bind(&Pass1Strategy::processHLT, this)),
-        std::make_pair("OpcodesNOP", std::bind(&Pass1Strategy::processNOP, this)),
-        std::make_pair("OpcodesRET", std::bind(&Pass1Strategy::processRET, this)),
-        // x86命令(引数あり)
-        // TODO: 疑似命令以外は機械的に判定したいが、パターンがつかめるまではベタで書く
-        std::make_pair("OpcodesADD", std::bind(&Pass1Strategy::processADD, this, _1)),
-        std::make_pair("OpcodesAND", std::bind(&Pass1Strategy::processAND, this, _1)),
-        std::make_pair("OpcodesCALL", std::bind(&Pass1Strategy::processCALL, this, _1)),
-        std::make_pair("OpcodesCMP", std::bind(&Pass1Strategy::processCMP, this, _1)),
-        std::make_pair("OpcodesIMUL", std::bind(&Pass1Strategy::processIMUL, this, _1)),
-        std::make_pair("OpcodesIN", std::bind(&Pass1Strategy::processIN, this, _1)),
-        std::make_pair("OpcodesINT", std::bind(&Pass1Strategy::processINT, this, _1)),
-        std::make_pair("OpcodesJAE", std::bind(&Pass1Strategy::processJAE, this, _1)),
-        std::make_pair("OpcodesJB", std::bind(&Pass1Strategy::processJB, this, _1)),
-        std::make_pair("OpcodesJBE", std::bind(&Pass1Strategy::processJBE, this, _1)),
-        std::make_pair("OpcodesJC", std::bind(&Pass1Strategy::processJC, this, _1)),
-        std::make_pair("OpcodesJE", std::bind(&Pass1Strategy::processJE, this, _1)),
-        std::make_pair("OpcodesJMP", std::bind(&Pass1Strategy::processJMP, this, _1)),
-        std::make_pair("OpcodesJNC", std::bind(&Pass1Strategy::processJNC, this, _1)),
-        std::make_pair("OpcodesJNZ", std::bind(&Pass1Strategy::processJNZ, this, _1)),
-        std::make_pair("OpcodesJZ", std::bind(&Pass1Strategy::processJZ, this, _1)),
-        std::make_pair("OpcodesLGDT", std::bind(&Pass1Strategy::processLGDT, this, _1)),
-        std::make_pair("OpcodesMOV", std::bind(&Pass1Strategy::processMOV, this, _1)),
-        std::make_pair("OpcodesOR", std::bind(&Pass1Strategy::processOR, this, _1)),
-        std::make_pair("OpcodesOUT", std::bind(&Pass1Strategy::processOUT, this, _1)),
-        std::make_pair("OpcodesSHR", std::bind(&Pass1Strategy::processSHR, this, _1)),
-        std::make_pair("OpcodesSUB", std::bind(&Pass1Strategy::processSUB, this, _1)),
-    };
-
-    funcs_type::iterator func_iter = funcs.find(opcode);
-
+    FuncsType::iterator func_iter = funcs.find(opcode);
     if (func_iter == funcs.end()) {
         throw std::runtime_error("[pass1] " + opcode + " is not implemented!!!");
     }
@@ -604,53 +743,6 @@ void Pass1Strategy::processAND(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
-void Pass1Strategy::processCLI() {
-    loc += 1;
-    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
-    return;
-}
-
-void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
-    // cat json-x86-64/x86_64.json | \
-    // jq -r '.instructions["CALL"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
-    // --
-    // E8      rel32
-    // FF      r64
-    // FF      m64
-    auto operands = std::make_tuple(
-        mnemonic_args[0].AsAttr(),
-        mnemonic_args[0].AsString()
-    );
-
-    auto inst = iset->instructions().at("CALL");
-    using namespace matchit;
-
-    uint32_t l = match(operands)(
-        pattern | ds(TParaToken::ttReg64, _) = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
-        },
-        pattern | ds(TParaToken::ttMem64, _) = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
-        },
-        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
-            return 3; // opcode + iw
-        },
-        pattern | _ = [&] {
-            std::stringstream ss;
-            ss << "[pass1] CALL, Not implemented or not matched!!! \n"
-               << mnemonic_args[0].AsString()
-               << "\n"
-               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
-               << std::endl;
-
-            throw std::runtime_error(ss.str());
-            return 0;
-        }
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
 
 void Pass1Strategy::processCMP(std::vector<TParaToken>& mnemonic_args) {
     // cat src/json-x86-64/x86_64.json | \
@@ -851,12 +943,6 @@ void Pass1Strategy::processRESB(std::vector<TParaToken>& mnemonic_args) {
     return;
 }
 
-void Pass1Strategy::processHLT() {
-    loc += 1;
-    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
-    return;
-}
-
 void Pass1Strategy::processIMUL(std::vector<TParaToken>& mnemonic_args) {
     // cat src/json-x86-64/x86_64.json | \
     // jq -r '.instructions["IMUL"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
@@ -993,10 +1079,13 @@ void Pass1Strategy::processIN(std::vector<TParaToken>& mnemonic_args) {
     using namespace matchit;
     uint32_t l = match(operands)(
         pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), TParaToken::ttImm, _) = [&] {
-           return NASK_WORD;
+           return 2;
         },
-        pattern | ds(_, or_(std::string("AL"), std::string("AX"), std::string("EAX")), _, "DX") = [&] {
-            return NASK_BYTE;
+        pattern | ds(_, or_(std::string("AL"), std::string("EAX")), _, "DX") = [&] {
+            return 1;
+        },
+        pattern | ds(_, std::string("AX"), _, "DX") = [&] {
+            return 2;
         },
         pattern | _ = [&] {
            std::stringstream ss;
@@ -1058,131 +1147,6 @@ void Pass1Strategy::processINT(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
-void Pass1Strategy::processJAE(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x73      cb JAE rel8    CF=0 より上か等しい場合ショートジャンプします
-        // 0x0F 0x83 cw JAE rel16   CF=0 より上か等しい場合ニアジャンプします
-        // 0x0F 0x83 cd JAE rel32   CF=0 より上か等しい場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-void Pass1Strategy::processJB(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x72      cb JB rel8    CF=1 より下の場合ショートジャンプします
-        // 0x0F 0x82 cw JB rel16   CF=1 より下の場合ニアジャンプします
-        // 0x0F 0x82 cd JB rel32   CF=1 より下の場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-void Pass1Strategy::processJBE(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x76      cb JBE rel8    CF=1 or ZF=1 より下か等しい場合ショートジャンプします
-        // 0x0F 0x86 cw JBE rel16   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
-        // 0x0F 0x86 cd JBE rel32   CF=1 or ZF=1 より下か等しい場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-void Pass1Strategy::processJC(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x72      cb JC rel8    CF=1 キャリーがある場合ショートジャンプします
-        // 0x0F 0x82 cw JC rel16   CF=1 キャリーがある場合ニアジャンプします
-        // 0x0F 0x82 cd JC rel32   CF=1 キャリーがある場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-void Pass1Strategy::processJE(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x74      cb JE rel8    ZF=1 等しい場合ショートジャンプします
-        // 0x0F 0x84 cw JE rel16   ZF=1 等しい場合ニアジャンプします
-        // 0x0F 0x84 cd JE rel32   ZF=1 等しい場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
 void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     auto t = mnemonic_args[0];
 
@@ -1233,83 +1197,6 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
     loc += l;
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
-
-void Pass1Strategy::processJNC(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x73      cb JNC rel8    キャリーがない場合ショートジャンプします
-        // 0x0F 0x83 cw JNC rel16   キャリーがない場合ニアジャンプします
-        // 0x0F 0x83 cd JNC rel32   キャリーがない場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-void Pass1Strategy::processJNZ(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x75      cb JNZ rel8    ゼロでない場合ショートジャンプします
-        // 0x0F 0x85 cw JNZ rel16   ゼロでない場合ニアジャンプします
-        // 0x0F 0x85 cd JNZ rel32   ゼロでない場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
-
-void Pass1Strategy::processJZ(std::vector<TParaToken>& mnemonic_args) {
-    auto t = mnemonic_args[0];
-
-    if (t.AsAttr() == TParaToken::ttLabel) {
-        // ラベルの場合はとりあえずrel8として処理する, どちらになるかはpass2で判断する
-        loc += 2;
-        log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, 2);
-        return;
-    }
-
-    using namespace matchit;
-    uint32_t l = match(t.AsInt32())(
-        // 相対ジャンプ
-        // 0x74      cb JZ rel8    ZF=1 ゼロの場合ショートジャンプします
-        // 0x0F 0x84 cw JZ rel16   ZF=1 ゼロの場合ニアジャンプします
-        // 0x0F 0x84 cd JZ rel32   ZF=1 ゼロの場合ニアジャンプします
-        pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = 1 + NASK_BYTE,
-        pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = 2 + NASK_WORD,
-        pattern | (std::numeric_limits<int32_t>::min() <= _ && _ <= std::numeric_limits<int32_t>::max()) = 2 + NASK_DWORD
-    );
-
-    loc += l;
-    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
-}
-
 
 void Pass1Strategy::processLGDT(std::vector<TParaToken>& mnemonic_args) {
     auto t = mnemonic_args[0];
@@ -1528,12 +1415,6 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
-void Pass1Strategy::processNOP() {
-    loc += 1;
-    log()->debug("[pass1] LOC = {}({:x})", loc, loc);
-    return;
-}
-
 void Pass1Strategy::processORG(std::vector<TParaToken>& mnemonic_args) {
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttHex);
@@ -1719,13 +1600,13 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg8, "AL") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 1;
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg16, "AX") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 2; // TODO: 正しい計算方法に修正する
         },
         pattern | ds(TParaToken::ttReg16, "DX", TParaToken::ttReg32, "EAX") = [&] {
-            return inst.get_output_size(bit_mode, mnemonic_args);
+            return 1;
         },
         pattern | _ = [&] {
             std::stringstream ss;
@@ -1747,7 +1628,120 @@ void Pass1Strategy::processOUT(std::vector<TParaToken>& mnemonic_args) {
     log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
 }
 
-void Pass1Strategy::processRET() {
+void Pass1Strategy::processPOP(std::vector<TParaToken>& mnemonic_args) {
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["POP"].forms[] | [.encodings[0].opcode.byte, .operands[0].type, .operands[1].type ] | @tsv'
+    // 58      r16
+    // 58      r64
+    // 8F      m16
+    // 8F      m64
+    // TODO: 下記はJSONに記述なし
+    // 0x1F 	POP DS 	スタックのトップからDSをPOPし、スタックポインタをインクリメントします
+    // 0x07 	POP ES 	スタックのトップからESをPOPし、スタックポインタをインクリメントします
+    // 0x17 	POP SS 	スタックのトップからSSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA1 	POP FS 	スタックのトップからFSをPOPし、スタックポインタをインクリメントします
+    // 0x0F 0xA9 	POP GS 	スタックのトップからGSをPOPし、スタックポインタをインクリメントします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("POP");
+
+    using namespace matchit;
+    uint32_t l = match(operands)(
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), _) = [&] {
+            return 1;
+        },
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            return 2;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+            return 2;
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] POP, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
+}
+
+void Pass1Strategy::processPUSH(std::vector<TParaToken>& mnemonic_args) {
+    // cat src/json-x86-64/x86_64.json | \
+    // jq -r '.instructions["PUSH"].forms[] | [.encodings[0].opcode.byte, .operands[0].type ] | @tsv'
+    // 6A      imm8
+    // 68      imm32
+    // 50      r16
+    // 50      r64
+    // FF      m16
+    // FF      m64
+    // TODO: 下記はJSONに記述なし
+    // 0xFF /6 	PUSH r/m16 	r/m16をPUSHします
+    // 0xFF /6 	PUSH r/m32 	r/m32をPUSHします
+    // 0x50+rw 	PUSH r16 	r16をPUSHします
+    // 0x50+rd 	PUSH r32 	r32をPUSHします
+    // 0x6A 	PUSH imm8 	imm8をPUSHします
+    // 0x68 	PUSH imm16 	imm16をPUSHします
+    // 0x68 	PUSH imm32 	imm32をPUSHします
+    // 0x0E 	PUSH CS 	CSをPUSHします
+    // 0x16 	PUSH SS 	SSをPUSHします
+    // 0x1E 	PUSH DS 	DSをPUSHします
+    // 0x06 	PUSH ES 	ESをPUSHします
+    // 0x0F 0xA0 	PUSH FS 	FSをPUSHします
+    // 0x0F 0xA8 	PUSH GS 	GSをPUSHします
+    auto operands = std::make_tuple(
+        mnemonic_args[0].AsAttr(),
+        mnemonic_args[0].AsString()
+    );
+
+    auto inst = iset->instructions().at("PUSH");
+
+    using namespace matchit;
+    uint32_t l = match(operands)(
+        pattern | ds(or_(TParaToken::ttReg16, TParaToken::ttReg32), _) = [&] {
+            return 1;
+        },
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+            return 2;
+        },
+        pattern | ds(TParaToken::ttImm, _) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("CS"), std::string("DS"), std::string("ES"), std::string("SS"))) = [&] {
+            return 1;
+        },
+        pattern | ds(TParaToken::ttSreg, or_(std::string("FS"), std::string("GS"))) = [&] {
+            return 2;
+        },
+        pattern | _ = [&] {
+            std::stringstream ss;
+            ss << "[pass1] PUSH, Not implemented or not matched!!! \n"
+               << mnemonic_args[0].AsString()
+               << "\n"
+               << TParaToken::TIAttributeNames[mnemonic_args[0].AsAttr()]
+               << std::endl;
+
+            throw std::runtime_error(ss.str());
+            return 0;
+        }
+    );
+    loc += l;
+    log()->debug("[pass1] LOC = {}({:x}) +{}", std::to_string(loc), loc, l);
+}
+
+void Pass1Strategy::processRET(std::vector<TParaToken>& mnemonic_args) {
     loc += 1;
     log()->debug("[pass1] LOC = {}({:x})", loc, loc);
     return;
@@ -2358,15 +2352,6 @@ void Pass1Strategy::visitHex(Hex x) {
     this->ctx.push(t);
 }
 
-void Pass1Strategy::visitLabel(Label x) {
-
-    std::string label = x.substr(0, x.find(":", 0));
-
-    // ラベルが存在するので、シンボルテーブルのラベルのレコードに現在のLCを設定
-    sym_table[label] = loc;
-    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
-    this->ctx.push(t);
-}
 
 void Pass1Strategy::visitId(Id x) {
     if (equ_map.count(x) > 0) {

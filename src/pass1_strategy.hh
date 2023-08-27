@@ -7,7 +7,7 @@
 #include "printer.hh"
 #include "absyn.hh"
 #include "parsererror.hh"
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
 #include "skeleton.hh"
 #include "bin_util.hh"
 #include "x86.hh"
@@ -31,6 +31,9 @@ public:
     std::map<std::string, TParaToken> equ_map;
     // x86命令セット
     std::unique_ptr<x86_64::InstructionSet> iset;
+    // オペコード処理のコールバック
+    FuncsType funcs;
+    void define_funcs();
 
     // 以下、抽象クラスの実装(内部で動的に分岐)
     void visitProgram(Program *t) override;
@@ -55,30 +58,6 @@ public:
     void visitListMnemonicArgs(ListMnemonicArgs *list_mnemonic_args) override;
     void visitMnemoArg(MnemoArg *mnemo_arg) override;
 
-    // opcodeの読み取り(空の実装)
-    void visitOpcodesADD(OpcodesADD *opcodes_add) override {};
-    void visitOpcodesCALL(OpcodesCALL *opcodes_call) override {};
-    void visitOpcodesCLI(OpcodesCLI *opcodes_cli) override {};
-    void visitOpcodesCMP(OpcodesCMP *opcodes_cmp) override {};
-    void visitOpcodesDB(OpcodesDB *opcodes_db) override {};
-    void visitOpcodesDW(OpcodesDW *opcodes_dw) override {};
-    void visitOpcodesDD(OpcodesDD *opcodes_dd) override {};
-    void visitOpcodesHLT(OpcodesHLT *opcodes_hlt) override {};
-    void visitOpcodesINT(OpcodesINT *opcodes_int) override {};
-    void visitOpcodesJAE(OpcodesJAE *opcodes_jae) override {};
-    void visitOpcodesJB(OpcodesJB *opcodes_jb) override {};
-    void visitOpcodesJBE(OpcodesJBE *opcodes_jbe) override {};
-    void visitOpcodesJC(OpcodesJC *opcodes_jc) override {};
-    void visitOpcodesJE(OpcodesJE *opcodes_je) override {};
-    void visitOpcodesJNC(OpcodesJNC *opcodes_jnc) override {};
-    void visitOpcodesJMP(OpcodesJMP *opcodes_jmp) override {};
-    void visitOpcodesLGDT(OpcodesLGDT *opcodes_lgdt) override {};
-    void visitOpcodesMOV(OpcodesMOV *opcodes_mov) override {};
-    void visitOpcodesNOP(OpcodesNOP *opcodes_nop) override {};
-    void visitOpcodesORG(OpcodesORG *opcodes_org) override {};
-    void visitOpcodesOUT(OpcodesOUT *opcodes_out) override {};
-    void visitOpcodesRESB(OpcodesRESB *opcodes_resb) override {};
-
     // opcodeの処理
     void processALIGNB(std::vector<TParaToken>& memonic_args);
     void processADD(std::vector<TParaToken>& memonic_args);
@@ -93,25 +72,25 @@ public:
     void processIMUL(std::vector<TParaToken>& memonic_args);
     void processIN(std::vector<TParaToken>& memonic_args);
     void processINT(std::vector<TParaToken>& memonic_args);
-    void processJAE(std::vector<TParaToken>& memonic_args);
-    void processJB(std::vector<TParaToken>& memonic_args);
-    void processJBE(std::vector<TParaToken>& memonic_args);
-    void processJC(std::vector<TParaToken>& memonic_args);
-    void processJE(std::vector<TParaToken>& memonic_args);
-    void processJNC(std::vector<TParaToken>& memonic_args);
-    void processJNZ(std::vector<TParaToken>& memonic_args);
     void processJMP(std::vector<TParaToken>& memonic_args);
-    void processJZ(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
     void processNOP();
     void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
-    void processRET();
+    void processPOP(std::vector<TParaToken>& memonic_args);
+    void processPUSH(std::vector<TParaToken>& memonic_args);
+    void processRET(std::vector<TParaToken>& memonic_args);
     void processRESB(std::vector<TParaToken>& memonic_args);
     void processSHR(std::vector<TParaToken>& memonic_args);
     void processSUB(std::vector<TParaToken>& memonic_args);
+
+    // 引数なしオペコードはtemplate化
+    template <asmjit::x86::Inst::Id id, int N>
+    void processCalc();
+    template <asmjit::x86::Inst::Id id>
+    void processCalcJcc(std::vector<TParaToken>& memonic_args);
 
     // expression
     void visitImmExp(ImmExp *p) override;

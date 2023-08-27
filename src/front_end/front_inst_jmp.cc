@@ -82,7 +82,8 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
 
 }
 
-void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
+template <asmjit::x86::Inst::Id id>
+void FrontEnd::processEmitJcc(std::vector<TParaToken>& mnemonic_args) {
 
     auto arg = mnemonic_args[0];
     arg.MustBe(TParaToken::ttIdentifier);
@@ -103,136 +104,46 @@ void FrontEnd::processJAE(std::vector<TParaToken>& mnemonic_args) {
 
         match(jmp_offset)(
             pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jae(asmjit_label);
+                a.short_().emit(id, asmjit_label);
             },
             pattern | _ = [&] {
-                a.long_().jae(asmjit_label);
+                a.long_().emit(id, asmjit_label);
             }
         );
     });
 }
 
-void FrontEnd::processJB(std::vector<TParaToken>& mnemonic_args) {
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJa>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJae>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJb>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJbe>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJc>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJe>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJg>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJge>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJl>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJle>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJna>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnae>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnb>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnbe>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnc>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJne>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJng>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnge>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnl>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnle>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJno>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnp>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJns>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJnz>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJo>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJp>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJpe>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJpo>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJs>(std::vector<TParaToken>& mnemonic_args);
+template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJz>(std::vector<TParaToken>& mnemonic_args);
 
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jb(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jb(asmjit_label);
-            }
-        );
-    });
-}
-
-void FrontEnd::processJBE(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jbe(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jbe(asmjit_label);
-            }
-        );
-    });
-}
-
-void FrontEnd::processJC(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jc(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jc(asmjit_label);
-            }
-        );
-    });
-}
-
-void FrontEnd::processJE(std::vector<TParaToken>& mnemonic_args) {
-
-    // 0x74 0xCB        JE rel8       (ZF=1で)等しい場合ショートジャンプする
-    // 0x0F 0x84 cw/cd  JE rel16/32   (ZF=1で)等しい場合ニアジャンプする
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().je(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().je(asmjit_label);
-            }
-        );
-    });
-}
 
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
@@ -335,95 +246,4 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
             throw std::runtime_error("JMP, Not implemented or not matched!!!");
         }
     );
-}
-
-void FrontEnd::processJNC(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jnc(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jnc(asmjit_label);
-            }
-        );
-    });
-}
-
-void FrontEnd::processJNZ(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jnz(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jnz(asmjit_label);
-            }
-        );
-    });
-}
-
-
-void FrontEnd::processJZ(std::vector<TParaToken>& mnemonic_args) {
-
-    auto arg = mnemonic_args[0];
-    arg.MustBe(TParaToken::ttIdentifier);
-    log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
-
-    with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
-        using namespace asmjit;
-
-        CodeBuffer& buf = code_.textSection()->buffer();
-        const std::string label = arg.AsString();
-        const auto label_address = sym_table.at(label);
-        const int32_t jmp_offset = label_address - (dollar_position + buf.size());
-
-        auto asmjit_label = code_.labelByName(label.c_str());
-        if( ! asmjit_label.isValid() ) {
-            asmjit_label = a.newNamedLabel(label.c_str());
-        }
-
-        match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
-                a.short_().jz(asmjit_label);
-            },
-            pattern | _ = [&] {
-                a.long_().jz(asmjit_label);
-            }
-        );
-    });
 }

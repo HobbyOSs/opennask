@@ -49,6 +49,9 @@ namespace x86_64 {
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttReg32) = true,
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32) = true,
                 pattern | ID_16BIT_MODE = false,
+                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttReg16) = true,
+                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttMem16) = true,
+                pattern | ID_32BIT_MODE = false,
                 pattern | _ = false
             );
             if (require) {
@@ -94,6 +97,27 @@ namespace x86_64 {
         }
 
         return offset_byte_size;
+    }
+
+    /**
+     * 32 ビットの " ベース + インデックス " および " スケール + インデックス " の
+     * 両形式のアドレス指定には、SIB バイトが必要である, 必要な場合trueを返す
+     *   ベースがある場合のアドレス表現     ex) MOV ECX,[EBX+16]; の場合trueを返す
+     */
+    const bool _require_sib_byte(const std::vector<TParaToken>& tokens) {
+
+        for (auto t : tokens) {
+            if (t.IsMem() && t.IsAsmJitGpd() && t.HasMemBase()) {
+                auto offset = t.AsMem().offset();
+                if (offset == 0) {
+                    continue; // offsetなし ex) `[EBX]`
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     const std::string token_to_x86_type(const TParaToken& operand) {
@@ -317,20 +341,26 @@ namespace x86_64 {
 
             int require_66h = 0;
             int require_67h = 0;
+            int require_sib_byte = 0;
 
             if (_require_66h(mode, tokens)) {
-                logger->trace("[pass1] bytes 0x66h 1");
+                logger->trace("[pass1] {} bytes 0x66h 1", OPENNASK_MODES_NAMES[mode]);
                 require_66h = 1;
             }
             if (_require_67h(mode, tokens)) {
-                logger->trace("[pass1] bytes 0x67h 1");
+                logger->trace("[pass1] {} bytes 0x67h 1", OPENNASK_MODES_NAMES[mode]);
                 require_67h = 1;
+            }
+            if (mode == ID_32BIT_MODE && _require_sib_byte(tokens)) {
+                logger->trace("[pass1] {} sib-byte 1", OPENNASK_MODES_NAMES[mode]);
+                require_sib_byte = 1;
             }
             const auto offset_byte_size = _calc_offset_byte_size(tokens); // 直接アドレス表現等で使用されるバイト数計算
             logger->trace("[pass1] bytes offset byte size {}", offset_byte_size);
+
             logger->debug("[pass1] selected form with minimum machine code size: {}",
-                          min_size + require_66h + require_67h + offset_byte_size);
-            return min_size + require_66h + require_67h + offset_byte_size;
+                          min_size + require_66h + require_67h + offset_byte_size + require_sib_byte);
+            return min_size + require_66h + require_67h + offset_byte_size + require_sib_byte;
         }
 
         // エラー処理

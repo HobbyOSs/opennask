@@ -1,7 +1,7 @@
 #include <climits>
 #include "string_util.hpp"
 #include "mod_rm.hpp"
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
 
 namespace nask_utility {
 

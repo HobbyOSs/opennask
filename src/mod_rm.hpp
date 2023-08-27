@@ -5,7 +5,8 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
-#include "nask_defs.hpp"
+#include <regex>
+#include "nask_parse_common.hh"
 
 namespace ModRM {
 

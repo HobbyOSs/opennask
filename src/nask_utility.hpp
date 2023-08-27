@@ -10,7 +10,8 @@
 #include "ParaExpression.hh"
 #include "ParaSymbolTable.hh"
 #include "ParaMathLibrary.hh"
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
+#include "old_nask_defs.hpp"
 #include <functional>
 
 // 0xEB cb JMP rel8	次の命令との相対オフセットだけ相対ショートジャンプする

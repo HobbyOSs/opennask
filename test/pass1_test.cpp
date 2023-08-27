@@ -4,6 +4,87 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include <gtest/gtest.h>
 
+// テストデータクラス
+struct StatementToMachineCodeSizeParam {
+    const OPENNASK_MODES _bit_mode;
+    const std::string _statement;
+    const uint32_t _expected_loc;
+
+    StatementToMachineCodeSizeParam(
+        const OPENNASK_MODES bit_mode,
+        const std::string& statement,
+        const uint32_t expected_loc
+    ): _bit_mode(bit_mode),
+       _statement(statement),
+       _expected_loc(expected_loc)
+    {
+    }
+};
+
+void PrintTo(const StatementToMachineCodeSizeParam& param, ::std::ostream* os) {
+
+    // テストケース名のspaceとカンマは「_」にしたい
+    std::string case_name = param._statement;
+    for (char& c : case_name) {
+        if (c == ' ' || c == ',') {
+            c = '_';
+        }
+        if (c == '[' || c == ']') {
+            c = '/';
+        }
+    }
+    *os << case_name;
+}
+
+class StatementToMachineCodeSize : public testing::TestWithParam<StatementToMachineCodeSizeParam> {
+
+protected:
+    // 試験開始時に一回だけ実行
+    StatementToMachineCodeSize() {
+        if(!spdlog::get("opennask")) {
+            auto logger = spdlog::stdout_color_st("opennask");
+        }
+    }
+
+    // 試験終了時に一回だけ実行
+    ~StatementToMachineCodeSize() override {
+    }
+
+    // 各テストケース実行前に実行
+    void SetUp() override {
+        //spdlog::set_level(spdlog::level::debug);
+        spdlog::set_level(spdlog::level::trace);
+    }
+
+    // 各テストケース実行後に実行
+    void TearDown() override {
+    }
+};
+
+TEST_P(StatementToMachineCodeSize, StatementToMachineCodeSize) {
+    const auto p = GetParam();
+
+    std::stringstream ss;
+    ss << p._statement;
+
+    auto d = std::make_unique<FrontEnd>(true, true);
+    auto pt = d->Parse<Program>(ss);
+    auto pass1 = std::make_unique<Pass1Strategy>();
+    pass1->bit_mode = p._bit_mode;
+    pass1->Eval(pt.get());
+
+    EXPECT_EQ(p._expected_loc, pass1->loc);
+}
+
+INSTANTIATE_TEST_SUITE_P(Pass1Suite, StatementToMachineCodeSize,
+    testing::Values(
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "MOV EDX,[ESP+4]", 4),
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "OUT DX,AL", 1),
+        StatementToMachineCodeSizeParam(ID_32BIT_MODE, "OUT DX,AX", 2)
+    )
+);
+
+
 class Pass1Suite : public ::testing::Test {
 protected:
     // 試験開始時に一回だけ実行
@@ -23,6 +104,7 @@ protected:
     void TearDown() override {
     }
 };
+
 
 TEST_F(Pass1Suite, Helloos3) {
 

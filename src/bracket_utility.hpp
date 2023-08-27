@@ -1,7 +1,8 @@
 #ifndef BRACKET_UTILITY_
 #define BRACKET_UTILITY_
 
-#include "nask_defs.hpp"
+#include "nask_parse_common.hh"
+#include "old_nask_defs.hpp"
 
 namespace nask_utility {
 

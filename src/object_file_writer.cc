@@ -128,12 +128,14 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
 
     for (int i = 0; i < global_symbol_list.size(); i++) {
         auto symbol_name = global_symbol_list[i];
+        auto offset_between_symbols = sym_table[symbol_name] - sym_table[global_symbol_list[0]];
 
         if (symbol_name.size() <= 8) {
             // shortなシンボル情報を書き込む
             symbol_record sym_record;
             std::memset(&sym_record, 0, sizeof(symbol_record)); // 構造体を0で初期化
             std::strncpy(sym_record.name, global_symbol_list[i].c_str(), sizeof(sym_record.name));
+            sym_record.value = offset_between_symbols;
             sym_record.section_number = 1;
             sym_record.storage_class = IMAGE_SYM_CLASS_EXTERNAL;
             oss.write(reinterpret_cast<const char*>(&sym_record), sizeof(sym_record));
@@ -144,7 +146,7 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
             // longなシンボル名のサイズを表す32ビット整数をバイト単位で record.name フィールドに格納
             offs_record.e.e.zeroes = 0;
             offs_record.e.e.offset = long_symbols_size; // 文字列テーブルのシンボル名へのオフセット
-            offs_record.value = 2; // TODO: シンボル間のオフセット値
+            offs_record.value = sym_table[symbol_name]; // TODO: pass1の数がまた合ってない…
             offs_record.section_number = 1;
             offs_record.storage_class = IMAGE_SYM_CLASS_EXTERNAL;
             offs_record.aux_symbols_number = 0;
