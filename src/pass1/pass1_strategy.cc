@@ -296,14 +296,27 @@ void Pass1Strategy::visitProg(Prog *prog) {
 
 void Pass1Strategy::visitConfigStmt(ConfigStmt *config_stmt) {
 
-    // TODO: 必要な設定を行う
-    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"], [BITS 32]
+    // pass1処理に必要な設定を行う
+    // [FORMAT "WCOFF"], [FILE "xxxx.c"], [INSTRSET "i386"]
+    // [BITS 32] ... 使用するbit_modeは機械語サイズに影響するので読み取って設定する
     if (config_stmt->configtype_) config_stmt->configtype_->accept(this);
     if (config_stmt->factor_) config_stmt->factor_->accept(this);
 
     TParaToken t = this->ctx.top();
-    this->ctx.pop();
+    const std::string config_type = type(*config_stmt->configtype_);
     log()->debug("[pass1] visitConfigStmt: args = {}", t.to_string());
+    log()->debug("[pass1] config_type = {}, str = {}", config_type, t.AsString());
+
+    using namespace matchit;
+    match(config_type)(
+        pattern | "BitsConfig" | when (t.AsString() == "16") = [&] { this->bit_mode = ID_16BIT_MODE; },
+        pattern | "BitsConfig" | when (t.AsString() == "32") = [&] { this->bit_mode = ID_32BIT_MODE; },
+        pattern | _ = [&] {
+            // NOP
+        }
+    );
+
+    this->ctx.pop();
 }
 
 void Pass1Strategy::visitLabelStmt(LabelStmt *label_stmt) {

@@ -49,6 +49,9 @@ namespace x86_64 {
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttReg32) = true,
                 pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32) = true,
                 pattern | ID_16BIT_MODE = false,
+                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttReg16) = true,
+                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttMem16) = true,
+                pattern | ID_32BIT_MODE = false,
                 pattern | _ = false
             );
             if (require) {
@@ -319,11 +322,11 @@ namespace x86_64 {
             int require_67h = 0;
 
             if (_require_66h(mode, tokens)) {
-                logger->trace("[pass1] bytes 0x66h 1");
+                logger->trace("[pass1] {} bytes 0x66h 1", OPENNASK_MODES_NAMES[mode]);
                 require_66h = 1;
             }
             if (_require_67h(mode, tokens)) {
-                logger->trace("[pass1] bytes 0x67h 1");
+                logger->trace("[pass1] {} bytes 0x67h 1", OPENNASK_MODES_NAMES[mode]);
                 require_67h = 1;
             }
             const auto offset_byte_size = _calc_offset_byte_size(tokens); // 直接アドレス表現等で使用されるバイト数計算
