@@ -1,7 +1,7 @@
 message(STATUS "Entering directory .")
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
-project(opennask CXX)
-set(opennask_VERSION \"1.0.3\")
+project(opennask LANGUAGES CXX VERSION 1.0.3)
+project(nask_parse LANGUAGES CXX VERSION 1.0.3)
 
 # use lld
 include(CheckCXXCompilerFlag)
@@ -19,7 +19,13 @@ find_package(Threads REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
+# asmjit
 set(ASMJIT_DIR ${root_SOURCE_DIR}/asmjit)
+set(ASMJIT_STATIC TRUE)
+add_compile_definitions(ASMJIT_NO_AARCH32)
+add_compile_definitions(ASMJIT_NO_AARCH64)
+add_compile_definitions(ASMJIT_NO_DEPRECATED)
+add_compile_definitions(ASMJIT_NO_LOGGING)
 include("${ASMJIT_DIR}/CMakeLists.txt")
 
 include_directories(
@@ -116,6 +122,34 @@ target_include_directories(nask_parse PRIVATE
 )
 target_compile_features(nask_parse PRIVATE cxx_std_17)
 
+# バイナリサイズ削減のため
+add_custom_target(strip_target
+    COMMAND strip nask_parse
+    DEPENDS nask_parse
+  )
+# リリース時のみstrip
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_dependencies(strip_target nask_parse)
+endif()
+
+#
+# Debianパッケージの設定
+#
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CPACK_GENERATOR "DEB")
+  set(CPACK_PACKAGE_NAME "opennask")
+  set(CPACK_PACKAGE_VERSION "1.0.3")
+  set(CPACK_PACKAGE_CONTACT "idiotpanzer@gmail.com")
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6")
+
+  set(CPACK_SET_DESTDIR true)
+  set(CPACK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS nask_parse DESTINATION /usr/bin)  ## いずれ入れ替える
+
+  include(CPack)
+endif()
+
 ########### next target ###############
 
 set(opennask_SRCS
@@ -133,7 +167,7 @@ set(opennask_SRCS
   tinyexpr.h)
 
 ### versioning
-add_definitions(-DOPENNASK_VERSION=${opennask_VERSION})
+add_definitions(-DOPENNASK_VERSION=\"${opennask_VERSION}\")
 
 ### thanks https://github.com/takamin/win-c ###
 if (WIN32)
