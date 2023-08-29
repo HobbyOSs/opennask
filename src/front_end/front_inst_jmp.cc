@@ -55,7 +55,11 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                 using namespace asmjit;
                 CodeBuffer& buf = code_.textSection()->buffer();
                 const std::string label = arg.AsString();
-                const auto label_address = sym_table.at(label);
+
+                // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
+                // 呼び出し先の関数のシンボルが不定ということである
+                // あとはリンカが実際のアドレスをCALL命令に埋め込む（シンボル解決）
+                const auto label_address = sym_table[label];
                 // 相対ジャンプのオフセット =
                 //   対象の絶対アドレス - ( ORGのポジション + ここまでで生成した機械語サイズ ) - CALL命令自体の機械語サイズ
                 const int32_t jmp_offset = label_address - (dollar_position + buf.size()) - 3;

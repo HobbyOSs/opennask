@@ -522,8 +522,10 @@ void FrontEnd::processMOV(std::vector<TParaToken>& mnemonic_args) {
                 auto label_address = sym_table.at(label);
                 a.mov(dst.AsAsmJitGpd(), label_address);
             },
-
             // 89      r32     r32
+            pattern | ds(TParaToken::ttReg32, _, TParaToken::ttReg32, _) = [&] {
+                a.mov(dst.AsAsmJitGpd(), src.AsAsmJitGpd());
+            },
             // 8B      r32     m32
             pattern | ds(TParaToken::ttReg32, _, TParaToken::ttMem32, _) = [&] {
                 a.mov(dst.AsAsmJitGpd(), src.AsMem() );
