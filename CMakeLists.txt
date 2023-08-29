@@ -42,7 +42,6 @@ if(USE_GTEST)
   enable_testing()
   add_subdirectory(googletest)
   add_subdirectory(test)
-  add_subdirectory(data)
 endif()
 
 if(WITH_BACKWARDS_CPP)
