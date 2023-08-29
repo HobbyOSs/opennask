@@ -57,11 +57,16 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                 const std::string label = arg.AsString();
 
                 // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
-                // 呼び出し先の関数のシンボルが不定ということである
-                // あとはリンカが実際のアドレスをCALL命令に埋め込む（シンボル解決）
+                // 呼び出し先のシンボルがEXTERNされているために不定ということである
+                // EXTERNの一覧になければエラー
                 if (sym_table.count(label) == 0) {
+                    if (!o_writer_->has_extern_symbol(label)) {
+                        throw std::runtime_error(std::string("CALL, symbol " + label + " is undefined."));
+                    }
                     a.db(0xe8);
                     a.dd(0x00000000);
+                    sym_table[label] = buf.size() - 4;
+                    // あとはリンカが実際のアドレスをCALL命令に埋め込む（シンボル解決）
                     return;
                 }
 
@@ -200,6 +205,21 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
                 CodeBuffer& buf = code_.textSection()->buffer();
                 const std::string label = arg.AsString();
+
+                // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
+                // 呼び出し先のシンボルがEXTERNされているために不定ということである
+                // EXTERNの一覧になければエラー
+                if (sym_table.count(label) == 0) {
+                    if (!o_writer_->has_extern_symbol(label)) {
+                        throw std::runtime_error(std::string("JMP, symbol " + label + " is undefined."));
+                    }
+                    a.db(0xe9);
+                    a.dd(0);
+                    sym_table[label] = buf.size() - 4;
+                    // あとはリンカが実際のアドレスをJMP命令に埋め込む（シンボル解決）
+                    return;
+                }
+
                 const auto label_address = sym_table.at(label);
                 const int32_t jmp_offset = label_address - (dollar_position + buf.size());
 
@@ -209,7 +229,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 }
 
                 match(jmp_offset)(
-                    pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                    pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                         a.short_().jmp(asmjit_label);
                     },
                     pattern | _ = [&] {

@@ -119,7 +119,7 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n) {
     }
 
     // 差分がある場合の処理
-    size_t slice_size = 1000;
+    size_t slice_size = 1500;
     if (expected.size() <= slice_size && actual.size() <= slice_size) {
         slice_size = std::max(expected.size(), actual.size());
     }

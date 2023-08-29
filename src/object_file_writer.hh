@@ -5,6 +5,7 @@
 #include <asmjit/asmjit.h>
 #include <coffi/coffi.hpp>
 #include "nask_parse_common.hh"
+#include "bin_util.hh"
 
 // http://www.delorie.com/djgpp/doc/coff/symtab.html
 typedef struct {
@@ -23,7 +24,7 @@ typedef struct {
 } coff_symbol_record;
 
 
-class ObjectFileWriter {
+class ObjectFileWriter : public BinUtil {
 
     std::vector<std::string> global_symbol_list;
     std::vector<std::string> extern_symbol_list;
@@ -36,6 +37,7 @@ public:
     void set_file_name(const std::string&);
     void add_global_symbol(const std::string&);
     void add_extern_symbol(const std::string&);
+    bool has_extern_symbol(const std::string&);
     void write_coff(asmjit::CodeHolder&, asmjit::x86::Assembler&, std::map<std::string, uint32_t>&);
 };
 
