@@ -59,16 +59,22 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                 // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
                 // 呼び出し先の関数のシンボルが不定ということである
                 // あとはリンカが実際のアドレスをCALL命令に埋め込む（シンボル解決）
-                const auto label_address = sym_table[label];
+                if (sym_table.count(label) == 0) {
+                    a.db(0xe8);
+                    a.dd(0x00000000);
+                    return;
+                }
+
                 // 相対ジャンプのオフセット =
                 //   対象の絶対アドレス - ( ORGのポジション + ここまでで生成した機械語サイズ ) - CALL命令自体の機械語サイズ
+                const auto label_address = sym_table[label];
                 const int32_t jmp_offset = label_address - (dollar_position + buf.size()) - 3;
                 auto asmjit_label = code_.labelByName(label.c_str());
                 if( ! asmjit_label.isValid() ) {
                     a.newNamedLabel(label.c_str());
                 }
                 match(jmp_offset)(
-                    pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+                    pattern | (-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                         a.db(0xe8);
                         a.dw(jmp_offset);
                     },
