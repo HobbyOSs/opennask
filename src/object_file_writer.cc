@@ -219,7 +219,9 @@ void ObjectFileWriter::write_coff(asmjit::CodeHolder& code_, asmjit::x86::Assemb
     //  * uint32_t size
     //  * char value[size]
     // という構造になっているので、そのように書き込む
-    oss.write(reinterpret_cast<const char*>(&global_long_symbols_size), sizeof(global_long_symbols_size));
+    const size_t string_table_size = extern_long_symbols_size;
+    oss.write(reinterpret_cast<const char*>(&string_table_size), 4);
+
     for (auto sym : global_long_symbols) {
         oss.write(reinterpret_cast<const char*>(sym.c_str()), sym.size());
     }

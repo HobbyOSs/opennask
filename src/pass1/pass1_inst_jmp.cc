@@ -28,6 +28,7 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
         mnemonic_args[0].AsAttr(),
         mnemonic_args[0].AsString()
     );
+    auto arg = mnemonic_args[0];
 
     auto inst = iset->instructions().at("CALL");
     using namespace matchit;
@@ -39,8 +40,11 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
         pattern | ds(TParaToken::ttMem64, _) = [&] {
             return inst.get_output_size(bit_mode, mnemonic_args);
         },
-        pattern | ds(or_(TParaToken::ttImm, TParaToken::ttLabel), _) = [&] {
+        pattern | ds(TParaToken::ttImm, _) = [&] {
             return 3; // opcode + iw
+        },
+        pattern | ds(TParaToken::ttLabel, _) = [&] {
+            return 5; // opcode + id
         },
         pattern | _ = [&] {
             std::stringstream ss;

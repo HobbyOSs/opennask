@@ -1283,6 +1283,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 8A      r8      m8
     // C7      r16     imm16
     // 89      r16     r16
+    // 8C      r16     sreg
+    // 8C      m16     sreg
+    // 8E      sreg    r16
+    // 8E      sreg    m16
     // 8B      r16     m16
     // A1      eax     moffs32
     // C7      r32     imm32
@@ -1301,6 +1305,8 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 89      m32     r32
     // C7      m64     imm32
     // 89      m64     r64
+    // A3      moffs32 eax
+    // A3      moffs64 rax
     // TODO: x86 tableに下記2行の記載なし
     // A2      moffs8  al
     // A3      moffs16 ax
@@ -1314,10 +1320,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         // セグメントレジスタ
         pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
-            return 2; // opcode, modrmなので2byte
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
-            return 2; // opcode, modrmなので2byte
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // コントロールレジスタ
         pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {

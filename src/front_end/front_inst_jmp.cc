@@ -79,7 +79,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                     a.newNamedLabel(label.c_str());
                 }
                 match(jmp_offset)(
-                    pattern | (-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
+                    pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                         a.db(0xe8);
                         a.dw(jmp_offset);
                     },
@@ -118,7 +118,7 @@ void FrontEnd::processEmitJcc(std::vector<TParaToken>& mnemonic_args) {
         }
 
         match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                 a.short_().emit(id, asmjit_label);
             },
             pattern | _ = [&] {

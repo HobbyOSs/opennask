@@ -84,6 +84,7 @@ namespace x86_64 {
             pattern | TParaToken::ttReg16 = [&] { return "r16"; },
             pattern | TParaToken::ttReg32 = [&] { return "r32"; },
             pattern | TParaToken::ttReg64 = [&] { return "r64"; },
+            pattern | TParaToken::ttSreg  = [&] { return "sreg"; },
             pattern | TParaToken::ttMem8  = [&] { return "m8"; },
             pattern | TParaToken::ttMem16 = [&] { return "m16"; },
             pattern | TParaToken::ttMem32 = [&] { return "m32"; },
@@ -205,9 +206,6 @@ namespace x86_64 {
             // al,ax,eax,rax,dx... など
             if (_to_lower(tokens[i].AsString()) == table_token_type) {
                 // 直接レジスタ名がマッチ
-                continue;
-            }
-            if (tokens[i].IsAsmJitSReg() && table_token_type == "r16") {
                 continue;
             }
 

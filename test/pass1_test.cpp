@@ -577,6 +577,7 @@ _asm_inthandler2c:
     EXPECT_EQ(72, pass1->sym_table["_io_store_eflags"]);
     EXPECT_EQ(79, pass1->sym_table["_load_gdtr"]);
     EXPECT_EQ(95, pass1->sym_table["_load_idtr"]);
-    EXPECT_EQ(95+16, pass1->sym_table["_asm_inthandler21"]);
-    EXPECT_EQ(95+16+25, pass1->sym_table["_asm_inthandler27"]);
+    EXPECT_EQ(111, pass1->sym_table["_asm_inthandler21"]);
+    EXPECT_EQ(134, pass1->sym_table["_asm_inthandler27"]);
+    EXPECT_EQ(157, pass1->sym_table["_asm_inthandler2c"]);
 }
