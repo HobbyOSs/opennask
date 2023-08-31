@@ -175,6 +175,11 @@ void Pass1Strategy::define_funcs() {
     };
 }
 
+
+bool Pass1Strategy::has_extern_symbol(const std::string& symbol) {
+    return std::count(extern_symbol_list.begin(), extern_symbol_list.end(), symbol) > 0;
+}
+
 Pass1Strategy::Pass1Strategy() {
     // spdlog
     if(!spdlog::get("opennask")) {
@@ -182,7 +187,8 @@ Pass1Strategy::Pass1Strategy() {
     }
 
     sym_table = std::map<std::string, uint32_t>{};
-    lit_table = std::map<std::string, uint32_t>{};
+    global_symbol_list = {};
+    extern_symbol_list = {};
     equ_map = std::map<std::string, TParaToken>{};
     loc = 0;
     iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
@@ -192,8 +198,9 @@ Pass1Strategy::Pass1Strategy() {
 
 Pass1Strategy::~Pass1Strategy() {
     sym_table.clear();
-    lit_table.clear();
     equ_map.clear();
+    global_symbol_list.clear();
+    extern_symbol_list.clear();
 }
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
@@ -361,7 +368,8 @@ void Pass1Strategy::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
     }
 
     for (auto sym : symbols) {
-        log()->debug("[pass1] symbol {}", sym.AsString());
+        global_symbol_list.push_back(sym.AsString());
+        log()->debug("[pass1] global symbol {}", sym.AsString());
     }
 }
 
@@ -380,7 +388,8 @@ void Pass1Strategy::visitExternSymStmt(ExternSymStmt *extern_sym_stmt) {
     }
 
     for (auto sym : symbols) {
-        log()->debug("[pass1] symbol {}", sym.AsString());
+        extern_symbol_list.push_back(sym.AsString());
+        log()->debug("[pass1] extern symbol {}", sym.AsString());
     }
 }
 

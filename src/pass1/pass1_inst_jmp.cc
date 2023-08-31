@@ -44,7 +44,12 @@ void Pass1Strategy::processCALL(std::vector<TParaToken>& mnemonic_args) {
             return 3; // opcode + iw
         },
         pattern | ds(TParaToken::ttLabel, _) = [&] {
-            return 5; // opcode + id
+            auto sym = arg.AsString();
+            if (has_extern_symbol(sym)) {
+                return 5; // 0xe8 + cd [00000000]
+            }
+
+            return 3; // 0xe8 + cw [0000]
         },
         pattern | _ = [&] {
             std::stringstream ss;
