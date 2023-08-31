@@ -152,7 +152,7 @@ void FrontEnd::define_funcs() {
         std::make_pair("OpcodesJS", std::bind(&FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJs>, this, _1)),
         std::make_pair("OpcodesJZ", std::bind(&FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJz>, this, _1)),
 
-        std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesADD", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdAdd, 0x05>, this, _1)),
         std::make_pair("OpcodesALIGNB", std::bind(&FrontEnd::processALIGNB, this, _1)),
         std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),

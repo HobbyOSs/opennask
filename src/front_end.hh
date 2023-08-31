@@ -84,7 +84,6 @@ public:
 
     // opcodeの処理
     void processALIGNB(std::vector<TParaToken>& memonic_args);
-    void processADD(std::vector<TParaToken>& memonic_args);
     void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
     void processCMP(std::vector<TParaToken>& memonic_args);
@@ -112,7 +111,9 @@ public:
     template <asmjit::x86::Inst::Id id>
     void processEmit();
     template <asmjit::x86::Inst::Id id>
-    void processEmitJcc(std::vector<TParaToken>& memonic_args);
+    void processEmitJcc(std::vector<TParaToken>&);
+    template <asmjit::x86::Inst::Id id, uint8_t>
+    void processEmitAdd(std::vector<TParaToken>&);
 
     // expression
     void visitImmExp(ImmExp *p) override;
