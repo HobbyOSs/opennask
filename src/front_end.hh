@@ -84,9 +84,7 @@ public:
 
     // opcodeの処理
     void processALIGNB(std::vector<TParaToken>& memonic_args);
-    void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
-    void processCMP(std::vector<TParaToken>& memonic_args);
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
@@ -97,7 +95,6 @@ public:
     void processLIDT(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
-    void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
     void processPOP(std::vector<TParaToken>& memonic_args);
@@ -105,7 +102,6 @@ public:
     void processRESB(std::vector<TParaToken>& memonic_args);
     void processRET(std::vector<TParaToken>& memonic_args);
     void processSHR(std::vector<TParaToken>& memonic_args);
-    void processSUB(std::vector<TParaToken>& memonic_args);
 
     // 引数なしオペコードはtemplate化
     template <asmjit::x86::Inst::Id id>
