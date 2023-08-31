@@ -96,6 +96,8 @@ set(nask_parse_SRCS
   bin_util.hh
   x86.cc
   x86.hh
+  x86_prefix.cc
+  x86_prefix.hh
   object_file_writer.cc
   object_file_writer.hh
   ${nask_parse_bnfc_SRCS}

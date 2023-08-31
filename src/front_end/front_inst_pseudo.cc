@@ -59,7 +59,7 @@ void FrontEnd::processDW(std::vector<TParaToken>& mnemonic_args) {
             if (e.IsInteger() || e.IsHex()) {
                 a.dw(e.AsInt32());
             } else if (e.IsIdentifier()) {
-                throw std::runtime_error("not implemented");
+                throw std::runtime_error("[pass2] not implemented");
             }
         }
     });
@@ -80,7 +80,7 @@ void FrontEnd::processDD(std::vector<TParaToken>& mnemonic_args) {
                 const auto label_address = static_cast<uint16_t>(sym_table.at(label));
                 a.dw(label_address);
             } else if (e.IsIdentifier()) {
-                throw std::runtime_error("not implemented");
+                throw std::runtime_error("[pass2] not implemented");
             }
         }
     });

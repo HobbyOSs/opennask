@@ -1190,7 +1190,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
             return 1 + 1;
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Far jump syntax is invalid !!!");
+            throw std::runtime_error("[pass1] JMP, Far jump syntax is invalid !!!");
             return 0;
         }
     );
@@ -2221,7 +2221,7 @@ void Pass1Strategy::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) 
         pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
         pattern | "DWORD" = [&]{ offset.SetAttribute(TParaToken::ttMem32); },
         pattern | _ = [&] {
-            throw std::runtime_error("[pass2] segment:offset, data type is invalid");
+            throw std::runtime_error("[pass1] segment:offset, data type is invalid");
         }
     );
 

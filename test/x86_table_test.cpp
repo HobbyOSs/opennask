@@ -292,6 +292,12 @@ INSTANTIATE_TEST_SUITE_P(X86TableSuite, InstToMachineCodeSize,
                                        TParaToken("ECX", TParaToken::ttIdentifier, TParaToken::ttReg32),
                                        TParaToken("EBX", TParaToken::ttIdentifier, TParaToken::ttMem32).SetMem(asmjit::x86::ptr(asmjit::x86::ebx, 16))
                                    },
-                                   5)
+                                   5),
+        InstToMachineCodeSizeParam(ID_32BIT_MODE, "MOV",
+                                   {
+                                       TParaToken("AX", TParaToken::ttIdentifier, TParaToken::ttReg16),
+                                       TParaToken("SS", TParaToken::ttIdentifier, TParaToken::ttSreg)
+                                   },
+                                   3)
     )
 );

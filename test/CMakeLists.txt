@@ -58,6 +58,7 @@ set(nask_parse_SRCS
   ../src/mod_rm.cpp
   ../src/string_util.cpp
   ../src/x86.cc
+  ../src/x86_prefix.cc
   ../src/object_file_writer.cc)
 
 # テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする
@@ -131,6 +132,7 @@ gtest_discover_tests(modrmtest)
 set(x86_table_test_SRCS
   x86_table_test.cpp
   ../src/x86.cc
+  ../src/x86_prefix.cc
   ../src/demangle.cpp
   ../src/para_token.cc)
 

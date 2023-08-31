@@ -17,6 +17,7 @@
 #include "bin_util.hh"
 #include "pass1_strategy.hh"
 #include "object_file_writer.hh"
+#include "x86_prefix.hh"
 
 class FrontEnd : public Skeleton, public BinUtil {
 

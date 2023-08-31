@@ -102,7 +102,7 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
 
             pattern | _ = [&] {
-                throw std::runtime_error("ADD, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] ADD, Not implemented or not matched!!!");
             }
         );
     });
@@ -165,7 +165,7 @@ void FrontEnd::processAND(std::vector<TParaToken>& mnemonic_args) {
             // 0x23 /r		AND r16, r/m16		r16とr/m16とのANDをとる
             // 0x23 /r		AND r32, r/m32		r32とr/m32とのANDをとる
             pattern | _ = [&] {
-                throw std::runtime_error("AND, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] AND, Not implemented or not matched!!!");
             }
         );
     });
@@ -227,7 +227,7 @@ void FrontEnd::processCMP(std::vector<TParaToken>& mnemonic_args) {
             // 0x3B /r		CMP r32, r/m32		r/m32をr32と比較します
 
             pattern | _ = [&] {
-                throw std::runtime_error("CMP, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] CMP, Not implemented or not matched!!!");
             }
         );
     });
@@ -278,7 +278,7 @@ void FrontEnd::processIMUL(std::vector<TParaToken>& mnemonic_args) {
                 a.imul(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
             },
             pattern | _ = [&] {
-                throw std::runtime_error("IMUL, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] IMUL, Not implemented or not matched!!!");
             }
         );
     });
@@ -324,7 +324,7 @@ void FrontEnd::processIN(std::vector<TParaToken>& mnemonic_args) {
                 a.db(0xed);
             },
             pattern | _ = [&] {
-                throw std::runtime_error("IN, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] IN, Not implemented or not matched!!!");
             }
         );
     });
@@ -372,7 +372,7 @@ void FrontEnd::processLIDT(std::vector<TParaToken>& mnemonic_args) {
                 a.dw(label_address);
             },
             pattern | _ = [&] {
-                throw std::runtime_error("LIDT, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] LIDT, Not implemented or not matched!!!");
             }
         );
     });
@@ -408,7 +408,7 @@ void FrontEnd::processLGDT(std::vector<TParaToken>& mnemonic_args) {
                 a.dw(label_address);
             },
             pattern | _ = [&] {
-                throw std::runtime_error("LGDT, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] LGDT, Not implemented or not matched!!!");
             }
         );
     });
@@ -718,7 +718,7 @@ void FrontEnd::processOR(std::vector<TParaToken>& mnemonic_args) {
             // 0x0B /r		OR r16, r/m16		r16とr/m16とのORをとる
             // 0x0B /r		OR r32, r/m32		r32とr/m32とのORをとる
             pattern | _ = [&] {
-                throw std::runtime_error("OR, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] OR, Not implemented or not matched!!!");
             }
         );
     });
@@ -768,7 +768,7 @@ void FrontEnd::processOUT(std::vector<TParaToken>& mnemonic_args) {
                 a.out(x86::dx, x86::eax);
             },
             pattern | _ = [&] {
-                throw std::runtime_error("OUT, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] OUT, Not implemented or not matched!!!");
             }
         );
     });
@@ -812,7 +812,7 @@ void FrontEnd::processPOP(std::vector<TParaToken>& mnemonic_args) {
                 a.pop(src.AsAsmJitSReg());
             },
             pattern | _ = [&] {
-                throw std::runtime_error("POP, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] POP, Not implemented or not matched!!!");
             }
         );
     });
@@ -862,7 +862,7 @@ void FrontEnd::processPUSH(std::vector<TParaToken>& mnemonic_args) {
                 a.push(src.AsAsmJitSReg());
             },
             pattern | _ = [&] {
-                throw std::runtime_error("PUSH, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] PUSH, Not implemented or not matched!!!");
             }
         );
     });
@@ -938,7 +938,7 @@ void FrontEnd::processSUB(std::vector<TParaToken>& mnemonic_args) {
             // 0x2B /r		SUB r16, r/m16		r/m16をr16から減算する
             // 0x2B /r		SUB r32, r/m32		r/m32をr32から減算する
             pattern | _ = [&] {
-                throw std::runtime_error("SUB, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] SUB, Not implemented or not matched!!!");
             }
         );
     });
@@ -1019,70 +1019,8 @@ void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
                 a.db(ModRM::generate_modrm(ModRM::REG_REG, "[" + dst.AsString() + "]", ModRM::SLASH_5));
             },
             pattern | _ = [&] {
-                throw std::runtime_error("SHR, Not implemented or not matched!!!");
+                throw std::runtime_error("[pass2] SHR, Not implemented or not matched!!!");
             }
         );
     });
-}
-
-
-void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& operand) {
-    const auto operand_attr = operand.AsAttr();
-
-    // Address size prefix
-    // メモリーアドレス表現によるアドレスサイズプレフィックスが必要か判定する
-    require_67h = match(bit_mode)(
-        // ex) [EBX], [EBX+16]
-        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttMem32 && operand.IsAsmJitGpd()) = true,
-        pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttMem16 && operand.IsAsmJitGpw()) = true,
-        pattern | ID_32BIT_MODE = false,
-        pattern | _ = false
-    );
-
-    // Operand size prefix
-    // オペランドサイズプレフィックスが必要かどうか判定する
-    require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(operand_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(operand.IsImmediate() && operand.AsInt32() > 0x7fff) = true,
-        pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(operand_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE = false,
-        pattern | _ = false
-    );
-}
-
-void PrefixInfo::set(OPENNASK_MODES bit_mode, TParaToken& dst, TParaToken& src) {
-
-    const auto dst_attr = dst.AsAttr();
-    const auto src_attr = src.AsAttr();
-
-    // Address size prefix
-    // メモリーアドレス表現によるアドレスサイズプレフィックスが必要か判定する
-    require_67h = match(bit_mode)(
-        // ex) [EBX], [EBX+16]
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttMem32 && dst.IsAsmJitGpd()) = true,
-        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttMem32 && src.IsAsmJitGpd()) = true,
-        pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttMem16 && dst.IsAsmJitGpw()) = true,
-        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttMem16 && src.IsAsmJitGpw()) = true,
-        pattern | ID_32BIT_MODE = false,
-        pattern | _ = false
-    );
-
-    // Operand size prefix
-    // オペランドサイズプレフィックスが必要かどうか判定する
-    // dst,srcがあるときは下記のパターンがある
-    require_66h = match(bit_mode)(
-        pattern | ID_16BIT_MODE | when(dst_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttReg32 && dst_attr == TParaToken::ttReg32) = true,
-        pattern | ID_16BIT_MODE | when(src_attr == TParaToken::ttReg32 && dst.IsMem()) = true,
-        pattern | ID_16BIT_MODE | when(src.IsImmediate() && src.AsInt32() > 0x7fff) = true,
-        pattern | ID_16BIT_MODE = false,
-        pattern | ID_32BIT_MODE | when(dst_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttReg16 && dst_attr == TParaToken::ttReg16) = true,
-        pattern | ID_32BIT_MODE | when(src_attr == TParaToken::ttReg16 && dst.IsMem()) = true,
-        pattern | ID_32BIT_MODE = false,
-        pattern | _ = false
-    );
 }

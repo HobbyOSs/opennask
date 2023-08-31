@@ -369,7 +369,7 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     if (it != funcs.end()) {
         it->second(mnemonic_args);
     } else {
-        throw std::runtime_error(opcode + " is not implemented");
+        throw std::runtime_error("[pass2] " + opcode + " is not implemented");
     }
 }
 

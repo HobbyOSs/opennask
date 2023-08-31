@@ -7,18 +7,6 @@
 #include "nask_parse_common.hh"
 
 
-// asmjitはデフォルトで32bitモードなので、辻褄あわせのため
-class PrefixInfo {
-
-public:
-    bool require_67h = false; // Address size Prefix byte
-    bool require_66h = false; // Operand size Prefix byte
-
-    void set(OPENNASK_MODES, TParaToken& dst);
-    void set(OPENNASK_MODES, TParaToken& dst, TParaToken& src);
-};
-
-
 template <class F>
 void FrontEnd::with_asmjit(F && f) {
 

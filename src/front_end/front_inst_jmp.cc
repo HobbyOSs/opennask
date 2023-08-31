@@ -61,7 +61,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                 // EXTERNの一覧になければエラー
                 if (sym_table.count(label) == 0) {
                     if (!o_writer_->has_extern_symbol(label)) {
-                        throw std::runtime_error(std::string("CALL, symbol " + label + " is undefined."));
+                        throw std::runtime_error(std::string("[pass2] CALL, symbol " + label + " is undefined."));
                     }
                     a.db(0xe8);
                     a.dd(0x00000000);
@@ -91,7 +91,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
             });
         },
         pattern | _ = [&] {
-            throw std::runtime_error("CALL, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] CALL, Not implemented or not matched!!!");
         }
     );
 
@@ -211,7 +211,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 // EXTERNの一覧になければエラー
                 if (sym_table.count(label) == 0) {
                     if (!o_writer_->has_extern_symbol(label)) {
-                        throw std::runtime_error(std::string("JMP, symbol " + label + " is undefined."));
+                        throw std::runtime_error(std::string("[pass2] JMP, symbol " + label + " is undefined."));
                     }
                     a.db(0xe9);
                     a.dd(0);
@@ -268,12 +268,12 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                     });
                 },
                 pattern | _ = [&] {
-                    throw std::runtime_error("JMP, Not implemented or not matched!!!");
+                    throw std::runtime_error("[pass2] JMP, Not implemented or not matched!!!");
                 }
             );
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] JMP, Not implemented or not matched!!!");
         }
     );
 }

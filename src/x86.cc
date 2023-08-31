@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "x86.hh"
+#include "x86_prefix.hh"
 #include "matchit.h"
 #include "demangle.hpp"
 #include "spdlog/spdlog.h"
@@ -17,49 +18,6 @@ namespace x86_64 {
     };
 
     const char* X86_64_JSON = gx86_json_Data;
-
-    const bool _require_67h(OPENNASK_MODES mode, const std::vector<TParaToken>& tokens) {
-        bool require = false;
-
-        for (int i = 0; i < tokens.size(); i++) {
-            auto t = tokens[i];
-            require = match(mode)(
-                // ベースをもつメモリーアドレス表現を判定する ex) [EBX], [EBX+16]
-                pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttMem32 && t.IsAsmJitGpd()) = true,
-                pattern | ID_16BIT_MODE = false,
-                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttMem16 && t.IsAsmJitGpw()) = true,
-                pattern | ID_32BIT_MODE = false,
-                pattern | _ = false
-            );
-            if (require) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    const bool _require_66h(OPENNASK_MODES mode, const std::vector<TParaToken>& tokens) {
-        bool require = false;
-
-        for (int i = 0; i < tokens.size(); i++) {
-            auto t = tokens[i];
-
-            require = match(mode)(
-                pattern | ID_16BIT_MODE | when(t.AsAttr() == TParaToken::ttReg32) = true,
-                pattern | ID_16BIT_MODE | when(t.IsImmediate() && t.AsInt32() > 0x7fff) = true,
-                pattern | ID_16BIT_MODE = false,
-                pattern | ID_32BIT_MODE | when(t.AsAttr() == TParaToken::ttReg16) = true,
-                pattern | ID_32BIT_MODE = false,
-                pattern | _ = false
-            );
-            if (require) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     /**
      * メモリーアドレス表現にあるoffset値について機械語サイズの計算をする
@@ -137,7 +95,7 @@ namespace x86_64 {
             pattern | TParaToken::ttImm   = [&] { return "imm"; },
             pattern | TParaToken::ttLabel = [&] { return "imm"; },
             pattern | _ = [&] {
-                throw std::runtime_error(operand.to_string() + " Not implemented or not matched!!!");
+                throw std::runtime_error("[x86] " + operand.to_string() + " Not implemented or not matched!!!");
                 return "";
             }
         );
@@ -245,17 +203,11 @@ namespace x86_64 {
 
             // x86_64.jsonの中に直接レジスタ名が書いてある場合でもマッチさせたい
             // al,ax,eax,rax,dx... など
-            bool reg_name_matched  = match( std::make_tuple(tokens[i].AsString(), table_token_type) )(
-                pattern | ds("AL" , "al")  = true,
-                pattern | ds("AX" , "ax")  = true,
-                pattern | ds("EAX", "eax") = true,
-                pattern | ds("RAX", "rax") = true,
-                pattern | ds("DX", "dx")   = true,
-                pattern | ds(_,_)          = false
-            );
-
-            if (reg_name_matched) {
+            if (_to_lower(tokens[i].AsString()) == table_token_type) {
                 // 直接レジスタ名がマッチ
+                continue;
+            }
+            if (tokens[i].IsAsmJitSReg() && table_token_type == "r16") {
                 continue;
             }
 
@@ -342,11 +294,18 @@ namespace x86_64 {
             int require_67h = 0;
             int require_sib_byte = 0;
 
-            if (_require_66h(mode, tokens)) {
+            PrefixInfo pp;
+            if (tokens.size()==2) {
+                pp.set(mode, tokens[0], tokens[1]); // op dst,src
+            } else {
+                pp.set(mode, tokens[0]); // op dst
+            }
+
+            if (pp.require_66h) {
                 logger->trace("[pass1] {} bytes 0x66h 1", OPENNASK_MODES_NAMES[mode]);
                 require_66h = 1;
             }
-            if (_require_67h(mode, tokens)) {
+            if (pp.require_67h) {
                 logger->trace("[pass1] {} bytes 0x67h 1", OPENNASK_MODES_NAMES[mode]);
                 require_67h = 1;
             }
