@@ -158,6 +158,7 @@ public:
     //   - \ref x86::DReg - debug register.
     //   - \ref x86::Bnd - bound register (discontinued).
     //   - \ref x86::Rip - relative instruction pointer.
+    asmjit::x86::Gp AsAsmJitGp(void) const;
     asmjit::x86::GpbLo AsAsmJitGpbLo(void) const;
     asmjit::x86::GpbHi AsAsmJitGpbHi(void) const;
     asmjit::x86::Gpw AsAsmJitGpw(void) const;

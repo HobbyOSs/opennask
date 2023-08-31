@@ -47,60 +47,38 @@ void FrontEnd::processADD(std::vector<TParaToken>& mnemonic_args) {
             pattern | ds("EAX", TParaToken::ttReg32, TParaToken::ttImm) = [&] {
                 a.add(x86::eax, mnemonic_args[1].AsInt32());
             },
-            // TODO: メモリーアドレッシング
             // 0x80 /0 ib	ADD r/m8, imm8		imm8をr/m8に加算する
-            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbLo()) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpbLo(), mnemonic_args[1].AsInt32());
-            },
-            pattern | ds(_, TParaToken::ttReg8 , TParaToken::ttImm) | when(dst.IsAsmJitGpbHi()) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpbHi(), mnemonic_args[1].AsInt32());
-            },
-
             // 0x81 /0 iw	ADD r/m16, imm16	imm16をr/m16に加算する
             // 0x83 /0 ib	ADD r/m16, imm8		符号拡張imm8をr/m16に加算する
-            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttImm) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsInt32());
-            },
             // 0x81 /0 id	ADD r/m32, imm32	imm32をr/m32に加算する
             // 0x83 /0 ib	ADD r/m32, imm8		符号拡張imm8をr/m32に加算する
-            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttImm) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsInt32());
+            pattern | ds(_, or_(TParaToken::ttReg8, TParaToken::ttReg16, TParaToken::ttReg32), TParaToken::ttImm) = [&] {
+                a.add(mnemonic_args[0].AsAsmJitGp(), mnemonic_args[1].AsInt32());
             },
-
+            pattern | ds(_, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), TParaToken::ttImm) = [&] {
+                a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsInt32());
+            },
             // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
             // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
             // 0x01 /r		ADD r/m32, r32		r32をr/m32に加算する
-            pattern | ds(_, TParaToken::ttReg8, TParaToken::ttReg8) = [&] {
-                match( std::make_tuple( dst.IsAsmJitGpbLo(), src.IsAsmJitGpbLo() ))(
-                    pattern | ds(true, true)   = [&] { a.add(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbLo() ); },
-                    pattern | ds(true, false)  = [&] { a.add(dst.AsAsmJitGpbLo(), src.AsAsmJitGpbHi() ); },
-                    pattern | ds(false, true)  = [&] { a.add(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbLo() ); },
-                    pattern | ds(false, false) = [&] { a.add(dst.AsAsmJitGpbHi(), src.AsAsmJitGpbHi() ); }
-                );
+            pattern | ds(_,
+                         or_(TParaToken::ttReg8, TParaToken::ttReg16, TParaToken::ttReg32),
+                         or_(TParaToken::ttReg8, TParaToken::ttReg16, TParaToken::ttReg32)) = [&] {
+                a.add(dst.AsAsmJitGp(), src.AsAsmJitGp());
             },
-            pattern | ds(_, TParaToken::ttReg16, TParaToken::ttReg16) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpw(), mnemonic_args[1].AsAsmJitGpw());
+            pattern | ds(_,
+                         or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32),
+                         or_(TParaToken::ttReg8, TParaToken::ttReg16, TParaToken::ttReg32)) = [&] {
+                             a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsAsmJitGp());
             },
-            pattern | ds(_, TParaToken::ttReg32, TParaToken::ttReg32) = [&] {
-                a.add(mnemonic_args[0].AsAsmJitGpd(), mnemonic_args[1].AsAsmJitGpd());
-            },
-            pattern | ds(_, TParaToken::ttMem8, TParaToken::ttReg8) = [&] {
-                match( src.IsAsmJitGpbLo() )(
-                    pattern | true  = [&] { a.add(dst.AsMem(), src.AsAsmJitGpbLo() ); },
-                    pattern | false = [&] { a.add(dst.AsMem(), src.AsAsmJitGpbHi() ); }
-                );
-            },
-            pattern | ds(_, TParaToken::ttMem16, TParaToken::ttReg16) = [&] {
-                a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsAsmJitGpw());
-            },
-            pattern | ds(_, TParaToken::ttMem32, TParaToken::ttReg32) = [&] {
-                a.add(mnemonic_args[0].AsMem(), mnemonic_args[1].AsAsmJitGpd());
-            },
-
             // 0x02 /r		ADD r8, r/m8		r/m8をr8に加算する
             // 0x03 /r		ADD r16, r/m16		r/m16をr16に加算する
             // 0x03 /r		ADD r32, r/m32		r/m32をr32に加算する
-
+            pattern | ds(_,
+                         or_(TParaToken::ttReg8, TParaToken::ttReg16, TParaToken::ttReg32),
+                         or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32)) = [&] {
+                             a.add(mnemonic_args[0].AsAsmJitGp(), mnemonic_args[1].AsMem());
+            },
             pattern | _ = [&] {
                 throw std::runtime_error("[pass2] ADD, Not implemented or not matched!!!");
             }

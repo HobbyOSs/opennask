@@ -206,6 +206,41 @@ string TParaToken::AsString(void) const {
     return _token_string;
 }
 
+asmjit::x86::Gp TParaToken::AsAsmJitGp(void) const {
+
+    using namespace asmjit;
+    std::string s(to_lower(_token_string));
+
+    return match(s)(
+        pattern | "al"  = static_cast<x86::Gp>(x86::al),
+        pattern | "bl"  = static_cast<x86::Gp>(x86::bl),
+        pattern | "cl"  = static_cast<x86::Gp>(x86::cl),
+        pattern | "dl"  = static_cast<x86::Gp>(x86::dl),
+        pattern | "ah"  = static_cast<x86::Gp>(x86::ah),
+        pattern | "bh"  = static_cast<x86::Gp>(x86::bh),
+        pattern | "ch"  = static_cast<x86::Gp>(x86::ch),
+        pattern | "dh"  = static_cast<x86::Gp>(x86::dh),
+        pattern | "ax"  = static_cast<x86::Gp>(x86::ax),
+        pattern | "bx"  = static_cast<x86::Gp>(x86::bx),
+        pattern | "cx"  = static_cast<x86::Gp>(x86::cx),
+        pattern | "dx"  = static_cast<x86::Gp>(x86::dx),
+        pattern | "sp"  = static_cast<x86::Gp>(x86::sp),
+        pattern | "bp"  = static_cast<x86::Gp>(x86::bp),
+        pattern | "si"  = static_cast<x86::Gp>(x86::si),
+        pattern | "di"  = static_cast<x86::Gp>(x86::di),
+        pattern | "eax" = static_cast<x86::Gp>(x86::eax),
+        pattern | "ebx" = static_cast<x86::Gp>(x86::ebx),
+        pattern | "ecx" = static_cast<x86::Gp>(x86::ecx),
+        pattern | "edx" = static_cast<x86::Gp>(x86::edx),
+        pattern | "esi" = static_cast<x86::Gp>(x86::esi),
+        pattern | "edi" = static_cast<x86::Gp>(x86::edi),
+        pattern | "esp" = static_cast<x86::Gp>(x86::esp),
+        pattern | "ebp" = static_cast<x86::Gp>(x86::ebp),
+        pattern | "esi" = static_cast<x86::Gp>(x86::esi),
+        pattern | "edi" = static_cast<x86::Gp>(x86::edi)
+    );
+}
+
 asmjit::x86::GpbLo TParaToken::AsAsmJitGpbLo(void) const {
 
     using namespace asmjit;
