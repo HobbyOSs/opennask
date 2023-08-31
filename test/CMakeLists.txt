@@ -58,6 +58,7 @@ set(nask_parse_SRCS
   ../src/mod_rm.cpp
   ../src/string_util.cpp
   ../src/x86.cc
+  ../src/x86_prefix.cc
   ../src/object_file_writer.cc)
 
 # テストで使われる共通のソースコードはObject Libraryを使い再コンパイルしないようにする
@@ -131,6 +132,7 @@ gtest_discover_tests(modrmtest)
 set(x86_table_test_SRCS
   x86_table_test.cpp
   ../src/x86.cc
+  ../src/x86_prefix.cc
   ../src/demangle.cpp
   ../src/para_token.cc)
 
@@ -269,3 +271,23 @@ endif()
 
 target_compile_features(day05test PRIVATE cxx_std_17)
 gtest_discover_tests(day05test)
+
+# `ctest -R day06`
+set(day06test_SRCS
+  day06test.cpp)
+
+add_executable(day06test ${day06test_SRCS})
+target_link_libraries(day06test PRIVATE
+  nask_parse_objects
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
+if(WITH_BACKWARDS_CPP)
+  target_link_libraries(day06test PUBLIC -lbfd)
+  target_link_libraries(day06test PUBLIC backward)
+endif()
+
+target_compile_features(day06test PRIVATE cxx_std_17)
+gtest_discover_tests(day06test)

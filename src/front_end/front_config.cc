@@ -65,7 +65,7 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
         pattern | "BitsConfig" | when (t.AsString() == "16") = [&] { this->bit_mode = ID_16BIT_MODE; },
         pattern | "BitsConfig" | when (t.AsString() == "32") = [&] { this->bit_mode = ID_32BIT_MODE; },
         pattern | "BitsConfig" = [&] {
-            throw std::runtime_error("Invalid bit_mode: " + t.AsString());
+            throw std::runtime_error("[pass2] Invalid bit_mode: " + t.AsString());
         },
         pattern | "FormConfig" | when (t.AsString() == "WCOFF") = [&] {
             o_writer_ = std::make_unique<ObjectFileWriter>(); // TODO: ELFも出したい場合ObjectFileWriterのIFを作って内部で分岐
@@ -81,7 +81,7 @@ void FrontEnd::visitConfigStmt(ConfigStmt *config_stmt) {
             // NOP
         },
         pattern | _ = [&] {
-            throw std::runtime_error("Invalid config type = " + config_type + ", str = " + t.AsString());
+            throw std::runtime_error("[pass2] Invalid config type = " + config_type + ", str = " + t.AsString());
         }
     );
 

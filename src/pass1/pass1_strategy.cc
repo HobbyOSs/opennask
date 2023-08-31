@@ -175,6 +175,11 @@ void Pass1Strategy::define_funcs() {
     };
 }
 
+
+bool Pass1Strategy::has_extern_symbol(const std::string& symbol) {
+    return std::count(extern_symbol_list.begin(), extern_symbol_list.end(), symbol) > 0;
+}
+
 Pass1Strategy::Pass1Strategy() {
     // spdlog
     if(!spdlog::get("opennask")) {
@@ -182,7 +187,8 @@ Pass1Strategy::Pass1Strategy() {
     }
 
     sym_table = std::map<std::string, uint32_t>{};
-    lit_table = std::map<std::string, uint32_t>{};
+    global_symbol_list = {};
+    extern_symbol_list = {};
     equ_map = std::map<std::string, TParaToken>{};
     loc = 0;
     iset = std::make_unique<x86_64::InstructionSet>(jsoncons::decode_json<x86_64::InstructionSet>(std::string(x86_64::X86_64_JSON)));
@@ -192,8 +198,9 @@ Pass1Strategy::Pass1Strategy() {
 
 Pass1Strategy::~Pass1Strategy() {
     sym_table.clear();
-    lit_table.clear();
     equ_map.clear();
+    global_symbol_list.clear();
+    extern_symbol_list.clear();
 }
 
 // 以下、抽象クラスの実装(内部で動的に分岐)
@@ -361,7 +368,8 @@ void Pass1Strategy::visitExportSymStmt(ExportSymStmt *export_sym_stmt) {
     }
 
     for (auto sym : symbols) {
-        log()->debug("[pass1] symbol {}", sym.AsString());
+        global_symbol_list.push_back(sym.AsString());
+        log()->debug("[pass1] global symbol {}", sym.AsString());
     }
 }
 
@@ -380,7 +388,8 @@ void Pass1Strategy::visitExternSymStmt(ExternSymStmt *extern_sym_stmt) {
     }
 
     for (auto sym : symbols) {
-        log()->debug("[pass1] symbol {}", sym.AsString());
+        extern_symbol_list.push_back(sym.AsString());
+        log()->debug("[pass1] extern symbol {}", sym.AsString());
     }
 }
 
@@ -1190,7 +1199,7 @@ void Pass1Strategy::processJMP(std::vector<TParaToken>& mnemonic_args) {
             return 1 + 1;
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Far jump syntax is invalid !!!");
+            throw std::runtime_error("[pass1] JMP, Far jump syntax is invalid !!!");
             return 0;
         }
     );
@@ -1283,6 +1292,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 8A      r8      m8
     // C7      r16     imm16
     // 89      r16     r16
+    // 8C      r16     sreg
+    // 8C      m16     sreg
+    // 8E      sreg    r16
+    // 8E      sreg    m16
     // 8B      r16     m16
     // A1      eax     moffs32
     // C7      r32     imm32
@@ -1301,6 +1314,8 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
     // 89      m32     r32
     // C7      m64     imm32
     // 89      m64     r64
+    // A3      moffs32 eax
+    // A3      moffs64 rax
     // TODO: x86 tableに下記2行の記載なし
     // A2      moffs8  al
     // A3      moffs16 ax
@@ -1314,10 +1329,10 @@ void Pass1Strategy::processMOV(std::vector<TParaToken>& mnemonic_args) {
 
         // セグメントレジスタ
         pattern | ds(TParaToken::ttSreg, _, _, _) = [&] {
-            return 2; // opcode, modrmなので2byte
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         pattern | ds(_, _, TParaToken::ttSreg, _) = [&] {
-            return 2; // opcode, modrmなので2byte
+            return inst.get_output_size(bit_mode, mnemonic_args);
         },
         // コントロールレジスタ
         pattern | ds(TParaToken::ttCreg, _, TParaToken::ttReg32, _) = [&] {
@@ -2221,7 +2236,7 @@ void Pass1Strategy::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp) 
         pattern | "WORD"  = [&]{ offset.SetAttribute(TParaToken::ttMem16); },
         pattern | "DWORD" = [&]{ offset.SetAttribute(TParaToken::ttMem32); },
         pattern | _ = [&] {
-            throw std::runtime_error("[pass2] segment:offset, data type is invalid");
+            throw std::runtime_error("[pass1] segment:offset, data type is invalid");
         }
     );
 

@@ -55,16 +55,31 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
                 using namespace asmjit;
                 CodeBuffer& buf = code_.textSection()->buffer();
                 const std::string label = arg.AsString();
-                const auto label_address = sym_table.at(label);
+
+                // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
+                // 呼び出し先のシンボルがEXTERNされているために不定ということである
+                // EXTERNの一覧になければエラー
+                if (sym_table.count(label) == 0) {
+                    if (!o_writer_->has_extern_symbol(label)) {
+                        throw std::runtime_error(std::string("[pass2] CALL, symbol " + label + " is undefined."));
+                    }
+                    a.db(0xe8);
+                    a.dd(0x00000000);
+                    sym_table[label] = buf.size() - 4;
+                    // あとはリンカが実際のアドレスをCALL命令に埋め込む（シンボル解決）
+                    return;
+                }
+
                 // 相対ジャンプのオフセット =
                 //   対象の絶対アドレス - ( ORGのポジション + ここまでで生成した機械語サイズ ) - CALL命令自体の機械語サイズ
+                const auto label_address = sym_table[label];
                 const int32_t jmp_offset = label_address - (dollar_position + buf.size()) - 3;
                 auto asmjit_label = code_.labelByName(label.c_str());
                 if( ! asmjit_label.isValid() ) {
                     a.newNamedLabel(label.c_str());
                 }
                 match(jmp_offset)(
-                    pattern | (std::numeric_limits<int16_t>::min() <= _ && _ <= std::numeric_limits<int16_t>::max()) = [&] {
+                    pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                         a.db(0xe8);
                         a.dw(jmp_offset);
                     },
@@ -76,7 +91,7 @@ void FrontEnd::processCALL(std::vector<TParaToken>& mnemonic_args) {
             });
         },
         pattern | _ = [&] {
-            throw std::runtime_error("CALL, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] CALL, Not implemented or not matched!!!");
         }
     );
 
@@ -103,7 +118,7 @@ void FrontEnd::processEmitJcc(std::vector<TParaToken>& mnemonic_args) {
         }
 
         match(jmp_offset)(
-            pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+            pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                 a.short_().emit(id, asmjit_label);
             },
             pattern | _ = [&] {
@@ -190,6 +205,21 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
                 CodeBuffer& buf = code_.textSection()->buffer();
                 const std::string label = arg.AsString();
+
+                // map[] で要素が存在しない場合0となる, pass1でラベルが存在しないということは
+                // 呼び出し先のシンボルがEXTERNされているために不定ということである
+                // EXTERNの一覧になければエラー
+                if (sym_table.count(label) == 0) {
+                    if (!o_writer_->has_extern_symbol(label)) {
+                        throw std::runtime_error(std::string("[pass2] JMP, symbol " + label + " is undefined."));
+                    }
+                    a.db(0xe9);
+                    a.dd(0);
+                    sym_table[label] = buf.size() - 4;
+                    // あとはリンカが実際のアドレスをJMP命令に埋め込む（シンボル解決）
+                    return;
+                }
+
                 const auto label_address = sym_table.at(label);
                 const int32_t jmp_offset = label_address - (dollar_position + buf.size());
 
@@ -199,7 +229,7 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 }
 
                 match(jmp_offset)(
-                    pattern | (std::numeric_limits<int8_t>::min() <= _ && _ <= std::numeric_limits<int8_t>::max()) = [&] {
+                    pattern | _ | when(-0x8000 <= jmp_offset && jmp_offset <= 0x7fff) = [&] {
                         a.short_().jmp(asmjit_label);
                     },
                     pattern | _ = [&] {
@@ -238,12 +268,12 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                     });
                 },
                 pattern | _ = [&] {
-                    throw std::runtime_error("JMP, Not implemented or not matched!!!");
+                    throw std::runtime_error("[pass2] JMP, Not implemented or not matched!!!");
                 }
             );
         },
         pattern | _ = [&] {
-            throw std::runtime_error("JMP, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] JMP, Not implemented or not matched!!!");
         }
     );
 }

@@ -74,7 +74,7 @@ TParaToken& TParaToken::SetMem(const x86::Mem& mem, const int16_t segment) {
 
 x86::Mem& TParaToken::AsMem() const {
     if (_mem == nullptr)
-        throw std::runtime_error("memory is not set");
+        throw std::runtime_error("[para_token] memory is not set");
 
     return *_mem.get();
 }
@@ -490,7 +490,7 @@ TParaToken& TParaToken::MustBe(const string& expected_string) noexcept(false) {
 
     if (_token_string != expected_string) {
         std::ostringstream oss;
-        oss << "invalid token: \""
+        oss << "[para_token] invalid token: \""
             << AsString()
             << "\""
             << " (\""
@@ -506,7 +506,7 @@ TParaToken& TParaToken::MustBe(TTokenType expected_token_type) noexcept(false) {
 
     if (_type != expected_token_type) {
         std::ostringstream oss;
-        oss << "invalid token: \""
+        oss << "[para_token] invalid token: \""
             << AsString()
             << "\""
             << " (\""
@@ -522,7 +522,7 @@ TParaToken& TParaToken::MustBe(TIdentiferAttribute expected_attr) noexcept(false
 
     if (_attr != expected_attr) {
         std::ostringstream oss;
-        oss << "invalid token: \""
+        oss << "[para_token] invalid token: \""
             << AsString()
             << "\""
             << " (\""
@@ -536,7 +536,7 @@ TParaToken& TParaToken::MustBe(TIdentiferAttribute expected_attr) noexcept(false
 
 void TParaToken::ThrowUnexpected(const string& expected) const noexcept(false) {
 
-    string message = "";
+    string message = "[para_token] ";
 
     if (! IsEmpty()) {
         message += "unexpected token: \"" + AsString() + "\"";

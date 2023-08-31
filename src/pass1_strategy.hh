@@ -14,6 +14,9 @@
 
 class Pass1Strategy : public Skeleton, public BinUtil {
 
+private:
+    bool has_extern_symbol(const std::string&);
+
 public:
     Pass1Strategy();
     virtual ~Pass1Strategy();
@@ -24,9 +27,10 @@ public:
     // LOC(location of counter)
     uint32_t loc = 0;
     OPENNASK_MODES bit_mode = ID_16BIT_MODE;
-    // Pass1のシンボルテーブル, リテラルテーブル
+    // Pass1のシンボルテーブル
     std::map<std::string, uint32_t> sym_table;
-    std::map<std::string, uint32_t> lit_table;
+    std::vector<std::string> global_symbol_list;
+    std::vector<std::string> extern_symbol_list;
     // EQUで設定されたマクロ情報
     std::map<std::string, TParaToken> equ_map;
     // x86命令セット

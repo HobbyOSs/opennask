@@ -21,6 +21,8 @@ public:
     const std::array<uint8_t, NASK_WORD> IntAsWord(const int);
     const std::array<uint8_t, NASK_DWORD> LongAsDword(const long);
 
+    void put4b(std::string&, size_t, const int);
+
     template<typename T>
     const std::string int_to_hex(T i);
     const std::string bytes_to_hex(std::vector<uint8_t>&);

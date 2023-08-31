@@ -20,6 +20,13 @@ const std::array<uint8_t, 4> BinUtil::LongAsDword(const long dword) {
     };
 }
 
+void BinUtil::put4b(std::string& output, size_t from, const int value) {
+    output[from+0] =  value & 0xff;
+    output[from+1] = (value >> 8)  & 0xff;
+    output[from+2] = (value >> 16) & 0xff;
+    output[from+3] = (value >> 24) & 0xff;
+}
+
 template<typename T>
 const std::string BinUtil::int_to_hex(T i) {
     std::stringstream stream;
