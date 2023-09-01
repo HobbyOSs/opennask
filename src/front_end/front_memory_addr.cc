@@ -17,7 +17,7 @@ using namespace matchit;
 
 void FrontEnd::visitDirect(Direct *direct) {
 
-    if (direct->factor_) direct->factor_->accept(this);
+    if (direct->exp_) direct->exp_->accept(this);
     using namespace asmjit;
 
     TParaToken t = this->ctx.top();
@@ -75,7 +75,7 @@ void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
     left.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
 
-    visitInteger(based_or_indexed->integer_);
+    if (based_or_indexed->exp_) based_or_indexed->exp_->accept(this);
     TParaToken right = this->ctx.top();
     right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();

@@ -456,8 +456,8 @@ Exp1 : Exp1 _STAR Exp2 { $$ = std::make_shared<MulExp>($1, $3); $$->line_number 
 Exp2 : Factor { $$ = std::make_shared<ImmExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | _LPAREN Exp _RPAREN { $$ = $2; $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
 ;
-MemoryAddr : _LBRACK Factor _RBRACK { $$ = std::make_shared<Direct>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
-  | _LBRACK T_Id _PLUS _INTEGER_ _RBRACK { $$ = std::make_shared<BasedOrIndexed>($2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
+MemoryAddr : _LBRACK Exp _RBRACK { $$ = std::make_shared<Direct>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
+  | _LBRACK T_Id _PLUS Exp _RBRACK { $$ = std::make_shared<BasedOrIndexed>($2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
   | _LBRACK IndexExp _PLUS _INTEGER_ _RBRACK { $$ = std::make_shared<Indexed>($2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
   | _LBRACK T_Id _PLUS T_Id _RBRACK { $$ = std::make_shared<BasedIndexed>($2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
   | _LBRACK T_Id _PLUS T_Id _PLUS _INTEGER_ _RBRACK { $$ = std::make_shared<BasedIndexedDisp>($2, $4, $6); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.memoryaddr_ = $$; }
