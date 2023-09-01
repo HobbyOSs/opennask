@@ -293,3 +293,23 @@ endif()
 
 target_compile_features(day06test PRIVATE cxx_std_17)
 gtest_discover_tests(day06test)
+
+# `ctest -R day09`
+set(day09test_SRCS
+  day09test.cpp)
+
+add_executable(day09test ${day09test_SRCS})
+target_link_libraries(day09test PRIVATE
+  nask_parse_objects
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
+if(WITH_BACKWARDS_CPP)
+  target_link_libraries(day09test PUBLIC -lbfd)
+  target_link_libraries(day09test PUBLIC backward)
+endif()
+
+target_compile_features(day09test PRIVATE cxx_std_17)
+gtest_discover_tests(day09test)
