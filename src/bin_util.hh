@@ -23,6 +23,9 @@ public:
 
     void put4b(std::string&, size_t, const int);
 
+    std::string to_upper(const std::string& in) const;
+    std::string to_lower(const std::string& in) const;
+
     template<typename T>
     const std::string int_to_hex(T i);
     const std::string bytes_to_hex(std::vector<uint8_t>&);
