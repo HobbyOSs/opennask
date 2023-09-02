@@ -46,20 +46,17 @@ std::string diff_pretty_ansi(const dmp::Diffs &diffs) {
         }
         switch ((*cur_diff).operation) {
         case dmp::INSERT:
-            //ansi += traits::cs(L"<ins style=\"background:#e6ffe6;\">") + text + traits::cs(L"</ins>");
             ansi += GRN + text;
             break;
         case dmp::DELETE:
-            //ansi += traits::cs(L"<del style=\"background:#ffe6e6;\">") + text + traits::cs(L"</del>");
             ansi += RED + text;
             break;
         case dmp::EQUAL:
-            //ansi += traits::cs(L"<span>") + text + traits::cs(L"</span>");
             ansi += CYN + text;
             break;
         }
     }
-    return ansi;
+    return ansi + "\e[0m";
 }
 
 std::string diff(std::vector<uint8_t> expected, std::vector<uint8_t> actual) {
@@ -90,14 +87,15 @@ std::string diff(std::vector<uint8_t> expected, std::vector<uint8_t> actual) {
 
     std::string out1 = oss1.str();
     std::string out2 = oss2.str();
-
     auto diffs = dmp_ins.diff_main(out1, out2);
     std::stringstream diff;
-    return diff_pretty_ansi(diffs);
+    auto diff_pretty = diff_pretty_ansi(diffs);
+    return diff_pretty;
 }
 
 template<typename T>
 std::vector<T> slice(std::vector<T> const &v, int m, int n) {
+
     auto first = v.cbegin() + m;
     auto last = v.cbegin() + n + 1;
 
@@ -118,28 +116,36 @@ std::vector<T> slice(std::vector<T> const &v, int m, int n) {
         return ::testing::AssertionSuccess();
     }
 
-    // 差分がある場合の処理
-    size_t slice_size = 1500;
-    if (expected.size() <= slice_size && actual.size() <= slice_size) {
-        slice_size = std::max(expected.size(), actual.size());
-    }
-    auto expected_slice = slice(expected, 0, slice_size);
-    auto actual_slice = slice(actual, 0, slice_size);
-
-    const std::string msg = "[diff]\n" + diff(expected_slice, actual_slice);
-
-    // テキストのマージ処理を行う
-    std::string merged_msg = msg;
+    // バイナリサイズの比較
+    std::stringstream ss;
     if (expected.size() != actual.size()) {
-        merged_msg += "\n\n";
-        merged_msg += "Expected equality of these values:\n";
-        merged_msg += "  " + std::string(expected_name) + ".size()\n";
-        merged_msg += "    Which is: " + std::to_string(expected.size()) + "\n";
-        merged_msg += "  " + std::string(actual_name) + ".size()\n";
-        merged_msg += "    Which is: " + std::to_string(actual.size()) + "\n";
+        ss << "Expected equality of these values:\n";
+        ss << "  " << expected_name << ".size()\n";
+        ss << "    Which is: " << expected.size() << "\n";
+        ss << "  " << actual_name << ".size()\n";
+        ss << "    Which is: " << actual.size() << "\n";
     }
 
-    return ::testing::AssertionFailure(::testing::Message(merged_msg.c_str()));
+    // バイナリの内容の比較
+    const size_t max_chunk_size = 1000; // 1200を超えてdiffをとると挙動がおかしいので1000でloop
+    size_t expected_max_target_size = expected.size();
+    size_t actual_max_target_size = actual.size();
+    size_t max_target_size = std::max(expected_max_target_size, actual_max_target_size);
+
+    for (size_t offset = 0; offset < max_target_size; offset += max_chunk_size) {
+        size_t max_slicable_size = std::min(expected_max_target_size - offset, actual_max_target_size - offset);
+        size_t slice_size = std::min(max_chunk_size, max_slicable_size);
+
+        auto expected_slice = slice(expected, offset, offset + slice_size - 1);
+        auto actual_slice = slice(actual, offset, offset + slice_size - 1);
+
+        ss << "\n";
+        ss << "[diff] size:" << slice_size << "\n";
+        ss << "Diff between " << expected_name << " and " << actual_name << ":\n";
+        ss << diff(expected_slice, actual_slice);
+    }
+
+    return ::testing::AssertionFailure(::testing::Message(ss.str().c_str()));
 }
 
 #endif // ! DIFF_HH

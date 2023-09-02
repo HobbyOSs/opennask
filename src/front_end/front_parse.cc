@@ -369,10 +369,14 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     log()->debug("[pass2] opcode={} mnemonic_args=[{}]", opcode, this->join(debug_args, ","));
 
     FuncsType::iterator it = funcs.find(opcode);
-    if (it != funcs.end()) {
-        it->second(mnemonic_args);
-    } else {
+    if (it == funcs.end()) {
         throw std::runtime_error("[pass2] " + opcode + " is not implemented");
+    }
+
+    try {
+        it->second(mnemonic_args);
+    } catch (const std::bad_alloc& e) {
+        log()->error("[pass2] std::bad_alloc例外がスローされました: {}", e.what());
     }
 }
 
