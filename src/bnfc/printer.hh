@@ -83,6 +83,7 @@ class PrintAbsyn : public Visitor
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
@@ -540,6 +541,7 @@ class ShowAbsyn : public Visitor
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);

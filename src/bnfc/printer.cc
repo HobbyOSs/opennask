@@ -664,6 +664,17 @@ void PrintAbsyn::visitStringFactor(StringFactor* p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitCharFactor(CharFactor* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  visitChar(p->char_);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitConfigType(ConfigType *p) {} //abstract class
 
 void PrintAbsyn::visitBitsConfig(BitsConfig* p)
@@ -4873,6 +4884,14 @@ void ShowAbsyn::visitStringFactor(StringFactor* p)
   bufAppend("StringFactor");
   bufAppend(' ');
   visitString(p->string_);  bufAppend(')');
+}
+
+void ShowAbsyn::visitCharFactor(CharFactor* p)
+{
+  bufAppend('(');
+  bufAppend("CharFactor");
+  bufAppend(' ');
+  visitChar(p->char_);  bufAppend(')');
 }
 
 void ShowAbsyn::visitConfigType(ConfigType *p) {} //abstract class

@@ -57,6 +57,7 @@ NumberFactor. Factor         ::= Integer ;
 HexFactor.    Factor         ::= Hex ;
 IdentFactor.  Factor         ::= Id ;
 StringFactor. Factor         ::= String ;
+CharFactor.   Factor         ::= Char ;
 
 BitsConfig.   ConfigType     ::= "BITS" ;
 InstConfig.   ConfigType     ::= "INSTRSET" ;

@@ -331,6 +331,14 @@ void Skeleton::visitStringFactor(StringFactor *string_factor)
 
 }
 
+void Skeleton::visitCharFactor(CharFactor *char_factor)
+{
+  /* Code For CharFactor Goes Here */
+
+  visitChar(char_factor->char_);
+
+}
+
 void Skeleton::visitBitsConfig(BitsConfig *bits_config)
 {
   /* Code For BitsConfig Goes Here */

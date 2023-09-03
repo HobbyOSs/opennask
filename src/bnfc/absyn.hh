@@ -71,6 +71,7 @@ class NumberFactor;
 class HexFactor;
 class IdentFactor;
 class StringFactor;
+class CharFactor;
 class BitsConfig;
 class InstConfig;
 class OptiConfig;
@@ -461,6 +462,7 @@ public:
     virtual void visitHexFactor(HexFactor *p) = 0;
     virtual void visitIdentFactor(IdentFactor *p) = 0;
     virtual void visitStringFactor(StringFactor *p) = 0;
+    virtual void visitCharFactor(CharFactor *p) = 0;
     virtual void visitBitsConfig(BitsConfig *p) = 0;
     virtual void visitInstConfig(InstConfig *p) = 0;
     virtual void visitOptiConfig(OptiConfig *p) = 0;
@@ -1413,6 +1415,20 @@ public:
 
     StringFactor(String p1)
     : Factor(), string_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Factor>  clone() const;
+};
+
+class CharFactor : public Factor
+{
+public:
+    Char char_;
+
+    CharFactor(Char p1)
+    : Factor(), char_{p1}
     {};
 
 

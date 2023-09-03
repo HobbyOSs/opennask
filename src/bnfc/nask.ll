@@ -444,6 +444,15 @@ IDENT [a-zA-Z0-9'_]
 <ESCAPED>\\            	 LITERAL_BUFFER_APPEND_CHAR('\\'); BEGIN STRING;
 <ESCAPED>.             	 LITERAL_BUFFER_APPEND(yytext);    BEGIN STRING;
 <STRING,ESCAPED><<EOF>>	 LITERAL_BUFFER_FREE(); return token::_ERROR_;
+<INITIAL>"'" 	BEGIN CHAR;
+<CHAR>\\      	 BEGIN CHARESC;
+<CHAR>[^']      	 BEGIN CHAREND; yylval->emplace<char>(yytext[0]); return token::_CHAR_;
+<CHARESC>f      	 BEGIN CHAREND; yylval->emplace<char>('\f');     return token::_CHAR_;
+<CHARESC>n      	 BEGIN CHAREND; yylval->emplace<char>('\n');     return token::_CHAR_;
+<CHARESC>r      	 BEGIN CHAREND; yylval->emplace<char>('\r');     return token::_CHAR_;
+<CHARESC>t      	 BEGIN CHAREND; yylval->emplace<char>('\t');     return token::_CHAR_;
+<CHARESC>.      	 BEGIN CHAREND; yylval->emplace<char>(yytext[0]); return token::_CHAR_;
+<CHAREND>"'"      	 BEGIN INITIAL;
 <INITIAL>{DIGIT}+      	 yylval->emplace<int>(atoi(yytext)); return token::_INTEGER_;
 <INITIAL>[ \t\r\n\f]      	 /* ignore white space. */;
 <INITIAL>.      	 return token::_ERROR_;

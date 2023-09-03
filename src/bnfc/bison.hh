@@ -385,58 +385,61 @@ namespace nask_ {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // _CHAR_
+      char dummy1[sizeof (char)];
+
       // _INTEGER_
-      char dummy1[sizeof (int)];
+      char dummy2[sizeof (int)];
 
       // ConfigType
-      char dummy2[sizeof (std::shared_ptr<ConfigType>)];
+      char dummy3[sizeof (std::shared_ptr<ConfigType>)];
 
       // DataType
-      char dummy3[sizeof (std::shared_ptr<DataType>)];
+      char dummy4[sizeof (std::shared_ptr<DataType>)];
 
       // Exp
       // Exp1
       // Exp2
-      char dummy4[sizeof (std::shared_ptr<Exp>)];
+      char dummy5[sizeof (std::shared_ptr<Exp>)];
 
       // Factor
-      char dummy5[sizeof (std::shared_ptr<Factor>)];
+      char dummy6[sizeof (std::shared_ptr<Factor>)];
 
       // IndexExp
-      char dummy6[sizeof (std::shared_ptr<IndexExp>)];
+      char dummy7[sizeof (std::shared_ptr<IndexExp>)];
 
       // JumpDir
-      char dummy7[sizeof (std::shared_ptr<JumpDir>)];
+      char dummy8[sizeof (std::shared_ptr<JumpDir>)];
 
       // ListFactor
-      char dummy8[sizeof (std::shared_ptr<ListFactor>)];
+      char dummy9[sizeof (std::shared_ptr<ListFactor>)];
 
       // ListMnemonicArgs
-      char dummy9[sizeof (std::shared_ptr<ListMnemonicArgs>)];
+      char dummy10[sizeof (std::shared_ptr<ListMnemonicArgs>)];
 
       // ListStatement
-      char dummy10[sizeof (std::shared_ptr<ListStatement>)];
+      char dummy11[sizeof (std::shared_ptr<ListStatement>)];
 
       // MemoryAddr
-      char dummy11[sizeof (std::shared_ptr<MemoryAddr>)];
+      char dummy12[sizeof (std::shared_ptr<MemoryAddr>)];
 
       // MnemonicArgs
-      char dummy12[sizeof (std::shared_ptr<MnemonicArgs>)];
+      char dummy13[sizeof (std::shared_ptr<MnemonicArgs>)];
 
       // Opcode
-      char dummy13[sizeof (std::shared_ptr<Opcode>)];
+      char dummy14[sizeof (std::shared_ptr<Opcode>)];
 
       // Program
-      char dummy14[sizeof (std::shared_ptr<Program>)];
+      char dummy15[sizeof (std::shared_ptr<Program>)];
 
       // Statement
-      char dummy15[sizeof (std::shared_ptr<Statement>)];
+      char dummy16[sizeof (std::shared_ptr<Statement>)];
 
       // T_Hex
       // T_Id
       // T_Label
       // _STRING_
-      char dummy16[sizeof (std::string)];
+      char dummy17[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -839,7 +842,8 @@ namespace nask_ {
     T_Id = 608,                    // T_Id
     T_Label = 609,                 // T_Label
     _STRING_ = 610,                // _STRING_
-    _INTEGER_ = 611                // _INTEGER_
+    _CHAR_ = 611,                  // _CHAR_
+    _INTEGER_ = 612                // _INTEGER_
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -856,7 +860,7 @@ namespace nask_ {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 357, ///< Number of tokens.
+        YYNTOKENS = 358, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -1214,24 +1218,25 @@ namespace nask_ {
         S_T_Id = 353,                            // T_Id
         S_T_Label = 354,                         // T_Label
         S__STRING_ = 355,                        // _STRING_
-        S__INTEGER_ = 356,                       // _INTEGER_
-        S_YYACCEPT = 357,                        // $accept
-        S_Program = 358,                         // Program
-        S_ListStatement = 359,                   // ListStatement
-        S_Statement = 360,                       // Statement
-        S_ListFactor = 361,                      // ListFactor
-        S_ListMnemonicArgs = 362,                // ListMnemonicArgs
-        S_MnemonicArgs = 363,                    // MnemonicArgs
-        S_Exp = 364,                             // Exp
-        S_Exp1 = 365,                            // Exp1
-        S_Exp2 = 366,                            // Exp2
-        S_MemoryAddr = 367,                      // MemoryAddr
-        S_IndexExp = 368,                        // IndexExp
-        S_Factor = 369,                          // Factor
-        S_ConfigType = 370,                      // ConfigType
-        S_DataType = 371,                        // DataType
-        S_JumpDir = 372,                         // JumpDir
-        S_Opcode = 373                           // Opcode
+        S__CHAR_ = 356,                          // _CHAR_
+        S__INTEGER_ = 357,                       // _INTEGER_
+        S_YYACCEPT = 358,                        // $accept
+        S_Program = 359,                         // Program
+        S_ListStatement = 360,                   // ListStatement
+        S_Statement = 361,                       // Statement
+        S_ListFactor = 362,                      // ListFactor
+        S_ListMnemonicArgs = 363,                // ListMnemonicArgs
+        S_MnemonicArgs = 364,                    // MnemonicArgs
+        S_Exp = 365,                             // Exp
+        S_Exp1 = 366,                            // Exp1
+        S_Exp2 = 367,                            // Exp2
+        S_MemoryAddr = 368,                      // MemoryAddr
+        S_IndexExp = 369,                        // IndexExp
+        S_Factor = 370,                          // Factor
+        S_ConfigType = 371,                      // ConfigType
+        S_DataType = 372,                        // DataType
+        S_JumpDir = 373,                         // JumpDir
+        S_Opcode = 374                           // Opcode
       };
     };
 
@@ -1268,6 +1273,10 @@ namespace nask_ {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S__CHAR_: // _CHAR_
+        value.move< char > (std::move (that.value));
+        break;
+
       case symbol_kind::S__INTEGER_: // _INTEGER_
         value.move< int > (std::move (that.value));
         break;
@@ -1356,6 +1365,20 @@ namespace nask_ {
 #else
       basic_symbol (typename Base::kind_type t, const location_type& l)
         : Base (t)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, char&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const char& v, const location_type& l)
+        : Base (t)
+        , value (v)
         , location (l)
       {}
 #endif
@@ -1608,6 +1631,10 @@ namespace nask_ {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S__CHAR_: // _CHAR_
+        value.template destroy< char > ();
+        break;
+
       case symbol_kind::S__INTEGER_: // _INTEGER_
         value.template destroy< int > ();
         break;
@@ -1774,6 +1801,14 @@ switch (yykind)
 #else
       symbol_type (int tok, const location_type& l)
         : super_type (token_kind_type (tok), l)
+#endif
+      {}
+#if 201103L <= YY_CPLUSPLUS
+      symbol_type (int tok, char v, location_type l)
+        : super_type (token_kind_type (tok), std::move (v), std::move (l))
+#else
+      symbol_type (int tok, const char& v, const location_type& l)
+        : super_type (token_kind_type (tok), v, l)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
@@ -7186,6 +7221,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make__CHAR_ (char v, location_type l)
+      {
+        return symbol_type (token::_CHAR_, std::move (v), std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make__CHAR_ (const char& v, const location_type& l)
+      {
+        return symbol_type (token::_CHAR_, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make__INTEGER_ (int v, location_type l)
       {
         return symbol_type (token::_INTEGER_, std::move (v), std::move (l));
@@ -7502,9 +7552,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 729,     ///< Last index in yytable_.
+      yylast_ = 755,     ///< Last index in yytable_.
       yynnts_ = 17,  ///< Number of nonterminal symbols.
-      yyfinal_ = 347 ///< Termination state number.
+      yyfinal_ = 348 ///< Termination state number.
     };
 
 
@@ -7516,7 +7566,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7520 "bison.hh"
+#line 7570 "bison.hh"
 
 
 

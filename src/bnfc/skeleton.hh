@@ -56,6 +56,7 @@ public:
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
   void visitOptiConfig(OptiConfig *p);

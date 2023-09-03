@@ -399,6 +399,7 @@
 %token<std::string> T_Id          /* Id */
 %token<std::string> T_Label       /* Label */
 %token<std::string> _STRING_
+%token<char>        _CHAR_
 %token<int>         _INTEGER_
 
 
@@ -480,6 +481,7 @@ Factor : _INTEGER_ { $$ = std::make_shared<NumberFactor>($1); $$->line_number = 
   | T_Hex { $$ = std::make_shared<HexFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
   | T_Id { $$ = std::make_shared<IdentFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
   | _STRING_ { $$ = std::make_shared<StringFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
+  | _CHAR_ { $$ = std::make_shared<CharFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
 ;
 ConfigType : _KW_BITS { $$ = std::make_shared<BitsConfig>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.configtype_ = $$; }
   | _KW_INSTRSET { $$ = std::make_shared<InstConfig>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.configtype_ = $$; }
