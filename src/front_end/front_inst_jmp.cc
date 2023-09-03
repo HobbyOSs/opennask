@@ -163,7 +163,6 @@ template void FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJz>(std::vector<TPa
 void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
-    using Attr = TParaToken::TIdentiferAttribute;
 
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),

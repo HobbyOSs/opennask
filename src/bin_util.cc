@@ -20,6 +20,28 @@ const std::array<uint8_t, 4> BinUtil::LongAsDword(const long dword) {
     };
 }
 
+std::string BinUtil::to_upper(const std::string &in) const {
+    std::string s(in);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::toupper(c);
+                   });
+    return s;
+}
+
+std::string BinUtil::to_lower(const std::string &in) const {
+    std::string s(in);
+    std::transform(s.begin(),
+                   s.end(),
+                   s.begin(),
+                   [](unsigned char const &c) {
+                       return ::tolower(c);
+                   });
+    return s;
+}
+
 void BinUtil::put4b(std::string& output, size_t from, const int value) {
     output[from+0] =  value & 0xff;
     output[from+1] = (value >> 8)  & 0xff;

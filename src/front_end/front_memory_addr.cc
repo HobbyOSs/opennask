@@ -17,7 +17,7 @@ using namespace matchit;
 
 void FrontEnd::visitDirect(Direct *direct) {
 
-    if (direct->factor_) direct->factor_->accept(this);
+    if (direct->exp_) direct->exp_->accept(this);
     using namespace asmjit;
 
     TParaToken t = this->ctx.top();
@@ -75,7 +75,7 @@ void FrontEnd::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed) {
     left.MustBe(TParaToken::ttIdentifier);
     this->ctx.pop();
 
-    visitInteger(based_or_indexed->integer_);
+    if (based_or_indexed->exp_) based_or_indexed->exp_->accept(this);
     TParaToken right = this->ctx.top();
     right.MustBe(TParaToken::ttInteger);
     this->ctx.pop();
@@ -118,30 +118,34 @@ void FrontEnd::visitBasedIndexedDispScale(BasedIndexedDispScale *p) {};
 void FrontEnd::visitIndexScaleExp(IndexScaleExp *p) {};
 
 void FrontEnd::visitDatatypeExp(DatatypeExp *datatype_exp) {
+    if (datatype_exp->datatype_) datatype_exp->datatype_->accept(this);
+    if (datatype_exp->memoryaddr_) datatype_exp->memoryaddr_->accept(this);
 
-    // DataType "[" Exp "]" ; という間接アドレス表現を読み取る
-    // left "[" right "]" ; と変数をおいて、属性をTParaTokenに設定する
-    if (datatype_exp->datatype_) {
-        datatype_exp->datatype_->accept(this);
-    }
-    TParaToken left = this->ctx.top();
-    left.MustBe(TParaToken::ttKeyword);
+    // DataType "[" Exp "]" ; というメモリーアドレス表現を読み取る
+    // メモリーアドレス表現に従ってasmjit::Memに {byte,word,dword}_ptr を設定しないといけない
+    TParaToken memory_addr = this->ctx.top();
+    this->ctx.pop();
+    TParaToken data_type = this->ctx.top();
     this->ctx.pop();
 
-    if (datatype_exp->memoryaddr_) {
-        datatype_exp->memoryaddr_->accept(this);
-    }
-    TParaToken right = this->ctx.top();
-    this->ctx.pop();
+    using namespace matchit;
 
-    match(left.AsString())(
-        pattern | "BYTE" = [&]{ right.SetAttribute(TParaToken::ttMem8); },
-        pattern | "WORD" = [&]{ right.SetAttribute(TParaToken::ttMem16); },
-        pattern | "DWORD" = [&]{ right.SetAttribute(TParaToken::ttMem32); },
+    match(data_type.AsString())(
+        pattern | "BYTE"  = [&]{
+            memory_addr.AsMem().setSize(1);
+            memory_addr.SetAttribute(TParaToken::ttMem8);
+        },
+        pattern | "WORD"  = [&]{
+            memory_addr.AsMem().setSize(2);
+            memory_addr.SetAttribute(TParaToken::ttMem16);
+        },
+        pattern | "DWORD" = [&]{
+            memory_addr.AsMem().setSize(4);
+            memory_addr.SetAttribute(TParaToken::ttMem32);
+        },
         pattern | _ = [&] {
-            throw std::runtime_error("[pass2] datatype, Not implemented or not matched!!!");
+            throw std::runtime_error("[pass2] data type is invalid");
         }
     );
-
-    this->ctx.push(right);
+    this->ctx.push(memory_addr);
 }

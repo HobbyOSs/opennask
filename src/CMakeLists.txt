@@ -67,6 +67,7 @@ set(nask_parse_bnfc_SRCS
 set(nask_parse_front_SRCS
   front_end/front_config.cc
   front_end/front_inst.cc
+  front_end/front_inst_add.cc
   front_end/front_inst_jmp.cc
   front_end/front_inst_no_param.cc
   front_end/front_inst_pseudo.cc
@@ -74,6 +75,7 @@ set(nask_parse_front_SRCS
   front_end/front_parse.cc)
 
 set(nask_parse_pass1_SRCS
+  pass1/pass1_inst_add.cc
   pass1/pass1_inst_jmp.cc
   pass1/pass1_inst_no_param.cc
   pass1/pass1_strategy.cc)

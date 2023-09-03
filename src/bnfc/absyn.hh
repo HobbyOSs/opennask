@@ -1124,10 +1124,10 @@ public:
 class Direct : public MemoryAddr
 {
 public:
-    std::shared_ptr<Factor> factor_;
+    std::shared_ptr<Exp> exp_;
 
-    Direct(std::shared_ptr<Factor> p1)
-    : MemoryAddr(), factor_{p1}
+    Direct(std::shared_ptr<Exp> p1)
+    : MemoryAddr(), exp_{p1}
     {};
 
 
@@ -1139,10 +1139,10 @@ class BasedOrIndexed : public MemoryAddr
 {
 public:
     Id id_;
-    Integer integer_;
+    std::shared_ptr<Exp> exp_;
 
-    BasedOrIndexed(Id p1, Integer p2)
-    : MemoryAddr(), id_{p1}, integer_{p2}
+    BasedOrIndexed(Id p1, std::shared_ptr<Exp> p2)
+    : MemoryAddr(), id_{p1}, exp_{p2}
     {};
 
 

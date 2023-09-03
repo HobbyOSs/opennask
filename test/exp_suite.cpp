@@ -193,11 +193,8 @@ INSTANTIATE_TEST_SUITE_P(ExpSuite, MemoryAddrExpTest,
         MemoryAddrExpParam("[SI + 3]"     , asmjit::x86::si , 3),
         MemoryAddrExpParam("[DI + 4]"     , asmjit::x86::di , 4),
         MemoryAddrExpParam("[EBX + 16]"   , asmjit::x86::ebx, 16),
-        MemoryAddrExpParam("[ESP + 20]"   , asmjit::x86::esp, 20)
-
-
-
-
+        MemoryAddrExpParam("[ESP + 20]"   , asmjit::x86::esp, 20),
+        MemoryAddrExpParam("[ESP+12+4]"   , asmjit::x86::esp, 16)
     )
 );
 

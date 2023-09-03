@@ -84,10 +84,7 @@ public:
 
     // opcodeの処理
     void processALIGNB(std::vector<TParaToken>& memonic_args);
-    void processADD(std::vector<TParaToken>& memonic_args);
-    void processAND(std::vector<TParaToken>& memonic_args);
     void processCALL(std::vector<TParaToken>& memonic_args);
-    void processCMP(std::vector<TParaToken>& memonic_args);
     void processDB(std::vector<TParaToken>& memonic_args);
     void processDW(std::vector<TParaToken>& memonic_args);
     void processDD(std::vector<TParaToken>& memonic_args);
@@ -98,7 +95,6 @@ public:
     void processLIDT(std::vector<TParaToken>& memonic_args);
     void processLGDT(std::vector<TParaToken>& memonic_args);
     void processMOV(std::vector<TParaToken>& memonic_args);
-    void processOR(std::vector<TParaToken>& memonic_args);
     void processORG(std::vector<TParaToken>& memonic_args);
     void processOUT(std::vector<TParaToken>& memonic_args);
     void processPOP(std::vector<TParaToken>& memonic_args);
@@ -106,16 +102,18 @@ public:
     void processRESB(std::vector<TParaToken>& memonic_args);
     void processRET(std::vector<TParaToken>& memonic_args);
     void processSHR(std::vector<TParaToken>& memonic_args);
-    void processSUB(std::vector<TParaToken>& memonic_args);
 
     // 引数なしオペコードはtemplate化
     template <asmjit::x86::Inst::Id id>
     void processEmit();
     template <asmjit::x86::Inst::Id id>
-    void processEmitJcc(std::vector<TParaToken>& memonic_args);
+    void processEmitJcc(std::vector<TParaToken>&);
+    template <asmjit::x86::Inst::Id id, uint8_t>
+    void processEmitAdd(std::vector<TParaToken>&);
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitDatatypeExp(DatatypeExp *p) override;
     void visitSegmentOffsetExp(SegmentOffsetExp *p) override;
     void visitDirect(Direct *direct) override;
     void visitBasedOrIndexed(BasedOrIndexed *p) override;
@@ -125,7 +123,6 @@ public:
     void visitBasedIndexedDispScale(BasedIndexedDispScale *p) override;
     void visitIndexScaleExp(IndexScaleExp *p) override;
 
-    void visitDatatypeExp(DatatypeExp *p) override;
     void visitByteDataType(ByteDataType *p) override;
     void visitWordDataType(WordDataType *p) override;
     void visitDwordDataType(DwordDataType *p) override;

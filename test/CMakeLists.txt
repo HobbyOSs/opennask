@@ -37,6 +37,7 @@ set(nask_parse_bnfc_SRCS
 set(nask_parse_front_SRCS
   ../src/front_end/front_config.cc
   ../src/front_end/front_inst.cc
+  ../src/front_end/front_inst_add.cc
   ../src/front_end/front_inst_jmp.cc
   ../src/front_end/front_inst_no_param.cc
   ../src/front_end/front_inst_pseudo.cc
@@ -44,6 +45,7 @@ set(nask_parse_front_SRCS
   ../src/front_end/front_parse.cc)
 
 set(nask_parse_pass1_SRCS
+  ../src/pass1/pass1_inst_add.cc
   ../src/pass1/pass1_inst_jmp.cc
   ../src/pass1/pass1_inst_no_param.cc
   ../src/pass1/pass1_strategy.cc)
@@ -291,3 +293,23 @@ endif()
 
 target_compile_features(day06test PRIVATE cxx_std_17)
 gtest_discover_tests(day06test)
+
+# `ctest -R day09`
+set(day09test_SRCS
+  day09test.cpp)
+
+add_executable(day09test ${day09test_SRCS})
+target_link_libraries(day09test PRIVATE
+  nask_parse_objects
+  parasol
+  spdlog::spdlog
+  Threads::Threads
+  asmjit::asmjit
+  GTest::gtest_main)
+if(WITH_BACKWARDS_CPP)
+  target_link_libraries(day09test PUBLIC -lbfd)
+  target_link_libraries(day09test PUBLIC backward)
+endif()
+
+target_compile_features(day09test PRIVATE cxx_std_17)
+gtest_discover_tests(day09test)

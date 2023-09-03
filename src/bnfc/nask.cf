@@ -36,8 +36,8 @@ DatatypeExp.             Exp   ::= DataType MemoryAddr ;
 SegmentOffsetExp.        Exp   ::= DataType Exp ":" Exp ;
 MemoryAddrExp.           Exp   ::= MemoryAddr ;
 
-Direct.                  MemoryAddr ::= "[" Factor "]" ;
-BasedOrIndexed.          MemoryAddr ::= "[" Id "+" Integer "]" ;
+Direct.                  MemoryAddr ::= "[" Exp "]" ;
+BasedOrIndexed.          MemoryAddr ::= "[" Id "+" Exp "]" ;
 Indexed.                 MemoryAddr ::= "[" IndexExp "+" Integer "]" ;
 BasedIndexed.            MemoryAddr ::= "[" Id "+" Id "]" ;
 BasedIndexedDisp.        MemoryAddr ::= "[" Id "+" Id "+" Integer "]" ;

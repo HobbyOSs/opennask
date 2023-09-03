@@ -152,11 +152,12 @@ void FrontEnd::define_funcs() {
         std::make_pair("OpcodesJS", std::bind(&FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJs>, this, _1)),
         std::make_pair("OpcodesJZ", std::bind(&FrontEnd::processEmitJcc<asmjit::x86::Inst::kIdJz>, this, _1)),
 
-        std::make_pair("OpcodesADD", std::bind(&FrontEnd::processADD, this, _1)),
+        std::make_pair("OpcodesADC", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdAdc, 0x15>, this, _1)),
+        std::make_pair("OpcodesADD", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdAdd, 0x05>, this, _1)),
         std::make_pair("OpcodesALIGNB", std::bind(&FrontEnd::processALIGNB, this, _1)),
-        std::make_pair("OpcodesAND", std::bind(&FrontEnd::processAND, this, _1)),
+        std::make_pair("OpcodesAND", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdAnd, 0x25>, this, _1)),
         std::make_pair("OpcodesCALL", std::bind(&FrontEnd::processCALL, this, _1)),
-        std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processCMP, this, _1)),
+        std::make_pair("OpcodesCMP", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdCmp, 0x3d>, this, _1)),
         std::make_pair("OpcodesDB", std::bind(&FrontEnd::processDB, this, _1)),
         std::make_pair("OpcodesDW", std::bind(&FrontEnd::processDW, this, _1)),
         std::make_pair("OpcodesDD", std::bind(&FrontEnd::processDD, this, _1)),
@@ -167,15 +168,17 @@ void FrontEnd::define_funcs() {
         std::make_pair("OpcodesLIDT", std::bind(&FrontEnd::processLIDT, this, _1)),
         std::make_pair("OpcodesLGDT", std::bind(&FrontEnd::processLGDT, this, _1)),
         std::make_pair("OpcodesMOV", std::bind(&FrontEnd::processMOV, this, _1)),
-        std::make_pair("OpcodesOR", std::bind(&FrontEnd::processOR, this, _1)),
+        std::make_pair("OpcodesOR", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdOr, 0x0d>, this, _1)),
         std::make_pair("OpcodesORG", std::bind(&FrontEnd::processORG, this, _1)),
         std::make_pair("OpcodesOUT", std::bind(&FrontEnd::processOUT, this, _1)),
         std::make_pair("OpcodesPOP", std::bind(&FrontEnd::processPOP, this, _1)),
         std::make_pair("OpcodesPUSH", std::bind(&FrontEnd::processPUSH, this, _1)),
         std::make_pair("OpcodesRET", std::bind(&FrontEnd::processRET, this, _1)),
         std::make_pair("OpcodesRESB", std::bind(&FrontEnd::processRESB, this, _1)),
+        std::make_pair("OpcodesSBB", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdSbb, 0x1d>, this, _1)),
         std::make_pair("OpcodesSHR", std::bind(&FrontEnd::processSHR, this, _1)),
-        std::make_pair("OpcodesSUB", std::bind(&FrontEnd::processSUB, this, _1))
+        std::make_pair("OpcodesSUB", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdSub, 0x2d>, this, _1)),
+        std::make_pair("OpcodesXOR", std::bind(&FrontEnd::processEmitAdd<asmjit::x86::Inst::kIdXor, 0x35>, this, _1))
     };
 };
 
@@ -366,10 +369,14 @@ void FrontEnd::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt){
     log()->debug("[pass2] opcode={} mnemonic_args=[{}]", opcode, this->join(debug_args, ","));
 
     FuncsType::iterator it = funcs.find(opcode);
-    if (it != funcs.end()) {
-        it->second(mnemonic_args);
-    } else {
+    if (it == funcs.end()) {
         throw std::runtime_error("[pass2] " + opcode + " is not implemented");
+    }
+
+    try {
+        it->second(mnemonic_args);
+    } catch (const std::bad_alloc& e) {
+        log()->error("[pass2] std::bad_alloc例外がスローされました: {}", e.what());
     }
 }
 

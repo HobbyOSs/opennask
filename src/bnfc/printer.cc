@@ -419,7 +419,7 @@ void PrintAbsyn::visitDirect(Direct* p)
   if (oldi > 0) render(_L_PAREN);
 
   render('[');
-  _i_ = 0; p->factor_->accept(this);
+  _i_ = 0; p->exp_->accept(this);
   render(']');
 
   if (oldi > 0) render(_R_PAREN);
@@ -434,7 +434,7 @@ void PrintAbsyn::visitBasedOrIndexed(BasedOrIndexed* p)
   render('[');
   visitId(p->id_);
   render('+');
-  visitInteger(p->integer_);
+  _i_ = 0; p->exp_->accept(this);
   render(']');
 
   if (oldi > 0) render(_R_PAREN);
@@ -4534,7 +4534,7 @@ void ShowAbsyn::visitDirect(Direct* p)
   bufAppend("Direct");
   bufAppend(' ');
   bufAppend('[');
-  if (p->factor_)  p->factor_->accept(this);
+  if (p->exp_)  p->exp_->accept(this);
   bufAppend(']');
   bufAppend(' ');
   bufAppend(')');
@@ -4546,7 +4546,10 @@ void ShowAbsyn::visitBasedOrIndexed(BasedOrIndexed* p)
   bufAppend("BasedOrIndexed");
   bufAppend(' ');
   visitId(p->id_);  bufAppend(' ');
-  visitInteger(p->integer_);  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
   bufAppend(')');
 }
 

@@ -172,7 +172,7 @@ void Skeleton::visitDirect(Direct *direct)
 {
   /* Code For Direct Goes Here */
 
-  if (direct->factor_) direct->factor_->accept(this);
+  if (direct->exp_) direct->exp_->accept(this);
 
 }
 
@@ -181,7 +181,7 @@ void Skeleton::visitBasedOrIndexed(BasedOrIndexed *based_or_indexed)
   /* Code For BasedOrIndexed Goes Here */
 
   visitId(based_or_indexed->id_);
-  visitInteger(based_or_indexed->integer_);
+  if (based_or_indexed->exp_) based_or_indexed->exp_->accept(this);
 
 }
 
