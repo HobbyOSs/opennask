@@ -59,12 +59,17 @@ class PrintAbsyn : public Visitor
   void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitSregFrameExp(SregFrameExp *p);
+  void visitJmpSegmentOffsetExp(JmpSegmentOffsetExp *p);
+  void visitJmpSregFrameExp(JmpSregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
   void visitImmExp(ImmExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
+  void visitSregDirect(SregDirect *p);
+  void visitSregBasedOrIndexed(SregBasedOrIndexed *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
@@ -92,6 +97,10 @@ class PrintAbsyn : public Visitor
   void visitByteDataType(ByteDataType *p);
   void visitWordDataType(WordDataType *p);
   void visitDwordDataType(DwordDataType *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitOpcode(Opcode *p); /* abstract class */
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);
@@ -507,12 +516,17 @@ class ShowAbsyn : public Visitor
   void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitSregFrameExp(SregFrameExp *p);
+  void visitJmpSegmentOffsetExp(JmpSegmentOffsetExp *p);
+  void visitJmpSregFrameExp(JmpSregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
   void visitImmExp(ImmExp *p);
   void visitMemoryAddr(MemoryAddr *p); /* abstract class */
+  void visitSregDirect(SregDirect *p);
+  void visitSregBasedOrIndexed(SregBasedOrIndexed *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
@@ -540,6 +554,10 @@ class ShowAbsyn : public Visitor
   void visitByteDataType(ByteDataType *p);
   void visitWordDataType(WordDataType *p);
   void visitDwordDataType(DwordDataType *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitOpcode(Opcode *p); /* abstract class */
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);

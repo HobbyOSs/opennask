@@ -23,6 +23,7 @@ IndexExp* pIndexExp(std::istream &stream);
 Factor* pFactor(std::istream &stream);
 ConfigType* pConfigType(std::istream &stream);
 DataType* pDataType(std::istream &stream);
+JumpDir* pJumpDir(std::istream &stream);
 Opcode* pOpcode(std::istream &stream);
 
 

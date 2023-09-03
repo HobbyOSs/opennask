@@ -194,6 +194,14 @@ NaskDriver::pDataType(std::istream &stream)
     return this->datatype_;
 }
 
+std::shared_ptr<JumpDir>
+NaskDriver::pJumpDir(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->jumpdir_;
+}
+
 std::shared_ptr<Opcode>
 NaskDriver::pOpcode(std::istream &stream)
 {

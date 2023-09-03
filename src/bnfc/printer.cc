@@ -376,11 +376,51 @@ void PrintAbsyn::visitSregFrameExp(SregFrameExp* p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitJmpSegmentOffsetExp(JmpSegmentOffsetExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->jumpdir_->accept(this);
+  _i_ = 0; p->exp_1->accept(this);
+  render(':');
+  _i_ = 0; p->exp_2->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitJmpSregFrameExp(JmpSregFrameExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->jumpdir_->accept(this);
+  visitId(p->id_);
+  render(':');
+  _i_ = 0; p->exp_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
+  _i_ = 0; p->memoryaddr_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitJmpMemoryAddrExp(JmpMemoryAddrExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->jumpdir_->accept(this);
   _i_ = 0; p->memoryaddr_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
@@ -438,6 +478,38 @@ void PrintAbsyn::visitImmExp(ImmExp* p)
 }
 
 void PrintAbsyn::visitMemoryAddr(MemoryAddr *p) {} //abstract class
+
+void PrintAbsyn::visitSregDirect(SregDirect* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  visitId(p->id_);
+  render(':');
+  _i_ = 0; p->exp_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitSregBasedOrIndexed(SregBasedOrIndexed* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render('[');
+  visitId(p->id_1);
+  render(':');
+  visitId(p->id_2);
+  render('+');
+  _i_ = 0; p->exp_->accept(this);
+  render(']');
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
 
 void PrintAbsyn::visitDirect(Direct* p)
 {
@@ -723,6 +795,41 @@ void PrintAbsyn::visitDwordDataType(DwordDataType* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("DWORD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitJumpDir(JumpDir *p) {} //abstract class
+
+void PrintAbsyn::visitShortJumpDir(ShortJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SHORT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitNearJumpDir(NearJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("NEAR");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitFarJumpDir(FarJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FAR");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4518,10 +4625,56 @@ void ShowAbsyn::visitSregFrameExp(SregFrameExp* p)
   bufAppend(')');
 }
 
+void ShowAbsyn::visitJmpSegmentOffsetExp(JmpSegmentOffsetExp* p)
+{
+  bufAppend('(');
+  bufAppend("JmpSegmentOffsetExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->jumpdir_)  p->jumpdir_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  p->exp_1->accept(this);
+  bufAppend(' ');
+  p->exp_2->accept(this);
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitJmpSregFrameExp(JmpSregFrameExp* p)
+{
+  bufAppend('(');
+  bufAppend("JmpSregFrameExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->jumpdir_)  p->jumpdir_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
 void ShowAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
 {
   bufAppend('(');
   bufAppend("MemoryAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitJmpMemoryAddrExp(JmpMemoryAddrExp* p)
+{
+  bufAppend('(');
+  bufAppend("JmpMemoryAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->jumpdir_)  p->jumpdir_->accept(this);
+  bufAppend(']');
   bufAppend(' ');
   bufAppend('[');
   if (p->memoryaddr_)  p->memoryaddr_->accept(this);
@@ -4576,6 +4729,33 @@ void ShowAbsyn::visitImmExp(ImmExp* p)
 
 
 void ShowAbsyn::visitMemoryAddr(MemoryAddr *p) {} //abstract class
+
+void ShowAbsyn::visitSregDirect(SregDirect* p)
+{
+  bufAppend('(');
+  bufAppend("SregDirect");
+  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitSregBasedOrIndexed(SregBasedOrIndexed* p)
+{
+  bufAppend('(');
+  bufAppend("SregBasedOrIndexed");
+  bufAppend(' ');
+  visitId(p->id_1);  bufAppend(' ');
+  visitId(p->id_2);  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend(')');
+}
 
 void ShowAbsyn::visitDirect(Direct* p)
 {
@@ -4757,6 +4937,23 @@ void ShowAbsyn::visitWordDataType(WordDataType* p)
 void ShowAbsyn::visitDwordDataType(DwordDataType* p)
 {
   bufAppend("DwordDataType");
+}
+
+void ShowAbsyn::visitJumpDir(JumpDir *p) {} //abstract class
+
+void ShowAbsyn::visitShortJumpDir(ShortJumpDir* p)
+{
+  bufAppend("ShortJumpDir");
+}
+
+void ShowAbsyn::visitNearJumpDir(NearJumpDir* p)
+{
+  bufAppend("NearJumpDir");
+}
+
+void ShowAbsyn::visitFarJumpDir(FarJumpDir* p)
+{
+  bufAppend("FarJumpDir");
 }
 
 void ShowAbsyn::visitOpcode(Opcode *p) {} //abstract class

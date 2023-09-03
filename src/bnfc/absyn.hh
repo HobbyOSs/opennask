@@ -34,6 +34,7 @@ class IndexExp;
 class Factor;
 class ConfigType;
 class DataType;
+class JumpDir;
 class Opcode;
 class Prog;
 class LabelStmt;
@@ -53,7 +54,12 @@ class DatatypeExp;
 class SegmentOffsetDataExp;
 class SegmentOffsetExp;
 class SregFrameExp;
+class JmpSegmentOffsetExp;
+class JmpSregFrameExp;
 class MemoryAddrExp;
+class JmpMemoryAddrExp;
+class SregDirect;
+class SregBasedOrIndexed;
 class Direct;
 class BasedOrIndexed;
 class Indexed;
@@ -77,6 +83,9 @@ class FileConfig;
 class ByteDataType;
 class WordDataType;
 class DwordDataType;
+class ShortJumpDir;
+class NearJumpDir;
+class FarJumpDir;
 class OpcodesAAA;
 class OpcodesAAD;
 class OpcodesAAS;
@@ -415,6 +424,7 @@ public:
     virtual void visitFactor(Factor *p) = 0;
     virtual void visitConfigType(ConfigType *p) = 0;
     virtual void visitDataType(DataType *p) = 0;
+    virtual void visitJumpDir(JumpDir *p) = 0;
     virtual void visitOpcode(Opcode *p) = 0;
     virtual void visitProg(Prog *p) = 0;
     virtual void visitLabelStmt(LabelStmt *p) = 0;
@@ -434,7 +444,12 @@ public:
     virtual void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p) = 0;
     virtual void visitSegmentOffsetExp(SegmentOffsetExp *p) = 0;
     virtual void visitSregFrameExp(SregFrameExp *p) = 0;
+    virtual void visitJmpSegmentOffsetExp(JmpSegmentOffsetExp *p) = 0;
+    virtual void visitJmpSregFrameExp(JmpSregFrameExp *p) = 0;
     virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
+    virtual void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p) = 0;
+    virtual void visitSregDirect(SregDirect *p) = 0;
+    virtual void visitSregBasedOrIndexed(SregBasedOrIndexed *p) = 0;
     virtual void visitDirect(Direct *p) = 0;
     virtual void visitBasedOrIndexed(BasedOrIndexed *p) = 0;
     virtual void visitIndexed(Indexed *p) = 0;
@@ -458,6 +473,9 @@ public:
     virtual void visitByteDataType(ByteDataType *p) = 0;
     virtual void visitWordDataType(WordDataType *p) = 0;
     virtual void visitDwordDataType(DwordDataType *p) = 0;
+    virtual void visitShortJumpDir(ShortJumpDir *p) = 0;
+    virtual void visitNearJumpDir(NearJumpDir *p) = 0;
+    virtual void visitFarJumpDir(FarJumpDir *p) = 0;
     virtual void visitOpcodesAAA(OpcodesAAA *p) = 0;
     virtual void visitOpcodesAAD(OpcodesAAD *p) = 0;
     virtual void visitOpcodesAAS(OpcodesAAS *p) = 0;
@@ -867,6 +885,13 @@ public:
     int line_number, char_number;
 };
 
+class JumpDir : public Visitable
+{
+public:
+    virtual std::shared_ptr<JumpDir> clone() const = 0;
+    int line_number, char_number;
+};
+
 class Opcode : public Visitable
 {
 public:
@@ -1141,6 +1166,38 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
+class JmpSegmentOffsetExp : public Exp
+{
+public:
+    std::shared_ptr<JumpDir> jumpdir_;
+    std::shared_ptr<Exp> exp_1;
+    std::shared_ptr<Exp> exp_2;
+
+    JmpSegmentOffsetExp(std::shared_ptr<JumpDir> p1, std::shared_ptr<Exp> p2, std::shared_ptr<Exp> p3)
+    : Exp(), jumpdir_{p1}, exp_1{p2}, exp_2{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
+class JmpSregFrameExp : public Exp
+{
+public:
+    std::shared_ptr<JumpDir> jumpdir_;
+    Id id_;
+    std::shared_ptr<Exp> exp_;
+
+    JmpSregFrameExp(std::shared_ptr<JumpDir> p1, Id p2, std::shared_ptr<Exp> p3)
+    : Exp(), jumpdir_{p1}, id_{p2}, exp_{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
 class MemoryAddrExp : public Exp
 {
 public:
@@ -1153,6 +1210,52 @@ public:
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Exp>  clone() const;
+};
+
+class JmpMemoryAddrExp : public Exp
+{
+public:
+    std::shared_ptr<JumpDir> jumpdir_;
+    std::shared_ptr<MemoryAddr> memoryaddr_;
+
+    JmpMemoryAddrExp(std::shared_ptr<JumpDir> p1, std::shared_ptr<MemoryAddr> p2)
+    : Exp(), jumpdir_{p1}, memoryaddr_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
+class SregDirect : public MemoryAddr
+{
+public:
+    Id id_;
+    std::shared_ptr<Exp> exp_;
+
+    SregDirect(Id p1, std::shared_ptr<Exp> p2)
+    : MemoryAddr(), id_{p1}, exp_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
+};
+
+class SregBasedOrIndexed : public MemoryAddr
+{
+public:
+    Id id_1;
+    Id id_2;
+    std::shared_ptr<Exp> exp_;
+
+    SregBasedOrIndexed(Id p1, Id p2, std::shared_ptr<Exp> p3)
+    : MemoryAddr(), id_1{p1}, id_2{p2}, exp_{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<MemoryAddr>  clone() const;
 };
 
 class Direct : public MemoryAddr
@@ -1435,6 +1538,36 @@ public:
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<DataType>  clone() const;
+};
+
+class ShortJumpDir : public JumpDir
+{
+public:
+
+    ShortJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
+};
+
+class NearJumpDir : public JumpDir
+{
+public:
+
+    NearJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
+};
+
+class FarJumpDir : public JumpDir
+{
+public:
+
+    FarJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
 };
 
 class OpcodesAAA : public Opcode

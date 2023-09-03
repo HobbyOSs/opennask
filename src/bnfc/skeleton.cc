@@ -19,6 +19,7 @@ void Skeleton::visitIndexExp(IndexExp *t) {} //abstract class
 void Skeleton::visitFactor(Factor *t) {} //abstract class
 void Skeleton::visitConfigType(ConfigType *t) {} //abstract class
 void Skeleton::visitDataType(DataType *t) {} //abstract class
+void Skeleton::visitJumpDir(JumpDir *t) {} //abstract class
 void Skeleton::visitOpcode(Opcode *t) {} //abstract class
 
 void Skeleton::visitProg(Prog *prog)
@@ -178,11 +179,59 @@ void Skeleton::visitSregFrameExp(SregFrameExp *sreg_frame_exp)
 
 }
 
+void Skeleton::visitJmpSegmentOffsetExp(JmpSegmentOffsetExp *jmp_segment_offset_exp)
+{
+  /* Code For JmpSegmentOffsetExp Goes Here */
+
+  if (jmp_segment_offset_exp->jumpdir_) jmp_segment_offset_exp->jumpdir_->accept(this);
+  if (jmp_segment_offset_exp->exp_1) jmp_segment_offset_exp->exp_1->accept(this);
+  if (jmp_segment_offset_exp->exp_2) jmp_segment_offset_exp->exp_2->accept(this);
+
+}
+
+void Skeleton::visitJmpSregFrameExp(JmpSregFrameExp *jmp_sreg_frame_exp)
+{
+  /* Code For JmpSregFrameExp Goes Here */
+
+  if (jmp_sreg_frame_exp->jumpdir_) jmp_sreg_frame_exp->jumpdir_->accept(this);
+  visitId(jmp_sreg_frame_exp->id_);
+  if (jmp_sreg_frame_exp->exp_) jmp_sreg_frame_exp->exp_->accept(this);
+
+}
+
 void Skeleton::visitMemoryAddrExp(MemoryAddrExp *memory_addr_exp)
 {
   /* Code For MemoryAddrExp Goes Here */
 
   if (memory_addr_exp->memoryaddr_) memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp)
+{
+  /* Code For JmpMemoryAddrExp Goes Here */
+
+  if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
+  if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitSregDirect(SregDirect *sreg_direct)
+{
+  /* Code For SregDirect Goes Here */
+
+  visitId(sreg_direct->id_);
+  if (sreg_direct->exp_) sreg_direct->exp_->accept(this);
+
+}
+
+void Skeleton::visitSregBasedOrIndexed(SregBasedOrIndexed *sreg_based_or_indexed)
+{
+  /* Code For SregBasedOrIndexed Goes Here */
+
+  visitId(sreg_based_or_indexed->id_1);
+  visitId(sreg_based_or_indexed->id_2);
+  if (sreg_based_or_indexed->exp_) sreg_based_or_indexed->exp_->accept(this);
 
 }
 
@@ -362,6 +411,27 @@ void Skeleton::visitWordDataType(WordDataType *word_data_type)
 void Skeleton::visitDwordDataType(DwordDataType *dword_data_type)
 {
   /* Code For DwordDataType Goes Here */
+
+
+}
+
+void Skeleton::visitShortJumpDir(ShortJumpDir *short_jump_dir)
+{
+  /* Code For ShortJumpDir Goes Here */
+
+
+}
+
+void Skeleton::visitNearJumpDir(NearJumpDir *near_jump_dir)
+{
+  /* Code For NearJumpDir Goes Here */
+
+
+}
+
+void Skeleton::visitFarJumpDir(FarJumpDir *far_jump_dir)
+{
+  /* Code For FarJumpDir Goes Here */
 
 
 }

@@ -19,6 +19,7 @@ public:
   void visitFactor(Factor *p);
   void visitConfigType(ConfigType *p);
   void visitDataType(DataType *p);
+  void visitJumpDir(JumpDir *p);
   void visitOpcode(Opcode *p);
   void visitProg(Prog *p);
   void visitLabelStmt(LabelStmt *p);
@@ -38,7 +39,12 @@ public:
   void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitSregFrameExp(SregFrameExp *p);
+  void visitJmpSegmentOffsetExp(JmpSegmentOffsetExp *p);
+  void visitJmpSregFrameExp(JmpSregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
+  void visitSregDirect(SregDirect *p);
+  void visitSregBasedOrIndexed(SregBasedOrIndexed *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
@@ -62,6 +68,9 @@ public:
   void visitByteDataType(ByteDataType *p);
   void visitWordDataType(WordDataType *p);
   void visitDwordDataType(DwordDataType *p);
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitOpcodesAAA(OpcodesAAA *p);
   void visitOpcodesAAD(OpcodesAAD *p);
   void visitOpcodesAAS(OpcodesAAS *p);
