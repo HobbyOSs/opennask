@@ -202,6 +202,14 @@ NaskDriver::pJumpDir(std::istream &stream)
     return this->jumpdir_;
 }
 
+std::shared_ptr<OpcodeNoParam>
+NaskDriver::pOpcodeNoParam(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->opcodenoparam_;
+}
+
 std::shared_ptr<Opcode>
 NaskDriver::pOpcode(std::istream &stream)
 {

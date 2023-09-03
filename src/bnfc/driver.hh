@@ -38,6 +38,7 @@ public:
     std::shared_ptr<ConfigType> configtype_;
     std::shared_ptr<DataType> datatype_;
     std::shared_ptr<JumpDir> jumpdir_;
+    std::shared_ptr<OpcodeNoParam> opcodenoparam_;
     std::shared_ptr<Opcode> opcode_;
 
 
@@ -56,6 +57,7 @@ public:
     std::shared_ptr<ConfigType> pConfigType(std::istream &stream);
     std::shared_ptr<DataType> pDataType(std::istream &stream);
     std::shared_ptr<JumpDir> pJumpDir(std::istream &stream);
+    std::shared_ptr<OpcodeNoParam> pOpcodeNoParam(std::istream &stream);
     std::shared_ptr<Opcode> pOpcode(std::istream &stream);
 
 

@@ -429,17 +429,19 @@ namespace nask_ {
       // Opcode
       char dummy14[sizeof (std::shared_ptr<Opcode>)];
 
+      // OpcodeNoParam
+      char dummy15[sizeof (std::shared_ptr<OpcodeNoParam>)];
+
       // Program
-      char dummy15[sizeof (std::shared_ptr<Program>)];
+      char dummy16[sizeof (std::shared_ptr<Program>)];
 
       // Statement
-      char dummy16[sizeof (std::shared_ptr<Statement>)];
+      char dummy17[sizeof (std::shared_ptr<Statement>)];
 
       // T_Hex
       // T_Id
-      // T_Label
       // _STRING_
-      char dummy17[sizeof (std::string)];
+      char dummy18[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -840,10 +842,9 @@ namespace nask_ {
     _RBRACK = 606,                 // _RBRACK
     T_Hex = 607,                   // T_Hex
     T_Id = 608,                    // T_Id
-    T_Label = 609,                 // T_Label
-    _STRING_ = 610,                // _STRING_
-    _CHAR_ = 611,                  // _CHAR_
-    _INTEGER_ = 612                // _INTEGER_
+    _STRING_ = 609,                // _STRING_
+    _CHAR_ = 610,                  // _CHAR_
+    _INTEGER_ = 611                // _INTEGER_
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -860,7 +861,7 @@ namespace nask_ {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 358, ///< Number of tokens.
+        YYNTOKENS = 357, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -1216,26 +1217,26 @@ namespace nask_ {
         S__RBRACK = 351,                         // _RBRACK
         S_T_Hex = 352,                           // T_Hex
         S_T_Id = 353,                            // T_Id
-        S_T_Label = 354,                         // T_Label
-        S__STRING_ = 355,                        // _STRING_
-        S__CHAR_ = 356,                          // _CHAR_
-        S__INTEGER_ = 357,                       // _INTEGER_
-        S_YYACCEPT = 358,                        // $accept
-        S_Program = 359,                         // Program
-        S_ListStatement = 360,                   // ListStatement
-        S_Statement = 361,                       // Statement
-        S_ListFactor = 362,                      // ListFactor
-        S_ListMnemonicArgs = 363,                // ListMnemonicArgs
-        S_MnemonicArgs = 364,                    // MnemonicArgs
-        S_Exp = 365,                             // Exp
-        S_Exp1 = 366,                            // Exp1
-        S_Exp2 = 367,                            // Exp2
-        S_MemoryAddr = 368,                      // MemoryAddr
-        S_IndexExp = 369,                        // IndexExp
-        S_Factor = 370,                          // Factor
-        S_ConfigType = 371,                      // ConfigType
-        S_DataType = 372,                        // DataType
-        S_JumpDir = 373,                         // JumpDir
+        S__STRING_ = 354,                        // _STRING_
+        S__CHAR_ = 355,                          // _CHAR_
+        S__INTEGER_ = 356,                       // _INTEGER_
+        S_YYACCEPT = 357,                        // $accept
+        S_Program = 358,                         // Program
+        S_ListStatement = 359,                   // ListStatement
+        S_Statement = 360,                       // Statement
+        S_ListFactor = 361,                      // ListFactor
+        S_ListMnemonicArgs = 362,                // ListMnemonicArgs
+        S_MnemonicArgs = 363,                    // MnemonicArgs
+        S_Exp = 364,                             // Exp
+        S_Exp1 = 365,                            // Exp1
+        S_Exp2 = 366,                            // Exp2
+        S_MemoryAddr = 367,                      // MemoryAddr
+        S_IndexExp = 368,                        // IndexExp
+        S_Factor = 369,                          // Factor
+        S_ConfigType = 370,                      // ConfigType
+        S_DataType = 371,                        // DataType
+        S_JumpDir = 372,                         // JumpDir
+        S_OpcodeNoParam = 373,                   // OpcodeNoParam
         S_Opcode = 374                           // Opcode
       };
     };
@@ -1331,6 +1332,10 @@ namespace nask_ {
         value.move< std::shared_ptr<Opcode> > (std::move (that.value));
         break;
 
+      case symbol_kind::S_OpcodeNoParam: // OpcodeNoParam
+        value.move< std::shared_ptr<OpcodeNoParam> > (std::move (that.value));
+        break;
+
       case symbol_kind::S_Program: // Program
         value.move< std::shared_ptr<Program> > (std::move (that.value));
         break;
@@ -1341,7 +1346,6 @@ namespace nask_ {
 
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
-      case symbol_kind::S_T_Label: // T_Label
       case symbol_kind::S__STRING_: // _STRING_
         value.move< std::string > (std::move (that.value));
         break;
@@ -1566,6 +1570,20 @@ namespace nask_ {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<OpcodeNoParam>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<OpcodeNoParam>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, std::shared_ptr<Program>&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -1689,6 +1707,10 @@ switch (yykind)
         value.template destroy< std::shared_ptr<Opcode> > ();
         break;
 
+      case symbol_kind::S_OpcodeNoParam: // OpcodeNoParam
+        value.template destroy< std::shared_ptr<OpcodeNoParam> > ();
+        break;
+
       case symbol_kind::S_Program: // Program
         value.template destroy< std::shared_ptr<Program> > ();
         break;
@@ -1699,7 +1721,6 @@ switch (yykind)
 
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
-      case symbol_kind::S_T_Label: // T_Label
       case symbol_kind::S__STRING_: // _STRING_
         value.template destroy< std::string > ();
         break;
@@ -7191,21 +7212,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_T_Label (std::string v, location_type l)
-      {
-        return symbol_type (token::T_Label, std::move (v), std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_T_Label (const std::string& v, const location_type& l)
-      {
-        return symbol_type (token::T_Label, v, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make__STRING_ (std::string v, location_type l)
       {
         return symbol_type (token::_STRING_, std::move (v), std::move (l));
@@ -7552,9 +7558,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 755,     ///< Last index in yytable_.
-      yynnts_ = 17,  ///< Number of nonterminal symbols.
-      yyfinal_ = 348 ///< Termination state number.
+      yylast_ = 747,     ///< Last index in yytable_.
+      yynnts_ = 18,  ///< Number of nonterminal symbols.
+      yyfinal_ = 349 ///< Termination state number.
     };
 
 
@@ -7566,7 +7572,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7570 "bison.hh"
+#line 7576 "bison.hh"
 
 
 

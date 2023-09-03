@@ -171,17 +171,6 @@ void PrintAbsyn::iterListStatement(ListStatement::const_iterator i, ListStatemen
 
 void PrintAbsyn::visitStatement(Statement *p) {} //abstract class
 
-void PrintAbsyn::visitLabelStmt(LabelStmt* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  visitLabel(p->label_);
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitDeclareStmt(DeclareStmt* p)
 {
   int oldi = _i_;
@@ -240,6 +229,29 @@ void PrintAbsyn::visitMnemonicStmt(MnemonicStmt* p)
 
   _i_ = 0; p->opcode_->accept(this);
   _i_ = 0; visitListMnemonicArgs(p->listmnemonicargs_.get());
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodeStmt(OpcodeStmt* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->opcodenoparam_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitLabelStmt(LabelStmt* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  visitId(p->id_);
+  render(':');
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -846,7 +858,7 @@ void PrintAbsyn::visitFarJumpDir(FarJumpDir* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcode(Opcode *p) {} //abstract class
+void PrintAbsyn::visitOpcodeNoParam(OpcodeNoParam *p) {} //abstract class
 
 void PrintAbsyn::visitOpcodesAAA(OpcodesAAA* p)
 {
@@ -859,23 +871,1103 @@ void PrintAbsyn::visitOpcodesAAA(OpcodesAAA* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesAAD(OpcodesAAD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("AAD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesAAS(OpcodesAAS* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   render("AAS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCBW(OpcodesCBW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CBW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCDQ(OpcodesCDQ* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CDQ");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCLC(OpcodesCLC* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CLC");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCLD(OpcodesCLD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CLD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCLI(OpcodesCLI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CLI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCLTS(OpcodesCLTS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CLTS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCMC(OpcodesCMC* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CMC");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCMPSB(OpcodesCMPSB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CMPSB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCMPSD(OpcodesCMPSD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CMPSD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCMPSW(OpcodesCMPSW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CMPSW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCWD(OpcodesCWD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CWD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesCWDE(OpcodesCWDE* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("CWDE");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesDAA(OpcodesDAA* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("DAA");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesDAS(OpcodesDAS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("DAS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesF2XM1(OpcodesF2XM1* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("F2XM1");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFABS(OpcodesFABS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FABS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFCHS(OpcodesFCHS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FCHS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFCLEX(OpcodesFCLEX* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FCLEX");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFCOMPP(OpcodesFCOMPP* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FCOMPP");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFCOS(OpcodesFCOS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FCOS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFDECSTP(OpcodesFDECSTP* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FDECSTP");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFDISI(OpcodesFDISI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FDISI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFENI(OpcodesFENI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FENI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFINCSTP(OpcodesFINCSTP* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FINCSTP");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFINIT(OpcodesFINIT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FINIT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLD1(OpcodesFLD1* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLD1");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDL2E(OpcodesFLDL2E* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDL2E");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDL2T(OpcodesFLDL2T* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDL2T");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDLG2(OpcodesFLDLG2* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDLG2");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDLN2(OpcodesFLDLN2* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDLN2");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDPI(OpcodesFLDPI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDPI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFLDZ(OpcodesFLDZ* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FLDZ");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFNCLEX(OpcodesFNCLEX* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FNCLEX");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFNDISI(OpcodesFNDISI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FNDISI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFNENI(OpcodesFNENI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FNENI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFNINIT(OpcodesFNINIT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FNINIT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFNOP(OpcodesFNOP* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FNOP");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFPATAN(OpcodesFPATAN* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FPATAN");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFPTAN(OpcodesFPTAN* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FPTAN");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFPREM(OpcodesFPREM* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FPREM");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFPREM1(OpcodesFPREM1* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FPREM1");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFRNDINT(OpcodesFRNDINT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FRNDINT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFSCALE(OpcodesFSCALE* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FSCALE");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFSETPM(OpcodesFSETPM* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FSETPM");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFSIN(OpcodesFSIN* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FSIN");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFSINCOS(OpcodesFSINCOS* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FSINCOS");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFSQRT(OpcodesFSQRT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FSQRT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFTST(OpcodesFTST* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FTST");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFUCOMPP(OpcodesFUCOMPP* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FUCOMPP");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFXAM(OpcodesFXAM* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FXAM");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFXTRACT(OpcodesFXTRACT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FXTRACT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFYL2X(OpcodesFYL2X* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FYL2X");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesFYL2XP1(OpcodesFYL2XP1* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FYL2XP1");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesHLT(OpcodesHLT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("HLT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINSB(OpcodesINSB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INSB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINSD(OpcodesINSD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INSD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINSW(OpcodesINSW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INSW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINT3(OpcodesINT3* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INT3");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINTO(OpcodesINTO* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INTO");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesINVD(OpcodesINVD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("INVD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesIRET(OpcodesIRET* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("IRET");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesIRETD(OpcodesIRETD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("IRETD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesIRETW(OpcodesIRETW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("IRETW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesLAHF(OpcodesLAHF* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("LAHF");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesLEAVE(OpcodesLEAVE* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("LEAVE");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesLODSB(OpcodesLODSB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("LODSB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesLODSD(OpcodesLODSD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("LODSD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesLODSW(OpcodesLODSW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("LODSW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesMOVSB(OpcodesMOVSB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("MOVSB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesMOVSD(OpcodesMOVSD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("MOVSD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesMOVSW(OpcodesMOVSW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("MOVSW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPA(OpcodesPOPA* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPA");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPAD(OpcodesPOPAD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPAD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPAW(OpcodesPOPAW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPAW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPF(OpcodesPOPF* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPF");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPFD(OpcodesPOPFD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPFD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPOPFW(OpcodesPOPFW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("POPFW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHA(OpcodesPUSHA* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHA");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHD(OpcodesPUSHD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHAD(OpcodesPUSHAD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHAD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHAW(OpcodesPUSHAW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHAW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHF(OpcodesPUSHF* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHF");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHFD(OpcodesPUSHFD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHFD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesPUSHFW(OpcodesPUSHFW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("PUSHFW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesRET(OpcodesRET* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("RET");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSAHF(OpcodesSAHF* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SAHF");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSCASB(OpcodesSCASB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SCASB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSCASD(OpcodesSCASD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SCASD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSCASW(OpcodesSCASW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SCASW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTC(OpcodesSTC* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STC");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTD(OpcodesSTD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTI(OpcodesSTI* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STI");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTOSB(OpcodesSTOSB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STOSB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTOSD(OpcodesSTOSD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STOSD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesSTOSW(OpcodesSTOSW* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("STOSW");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesWAIT(OpcodesWAIT* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("WAIT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesWBINVD(OpcodesWBINVD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("WBINVD");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcodesXLATB(OpcodesXLATB* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("XLATB");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitOpcode(Opcode *p) {} //abstract class
+
+void PrintAbsyn::visitOpcodesAAD(OpcodesAAD* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("AAD");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1057,122 +2149,12 @@ void PrintAbsyn::visitOpcodesCALL(OpcodesCALL* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesCBW(OpcodesCBW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CBW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCDQ(OpcodesCDQ* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CDQ");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCLC(OpcodesCLC* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CLC");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCLD(OpcodesCLD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CLD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCLI(OpcodesCLI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CLI");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCLTS(OpcodesCLTS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CLTS");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCMC(OpcodesCMC* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CMC");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesCMP(OpcodesCMP* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   render("CMP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCMPSB(OpcodesCMPSB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CMPSB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCMPSD(OpcodesCMPSD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CMPSD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCMPSW(OpcodesCMPSW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CMPSW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1195,50 +2177,6 @@ void PrintAbsyn::visitOpcodesCPUID(OpcodesCPUID* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("CPUID");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCWD(OpcodesCWD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CWD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesCWDE(OpcodesCWDE* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("CWDE");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesDAA(OpcodesDAA* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("DAA");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesDAS(OpcodesDAS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("DAS");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1343,28 +2281,6 @@ void PrintAbsyn::visitOpcodesENTER(OpcodesENTER* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesF2XM1(OpcodesF2XM1* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("F2XM1");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFABS(OpcodesFABS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FABS");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFADD(OpcodesFADD* p)
 {
   int oldi = _i_;
@@ -1409,28 +2325,6 @@ void PrintAbsyn::visitOpcodesFBSTP(OpcodesFBSTP* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFCHS(OpcodesFCHS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FCHS");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFCLEX(OpcodesFCLEX* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FCLEX");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFCOM(OpcodesFCOM* p)
 {
   int oldi = _i_;
@@ -1448,50 +2342,6 @@ void PrintAbsyn::visitOpcodesFCOMP(OpcodesFCOMP* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("FCOMP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFCOMPP(OpcodesFCOMPP* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FCOMPP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFCOS(OpcodesFCOS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FCOS");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFDECSTP(OpcodesFDECSTP* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FDECSTP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFDISI(OpcodesFDISI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FDISI");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1536,17 +2386,6 @@ void PrintAbsyn::visitOpcodesFDIVRP(OpcodesFDIVRP* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("FDIVRP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFENI(OpcodesFENI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FENI");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1640,28 +2479,6 @@ void PrintAbsyn::visitOpcodesFIMUL(OpcodesFIMUL* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFINCSTP(OpcodesFINCSTP* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FINCSTP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFINIT(OpcodesFINIT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FINIT");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFIST(OpcodesFIST* p)
 {
   int oldi = _i_;
@@ -1717,17 +2534,6 @@ void PrintAbsyn::visitOpcodesFLD(OpcodesFLD* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFLD1(OpcodesFLD1* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLD1");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFLDCW(OpcodesFLDCW* p)
 {
   int oldi = _i_;
@@ -1750,72 +2556,6 @@ void PrintAbsyn::visitOpcodesFLDENV(OpcodesFLDENV* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFLDL2E(OpcodesFLDL2E* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDL2E");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFLDL2T(OpcodesFLDL2T* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDL2T");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFLDLG2(OpcodesFLDLG2* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDLG2");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFLDLN2(OpcodesFLDLN2* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDLN2");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFLDPI(OpcodesFLDPI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDPI");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFLDZ(OpcodesFLDZ* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FLDZ");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFMUL(OpcodesFMUL* p)
 {
   int oldi = _i_;
@@ -1833,61 +2573,6 @@ void PrintAbsyn::visitOpcodesFMULP(OpcodesFMULP* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("FMULP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFNCLEX(OpcodesFNCLEX* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FNCLEX");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFNDISI(OpcodesFNDISI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FNDISI");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFNENI(OpcodesFNENI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FNENI");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFNINIT(OpcodesFNINIT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FNINIT");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFNOP(OpcodesFNOP* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FNOP");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -1937,61 +2622,6 @@ void PrintAbsyn::visitOpcodesFNSTSW(OpcodesFNSTSW* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFPATAN(OpcodesFPATAN* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FPATAN");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFPTAN(OpcodesFPTAN* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FPTAN");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFPREM(OpcodesFPREM* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FPREM");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFPREM1(OpcodesFPREM1* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FPREM1");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFRNDINT(OpcodesFRNDINT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FRNDINT");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFRSTOR(OpcodesFRSTOR* p)
 {
   int oldi = _i_;
@@ -2009,61 +2639,6 @@ void PrintAbsyn::visitOpcodesFSAVE(OpcodesFSAVE* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("FSAVE");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFSCALE(OpcodesFSCALE* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FSCALE");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFSETPM(OpcodesFSETPM* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FSETPM");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFSIN(OpcodesFSIN* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FSIN");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFSINCOS(OpcodesFSINCOS* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FSINCOS");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFSQRT(OpcodesFSQRT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FSQRT");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -2168,17 +2743,6 @@ void PrintAbsyn::visitOpcodesFSUBRP(OpcodesFSUBRP* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFTST(OpcodesFTST* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FTST");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFUCOM(OpcodesFUCOM* p)
 {
   int oldi = _i_;
@@ -2201,78 +2765,12 @@ void PrintAbsyn::visitOpcodesFUCOMP(OpcodesFUCOMP* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesFUCOMPP(OpcodesFUCOMPP* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FUCOMPP");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFXAM(OpcodesFXAM* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FXAM");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesFXCH(OpcodesFXCH* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   render("FXCH");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFXTRACT(OpcodesFXTRACT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FXTRACT");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFYL2X(OpcodesFYL2X* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FYL2X");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesFYL2XP1(OpcodesFYL2XP1* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("FYL2XP1");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesHLT(OpcodesHLT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("HLT");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -2333,39 +2831,6 @@ void PrintAbsyn::visitOpcodesINCO(OpcodesINCO* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesINSB(OpcodesINSB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INSB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesINSD(OpcodesINSD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INSD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesINSW(OpcodesINSW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INSW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesINT(OpcodesINT* p)
 {
   int oldi = _i_;
@@ -2377,78 +2842,12 @@ void PrintAbsyn::visitOpcodesINT(OpcodesINT* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesINT3(OpcodesINT3* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INT3");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesINTO(OpcodesINTO* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INTO");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesINVD(OpcodesINVD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("INVD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesINVLPG(OpcodesINVLPG* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   render("INVLPG");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesIRET(OpcodesIRET* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("IRET");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesIRETD(OpcodesIRETD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("IRETD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesIRETW(OpcodesIRETW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("IRETW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -2817,17 +3216,6 @@ void PrintAbsyn::visitOpcodesJZ(OpcodesJZ* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesLAHF(OpcodesLAHF* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("LAHF");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesLAR(OpcodesLAR* p)
 {
   int oldi = _i_;
@@ -2856,17 +3244,6 @@ void PrintAbsyn::visitOpcodesLEA(OpcodesLEA* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("LEA");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesLEAVE(OpcodesLEAVE* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("LEAVE");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -2955,39 +3332,6 @@ void PrintAbsyn::visitOpcodesLOCK(OpcodesLOCK* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("LOCK");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesLODSB(OpcodesLODSB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("LODSB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesLODSD(OpcodesLODSD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("LODSD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesLODSW(OpcodesLODSW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("LODSW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -3087,39 +3431,6 @@ void PrintAbsyn::visitOpcodesMOV(OpcodesMOV* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("MOV");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesMOVSB(OpcodesMOVSB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("MOVSB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesMOVSD(OpcodesMOVSD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("MOVSD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesMOVSW(OpcodesMOVSW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("MOVSW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -3268,155 +3579,12 @@ void PrintAbsyn::visitOpcodesPOP(OpcodesPOP* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesPOPA(OpcodesPOPA* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPA");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPOPAD(OpcodesPOPAD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPAD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPOPAW(OpcodesPOPAW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPAW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPOPF(OpcodesPOPF* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPF");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPOPFD(OpcodesPOPFD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPFD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPOPFW(OpcodesPOPFW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("POPFW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesPUSH(OpcodesPUSH* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
 
   render("PUSH");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHA(OpcodesPUSHA* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHA");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHD(OpcodesPUSHD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHAD(OpcodesPUSHAD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHAD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHAW(OpcodesPUSHAW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHAW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHF(OpcodesPUSHF* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHF");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHFD(OpcodesPUSHFD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHFD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesPUSHFW(OpcodesPUSHFW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("PUSHFW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -3576,17 +3744,6 @@ void PrintAbsyn::visitOpcodesRESW(OpcodesRESW* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesRET(OpcodesRET* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("RET");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesRETF(OpcodesRETF* p)
 {
   int oldi = _i_;
@@ -3642,17 +3799,6 @@ void PrintAbsyn::visitOpcodesRSM(OpcodesRSM* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesSAHF(OpcodesSAHF* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("SAHF");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesSAL(OpcodesSAL* p)
 {
   int oldi = _i_;
@@ -3681,39 +3827,6 @@ void PrintAbsyn::visitOpcodesSBB(OpcodesSBB* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("SBB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSCASB(OpcodesSCASB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("SCASB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSCASD(OpcodesSCASD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("SCASD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSCASW(OpcodesSCASW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("SCASW");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4137,72 +4250,6 @@ void PrintAbsyn::visitOpcodesSMSW(OpcodesSMSW* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesSTC(OpcodesSTC* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STC");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSTD(OpcodesSTD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSTI(OpcodesSTI* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STI");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSTOSB(OpcodesSTOSB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STOSB");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSTOSD(OpcodesSTOSD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STOSD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesSTOSW(OpcodesSTOSW* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("STOSW");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesSTR(OpcodesSTR* p)
 {
   int oldi = _i_;
@@ -4280,28 +4327,6 @@ void PrintAbsyn::visitOpcodesVERW(OpcodesVERW* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitOpcodesWAIT(OpcodesWAIT* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("WAIT");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesWBINVD(OpcodesWBINVD* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("WBINVD");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
 void PrintAbsyn::visitOpcodesWRMSR(OpcodesWRMSR* p)
 {
   int oldi = _i_;
@@ -4330,17 +4355,6 @@ void PrintAbsyn::visitOpcodesXCHG(OpcodesXCHG* p)
   if (oldi > 0) render(_L_PAREN);
 
   render("XCHG");
-
-  if (oldi > 0) render(_R_PAREN);
-  _i_ = oldi;
-}
-
-void PrintAbsyn::visitOpcodesXLATB(OpcodesXLATB* p)
-{
-  int oldi = _i_;
-  if (oldi > 0) render(_L_PAREN);
-
-  render("XLATB");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4397,12 +4411,6 @@ void PrintAbsyn::visitHex(String s)
 }
 
 
-void PrintAbsyn::visitLabel(String s)
-{
-  render(s);
-}
-
-
 void PrintAbsyn::visitId(String s)
 {
   render(s);
@@ -4453,14 +4461,6 @@ void ShowAbsyn::visitListStatement(ListStatement *liststatement)
 }
 
 void ShowAbsyn::visitStatement(Statement *p) {} //abstract class
-
-void ShowAbsyn::visitLabelStmt(LabelStmt* p)
-{
-  bufAppend('(');
-  bufAppend("LabelStmt");
-  bufAppend(' ');
-  visitLabel(p->label_);  bufAppend(')');
-}
 
 void ShowAbsyn::visitDeclareStmt(DeclareStmt* p)
 {
@@ -4524,6 +4524,26 @@ void ShowAbsyn::visitMnemonicStmt(MnemonicStmt* p)
   bufAppend('[');
   if (p->listmnemonicargs_)  p->listmnemonicargs_->accept(this);
   bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitOpcodeStmt(OpcodeStmt* p)
+{
+  bufAppend('(');
+  bufAppend("OpcodeStmt");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->opcodenoparam_)  p->opcodenoparam_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitLabelStmt(LabelStmt* p)
+{
+  bufAppend('(');
+  bufAppend("LabelStmt");
+  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
   bufAppend(')');
 }
 
@@ -4975,21 +4995,513 @@ void ShowAbsyn::visitFarJumpDir(FarJumpDir* p)
   bufAppend("FarJumpDir");
 }
 
-void ShowAbsyn::visitOpcode(Opcode *p) {} //abstract class
+void ShowAbsyn::visitOpcodeNoParam(OpcodeNoParam *p) {} //abstract class
 
 void ShowAbsyn::visitOpcodesAAA(OpcodesAAA* p)
 {
   bufAppend("OpcodesAAA");
 }
 
-void ShowAbsyn::visitOpcodesAAD(OpcodesAAD* p)
-{
-  bufAppend("OpcodesAAD");
-}
-
 void ShowAbsyn::visitOpcodesAAS(OpcodesAAS* p)
 {
   bufAppend("OpcodesAAS");
+}
+
+void ShowAbsyn::visitOpcodesCBW(OpcodesCBW* p)
+{
+  bufAppend("OpcodesCBW");
+}
+
+void ShowAbsyn::visitOpcodesCDQ(OpcodesCDQ* p)
+{
+  bufAppend("OpcodesCDQ");
+}
+
+void ShowAbsyn::visitOpcodesCLC(OpcodesCLC* p)
+{
+  bufAppend("OpcodesCLC");
+}
+
+void ShowAbsyn::visitOpcodesCLD(OpcodesCLD* p)
+{
+  bufAppend("OpcodesCLD");
+}
+
+void ShowAbsyn::visitOpcodesCLI(OpcodesCLI* p)
+{
+  bufAppend("OpcodesCLI");
+}
+
+void ShowAbsyn::visitOpcodesCLTS(OpcodesCLTS* p)
+{
+  bufAppend("OpcodesCLTS");
+}
+
+void ShowAbsyn::visitOpcodesCMC(OpcodesCMC* p)
+{
+  bufAppend("OpcodesCMC");
+}
+
+void ShowAbsyn::visitOpcodesCMPSB(OpcodesCMPSB* p)
+{
+  bufAppend("OpcodesCMPSB");
+}
+
+void ShowAbsyn::visitOpcodesCMPSD(OpcodesCMPSD* p)
+{
+  bufAppend("OpcodesCMPSD");
+}
+
+void ShowAbsyn::visitOpcodesCMPSW(OpcodesCMPSW* p)
+{
+  bufAppend("OpcodesCMPSW");
+}
+
+void ShowAbsyn::visitOpcodesCWD(OpcodesCWD* p)
+{
+  bufAppend("OpcodesCWD");
+}
+
+void ShowAbsyn::visitOpcodesCWDE(OpcodesCWDE* p)
+{
+  bufAppend("OpcodesCWDE");
+}
+
+void ShowAbsyn::visitOpcodesDAA(OpcodesDAA* p)
+{
+  bufAppend("OpcodesDAA");
+}
+
+void ShowAbsyn::visitOpcodesDAS(OpcodesDAS* p)
+{
+  bufAppend("OpcodesDAS");
+}
+
+void ShowAbsyn::visitOpcodesF2XM1(OpcodesF2XM1* p)
+{
+  bufAppend("OpcodesF2XM1");
+}
+
+void ShowAbsyn::visitOpcodesFABS(OpcodesFABS* p)
+{
+  bufAppend("OpcodesFABS");
+}
+
+void ShowAbsyn::visitOpcodesFCHS(OpcodesFCHS* p)
+{
+  bufAppend("OpcodesFCHS");
+}
+
+void ShowAbsyn::visitOpcodesFCLEX(OpcodesFCLEX* p)
+{
+  bufAppend("OpcodesFCLEX");
+}
+
+void ShowAbsyn::visitOpcodesFCOMPP(OpcodesFCOMPP* p)
+{
+  bufAppend("OpcodesFCOMPP");
+}
+
+void ShowAbsyn::visitOpcodesFCOS(OpcodesFCOS* p)
+{
+  bufAppend("OpcodesFCOS");
+}
+
+void ShowAbsyn::visitOpcodesFDECSTP(OpcodesFDECSTP* p)
+{
+  bufAppend("OpcodesFDECSTP");
+}
+
+void ShowAbsyn::visitOpcodesFDISI(OpcodesFDISI* p)
+{
+  bufAppend("OpcodesFDISI");
+}
+
+void ShowAbsyn::visitOpcodesFENI(OpcodesFENI* p)
+{
+  bufAppend("OpcodesFENI");
+}
+
+void ShowAbsyn::visitOpcodesFINCSTP(OpcodesFINCSTP* p)
+{
+  bufAppend("OpcodesFINCSTP");
+}
+
+void ShowAbsyn::visitOpcodesFINIT(OpcodesFINIT* p)
+{
+  bufAppend("OpcodesFINIT");
+}
+
+void ShowAbsyn::visitOpcodesFLD1(OpcodesFLD1* p)
+{
+  bufAppend("OpcodesFLD1");
+}
+
+void ShowAbsyn::visitOpcodesFLDL2E(OpcodesFLDL2E* p)
+{
+  bufAppend("OpcodesFLDL2E");
+}
+
+void ShowAbsyn::visitOpcodesFLDL2T(OpcodesFLDL2T* p)
+{
+  bufAppend("OpcodesFLDL2T");
+}
+
+void ShowAbsyn::visitOpcodesFLDLG2(OpcodesFLDLG2* p)
+{
+  bufAppend("OpcodesFLDLG2");
+}
+
+void ShowAbsyn::visitOpcodesFLDLN2(OpcodesFLDLN2* p)
+{
+  bufAppend("OpcodesFLDLN2");
+}
+
+void ShowAbsyn::visitOpcodesFLDPI(OpcodesFLDPI* p)
+{
+  bufAppend("OpcodesFLDPI");
+}
+
+void ShowAbsyn::visitOpcodesFLDZ(OpcodesFLDZ* p)
+{
+  bufAppend("OpcodesFLDZ");
+}
+
+void ShowAbsyn::visitOpcodesFNCLEX(OpcodesFNCLEX* p)
+{
+  bufAppend("OpcodesFNCLEX");
+}
+
+void ShowAbsyn::visitOpcodesFNDISI(OpcodesFNDISI* p)
+{
+  bufAppend("OpcodesFNDISI");
+}
+
+void ShowAbsyn::visitOpcodesFNENI(OpcodesFNENI* p)
+{
+  bufAppend("OpcodesFNENI");
+}
+
+void ShowAbsyn::visitOpcodesFNINIT(OpcodesFNINIT* p)
+{
+  bufAppend("OpcodesFNINIT");
+}
+
+void ShowAbsyn::visitOpcodesFNOP(OpcodesFNOP* p)
+{
+  bufAppend("OpcodesFNOP");
+}
+
+void ShowAbsyn::visitOpcodesFPATAN(OpcodesFPATAN* p)
+{
+  bufAppend("OpcodesFPATAN");
+}
+
+void ShowAbsyn::visitOpcodesFPTAN(OpcodesFPTAN* p)
+{
+  bufAppend("OpcodesFPTAN");
+}
+
+void ShowAbsyn::visitOpcodesFPREM(OpcodesFPREM* p)
+{
+  bufAppend("OpcodesFPREM");
+}
+
+void ShowAbsyn::visitOpcodesFPREM1(OpcodesFPREM1* p)
+{
+  bufAppend("OpcodesFPREM1");
+}
+
+void ShowAbsyn::visitOpcodesFRNDINT(OpcodesFRNDINT* p)
+{
+  bufAppend("OpcodesFRNDINT");
+}
+
+void ShowAbsyn::visitOpcodesFSCALE(OpcodesFSCALE* p)
+{
+  bufAppend("OpcodesFSCALE");
+}
+
+void ShowAbsyn::visitOpcodesFSETPM(OpcodesFSETPM* p)
+{
+  bufAppend("OpcodesFSETPM");
+}
+
+void ShowAbsyn::visitOpcodesFSIN(OpcodesFSIN* p)
+{
+  bufAppend("OpcodesFSIN");
+}
+
+void ShowAbsyn::visitOpcodesFSINCOS(OpcodesFSINCOS* p)
+{
+  bufAppend("OpcodesFSINCOS");
+}
+
+void ShowAbsyn::visitOpcodesFSQRT(OpcodesFSQRT* p)
+{
+  bufAppend("OpcodesFSQRT");
+}
+
+void ShowAbsyn::visitOpcodesFTST(OpcodesFTST* p)
+{
+  bufAppend("OpcodesFTST");
+}
+
+void ShowAbsyn::visitOpcodesFUCOMPP(OpcodesFUCOMPP* p)
+{
+  bufAppend("OpcodesFUCOMPP");
+}
+
+void ShowAbsyn::visitOpcodesFXAM(OpcodesFXAM* p)
+{
+  bufAppend("OpcodesFXAM");
+}
+
+void ShowAbsyn::visitOpcodesFXTRACT(OpcodesFXTRACT* p)
+{
+  bufAppend("OpcodesFXTRACT");
+}
+
+void ShowAbsyn::visitOpcodesFYL2X(OpcodesFYL2X* p)
+{
+  bufAppend("OpcodesFYL2X");
+}
+
+void ShowAbsyn::visitOpcodesFYL2XP1(OpcodesFYL2XP1* p)
+{
+  bufAppend("OpcodesFYL2XP1");
+}
+
+void ShowAbsyn::visitOpcodesHLT(OpcodesHLT* p)
+{
+  bufAppend("OpcodesHLT");
+}
+
+void ShowAbsyn::visitOpcodesINSB(OpcodesINSB* p)
+{
+  bufAppend("OpcodesINSB");
+}
+
+void ShowAbsyn::visitOpcodesINSD(OpcodesINSD* p)
+{
+  bufAppend("OpcodesINSD");
+}
+
+void ShowAbsyn::visitOpcodesINSW(OpcodesINSW* p)
+{
+  bufAppend("OpcodesINSW");
+}
+
+void ShowAbsyn::visitOpcodesINT3(OpcodesINT3* p)
+{
+  bufAppend("OpcodesINT3");
+}
+
+void ShowAbsyn::visitOpcodesINTO(OpcodesINTO* p)
+{
+  bufAppend("OpcodesINTO");
+}
+
+void ShowAbsyn::visitOpcodesINVD(OpcodesINVD* p)
+{
+  bufAppend("OpcodesINVD");
+}
+
+void ShowAbsyn::visitOpcodesIRET(OpcodesIRET* p)
+{
+  bufAppend("OpcodesIRET");
+}
+
+void ShowAbsyn::visitOpcodesIRETD(OpcodesIRETD* p)
+{
+  bufAppend("OpcodesIRETD");
+}
+
+void ShowAbsyn::visitOpcodesIRETW(OpcodesIRETW* p)
+{
+  bufAppend("OpcodesIRETW");
+}
+
+void ShowAbsyn::visitOpcodesLAHF(OpcodesLAHF* p)
+{
+  bufAppend("OpcodesLAHF");
+}
+
+void ShowAbsyn::visitOpcodesLEAVE(OpcodesLEAVE* p)
+{
+  bufAppend("OpcodesLEAVE");
+}
+
+void ShowAbsyn::visitOpcodesLODSB(OpcodesLODSB* p)
+{
+  bufAppend("OpcodesLODSB");
+}
+
+void ShowAbsyn::visitOpcodesLODSD(OpcodesLODSD* p)
+{
+  bufAppend("OpcodesLODSD");
+}
+
+void ShowAbsyn::visitOpcodesLODSW(OpcodesLODSW* p)
+{
+  bufAppend("OpcodesLODSW");
+}
+
+void ShowAbsyn::visitOpcodesMOVSB(OpcodesMOVSB* p)
+{
+  bufAppend("OpcodesMOVSB");
+}
+
+void ShowAbsyn::visitOpcodesMOVSD(OpcodesMOVSD* p)
+{
+  bufAppend("OpcodesMOVSD");
+}
+
+void ShowAbsyn::visitOpcodesMOVSW(OpcodesMOVSW* p)
+{
+  bufAppend("OpcodesMOVSW");
+}
+
+void ShowAbsyn::visitOpcodesPOPA(OpcodesPOPA* p)
+{
+  bufAppend("OpcodesPOPA");
+}
+
+void ShowAbsyn::visitOpcodesPOPAD(OpcodesPOPAD* p)
+{
+  bufAppend("OpcodesPOPAD");
+}
+
+void ShowAbsyn::visitOpcodesPOPAW(OpcodesPOPAW* p)
+{
+  bufAppend("OpcodesPOPAW");
+}
+
+void ShowAbsyn::visitOpcodesPOPF(OpcodesPOPF* p)
+{
+  bufAppend("OpcodesPOPF");
+}
+
+void ShowAbsyn::visitOpcodesPOPFD(OpcodesPOPFD* p)
+{
+  bufAppend("OpcodesPOPFD");
+}
+
+void ShowAbsyn::visitOpcodesPOPFW(OpcodesPOPFW* p)
+{
+  bufAppend("OpcodesPOPFW");
+}
+
+void ShowAbsyn::visitOpcodesPUSHA(OpcodesPUSHA* p)
+{
+  bufAppend("OpcodesPUSHA");
+}
+
+void ShowAbsyn::visitOpcodesPUSHD(OpcodesPUSHD* p)
+{
+  bufAppend("OpcodesPUSHD");
+}
+
+void ShowAbsyn::visitOpcodesPUSHAD(OpcodesPUSHAD* p)
+{
+  bufAppend("OpcodesPUSHAD");
+}
+
+void ShowAbsyn::visitOpcodesPUSHAW(OpcodesPUSHAW* p)
+{
+  bufAppend("OpcodesPUSHAW");
+}
+
+void ShowAbsyn::visitOpcodesPUSHF(OpcodesPUSHF* p)
+{
+  bufAppend("OpcodesPUSHF");
+}
+
+void ShowAbsyn::visitOpcodesPUSHFD(OpcodesPUSHFD* p)
+{
+  bufAppend("OpcodesPUSHFD");
+}
+
+void ShowAbsyn::visitOpcodesPUSHFW(OpcodesPUSHFW* p)
+{
+  bufAppend("OpcodesPUSHFW");
+}
+
+void ShowAbsyn::visitOpcodesRET(OpcodesRET* p)
+{
+  bufAppend("OpcodesRET");
+}
+
+void ShowAbsyn::visitOpcodesSAHF(OpcodesSAHF* p)
+{
+  bufAppend("OpcodesSAHF");
+}
+
+void ShowAbsyn::visitOpcodesSCASB(OpcodesSCASB* p)
+{
+  bufAppend("OpcodesSCASB");
+}
+
+void ShowAbsyn::visitOpcodesSCASD(OpcodesSCASD* p)
+{
+  bufAppend("OpcodesSCASD");
+}
+
+void ShowAbsyn::visitOpcodesSCASW(OpcodesSCASW* p)
+{
+  bufAppend("OpcodesSCASW");
+}
+
+void ShowAbsyn::visitOpcodesSTC(OpcodesSTC* p)
+{
+  bufAppend("OpcodesSTC");
+}
+
+void ShowAbsyn::visitOpcodesSTD(OpcodesSTD* p)
+{
+  bufAppend("OpcodesSTD");
+}
+
+void ShowAbsyn::visitOpcodesSTI(OpcodesSTI* p)
+{
+  bufAppend("OpcodesSTI");
+}
+
+void ShowAbsyn::visitOpcodesSTOSB(OpcodesSTOSB* p)
+{
+  bufAppend("OpcodesSTOSB");
+}
+
+void ShowAbsyn::visitOpcodesSTOSD(OpcodesSTOSD* p)
+{
+  bufAppend("OpcodesSTOSD");
+}
+
+void ShowAbsyn::visitOpcodesSTOSW(OpcodesSTOSW* p)
+{
+  bufAppend("OpcodesSTOSW");
+}
+
+void ShowAbsyn::visitOpcodesWAIT(OpcodesWAIT* p)
+{
+  bufAppend("OpcodesWAIT");
+}
+
+void ShowAbsyn::visitOpcodesWBINVD(OpcodesWBINVD* p)
+{
+  bufAppend("OpcodesWBINVD");
+}
+
+void ShowAbsyn::visitOpcodesXLATB(OpcodesXLATB* p)
+{
+  bufAppend("OpcodesXLATB");
+}
+
+void ShowAbsyn::visitOpcode(Opcode *p) {} //abstract class
+
+void ShowAbsyn::visitOpcodesAAD(OpcodesAAD* p)
+{
+  bufAppend("OpcodesAAD");
 }
 
 void ShowAbsyn::visitOpcodesAAM(OpcodesAAM* p)
@@ -5072,59 +5584,9 @@ void ShowAbsyn::visitOpcodesCALL(OpcodesCALL* p)
   bufAppend("OpcodesCALL");
 }
 
-void ShowAbsyn::visitOpcodesCBW(OpcodesCBW* p)
-{
-  bufAppend("OpcodesCBW");
-}
-
-void ShowAbsyn::visitOpcodesCDQ(OpcodesCDQ* p)
-{
-  bufAppend("OpcodesCDQ");
-}
-
-void ShowAbsyn::visitOpcodesCLC(OpcodesCLC* p)
-{
-  bufAppend("OpcodesCLC");
-}
-
-void ShowAbsyn::visitOpcodesCLD(OpcodesCLD* p)
-{
-  bufAppend("OpcodesCLD");
-}
-
-void ShowAbsyn::visitOpcodesCLI(OpcodesCLI* p)
-{
-  bufAppend("OpcodesCLI");
-}
-
-void ShowAbsyn::visitOpcodesCLTS(OpcodesCLTS* p)
-{
-  bufAppend("OpcodesCLTS");
-}
-
-void ShowAbsyn::visitOpcodesCMC(OpcodesCMC* p)
-{
-  bufAppend("OpcodesCMC");
-}
-
 void ShowAbsyn::visitOpcodesCMP(OpcodesCMP* p)
 {
   bufAppend("OpcodesCMP");
-}
-
-void ShowAbsyn::visitOpcodesCMPSB(OpcodesCMPSB* p)
-{
-  bufAppend("OpcodesCMPSB");
-}
-
-void ShowAbsyn::visitOpcodesCMPSD(OpcodesCMPSD* p)
-{
-  bufAppend("OpcodesCMPSD");
-}
-
-void ShowAbsyn::visitOpcodesCMPSW(OpcodesCMPSW* p)
-{
-  bufAppend("OpcodesCMPSW");
 }
 
 void ShowAbsyn::visitOpcodesCMPXCHG(OpcodesCMPXCHG* p)
@@ -5135,26 +5597,6 @@ void ShowAbsyn::visitOpcodesCMPXCHG(OpcodesCMPXCHG* p)
 void ShowAbsyn::visitOpcodesCPUID(OpcodesCPUID* p)
 {
   bufAppend("OpcodesCPUID");
-}
-
-void ShowAbsyn::visitOpcodesCWD(OpcodesCWD* p)
-{
-  bufAppend("OpcodesCWD");
-}
-
-void ShowAbsyn::visitOpcodesCWDE(OpcodesCWDE* p)
-{
-  bufAppend("OpcodesCWDE");
-}
-
-void ShowAbsyn::visitOpcodesDAA(OpcodesDAA* p)
-{
-  bufAppend("OpcodesDAA");
-}
-
-void ShowAbsyn::visitOpcodesDAS(OpcodesDAS* p)
-{
-  bufAppend("OpcodesDAS");
 }
 
 void ShowAbsyn::visitOpcodesDB(OpcodesDB* p)
@@ -5202,16 +5644,6 @@ void ShowAbsyn::visitOpcodesENTER(OpcodesENTER* p)
   bufAppend("OpcodesENTER");
 }
 
-void ShowAbsyn::visitOpcodesF2XM1(OpcodesF2XM1* p)
-{
-  bufAppend("OpcodesF2XM1");
-}
-
-void ShowAbsyn::visitOpcodesFABS(OpcodesFABS* p)
-{
-  bufAppend("OpcodesFABS");
-}
-
 void ShowAbsyn::visitOpcodesFADD(OpcodesFADD* p)
 {
   bufAppend("OpcodesFADD");
@@ -5232,16 +5664,6 @@ void ShowAbsyn::visitOpcodesFBSTP(OpcodesFBSTP* p)
   bufAppend("OpcodesFBSTP");
 }
 
-void ShowAbsyn::visitOpcodesFCHS(OpcodesFCHS* p)
-{
-  bufAppend("OpcodesFCHS");
-}
-
-void ShowAbsyn::visitOpcodesFCLEX(OpcodesFCLEX* p)
-{
-  bufAppend("OpcodesFCLEX");
-}
-
 void ShowAbsyn::visitOpcodesFCOM(OpcodesFCOM* p)
 {
   bufAppend("OpcodesFCOM");
@@ -5250,26 +5672,6 @@ void ShowAbsyn::visitOpcodesFCOM(OpcodesFCOM* p)
 void ShowAbsyn::visitOpcodesFCOMP(OpcodesFCOMP* p)
 {
   bufAppend("OpcodesFCOMP");
-}
-
-void ShowAbsyn::visitOpcodesFCOMPP(OpcodesFCOMPP* p)
-{
-  bufAppend("OpcodesFCOMPP");
-}
-
-void ShowAbsyn::visitOpcodesFCOS(OpcodesFCOS* p)
-{
-  bufAppend("OpcodesFCOS");
-}
-
-void ShowAbsyn::visitOpcodesFDECSTP(OpcodesFDECSTP* p)
-{
-  bufAppend("OpcodesFDECSTP");
-}
-
-void ShowAbsyn::visitOpcodesFDISI(OpcodesFDISI* p)
-{
-  bufAppend("OpcodesFDISI");
 }
 
 void ShowAbsyn::visitOpcodesFDIV(OpcodesFDIV* p)
@@ -5290,11 +5692,6 @@ void ShowAbsyn::visitOpcodesFDIVR(OpcodesFDIVR* p)
 void ShowAbsyn::visitOpcodesFDIVRP(OpcodesFDIVRP* p)
 {
   bufAppend("OpcodesFDIVRP");
-}
-
-void ShowAbsyn::visitOpcodesFENI(OpcodesFENI* p)
-{
-  bufAppend("OpcodesFENI");
 }
 
 void ShowAbsyn::visitOpcodesFFREE(OpcodesFFREE* p)
@@ -5337,16 +5734,6 @@ void ShowAbsyn::visitOpcodesFIMUL(OpcodesFIMUL* p)
   bufAppend("OpcodesFIMUL");
 }
 
-void ShowAbsyn::visitOpcodesFINCSTP(OpcodesFINCSTP* p)
-{
-  bufAppend("OpcodesFINCSTP");
-}
-
-void ShowAbsyn::visitOpcodesFINIT(OpcodesFINIT* p)
-{
-  bufAppend("OpcodesFINIT");
-}
-
 void ShowAbsyn::visitOpcodesFIST(OpcodesFIST* p)
 {
   bufAppend("OpcodesFIST");
@@ -5372,11 +5759,6 @@ void ShowAbsyn::visitOpcodesFLD(OpcodesFLD* p)
   bufAppend("OpcodesFLD");
 }
 
-void ShowAbsyn::visitOpcodesFLD1(OpcodesFLD1* p)
-{
-  bufAppend("OpcodesFLD1");
-}
-
 void ShowAbsyn::visitOpcodesFLDCW(OpcodesFLDCW* p)
 {
   bufAppend("OpcodesFLDCW");
@@ -5387,36 +5769,6 @@ void ShowAbsyn::visitOpcodesFLDENV(OpcodesFLDENV* p)
   bufAppend("OpcodesFLDENV");
 }
 
-void ShowAbsyn::visitOpcodesFLDL2E(OpcodesFLDL2E* p)
-{
-  bufAppend("OpcodesFLDL2E");
-}
-
-void ShowAbsyn::visitOpcodesFLDL2T(OpcodesFLDL2T* p)
-{
-  bufAppend("OpcodesFLDL2T");
-}
-
-void ShowAbsyn::visitOpcodesFLDLG2(OpcodesFLDLG2* p)
-{
-  bufAppend("OpcodesFLDLG2");
-}
-
-void ShowAbsyn::visitOpcodesFLDLN2(OpcodesFLDLN2* p)
-{
-  bufAppend("OpcodesFLDLN2");
-}
-
-void ShowAbsyn::visitOpcodesFLDPI(OpcodesFLDPI* p)
-{
-  bufAppend("OpcodesFLDPI");
-}
-
-void ShowAbsyn::visitOpcodesFLDZ(OpcodesFLDZ* p)
-{
-  bufAppend("OpcodesFLDZ");
-}
-
 void ShowAbsyn::visitOpcodesFMUL(OpcodesFMUL* p)
 {
   bufAppend("OpcodesFMUL");
@@ -5425,31 +5777,6 @@ void ShowAbsyn::visitOpcodesFMUL(OpcodesFMUL* p)
 void ShowAbsyn::visitOpcodesFMULP(OpcodesFMULP* p)
 {
   bufAppend("OpcodesFMULP");
-}
-
-void ShowAbsyn::visitOpcodesFNCLEX(OpcodesFNCLEX* p)
-{
-  bufAppend("OpcodesFNCLEX");
-}
-
-void ShowAbsyn::visitOpcodesFNDISI(OpcodesFNDISI* p)
-{
-  bufAppend("OpcodesFNDISI");
-}
-
-void ShowAbsyn::visitOpcodesFNENI(OpcodesFNENI* p)
-{
-  bufAppend("OpcodesFNENI");
-}
-
-void ShowAbsyn::visitOpcodesFNINIT(OpcodesFNINIT* p)
-{
-  bufAppend("OpcodesFNINIT");
-}
-
-void ShowAbsyn::visitOpcodesFNOP(OpcodesFNOP* p)
-{
-  bufAppend("OpcodesFNOP");
 }
 
 void ShowAbsyn::visitOpcodesFNSAVE(OpcodesFNSAVE* p)
@@ -5472,31 +5799,6 @@ void ShowAbsyn::visitOpcodesFNSTSW(OpcodesFNSTSW* p)
   bufAppend("OpcodesFNSTSW");
 }
 
-void ShowAbsyn::visitOpcodesFPATAN(OpcodesFPATAN* p)
-{
-  bufAppend("OpcodesFPATAN");
-}
-
-void ShowAbsyn::visitOpcodesFPTAN(OpcodesFPTAN* p)
-{
-  bufAppend("OpcodesFPTAN");
-}
-
-void ShowAbsyn::visitOpcodesFPREM(OpcodesFPREM* p)
-{
-  bufAppend("OpcodesFPREM");
-}
-
-void ShowAbsyn::visitOpcodesFPREM1(OpcodesFPREM1* p)
-{
-  bufAppend("OpcodesFPREM1");
-}
-
-void ShowAbsyn::visitOpcodesFRNDINT(OpcodesFRNDINT* p)
-{
-  bufAppend("OpcodesFRNDINT");
-}
-
 void ShowAbsyn::visitOpcodesFRSTOR(OpcodesFRSTOR* p)
 {
   bufAppend("OpcodesFRSTOR");
@@ -5505,31 +5807,6 @@ void ShowAbsyn::visitOpcodesFRSTOR(OpcodesFRSTOR* p)
 void ShowAbsyn::visitOpcodesFSAVE(OpcodesFSAVE* p)
 {
   bufAppend("OpcodesFSAVE");
-}
-
-void ShowAbsyn::visitOpcodesFSCALE(OpcodesFSCALE* p)
-{
-  bufAppend("OpcodesFSCALE");
-}
-
-void ShowAbsyn::visitOpcodesFSETPM(OpcodesFSETPM* p)
-{
-  bufAppend("OpcodesFSETPM");
-}
-
-void ShowAbsyn::visitOpcodesFSIN(OpcodesFSIN* p)
-{
-  bufAppend("OpcodesFSIN");
-}
-
-void ShowAbsyn::visitOpcodesFSINCOS(OpcodesFSINCOS* p)
-{
-  bufAppend("OpcodesFSINCOS");
-}
-
-void ShowAbsyn::visitOpcodesFSQRT(OpcodesFSQRT* p)
-{
-  bufAppend("OpcodesFSQRT");
 }
 
 void ShowAbsyn::visitOpcodesFST(OpcodesFST* p)
@@ -5577,11 +5854,6 @@ void ShowAbsyn::visitOpcodesFSUBRP(OpcodesFSUBRP* p)
   bufAppend("OpcodesFSUBRP");
 }
 
-void ShowAbsyn::visitOpcodesFTST(OpcodesFTST* p)
-{
-  bufAppend("OpcodesFTST");
-}
-
 void ShowAbsyn::visitOpcodesFUCOM(OpcodesFUCOM* p)
 {
   bufAppend("OpcodesFUCOM");
@@ -5592,39 +5864,9 @@ void ShowAbsyn::visitOpcodesFUCOMP(OpcodesFUCOMP* p)
   bufAppend("OpcodesFUCOMP");
 }
 
-void ShowAbsyn::visitOpcodesFUCOMPP(OpcodesFUCOMPP* p)
-{
-  bufAppend("OpcodesFUCOMPP");
-}
-
-void ShowAbsyn::visitOpcodesFXAM(OpcodesFXAM* p)
-{
-  bufAppend("OpcodesFXAM");
-}
-
 void ShowAbsyn::visitOpcodesFXCH(OpcodesFXCH* p)
 {
   bufAppend("OpcodesFXCH");
-}
-
-void ShowAbsyn::visitOpcodesFXTRACT(OpcodesFXTRACT* p)
-{
-  bufAppend("OpcodesFXTRACT");
-}
-
-void ShowAbsyn::visitOpcodesFYL2X(OpcodesFYL2X* p)
-{
-  bufAppend("OpcodesFYL2X");
-}
-
-void ShowAbsyn::visitOpcodesFYL2XP1(OpcodesFYL2XP1* p)
-{
-  bufAppend("OpcodesFYL2XP1");
-}
-
-void ShowAbsyn::visitOpcodesHLT(OpcodesHLT* p)
-{
-  bufAppend("OpcodesHLT");
 }
 
 void ShowAbsyn::visitOpcodesIDIV(OpcodesIDIV* p)
@@ -5652,59 +5894,14 @@ void ShowAbsyn::visitOpcodesINCO(OpcodesINCO* p)
   bufAppend("OpcodesINCO");
 }
 
-void ShowAbsyn::visitOpcodesINSB(OpcodesINSB* p)
-{
-  bufAppend("OpcodesINSB");
-}
-
-void ShowAbsyn::visitOpcodesINSD(OpcodesINSD* p)
-{
-  bufAppend("OpcodesINSD");
-}
-
-void ShowAbsyn::visitOpcodesINSW(OpcodesINSW* p)
-{
-  bufAppend("OpcodesINSW");
-}
-
 void ShowAbsyn::visitOpcodesINT(OpcodesINT* p)
 {
   bufAppend("OpcodesINT");
 }
 
-void ShowAbsyn::visitOpcodesINT3(OpcodesINT3* p)
-{
-  bufAppend("OpcodesINT3");
-}
-
-void ShowAbsyn::visitOpcodesINTO(OpcodesINTO* p)
-{
-  bufAppend("OpcodesINTO");
-}
-
-void ShowAbsyn::visitOpcodesINVD(OpcodesINVD* p)
-{
-  bufAppend("OpcodesINVD");
-}
-
 void ShowAbsyn::visitOpcodesINVLPG(OpcodesINVLPG* p)
 {
   bufAppend("OpcodesINVLPG");
-}
-
-void ShowAbsyn::visitOpcodesIRET(OpcodesIRET* p)
-{
-  bufAppend("OpcodesIRET");
-}
-
-void ShowAbsyn::visitOpcodesIRETD(OpcodesIRETD* p)
-{
-  bufAppend("OpcodesIRETD");
-}
-
-void ShowAbsyn::visitOpcodesIRETW(OpcodesIRETW* p)
-{
-  bufAppend("OpcodesIRETW");
 }
 
 void ShowAbsyn::visitOpcodesJA(OpcodesJA* p)
@@ -5872,11 +6069,6 @@ void ShowAbsyn::visitOpcodesJZ(OpcodesJZ* p)
   bufAppend("OpcodesJZ");
 }
 
-void ShowAbsyn::visitOpcodesLAHF(OpcodesLAHF* p)
-{
-  bufAppend("OpcodesLAHF");
-}
-
 void ShowAbsyn::visitOpcodesLAR(OpcodesLAR* p)
 {
   bufAppend("OpcodesLAR");
@@ -5890,11 +6082,6 @@ void ShowAbsyn::visitOpcodesLDS(OpcodesLDS* p)
 void ShowAbsyn::visitOpcodesLEA(OpcodesLEA* p)
 {
   bufAppend("OpcodesLEA");
-}
-
-void ShowAbsyn::visitOpcodesLEAVE(OpcodesLEAVE* p)
-{
-  bufAppend("OpcodesLEAVE");
 }
 
 void ShowAbsyn::visitOpcodesLES(OpcodesLES* p)
@@ -5935,21 +6122,6 @@ void ShowAbsyn::visitOpcodesLMSW(OpcodesLMSW* p)
 void ShowAbsyn::visitOpcodesLOCK(OpcodesLOCK* p)
 {
   bufAppend("OpcodesLOCK");
-}
-
-void ShowAbsyn::visitOpcodesLODSB(OpcodesLODSB* p)
-{
-  bufAppend("OpcodesLODSB");
-}
-
-void ShowAbsyn::visitOpcodesLODSD(OpcodesLODSD* p)
-{
-  bufAppend("OpcodesLODSD");
-}
-
-void ShowAbsyn::visitOpcodesLODSW(OpcodesLODSW* p)
-{
-  bufAppend("OpcodesLODSW");
 }
 
 void ShowAbsyn::visitOpcodesLOOP(OpcodesLOOP* p)
@@ -5995,21 +6167,6 @@ void ShowAbsyn::visitOpcodesLTR(OpcodesLTR* p)
 void ShowAbsyn::visitOpcodesMOV(OpcodesMOV* p)
 {
   bufAppend("OpcodesMOV");
-}
-
-void ShowAbsyn::visitOpcodesMOVSB(OpcodesMOVSB* p)
-{
-  bufAppend("OpcodesMOVSB");
-}
-
-void ShowAbsyn::visitOpcodesMOVSD(OpcodesMOVSD* p)
-{
-  bufAppend("OpcodesMOVSD");
-}
-
-void ShowAbsyn::visitOpcodesMOVSW(OpcodesMOVSW* p)
-{
-  bufAppend("OpcodesMOVSW");
 }
 
 void ShowAbsyn::visitOpcodesMOVSX(OpcodesMOVSX* p)
@@ -6077,74 +6234,9 @@ void ShowAbsyn::visitOpcodesPOP(OpcodesPOP* p)
   bufAppend("OpcodesPOP");
 }
 
-void ShowAbsyn::visitOpcodesPOPA(OpcodesPOPA* p)
-{
-  bufAppend("OpcodesPOPA");
-}
-
-void ShowAbsyn::visitOpcodesPOPAD(OpcodesPOPAD* p)
-{
-  bufAppend("OpcodesPOPAD");
-}
-
-void ShowAbsyn::visitOpcodesPOPAW(OpcodesPOPAW* p)
-{
-  bufAppend("OpcodesPOPAW");
-}
-
-void ShowAbsyn::visitOpcodesPOPF(OpcodesPOPF* p)
-{
-  bufAppend("OpcodesPOPF");
-}
-
-void ShowAbsyn::visitOpcodesPOPFD(OpcodesPOPFD* p)
-{
-  bufAppend("OpcodesPOPFD");
-}
-
-void ShowAbsyn::visitOpcodesPOPFW(OpcodesPOPFW* p)
-{
-  bufAppend("OpcodesPOPFW");
-}
-
 void ShowAbsyn::visitOpcodesPUSH(OpcodesPUSH* p)
 {
   bufAppend("OpcodesPUSH");
-}
-
-void ShowAbsyn::visitOpcodesPUSHA(OpcodesPUSHA* p)
-{
-  bufAppend("OpcodesPUSHA");
-}
-
-void ShowAbsyn::visitOpcodesPUSHD(OpcodesPUSHD* p)
-{
-  bufAppend("OpcodesPUSHD");
-}
-
-void ShowAbsyn::visitOpcodesPUSHAD(OpcodesPUSHAD* p)
-{
-  bufAppend("OpcodesPUSHAD");
-}
-
-void ShowAbsyn::visitOpcodesPUSHAW(OpcodesPUSHAW* p)
-{
-  bufAppend("OpcodesPUSHAW");
-}
-
-void ShowAbsyn::visitOpcodesPUSHF(OpcodesPUSHF* p)
-{
-  bufAppend("OpcodesPUSHF");
-}
-
-void ShowAbsyn::visitOpcodesPUSHFD(OpcodesPUSHFD* p)
-{
-  bufAppend("OpcodesPUSHFD");
-}
-
-void ShowAbsyn::visitOpcodesPUSHFW(OpcodesPUSHFW* p)
-{
-  bufAppend("OpcodesPUSHFW");
 }
 
 void ShowAbsyn::visitOpcodesRCL(OpcodesRCL* p)
@@ -6217,11 +6309,6 @@ void ShowAbsyn::visitOpcodesRESW(OpcodesRESW* p)
   bufAppend("OpcodesRESW");
 }
 
-void ShowAbsyn::visitOpcodesRET(OpcodesRET* p)
-{
-  bufAppend("OpcodesRET");
-}
-
 void ShowAbsyn::visitOpcodesRETF(OpcodesRETF* p)
 {
   bufAppend("OpcodesRETF");
@@ -6247,11 +6334,6 @@ void ShowAbsyn::visitOpcodesRSM(OpcodesRSM* p)
   bufAppend("OpcodesRSM");
 }
 
-void ShowAbsyn::visitOpcodesSAHF(OpcodesSAHF* p)
-{
-  bufAppend("OpcodesSAHF");
-}
-
 void ShowAbsyn::visitOpcodesSAL(OpcodesSAL* p)
 {
   bufAppend("OpcodesSAL");
@@ -6265,21 +6347,6 @@ void ShowAbsyn::visitOpcodesSAR(OpcodesSAR* p)
 void ShowAbsyn::visitOpcodesSBB(OpcodesSBB* p)
 {
   bufAppend("OpcodesSBB");
-}
-
-void ShowAbsyn::visitOpcodesSCASB(OpcodesSCASB* p)
-{
-  bufAppend("OpcodesSCASB");
-}
-
-void ShowAbsyn::visitOpcodesSCASD(OpcodesSCASD* p)
-{
-  bufAppend("OpcodesSCASD");
-}
-
-void ShowAbsyn::visitOpcodesSCASW(OpcodesSCASW* p)
-{
-  bufAppend("OpcodesSCASW");
 }
 
 void ShowAbsyn::visitOpcodesSETA(OpcodesSETA* p)
@@ -6472,36 +6539,6 @@ void ShowAbsyn::visitOpcodesSMSW(OpcodesSMSW* p)
   bufAppend("OpcodesSMSW");
 }
 
-void ShowAbsyn::visitOpcodesSTC(OpcodesSTC* p)
-{
-  bufAppend("OpcodesSTC");
-}
-
-void ShowAbsyn::visitOpcodesSTD(OpcodesSTD* p)
-{
-  bufAppend("OpcodesSTD");
-}
-
-void ShowAbsyn::visitOpcodesSTI(OpcodesSTI* p)
-{
-  bufAppend("OpcodesSTI");
-}
-
-void ShowAbsyn::visitOpcodesSTOSB(OpcodesSTOSB* p)
-{
-  bufAppend("OpcodesSTOSB");
-}
-
-void ShowAbsyn::visitOpcodesSTOSD(OpcodesSTOSD* p)
-{
-  bufAppend("OpcodesSTOSD");
-}
-
-void ShowAbsyn::visitOpcodesSTOSW(OpcodesSTOSW* p)
-{
-  bufAppend("OpcodesSTOSW");
-}
-
 void ShowAbsyn::visitOpcodesSTR(OpcodesSTR* p)
 {
   bufAppend("OpcodesSTR");
@@ -6537,16 +6574,6 @@ void ShowAbsyn::visitOpcodesVERW(OpcodesVERW* p)
   bufAppend("OpcodesVERW");
 }
 
-void ShowAbsyn::visitOpcodesWAIT(OpcodesWAIT* p)
-{
-  bufAppend("OpcodesWAIT");
-}
-
-void ShowAbsyn::visitOpcodesWBINVD(OpcodesWBINVD* p)
-{
-  bufAppend("OpcodesWBINVD");
-}
-
 void ShowAbsyn::visitOpcodesWRMSR(OpcodesWRMSR* p)
 {
   bufAppend("OpcodesWRMSR");
@@ -6560,11 +6587,6 @@ void ShowAbsyn::visitOpcodesXADD(OpcodesXADD* p)
 void ShowAbsyn::visitOpcodesXCHG(OpcodesXCHG* p)
 {
   bufAppend("OpcodesXCHG");
-}
-
-void ShowAbsyn::visitOpcodesXLATB(OpcodesXLATB* p)
-{
-  bufAppend("OpcodesXLATB");
 }
 
 void ShowAbsyn::visitOpcodesXOR(OpcodesXOR* p)
@@ -6604,14 +6626,6 @@ void ShowAbsyn::visitIdent(String s)
 }
 
 void ShowAbsyn::visitHex(String s)
-{
-  bufAppend('\"');
-  bufAppend(s);
-  bufAppend('\"');
-}
-
-
-void ShowAbsyn::visitLabel(String s)
 {
   bufAppend('\"');
   bufAppend(s);

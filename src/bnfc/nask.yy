@@ -397,7 +397,6 @@
 %token              _RBRACK       /* ] */
 %token<std::string> T_Hex         /* Hex */
 %token<std::string> T_Id          /* Id */
-%token<std::string> T_Label       /* Label */
 %token<std::string> _STRING_
 %token<char>        _CHAR_
 %token<int>         _INTEGER_
@@ -418,6 +417,7 @@
 %type <std::shared_ptr<ConfigType>> ConfigType
 %type <std::shared_ptr<DataType>> DataType
 %type <std::shared_ptr<JumpDir>> JumpDir
+%type <std::shared_ptr<OpcodeNoParam>> OpcodeNoParam
 %type <std::shared_ptr<Opcode>> Opcode
 
 %start Program
@@ -429,12 +429,13 @@ Program : ListStatement { $1->reverse();$$ = std::make_shared<Prog>($1); $$->lin
 ListStatement : Statement { $$ = std::make_shared<ListStatement>(); $$->cons($1); driver.liststatement_ = $$; }
   | Statement ListStatement { $2->cons($1); $$ = $2; driver.liststatement_ = $$; }
 ;
-Statement : T_Label { $$ = std::make_shared<LabelStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
-  | T_Id _KW_EQU Exp { $$ = std::make_shared<DeclareStmt>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+Statement : T_Id _KW_EQU Exp { $$ = std::make_shared<DeclareStmt>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | _KW_GLOBAL ListFactor { $2->reverse();$$ = std::make_shared<ExportSymStmt>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | _KW_EXTERN ListFactor { $2->reverse();$$ = std::make_shared<ExternSymStmt>($2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | _LBRACK ConfigType Factor _RBRACK { $$ = std::make_shared<ConfigStmt>($2, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
   | Opcode ListMnemonicArgs { $2->reverse();$$ = std::make_shared<MnemonicStmt>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+  | OpcodeNoParam { $$ = std::make_shared<OpcodeStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
+  | T_Id _COLON { $$ = std::make_shared<LabelStmt>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.statement_ = $$; }
 ;
 ListFactor : /* empty */ { $$ = std::make_shared<ListFactor>(); driver.listfactor_ = $$; }
   | Factor { $$ = std::make_shared<ListFactor>(); $$->cons($1); driver.listfactor_ = $$; }
@@ -501,9 +502,108 @@ JumpDir : _KW_SHORT { $$ = std::make_shared<ShortJumpDir>(); $$->line_number = @
   | _KW_NEAR { $$ = std::make_shared<NearJumpDir>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.jumpdir_ = $$; }
   | _KW_FAR { $$ = std::make_shared<FarJumpDir>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.jumpdir_ = $$; }
 ;
-Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_AAD { $$ = std::make_shared<OpcodesAAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_AAS { $$ = std::make_shared<OpcodesAAS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
+OpcodeNoParam : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_AAS { $$ = std::make_shared<OpcodesAAS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CBW { $$ = std::make_shared<OpcodesCBW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CDQ { $$ = std::make_shared<OpcodesCDQ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CLC { $$ = std::make_shared<OpcodesCLC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CLD { $$ = std::make_shared<OpcodesCLD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CLI { $$ = std::make_shared<OpcodesCLI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CLTS { $$ = std::make_shared<OpcodesCLTS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CMC { $$ = std::make_shared<OpcodesCMC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CMPSB { $$ = std::make_shared<OpcodesCMPSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CMPSD { $$ = std::make_shared<OpcodesCMPSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CMPSW { $$ = std::make_shared<OpcodesCMPSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CWD { $$ = std::make_shared<OpcodesCWD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_CWDE { $$ = std::make_shared<OpcodesCWDE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_DAA { $$ = std::make_shared<OpcodesDAA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_DAS { $$ = std::make_shared<OpcodesDAS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_F2XM1 { $$ = std::make_shared<OpcodesF2XM1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FABS { $$ = std::make_shared<OpcodesFABS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FCHS { $$ = std::make_shared<OpcodesFCHS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FCLEX { $$ = std::make_shared<OpcodesFCLEX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FCOMPP { $$ = std::make_shared<OpcodesFCOMPP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FCOS { $$ = std::make_shared<OpcodesFCOS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FDECSTP { $$ = std::make_shared<OpcodesFDECSTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FDISI { $$ = std::make_shared<OpcodesFDISI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FENI { $$ = std::make_shared<OpcodesFENI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FINCSTP { $$ = std::make_shared<OpcodesFINCSTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FINIT { $$ = std::make_shared<OpcodesFINIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLD1 { $$ = std::make_shared<OpcodesFLD1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDL2E { $$ = std::make_shared<OpcodesFLDL2E>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDL2T { $$ = std::make_shared<OpcodesFLDL2T>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDLG2 { $$ = std::make_shared<OpcodesFLDLG2>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDLN2 { $$ = std::make_shared<OpcodesFLDLN2>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDPI { $$ = std::make_shared<OpcodesFLDPI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FLDZ { $$ = std::make_shared<OpcodesFLDZ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FNCLEX { $$ = std::make_shared<OpcodesFNCLEX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FNDISI { $$ = std::make_shared<OpcodesFNDISI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FNENI { $$ = std::make_shared<OpcodesFNENI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FNINIT { $$ = std::make_shared<OpcodesFNINIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FNOP { $$ = std::make_shared<OpcodesFNOP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FPATAN { $$ = std::make_shared<OpcodesFPATAN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FPTAN { $$ = std::make_shared<OpcodesFPTAN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FPREM { $$ = std::make_shared<OpcodesFPREM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FPREM1 { $$ = std::make_shared<OpcodesFPREM1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FRNDINT { $$ = std::make_shared<OpcodesFRNDINT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FSCALE { $$ = std::make_shared<OpcodesFSCALE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FSETPM { $$ = std::make_shared<OpcodesFSETPM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FSIN { $$ = std::make_shared<OpcodesFSIN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FSINCOS { $$ = std::make_shared<OpcodesFSINCOS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FSQRT { $$ = std::make_shared<OpcodesFSQRT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FTST { $$ = std::make_shared<OpcodesFTST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FUCOMPP { $$ = std::make_shared<OpcodesFUCOMPP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FXAM { $$ = std::make_shared<OpcodesFXAM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FXTRACT { $$ = std::make_shared<OpcodesFXTRACT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FYL2X { $$ = std::make_shared<OpcodesFYL2X>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_FYL2XP1 { $$ = std::make_shared<OpcodesFYL2XP1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_HLT { $$ = std::make_shared<OpcodesHLT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INSB { $$ = std::make_shared<OpcodesINSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INSD { $$ = std::make_shared<OpcodesINSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INSW { $$ = std::make_shared<OpcodesINSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INT3 { $$ = std::make_shared<OpcodesINT3>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INTO { $$ = std::make_shared<OpcodesINTO>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_INVD { $$ = std::make_shared<OpcodesINVD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_IRET { $$ = std::make_shared<OpcodesIRET>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_IRETD { $$ = std::make_shared<OpcodesIRETD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_IRETW { $$ = std::make_shared<OpcodesIRETW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_LAHF { $$ = std::make_shared<OpcodesLAHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_LEAVE { $$ = std::make_shared<OpcodesLEAVE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_LODSB { $$ = std::make_shared<OpcodesLODSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_LODSD { $$ = std::make_shared<OpcodesLODSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_LODSW { $$ = std::make_shared<OpcodesLODSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_MOVSB { $$ = std::make_shared<OpcodesMOVSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_MOVSD { $$ = std::make_shared<OpcodesMOVSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_MOVSW { $$ = std::make_shared<OpcodesMOVSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPA { $$ = std::make_shared<OpcodesPOPA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPAD { $$ = std::make_shared<OpcodesPOPAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPAW { $$ = std::make_shared<OpcodesPOPAW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPF { $$ = std::make_shared<OpcodesPOPF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPFD { $$ = std::make_shared<OpcodesPOPFD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_POPFW { $$ = std::make_shared<OpcodesPOPFW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHA { $$ = std::make_shared<OpcodesPUSHA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHD { $$ = std::make_shared<OpcodesPUSHD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHAD { $$ = std::make_shared<OpcodesPUSHAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHAW { $$ = std::make_shared<OpcodesPUSHAW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHF { $$ = std::make_shared<OpcodesPUSHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHFD { $$ = std::make_shared<OpcodesPUSHFD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_PUSHFW { $$ = std::make_shared<OpcodesPUSHFW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_RET { $$ = std::make_shared<OpcodesRET>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_SAHF { $$ = std::make_shared<OpcodesSAHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_SCASB { $$ = std::make_shared<OpcodesSCASB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_SCASD { $$ = std::make_shared<OpcodesSCASD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_SCASW { $$ = std::make_shared<OpcodesSCASW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STC { $$ = std::make_shared<OpcodesSTC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STD { $$ = std::make_shared<OpcodesSTD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STI { $$ = std::make_shared<OpcodesSTI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STOSB { $$ = std::make_shared<OpcodesSTOSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STOSD { $$ = std::make_shared<OpcodesSTOSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_STOSW { $$ = std::make_shared<OpcodesSTOSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_WAIT { $$ = std::make_shared<OpcodesWAIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_WBINVD { $$ = std::make_shared<OpcodesWBINVD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+  | _KW_XLATB { $$ = std::make_shared<OpcodesXLATB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcodenoparam_ = $$; }
+;
+Opcode : _KW_AAD { $$ = std::make_shared<OpcodesAAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_AAM { $$ = std::make_shared<OpcodesAAM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ADC { $$ = std::make_shared<OpcodesADC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ADD { $$ = std::make_shared<OpcodesADD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -520,23 +620,9 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_BTR { $$ = std::make_shared<OpcodesBTR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_BTS { $$ = std::make_shared<OpcodesBTS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_CALL { $$ = std::make_shared<OpcodesCALL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CBW { $$ = std::make_shared<OpcodesCBW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CDQ { $$ = std::make_shared<OpcodesCDQ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CLC { $$ = std::make_shared<OpcodesCLC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CLD { $$ = std::make_shared<OpcodesCLD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CLI { $$ = std::make_shared<OpcodesCLI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CLTS { $$ = std::make_shared<OpcodesCLTS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CMC { $$ = std::make_shared<OpcodesCMC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_CMP { $$ = std::make_shared<OpcodesCMP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CMPSB { $$ = std::make_shared<OpcodesCMPSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CMPSD { $$ = std::make_shared<OpcodesCMPSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CMPSW { $$ = std::make_shared<OpcodesCMPSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_CMPXCHG { $$ = std::make_shared<OpcodesCMPXCHG>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_CPUID { $$ = std::make_shared<OpcodesCPUID>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CWD { $$ = std::make_shared<OpcodesCWD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_CWDE { $$ = std::make_shared<OpcodesCWDE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_DAA { $$ = std::make_shared<OpcodesDAA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_DAS { $$ = std::make_shared<OpcodesDAS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_DB { $$ = std::make_shared<OpcodesDB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_DD { $$ = std::make_shared<OpcodesDD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_DEC { $$ = std::make_shared<OpcodesDEC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -546,25 +632,16 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_DW { $$ = std::make_shared<OpcodesDW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_END { $$ = std::make_shared<OpcodesEND>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ENTER { $$ = std::make_shared<OpcodesENTER>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_F2XM1 { $$ = std::make_shared<OpcodesF2XM1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FABS { $$ = std::make_shared<OpcodesFABS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FADD { $$ = std::make_shared<OpcodesFADD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FADDP { $$ = std::make_shared<OpcodesFADDP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FBLD { $$ = std::make_shared<OpcodesFBLD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FBSTP { $$ = std::make_shared<OpcodesFBSTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FCHS { $$ = std::make_shared<OpcodesFCHS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FCLEX { $$ = std::make_shared<OpcodesFCLEX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FCOM { $$ = std::make_shared<OpcodesFCOM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FCOMP { $$ = std::make_shared<OpcodesFCOMP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FCOMPP { $$ = std::make_shared<OpcodesFCOMPP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FCOS { $$ = std::make_shared<OpcodesFCOS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FDECSTP { $$ = std::make_shared<OpcodesFDECSTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FDISI { $$ = std::make_shared<OpcodesFDISI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FDIV { $$ = std::make_shared<OpcodesFDIV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FDIVP { $$ = std::make_shared<OpcodesFDIVP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FDIVR { $$ = std::make_shared<OpcodesFDIVR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FDIVRP { $$ = std::make_shared<OpcodesFDIVRP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FENI { $$ = std::make_shared<OpcodesFENI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FFREE { $$ = std::make_shared<OpcodesFFREE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FIADD { $$ = std::make_shared<OpcodesFIADD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FICOM { $$ = std::make_shared<OpcodesFICOM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -573,45 +650,21 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_FIDIVR { $$ = std::make_shared<OpcodesFIDIVR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FILD { $$ = std::make_shared<OpcodesFILD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FIMUL { $$ = std::make_shared<OpcodesFIMUL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FINCSTP { $$ = std::make_shared<OpcodesFINCSTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FINIT { $$ = std::make_shared<OpcodesFINIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FIST { $$ = std::make_shared<OpcodesFIST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FISTP { $$ = std::make_shared<OpcodesFISTP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FISUB { $$ = std::make_shared<OpcodesFISUB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FISUBR { $$ = std::make_shared<OpcodesFISUBR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FLD { $$ = std::make_shared<OpcodesFLD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLD1 { $$ = std::make_shared<OpcodesFLD1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FLDCW { $$ = std::make_shared<OpcodesFLDCW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FLDENV { $$ = std::make_shared<OpcodesFLDENV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDL2E { $$ = std::make_shared<OpcodesFLDL2E>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDL2T { $$ = std::make_shared<OpcodesFLDL2T>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDLG2 { $$ = std::make_shared<OpcodesFLDLG2>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDLN2 { $$ = std::make_shared<OpcodesFLDLN2>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDPI { $$ = std::make_shared<OpcodesFLDPI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FLDZ { $$ = std::make_shared<OpcodesFLDZ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FMUL { $$ = std::make_shared<OpcodesFMUL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FMULP { $$ = std::make_shared<OpcodesFMULP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FNCLEX { $$ = std::make_shared<OpcodesFNCLEX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FNDISI { $$ = std::make_shared<OpcodesFNDISI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FNENI { $$ = std::make_shared<OpcodesFNENI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FNINIT { $$ = std::make_shared<OpcodesFNINIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FNOP { $$ = std::make_shared<OpcodesFNOP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FNSAVE { $$ = std::make_shared<OpcodesFNSAVE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FNSTCW { $$ = std::make_shared<OpcodesFNSTCW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FNSTENV { $$ = std::make_shared<OpcodesFNSTENV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FNSTSW { $$ = std::make_shared<OpcodesFNSTSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FPATAN { $$ = std::make_shared<OpcodesFPATAN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FPTAN { $$ = std::make_shared<OpcodesFPTAN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FPREM { $$ = std::make_shared<OpcodesFPREM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FPREM1 { $$ = std::make_shared<OpcodesFPREM1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FRNDINT { $$ = std::make_shared<OpcodesFRNDINT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FRSTOR { $$ = std::make_shared<OpcodesFRSTOR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FSAVE { $$ = std::make_shared<OpcodesFSAVE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FSCALE { $$ = std::make_shared<OpcodesFSCALE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FSETPM { $$ = std::make_shared<OpcodesFSETPM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FSIN { $$ = std::make_shared<OpcodesFSIN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FSINCOS { $$ = std::make_shared<OpcodesFSINCOS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FSQRT { $$ = std::make_shared<OpcodesFSQRT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FST { $$ = std::make_shared<OpcodesFST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FSTCW { $$ = std::make_shared<OpcodesFSTCW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FSTENV { $$ = std::make_shared<OpcodesFSTENV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -621,32 +674,16 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_FSUBP { $$ = std::make_shared<OpcodesFSUBP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FSUBR { $$ = std::make_shared<OpcodesFSUBR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FSUBRP { $$ = std::make_shared<OpcodesFSUBRP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FTST { $$ = std::make_shared<OpcodesFTST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FUCOM { $$ = std::make_shared<OpcodesFUCOM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FUCOMP { $$ = std::make_shared<OpcodesFUCOMP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FUCOMPP { $$ = std::make_shared<OpcodesFUCOMPP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FXAM { $$ = std::make_shared<OpcodesFXAM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_FXCH { $$ = std::make_shared<OpcodesFXCH>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FXTRACT { $$ = std::make_shared<OpcodesFXTRACT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FYL2X { $$ = std::make_shared<OpcodesFYL2X>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_FYL2XP1 { $$ = std::make_shared<OpcodesFYL2XP1>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_HLT { $$ = std::make_shared<OpcodesHLT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_IDIV { $$ = std::make_shared<OpcodesIDIV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_IMUL { $$ = std::make_shared<OpcodesIMUL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_IN { $$ = std::make_shared<OpcodesIN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_INC { $$ = std::make_shared<OpcodesINC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_INCO { $$ = std::make_shared<OpcodesINCO>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INSB { $$ = std::make_shared<OpcodesINSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INSD { $$ = std::make_shared<OpcodesINSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INSW { $$ = std::make_shared<OpcodesINSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_INT { $$ = std::make_shared<OpcodesINT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INT3 { $$ = std::make_shared<OpcodesINT3>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INTO { $$ = std::make_shared<OpcodesINTO>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_INVD { $$ = std::make_shared<OpcodesINVD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_INVLPG { $$ = std::make_shared<OpcodesINVLPG>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_IRET { $$ = std::make_shared<OpcodesIRET>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_IRETD { $$ = std::make_shared<OpcodesIRETD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_IRETW { $$ = std::make_shared<OpcodesIRETW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_JA { $$ = std::make_shared<OpcodesJA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_JAE { $$ = std::make_shared<OpcodesJAE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_JB { $$ = std::make_shared<OpcodesJB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -680,11 +717,9 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_JPO { $$ = std::make_shared<OpcodesJPO>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_JS { $$ = std::make_shared<OpcodesJS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_JZ { $$ = std::make_shared<OpcodesJZ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_LAHF { $$ = std::make_shared<OpcodesLAHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LAR { $$ = std::make_shared<OpcodesLAR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LDS { $$ = std::make_shared<OpcodesLDS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LEA { $$ = std::make_shared<OpcodesLEA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_LEAVE { $$ = std::make_shared<OpcodesLEAVE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LES { $$ = std::make_shared<OpcodesLES>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LFS { $$ = std::make_shared<OpcodesLFS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LGDT { $$ = std::make_shared<OpcodesLGDT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -693,9 +728,6 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_LLDT { $$ = std::make_shared<OpcodesLLDT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LMSW { $$ = std::make_shared<OpcodesLMSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LOCK { $$ = std::make_shared<OpcodesLOCK>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_LODSB { $$ = std::make_shared<OpcodesLODSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_LODSD { $$ = std::make_shared<OpcodesLODSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_LODSW { $$ = std::make_shared<OpcodesLODSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LOOP { $$ = std::make_shared<OpcodesLOOP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LOOPE { $$ = std::make_shared<OpcodesLOOPE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LOOPNE { $$ = std::make_shared<OpcodesLOOPNE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -705,9 +737,6 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_LSS { $$ = std::make_shared<OpcodesLSS>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_LTR { $$ = std::make_shared<OpcodesLTR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_MOV { $$ = std::make_shared<OpcodesMOV>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_MOVSB { $$ = std::make_shared<OpcodesMOVSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_MOVSD { $$ = std::make_shared<OpcodesMOVSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_MOVSW { $$ = std::make_shared<OpcodesMOVSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_MOVSX { $$ = std::make_shared<OpcodesMOVSX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_MOVZX { $$ = std::make_shared<OpcodesMOVZX>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_MUL { $$ = std::make_shared<OpcodesMUL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -721,20 +750,7 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_OUTSD { $$ = std::make_shared<OpcodesOUTSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_OUTSW { $$ = std::make_shared<OpcodesOUTSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_POP { $$ = std::make_shared<OpcodesPOP>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPA { $$ = std::make_shared<OpcodesPOPA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPAD { $$ = std::make_shared<OpcodesPOPAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPAW { $$ = std::make_shared<OpcodesPOPAW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPF { $$ = std::make_shared<OpcodesPOPF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPFD { $$ = std::make_shared<OpcodesPOPFD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_POPFW { $$ = std::make_shared<OpcodesPOPFW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_PUSH { $$ = std::make_shared<OpcodesPUSH>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHA { $$ = std::make_shared<OpcodesPUSHA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHD { $$ = std::make_shared<OpcodesPUSHD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHAD { $$ = std::make_shared<OpcodesPUSHAD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHAW { $$ = std::make_shared<OpcodesPUSHAW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHF { $$ = std::make_shared<OpcodesPUSHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHFD { $$ = std::make_shared<OpcodesPUSHFD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_PUSHFW { $$ = std::make_shared<OpcodesPUSHFW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RCL { $$ = std::make_shared<OpcodesRCL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RCR { $$ = std::make_shared<OpcodesRCR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RDMSR { $$ = std::make_shared<OpcodesRDMSR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -749,19 +765,14 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_RESQ { $$ = std::make_shared<OpcodesRESQ>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_REST { $$ = std::make_shared<OpcodesREST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RESW { $$ = std::make_shared<OpcodesRESW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_RET { $$ = std::make_shared<OpcodesRET>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RETF { $$ = std::make_shared<OpcodesRETF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RETN { $$ = std::make_shared<OpcodesRETN>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ROL { $$ = std::make_shared<OpcodesROL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_ROR { $$ = std::make_shared<OpcodesROR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_RSM { $$ = std::make_shared<OpcodesRSM>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_SAHF { $$ = std::make_shared<OpcodesSAHF>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SAL { $$ = std::make_shared<OpcodesSAL>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SAR { $$ = std::make_shared<OpcodesSAR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SBB { $$ = std::make_shared<OpcodesSBB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_SCASB { $$ = std::make_shared<OpcodesSCASB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_SCASD { $$ = std::make_shared<OpcodesSCASD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_SCASW { $$ = std::make_shared<OpcodesSCASW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SETA { $$ = std::make_shared<OpcodesSETA>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SETAE { $$ = std::make_shared<OpcodesSETAE>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SETB { $$ = std::make_shared<OpcodesSETB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -800,12 +811,6 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_SIDT { $$ = std::make_shared<OpcodesSIDT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SLDT { $$ = std::make_shared<OpcodesSLDT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SMSW { $$ = std::make_shared<OpcodesSMSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STC { $$ = std::make_shared<OpcodesSTC>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STD { $$ = std::make_shared<OpcodesSTD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STI { $$ = std::make_shared<OpcodesSTI>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STOSB { $$ = std::make_shared<OpcodesSTOSB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STOSD { $$ = std::make_shared<OpcodesSTOSD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_STOSW { $$ = std::make_shared<OpcodesSTOSW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_STR { $$ = std::make_shared<OpcodesSTR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_SUB { $$ = std::make_shared<OpcodesSUB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_TEST { $$ = std::make_shared<OpcodesTEST>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
@@ -813,12 +818,9 @@ Opcode : _KW_AAA { $$ = std::make_shared<OpcodesAAA>(); $$->line_number = @$.beg
   | _KW_UD2 { $$ = std::make_shared<OpcodesUD2>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_VERR { $$ = std::make_shared<OpcodesVERR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_VERW { $$ = std::make_shared<OpcodesVERW>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_WAIT { $$ = std::make_shared<OpcodesWAIT>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_WBINVD { $$ = std::make_shared<OpcodesWBINVD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_WRMSR { $$ = std::make_shared<OpcodesWRMSR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_XADD { $$ = std::make_shared<OpcodesXADD>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_XCHG { $$ = std::make_shared<OpcodesXCHG>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
-  | _KW_XLATB { $$ = std::make_shared<OpcodesXLATB>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
   | _KW_XOR { $$ = std::make_shared<OpcodesXOR>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.opcode_ = $$; }
 ;
 

@@ -75,6 +75,7 @@ IDENT [a-zA-Z0-9'_]
 
 <INITIAL>"["      	 return token::_LBRACK;
 <INITIAL>"]"      	 return token::_RBRACK;
+<INITIAL>":"      	 return token::_COLON;
 <INITIAL>","      	 return token::_COMMA;
 <INITIAL>"+"      	 return token::_PLUS;
 <INITIAL>"-"      	 return token::_MINUS;
@@ -83,7 +84,6 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"%"      	 return token::_PERCENT;
 <INITIAL>"("      	 return token::_LPAREN;
 <INITIAL>")"      	 return token::_RPAREN;
-<INITIAL>":"      	 return token::_COLON;
 <INITIAL>"AAA"      	 return token::_KW_AAA;
 <INITIAL>"AAD"      	 return token::_KW_AAD;
 <INITIAL>"AAM"      	 return token::_KW_AAM;
@@ -430,8 +430,7 @@ IDENT [a-zA-Z0-9'_]
 <COMMENT1>[^\n] /* skip */;
 
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
-<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:    	 yylval->emplace<std::string>(yytext); return token::T_Label;
-<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\:|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
+<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;
 <STRING>\"             	 yylval->emplace<std::string>(LITERAL_BUFFER_HARVEST()); BEGIN INITIAL; return token::_STRING_;

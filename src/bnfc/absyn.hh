@@ -19,7 +19,6 @@ using String = std::string;
 using Ident = std::string;
 
 using Hex = std::string;
-using Label = std::string;
 using Id = std::string;
 
 
@@ -35,14 +34,16 @@ class Factor;
 class ConfigType;
 class DataType;
 class JumpDir;
+class OpcodeNoParam;
 class Opcode;
 class Prog;
-class LabelStmt;
 class DeclareStmt;
 class ExportSymStmt;
 class ExternSymStmt;
 class ConfigStmt;
 class MnemonicStmt;
+class OpcodeStmt;
+class LabelStmt;
 class MnemoArg;
 class PlusExp;
 class MinusExp;
@@ -426,14 +427,16 @@ public:
     virtual void visitConfigType(ConfigType *p) = 0;
     virtual void visitDataType(DataType *p) = 0;
     virtual void visitJumpDir(JumpDir *p) = 0;
+    virtual void visitOpcodeNoParam(OpcodeNoParam *p) = 0;
     virtual void visitOpcode(Opcode *p) = 0;
     virtual void visitProg(Prog *p) = 0;
-    virtual void visitLabelStmt(LabelStmt *p) = 0;
     virtual void visitDeclareStmt(DeclareStmt *p) = 0;
     virtual void visitExportSymStmt(ExportSymStmt *p) = 0;
     virtual void visitExternSymStmt(ExternSymStmt *p) = 0;
     virtual void visitConfigStmt(ConfigStmt *p) = 0;
     virtual void visitMnemonicStmt(MnemonicStmt *p) = 0;
+    virtual void visitOpcodeStmt(OpcodeStmt *p) = 0;
+    virtual void visitLabelStmt(LabelStmt *p) = 0;
     virtual void visitMnemoArg(MnemoArg *p) = 0;
     virtual void visitPlusExp(PlusExp *p) = 0;
     virtual void visitMinusExp(MinusExp *p) = 0;
@@ -808,7 +811,6 @@ public:
     virtual void visitString(String x) = 0;
     virtual void visitIdent(Ident x) = 0;
     virtual void visitHex(Hex x) = 0;
-    virtual void visitLabel(Label x) = 0;
     virtual void visitId(Id x) = 0;
 
 };
@@ -894,6 +896,13 @@ public:
     int line_number, char_number;
 };
 
+class OpcodeNoParam : public Visitable
+{
+public:
+    virtual std::shared_ptr<OpcodeNoParam> clone() const = 0;
+    int line_number, char_number;
+};
+
 class Opcode : public Visitable
 {
 public:
@@ -915,20 +924,6 @@ public:
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Program>  clone() const;
-};
-
-class LabelStmt : public Statement
-{
-public:
-    Label label_;
-
-    LabelStmt(Label p1)
-    : Statement(), label_{p1}
-    {};
-
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Statement>  clone() const;
 };
 
 class DeclareStmt : public Statement
@@ -997,6 +992,34 @@ public:
 
     MnemonicStmt(std::shared_ptr<Opcode> p1, std::shared_ptr<ListMnemonicArgs> p2)
     : Statement(), opcode_{p1}, listmnemonicargs_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Statement>  clone() const;
+};
+
+class OpcodeStmt : public Statement
+{
+public:
+    std::shared_ptr<OpcodeNoParam> opcodenoparam_;
+
+    OpcodeStmt(std::shared_ptr<OpcodeNoParam> p1)
+    : Statement(), opcodenoparam_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Statement>  clone() const;
+};
+
+class LabelStmt : public Statement
+{
+public:
+    Id id_;
+
+    LabelStmt(Id p1)
+    : Statement(), id_{p1}
     {};
 
 
@@ -1586,14 +1609,1004 @@ public:
     std::shared_ptr<JumpDir>  clone() const;
 };
 
-class OpcodesAAA : public Opcode
+class OpcodesAAA : public OpcodeNoParam
 {
 public:
 
-    OpcodesAAA(): Opcode (){};
+    OpcodesAAA(): OpcodeNoParam (){};
 
     virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesAAS : public OpcodeNoParam
+{
+public:
+
+    OpcodesAAS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCBW : public OpcodeNoParam
+{
+public:
+
+    OpcodesCBW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCDQ : public OpcodeNoParam
+{
+public:
+
+    OpcodesCDQ(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCLC : public OpcodeNoParam
+{
+public:
+
+    OpcodesCLC(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCLD : public OpcodeNoParam
+{
+public:
+
+    OpcodesCLD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCLI : public OpcodeNoParam
+{
+public:
+
+    OpcodesCLI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCLTS : public OpcodeNoParam
+{
+public:
+
+    OpcodesCLTS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCMC : public OpcodeNoParam
+{
+public:
+
+    OpcodesCMC(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCMPSB : public OpcodeNoParam
+{
+public:
+
+    OpcodesCMPSB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCMPSD : public OpcodeNoParam
+{
+public:
+
+    OpcodesCMPSD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCMPSW : public OpcodeNoParam
+{
+public:
+
+    OpcodesCMPSW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCWD : public OpcodeNoParam
+{
+public:
+
+    OpcodesCWD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesCWDE : public OpcodeNoParam
+{
+public:
+
+    OpcodesCWDE(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesDAA : public OpcodeNoParam
+{
+public:
+
+    OpcodesDAA(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesDAS : public OpcodeNoParam
+{
+public:
+
+    OpcodesDAS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesF2XM1 : public OpcodeNoParam
+{
+public:
+
+    OpcodesF2XM1(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFABS : public OpcodeNoParam
+{
+public:
+
+    OpcodesFABS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFCHS : public OpcodeNoParam
+{
+public:
+
+    OpcodesFCHS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFCLEX : public OpcodeNoParam
+{
+public:
+
+    OpcodesFCLEX(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFCOMPP : public OpcodeNoParam
+{
+public:
+
+    OpcodesFCOMPP(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFCOS : public OpcodeNoParam
+{
+public:
+
+    OpcodesFCOS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFDECSTP : public OpcodeNoParam
+{
+public:
+
+    OpcodesFDECSTP(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFDISI : public OpcodeNoParam
+{
+public:
+
+    OpcodesFDISI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFENI : public OpcodeNoParam
+{
+public:
+
+    OpcodesFENI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFINCSTP : public OpcodeNoParam
+{
+public:
+
+    OpcodesFINCSTP(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFINIT : public OpcodeNoParam
+{
+public:
+
+    OpcodesFINIT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLD1 : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLD1(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDL2E : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDL2E(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDL2T : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDL2T(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDLG2 : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDLG2(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDLN2 : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDLN2(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDPI : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDPI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFLDZ : public OpcodeNoParam
+{
+public:
+
+    OpcodesFLDZ(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFNCLEX : public OpcodeNoParam
+{
+public:
+
+    OpcodesFNCLEX(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFNDISI : public OpcodeNoParam
+{
+public:
+
+    OpcodesFNDISI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFNENI : public OpcodeNoParam
+{
+public:
+
+    OpcodesFNENI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFNINIT : public OpcodeNoParam
+{
+public:
+
+    OpcodesFNINIT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFNOP : public OpcodeNoParam
+{
+public:
+
+    OpcodesFNOP(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFPATAN : public OpcodeNoParam
+{
+public:
+
+    OpcodesFPATAN(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFPTAN : public OpcodeNoParam
+{
+public:
+
+    OpcodesFPTAN(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFPREM : public OpcodeNoParam
+{
+public:
+
+    OpcodesFPREM(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFPREM1 : public OpcodeNoParam
+{
+public:
+
+    OpcodesFPREM1(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFRNDINT : public OpcodeNoParam
+{
+public:
+
+    OpcodesFRNDINT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFSCALE : public OpcodeNoParam
+{
+public:
+
+    OpcodesFSCALE(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFSETPM : public OpcodeNoParam
+{
+public:
+
+    OpcodesFSETPM(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFSIN : public OpcodeNoParam
+{
+public:
+
+    OpcodesFSIN(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFSINCOS : public OpcodeNoParam
+{
+public:
+
+    OpcodesFSINCOS(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFSQRT : public OpcodeNoParam
+{
+public:
+
+    OpcodesFSQRT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFTST : public OpcodeNoParam
+{
+public:
+
+    OpcodesFTST(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFUCOMPP : public OpcodeNoParam
+{
+public:
+
+    OpcodesFUCOMPP(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFXAM : public OpcodeNoParam
+{
+public:
+
+    OpcodesFXAM(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFXTRACT : public OpcodeNoParam
+{
+public:
+
+    OpcodesFXTRACT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFYL2X : public OpcodeNoParam
+{
+public:
+
+    OpcodesFYL2X(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesFYL2XP1 : public OpcodeNoParam
+{
+public:
+
+    OpcodesFYL2XP1(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesHLT : public OpcodeNoParam
+{
+public:
+
+    OpcodesHLT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINSB : public OpcodeNoParam
+{
+public:
+
+    OpcodesINSB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINSD : public OpcodeNoParam
+{
+public:
+
+    OpcodesINSD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINSW : public OpcodeNoParam
+{
+public:
+
+    OpcodesINSW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINT3 : public OpcodeNoParam
+{
+public:
+
+    OpcodesINT3(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINTO : public OpcodeNoParam
+{
+public:
+
+    OpcodesINTO(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesINVD : public OpcodeNoParam
+{
+public:
+
+    OpcodesINVD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesIRET : public OpcodeNoParam
+{
+public:
+
+    OpcodesIRET(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesIRETD : public OpcodeNoParam
+{
+public:
+
+    OpcodesIRETD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesIRETW : public OpcodeNoParam
+{
+public:
+
+    OpcodesIRETW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesLAHF : public OpcodeNoParam
+{
+public:
+
+    OpcodesLAHF(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesLEAVE : public OpcodeNoParam
+{
+public:
+
+    OpcodesLEAVE(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesLODSB : public OpcodeNoParam
+{
+public:
+
+    OpcodesLODSB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesLODSD : public OpcodeNoParam
+{
+public:
+
+    OpcodesLODSD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesLODSW : public OpcodeNoParam
+{
+public:
+
+    OpcodesLODSW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesMOVSB : public OpcodeNoParam
+{
+public:
+
+    OpcodesMOVSB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesMOVSD : public OpcodeNoParam
+{
+public:
+
+    OpcodesMOVSD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesMOVSW : public OpcodeNoParam
+{
+public:
+
+    OpcodesMOVSW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPA : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPA(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPAD : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPAD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPAW : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPAW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPF : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPF(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPFD : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPFD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPOPFW : public OpcodeNoParam
+{
+public:
+
+    OpcodesPOPFW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHA : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHA(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHD : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHAD : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHAD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHAW : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHAW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHF : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHF(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHFD : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHFD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesPUSHFW : public OpcodeNoParam
+{
+public:
+
+    OpcodesPUSHFW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesRET : public OpcodeNoParam
+{
+public:
+
+    OpcodesRET(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSAHF : public OpcodeNoParam
+{
+public:
+
+    OpcodesSAHF(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSCASB : public OpcodeNoParam
+{
+public:
+
+    OpcodesSCASB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSCASD : public OpcodeNoParam
+{
+public:
+
+    OpcodesSCASD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSCASW : public OpcodeNoParam
+{
+public:
+
+    OpcodesSCASW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTC : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTC(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTD : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTI : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTI(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTOSB : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTOSB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTOSD : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTOSD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesSTOSW : public OpcodeNoParam
+{
+public:
+
+    OpcodesSTOSW(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesWAIT : public OpcodeNoParam
+{
+public:
+
+    OpcodesWAIT(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesWBINVD : public OpcodeNoParam
+{
+public:
+
+    OpcodesWBINVD(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
+};
+
+class OpcodesXLATB : public OpcodeNoParam
+{
+public:
+
+    OpcodesXLATB(): OpcodeNoParam (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<OpcodeNoParam>  clone() const;
 };
 
 class OpcodesAAD : public Opcode
@@ -1601,16 +2614,6 @@ class OpcodesAAD : public Opcode
 public:
 
     OpcodesAAD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesAAS : public Opcode
-{
-public:
-
-    OpcodesAAS(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -1776,111 +2779,11 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesCBW : public Opcode
-{
-public:
-
-    OpcodesCBW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCDQ : public Opcode
-{
-public:
-
-    OpcodesCDQ(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCLC : public Opcode
-{
-public:
-
-    OpcodesCLC(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCLD : public Opcode
-{
-public:
-
-    OpcodesCLD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCLI : public Opcode
-{
-public:
-
-    OpcodesCLI(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCLTS : public Opcode
-{
-public:
-
-    OpcodesCLTS(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCMC : public Opcode
-{
-public:
-
-    OpcodesCMC(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesCMP : public Opcode
 {
 public:
 
     OpcodesCMP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCMPSB : public Opcode
-{
-public:
-
-    OpcodesCMPSB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCMPSD : public Opcode
-{
-public:
-
-    OpcodesCMPSD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCMPSW : public Opcode
-{
-public:
-
-    OpcodesCMPSW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -1901,46 +2804,6 @@ class OpcodesCPUID : public Opcode
 public:
 
     OpcodesCPUID(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCWD : public Opcode
-{
-public:
-
-    OpcodesCWD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesCWDE : public Opcode
-{
-public:
-
-    OpcodesCWDE(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesDAA : public Opcode
-{
-public:
-
-    OpcodesDAA(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesDAS : public Opcode
-{
-public:
-
-    OpcodesDAS(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2036,26 +2899,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesF2XM1 : public Opcode
-{
-public:
-
-    OpcodesF2XM1(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFABS : public Opcode
-{
-public:
-
-    OpcodesFABS(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFADD : public Opcode
 {
 public:
@@ -2096,26 +2939,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFCHS : public Opcode
-{
-public:
-
-    OpcodesFCHS(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFCLEX : public Opcode
-{
-public:
-
-    OpcodesFCLEX(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFCOM : public Opcode
 {
 public:
@@ -2131,46 +2954,6 @@ class OpcodesFCOMP : public Opcode
 public:
 
     OpcodesFCOMP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFCOMPP : public Opcode
-{
-public:
-
-    OpcodesFCOMPP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFCOS : public Opcode
-{
-public:
-
-    OpcodesFCOS(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFDECSTP : public Opcode
-{
-public:
-
-    OpcodesFDECSTP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFDISI : public Opcode
-{
-public:
-
-    OpcodesFDISI(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2211,16 +2994,6 @@ class OpcodesFDIVRP : public Opcode
 public:
 
     OpcodesFDIVRP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFENI : public Opcode
-{
-public:
-
-    OpcodesFENI(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2306,26 +3079,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFINCSTP : public Opcode
-{
-public:
-
-    OpcodesFINCSTP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFINIT : public Opcode
-{
-public:
-
-    OpcodesFINIT(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFIST : public Opcode
 {
 public:
@@ -2376,16 +3129,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFLD1 : public Opcode
-{
-public:
-
-    OpcodesFLD1(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFLDCW : public Opcode
 {
 public:
@@ -2406,66 +3149,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFLDL2E : public Opcode
-{
-public:
-
-    OpcodesFLDL2E(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFLDL2T : public Opcode
-{
-public:
-
-    OpcodesFLDL2T(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFLDLG2 : public Opcode
-{
-public:
-
-    OpcodesFLDLG2(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFLDLN2 : public Opcode
-{
-public:
-
-    OpcodesFLDLN2(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFLDPI : public Opcode
-{
-public:
-
-    OpcodesFLDPI(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFLDZ : public Opcode
-{
-public:
-
-    OpcodesFLDZ(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFMUL : public Opcode
 {
 public:
@@ -2481,56 +3164,6 @@ class OpcodesFMULP : public Opcode
 public:
 
     OpcodesFMULP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFNCLEX : public Opcode
-{
-public:
-
-    OpcodesFNCLEX(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFNDISI : public Opcode
-{
-public:
-
-    OpcodesFNDISI(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFNENI : public Opcode
-{
-public:
-
-    OpcodesFNENI(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFNINIT : public Opcode
-{
-public:
-
-    OpcodesFNINIT(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFNOP : public Opcode
-{
-public:
-
-    OpcodesFNOP(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2576,56 +3209,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFPATAN : public Opcode
-{
-public:
-
-    OpcodesFPATAN(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFPTAN : public Opcode
-{
-public:
-
-    OpcodesFPTAN(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFPREM : public Opcode
-{
-public:
-
-    OpcodesFPREM(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFPREM1 : public Opcode
-{
-public:
-
-    OpcodesFPREM1(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFRNDINT : public Opcode
-{
-public:
-
-    OpcodesFRNDINT(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFRSTOR : public Opcode
 {
 public:
@@ -2641,56 +3224,6 @@ class OpcodesFSAVE : public Opcode
 public:
 
     OpcodesFSAVE(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFSCALE : public Opcode
-{
-public:
-
-    OpcodesFSCALE(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFSETPM : public Opcode
-{
-public:
-
-    OpcodesFSETPM(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFSIN : public Opcode
-{
-public:
-
-    OpcodesFSIN(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFSINCOS : public Opcode
-{
-public:
-
-    OpcodesFSINCOS(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFSQRT : public Opcode
-{
-public:
-
-    OpcodesFSQRT(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2786,16 +3319,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFTST : public Opcode
-{
-public:
-
-    OpcodesFTST(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFUCOM : public Opcode
 {
 public:
@@ -2816,71 +3339,11 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesFUCOMPP : public Opcode
-{
-public:
-
-    OpcodesFUCOMPP(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFXAM : public Opcode
-{
-public:
-
-    OpcodesFXAM(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesFXCH : public Opcode
 {
 public:
 
     OpcodesFXCH(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFXTRACT : public Opcode
-{
-public:
-
-    OpcodesFXTRACT(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFYL2X : public Opcode
-{
-public:
-
-    OpcodesFYL2X(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesFYL2XP1 : public Opcode
-{
-public:
-
-    OpcodesFYL2XP1(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesHLT : public Opcode
-{
-public:
-
-    OpcodesHLT(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -2936,36 +3399,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesINSB : public Opcode
-{
-public:
-
-    OpcodesINSB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesINSD : public Opcode
-{
-public:
-
-    OpcodesINSD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesINSW : public Opcode
-{
-public:
-
-    OpcodesINSW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesINT : public Opcode
 {
 public:
@@ -2976,71 +3409,11 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesINT3 : public Opcode
-{
-public:
-
-    OpcodesINT3(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesINTO : public Opcode
-{
-public:
-
-    OpcodesINTO(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesINVD : public Opcode
-{
-public:
-
-    OpcodesINVD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesINVLPG : public Opcode
 {
 public:
 
     OpcodesINVLPG(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesIRET : public Opcode
-{
-public:
-
-    OpcodesIRET(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesIRETD : public Opcode
-{
-public:
-
-    OpcodesIRETD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesIRETW : public Opcode
-{
-public:
-
-    OpcodesIRETW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -3376,16 +3749,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesLAHF : public Opcode
-{
-public:
-
-    OpcodesLAHF(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesLAR : public Opcode
 {
 public:
@@ -3411,16 +3774,6 @@ class OpcodesLEA : public Opcode
 public:
 
     OpcodesLEA(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesLEAVE : public Opcode
-{
-public:
-
-    OpcodesLEAVE(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -3501,36 +3854,6 @@ class OpcodesLOCK : public Opcode
 public:
 
     OpcodesLOCK(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesLODSB : public Opcode
-{
-public:
-
-    OpcodesLODSB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesLODSD : public Opcode
-{
-public:
-
-    OpcodesLODSD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesLODSW : public Opcode
-{
-public:
-
-    OpcodesLODSW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -3621,36 +3944,6 @@ class OpcodesMOV : public Opcode
 public:
 
     OpcodesMOV(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesMOVSB : public Opcode
-{
-public:
-
-    OpcodesMOVSB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesMOVSD : public Opcode
-{
-public:
-
-    OpcodesMOVSD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesMOVSW : public Opcode
-{
-public:
-
-    OpcodesMOVSW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -3786,141 +4079,11 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesPOPA : public Opcode
-{
-public:
-
-    OpcodesPOPA(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPOPAD : public Opcode
-{
-public:
-
-    OpcodesPOPAD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPOPAW : public Opcode
-{
-public:
-
-    OpcodesPOPAW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPOPF : public Opcode
-{
-public:
-
-    OpcodesPOPF(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPOPFD : public Opcode
-{
-public:
-
-    OpcodesPOPFD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPOPFW : public Opcode
-{
-public:
-
-    OpcodesPOPFW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesPUSH : public Opcode
 {
 public:
 
     OpcodesPUSH(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHA : public Opcode
-{
-public:
-
-    OpcodesPUSHA(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHD : public Opcode
-{
-public:
-
-    OpcodesPUSHD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHAD : public Opcode
-{
-public:
-
-    OpcodesPUSHAD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHAW : public Opcode
-{
-public:
-
-    OpcodesPUSHAW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHF : public Opcode
-{
-public:
-
-    OpcodesPUSHF(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHFD : public Opcode
-{
-public:
-
-    OpcodesPUSHFD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesPUSHFW : public Opcode
-{
-public:
-
-    OpcodesPUSHFW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -4066,16 +4229,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesRET : public Opcode
-{
-public:
-
-    OpcodesRET(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesRETF : public Opcode
 {
 public:
@@ -4126,16 +4279,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesSAHF : public Opcode
-{
-public:
-
-    OpcodesSAHF(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesSAL : public Opcode
 {
 public:
@@ -4161,36 +4304,6 @@ class OpcodesSBB : public Opcode
 public:
 
     OpcodesSBB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSCASB : public Opcode
-{
-public:
-
-    OpcodesSCASB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSCASD : public Opcode
-{
-public:
-
-    OpcodesSCASD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSCASW : public Opcode
-{
-public:
-
-    OpcodesSCASW(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;
@@ -4576,66 +4689,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesSTC : public Opcode
-{
-public:
-
-    OpcodesSTC(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSTD : public Opcode
-{
-public:
-
-    OpcodesSTD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSTI : public Opcode
-{
-public:
-
-    OpcodesSTI(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSTOSB : public Opcode
-{
-public:
-
-    OpcodesSTOSB(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSTOSD : public Opcode
-{
-public:
-
-    OpcodesSTOSD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesSTOSW : public Opcode
-{
-public:
-
-    OpcodesSTOSW(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesSTR : public Opcode
 {
 public:
@@ -4706,26 +4759,6 @@ public:
     std::shared_ptr<Opcode>  clone() const;
 };
 
-class OpcodesWAIT : public Opcode
-{
-public:
-
-    OpcodesWAIT(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesWBINVD : public Opcode
-{
-public:
-
-    OpcodesWBINVD(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
 class OpcodesWRMSR : public Opcode
 {
 public:
@@ -4751,16 +4784,6 @@ class OpcodesXCHG : public Opcode
 public:
 
     OpcodesXCHG(): Opcode (){};
-
-    virtual void accept(Visitor *v) override;
-    std::shared_ptr<Opcode>  clone() const;
-};
-
-class OpcodesXLATB : public Opcode
-{
-public:
-
-    OpcodesXLATB(): Opcode (){};
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Opcode>  clone() const;

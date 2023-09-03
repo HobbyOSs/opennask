@@ -24,6 +24,7 @@ Factor* pFactor(std::istream &stream);
 ConfigType* pConfigType(std::istream &stream);
 DataType* pDataType(std::istream &stream);
 JumpDir* pJumpDir(std::istream &stream);
+OpcodeNoParam* pOpcodeNoParam(std::istream &stream);
 Opcode* pOpcode(std::istream &stream);
 
 

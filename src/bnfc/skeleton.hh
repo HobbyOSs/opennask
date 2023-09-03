@@ -20,14 +20,16 @@ public:
   void visitConfigType(ConfigType *p);
   void visitDataType(DataType *p);
   void visitJumpDir(JumpDir *p);
+  void visitOpcodeNoParam(OpcodeNoParam *p);
   void visitOpcode(Opcode *p);
   void visitProg(Prog *p);
-  void visitLabelStmt(LabelStmt *p);
   void visitDeclareStmt(DeclareStmt *p);
   void visitExportSymStmt(ExportSymStmt *p);
   void visitExternSymStmt(ExternSymStmt *p);
   void visitConfigStmt(ConfigStmt *p);
   void visitMnemonicStmt(MnemonicStmt *p);
+  void visitOpcodeStmt(OpcodeStmt *p);
+  void visitLabelStmt(LabelStmt *p);
   void visitMnemoArg(MnemoArg *p);
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
@@ -401,7 +403,6 @@ public:
   void visitString(String x);
   void visitIdent(Ident x);
   void visitHex(Hex x);
-  void visitLabel(Label x);
   void visitId(Id x);
 
 };
