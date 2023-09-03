@@ -336,7 +336,7 @@ void PrintAbsyn::visitDatatypeExp(DatatypeExp* p)
   _i_ = oldi;
 }
 
-void PrintAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
+void PrintAbsyn::visitSegmentOffsetDataExp(SegmentOffsetDataExp* p)
 {
   int oldi = _i_;
   if (oldi > 0) render(_L_PAREN);
@@ -345,6 +345,32 @@ void PrintAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
   _i_ = 0; p->exp_1->accept(this);
   render(':');
   _i_ = 0; p->exp_2->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->exp_1->accept(this);
+  render(':');
+  _i_ = 0; p->exp_2->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitSregFrameExp(SregFrameExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  visitId(p->id_);
+  render(':');
+  _i_ = 0; p->exp_->accept(this);
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4454,10 +4480,10 @@ void ShowAbsyn::visitDatatypeExp(DatatypeExp* p)
   bufAppend(')');
 }
 
-void ShowAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
+void ShowAbsyn::visitSegmentOffsetDataExp(SegmentOffsetDataExp* p)
 {
   bufAppend('(');
-  bufAppend("SegmentOffsetExp");
+  bufAppend("SegmentOffsetDataExp");
   bufAppend(' ');
   bufAppend('[');
   if (p->datatype_)  p->datatype_->accept(this);
@@ -4466,6 +4492,29 @@ void ShowAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
   p->exp_1->accept(this);
   bufAppend(' ');
   p->exp_2->accept(this);
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitSegmentOffsetExp(SegmentOffsetExp* p)
+{
+  bufAppend('(');
+  bufAppend("SegmentOffsetExp");
+  bufAppend(' ');
+  p->exp_1->accept(this);
+  bufAppend(' ');
+  p->exp_2->accept(this);
+  bufAppend(')');
+}
+
+void ShowAbsyn::visitSregFrameExp(SregFrameExp* p)
+{
+  bufAppend('(');
+  bufAppend("SregFrameExp");
+  bufAppend(' ');
+  visitId(p->id_);  bufAppend(' ');
+  bufAppend('[');
+  if (p->exp_)  p->exp_->accept(this);
+  bufAppend(']');
   bufAppend(')');
 }
 

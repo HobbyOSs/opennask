@@ -1220,2106 +1220,2118 @@ namespace nask_ {
 
   case 22: // Exp: DataType Exp _COLON Exp
 #line 448 "nask.yy"
-                            { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<SegmentOffsetExp>(yystack_[3].value.as < std::shared_ptr<DataType> > (), yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+                            { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<SegmentOffsetDataExp>(yystack_[3].value.as < std::shared_ptr<DataType> > (), yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1225 "parser.cc"
     break;
 
-  case 23: // Exp: MemoryAddr
+  case 23: // Exp: Exp _COLON Exp
 #line 449 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<MemoryAddrExp>(yystack_[0].value.as < std::shared_ptr<MemoryAddr> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+                   { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<SegmentOffsetExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1231 "parser.cc"
     break;
 
-  case 24: // Exp1: Exp1 _STAR Exp2
-#line 451 "nask.yy"
-                       { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<MulExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+  case 24: // Exp: T_Id _COLON Exp
+#line 450 "nask.yy"
+                    { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<SregFrameExp>(yystack_[2].value.as < std::string > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1237 "parser.cc"
     break;
 
-  case 25: // Exp1: Exp1 _SLASH Exp2
-#line 452 "nask.yy"
-                     { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<DivExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+  case 25: // Exp: MemoryAddr
+#line 451 "nask.yy"
+               { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<MemoryAddrExp>(yystack_[0].value.as < std::shared_ptr<MemoryAddr> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1243 "parser.cc"
     break;
 
-  case 26: // Exp1: Exp1 _PERCENT Exp2
+  case 26: // Exp1: Exp1 _STAR Exp2
 #line 453 "nask.yy"
-                       { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<ModExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+                       { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<MulExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1249 "parser.cc"
     break;
 
-  case 27: // Exp1: Exp2
+  case 27: // Exp1: Exp1 _SLASH Exp2
 #line 454 "nask.yy"
-         { yylhs.value.as < std::shared_ptr<Exp> > () = yystack_[0].value.as < std::shared_ptr<Exp> > (); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+                     { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<DivExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1255 "parser.cc"
     break;
 
-  case 28: // Exp2: Factor
-#line 456 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<ImmExp>(yystack_[0].value.as < std::shared_ptr<Factor> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+  case 28: // Exp1: Exp1 _PERCENT Exp2
+#line 455 "nask.yy"
+                       { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<ModExp>(yystack_[2].value.as < std::shared_ptr<Exp> > (), yystack_[0].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1261 "parser.cc"
     break;
 
-  case 29: // Exp2: _LPAREN Exp _RPAREN
-#line 457 "nask.yy"
-                        { yylhs.value.as < std::shared_ptr<Exp> > () = yystack_[1].value.as < std::shared_ptr<Exp> > (); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
+  case 29: // Exp1: Exp2
+#line 456 "nask.yy"
+         { yylhs.value.as < std::shared_ptr<Exp> > () = yystack_[0].value.as < std::shared_ptr<Exp> > (); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1267 "parser.cc"
     break;
 
-  case 30: // MemoryAddr: _LBRACK Exp _RBRACK
-#line 459 "nask.yy"
-                                 { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<Direct>(yystack_[1].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+  case 30: // Exp2: Factor
+#line 458 "nask.yy"
+              { yylhs.value.as < std::shared_ptr<Exp> > () = std::make_shared<ImmExp>(yystack_[0].value.as < std::shared_ptr<Factor> > ()); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1273 "parser.cc"
     break;
 
-  case 31: // MemoryAddr: _LBRACK T_Id _PLUS Exp _RBRACK
-#line 460 "nask.yy"
-                                   { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedOrIndexed>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+  case 31: // Exp2: _LPAREN Exp _RPAREN
+#line 459 "nask.yy"
+                        { yylhs.value.as < std::shared_ptr<Exp> > () = yystack_[1].value.as < std::shared_ptr<Exp> > (); yylhs.value.as < std::shared_ptr<Exp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Exp> > ()->char_number = yylhs.location.begin.column; driver.exp_ = yylhs.value.as < std::shared_ptr<Exp> > (); }
 #line 1279 "parser.cc"
     break;
 
-  case 32: // MemoryAddr: _LBRACK IndexExp _PLUS _INTEGER_ _RBRACK
+  case 32: // MemoryAddr: _LBRACK Exp _RBRACK
 #line 461 "nask.yy"
-                                             { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<Indexed>(yystack_[3].value.as < std::shared_ptr<IndexExp> > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+                                 { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<Direct>(yystack_[1].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1285 "parser.cc"
     break;
 
-  case 33: // MemoryAddr: _LBRACK T_Id _PLUS T_Id _RBRACK
+  case 33: // MemoryAddr: _LBRACK T_Id _PLUS Exp _RBRACK
 #line 462 "nask.yy"
-                                    { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexed>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+                                   { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedOrIndexed>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::shared_ptr<Exp> > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1291 "parser.cc"
     break;
 
-  case 34: // MemoryAddr: _LBRACK T_Id _PLUS T_Id _PLUS _INTEGER_ _RBRACK
+  case 34: // MemoryAddr: _LBRACK IndexExp _PLUS _INTEGER_ _RBRACK
 #line 463 "nask.yy"
-                                                    { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexedDisp>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+                                             { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<Indexed>(yystack_[3].value.as < std::shared_ptr<IndexExp> > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1297 "parser.cc"
     break;
 
-  case 35: // MemoryAddr: _LBRACK T_Id _PLUS IndexExp _PLUS _INTEGER_ _RBRACK
+  case 35: // MemoryAddr: _LBRACK T_Id _PLUS T_Id _RBRACK
 #line 464 "nask.yy"
-                                                        { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexedDispScale>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::shared_ptr<IndexExp> > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
+                                    { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexed>(yystack_[3].value.as < std::string > (), yystack_[1].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1303 "parser.cc"
     break;
 
-  case 36: // IndexExp: T_Id _STAR _INTEGER_
-#line 466 "nask.yy"
-                                { yylhs.value.as < std::shared_ptr<IndexExp> > () = std::make_shared<IndexScaleExp>(yystack_[2].value.as < std::string > (), yystack_[0].value.as < int > ()); yylhs.value.as < std::shared_ptr<IndexExp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<IndexExp> > ()->char_number = yylhs.location.begin.column; driver.indexexp_ = yylhs.value.as < std::shared_ptr<IndexExp> > (); }
+  case 36: // MemoryAddr: _LBRACK T_Id _PLUS T_Id _PLUS _INTEGER_ _RBRACK
+#line 465 "nask.yy"
+                                                    { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexedDisp>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1309 "parser.cc"
     break;
 
-  case 37: // Factor: _INTEGER_
-#line 468 "nask.yy"
-                   { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<NumberFactor>(yystack_[0].value.as < int > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
+  case 37: // MemoryAddr: _LBRACK T_Id _PLUS IndexExp _PLUS _INTEGER_ _RBRACK
+#line 466 "nask.yy"
+                                                        { yylhs.value.as < std::shared_ptr<MemoryAddr> > () = std::make_shared<BasedIndexedDispScale>(yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::shared_ptr<IndexExp> > (), yystack_[1].value.as < int > ()); yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<MemoryAddr> > ()->char_number = yylhs.location.begin.column; driver.memoryaddr_ = yylhs.value.as < std::shared_ptr<MemoryAddr> > (); }
 #line 1315 "parser.cc"
     break;
 
-  case 38: // Factor: T_Hex
-#line 469 "nask.yy"
-          { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<HexFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
+  case 38: // IndexExp: T_Id _STAR _INTEGER_
+#line 468 "nask.yy"
+                                { yylhs.value.as < std::shared_ptr<IndexExp> > () = std::make_shared<IndexScaleExp>(yystack_[2].value.as < std::string > (), yystack_[0].value.as < int > ()); yylhs.value.as < std::shared_ptr<IndexExp> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<IndexExp> > ()->char_number = yylhs.location.begin.column; driver.indexexp_ = yylhs.value.as < std::shared_ptr<IndexExp> > (); }
 #line 1321 "parser.cc"
     break;
 
-  case 39: // Factor: T_Id
+  case 39: // Factor: _INTEGER_
 #line 470 "nask.yy"
-         { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<IdentFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
+                   { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<NumberFactor>(yystack_[0].value.as < int > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
 #line 1327 "parser.cc"
     break;
 
-  case 40: // Factor: _STRING_
+  case 40: // Factor: T_Hex
 #line 471 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<StringFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
+          { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<HexFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
 #line 1333 "parser.cc"
     break;
 
-  case 41: // ConfigType: _KW_BITS
-#line 473 "nask.yy"
-                      { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<BitsConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+  case 41: // Factor: T_Id
+#line 472 "nask.yy"
+         { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<IdentFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
 #line 1339 "parser.cc"
     break;
 
-  case 42: // ConfigType: _KW_INSTRSET
-#line 474 "nask.yy"
-                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<InstConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+  case 42: // Factor: _STRING_
+#line 473 "nask.yy"
+             { yylhs.value.as < std::shared_ptr<Factor> > () = std::make_shared<StringFactor>(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::shared_ptr<Factor> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Factor> > ()->char_number = yylhs.location.begin.column; driver.factor_ = yylhs.value.as < std::shared_ptr<Factor> > (); }
 #line 1345 "parser.cc"
     break;
 
-  case 43: // ConfigType: _KW_OPTIMIZE
+  case 43: // ConfigType: _KW_BITS
 #line 475 "nask.yy"
-                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<OptiConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+                      { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<BitsConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1351 "parser.cc"
     break;
 
-  case 44: // ConfigType: _KW_FORMAT
+  case 44: // ConfigType: _KW_INSTRSET
 #line 476 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<FormConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<InstConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1357 "parser.cc"
     break;
 
-  case 45: // ConfigType: _KW_PADDING
+  case 45: // ConfigType: _KW_OPTIMIZE
 #line 477 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<PaddConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<OptiConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1363 "parser.cc"
     break;
 
-  case 46: // ConfigType: _KW_PADSET
+  case 46: // ConfigType: _KW_FORMAT
 #line 478 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<PadsConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+               { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<FormConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1369 "parser.cc"
     break;
 
-  case 47: // ConfigType: _KW_SECTION
+  case 47: // ConfigType: _KW_PADDING
 #line 479 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<SectConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+                { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<PaddConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1375 "parser.cc"
     break;
 
-  case 48: // ConfigType: _KW_ABSOLUTE
+  case 48: // ConfigType: _KW_PADSET
 #line 480 "nask.yy"
-                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<AbsoConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+               { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<PadsConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1381 "parser.cc"
     break;
 
-  case 49: // ConfigType: _KW_FILE
+  case 49: // ConfigType: _KW_SECTION
 #line 481 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<FileConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
+                { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<SectConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1387 "parser.cc"
     break;
 
-  case 50: // DataType: _KW_BYTE
-#line 483 "nask.yy"
-                    { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<ByteDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
+  case 50: // ConfigType: _KW_ABSOLUTE
+#line 482 "nask.yy"
+                 { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<AbsoConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1393 "parser.cc"
     break;
 
-  case 51: // DataType: _KW_WORD
-#line 484 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<WordDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
+  case 51: // ConfigType: _KW_FILE
+#line 483 "nask.yy"
+             { yylhs.value.as < std::shared_ptr<ConfigType> > () = std::make_shared<FileConfig>(); yylhs.value.as < std::shared_ptr<ConfigType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<ConfigType> > ()->char_number = yylhs.location.begin.column; driver.configtype_ = yylhs.value.as < std::shared_ptr<ConfigType> > (); }
 #line 1399 "parser.cc"
     break;
 
-  case 52: // DataType: _KW_DWORD
+  case 52: // DataType: _KW_BYTE
 #line 485 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<DwordDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
+                    { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<ByteDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
 #line 1405 "parser.cc"
     break;
 
-  case 53: // Opcode: _KW_AAA
-#line 487 "nask.yy"
-                 { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+  case 53: // DataType: _KW_WORD
+#line 486 "nask.yy"
+             { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<WordDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
 #line 1411 "parser.cc"
     break;
 
-  case 54: // Opcode: _KW_AAD
-#line 488 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+  case 54: // DataType: _KW_DWORD
+#line 487 "nask.yy"
+              { yylhs.value.as < std::shared_ptr<DataType> > () = std::make_shared<DwordDataType>(); yylhs.value.as < std::shared_ptr<DataType> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<DataType> > ()->char_number = yylhs.location.begin.column; driver.datatype_ = yylhs.value.as < std::shared_ptr<DataType> > (); }
 #line 1417 "parser.cc"
     break;
 
-  case 55: // Opcode: _KW_AAS
+  case 55: // Opcode: _KW_AAA
 #line 489 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                 { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1423 "parser.cc"
     break;
 
-  case 56: // Opcode: _KW_AAM
+  case 56: // Opcode: _KW_AAD
 #line 490 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1429 "parser.cc"
     break;
 
-  case 57: // Opcode: _KW_ADC
+  case 57: // Opcode: _KW_AAS
 #line 491 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesADC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1435 "parser.cc"
     break;
 
-  case 58: // Opcode: _KW_ADD
+  case 58: // Opcode: _KW_AAM
 #line 492 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAAM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1441 "parser.cc"
     break;
 
-  case 59: // Opcode: _KW_AND
+  case 59: // Opcode: _KW_ADC
 #line 493 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesADC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1447 "parser.cc"
     break;
 
-  case 60: // Opcode: _KW_ALIGN
+  case 60: // Opcode: _KW_ADD
 #line 494 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesALIGN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1453 "parser.cc"
     break;
 
-  case 61: // Opcode: _KW_ALIGNB
+  case 61: // Opcode: _KW_AND
 #line 495 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesALIGNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesAND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1459 "parser.cc"
     break;
 
-  case 62: // Opcode: _KW_ARPL
+  case 62: // Opcode: _KW_ALIGN
 #line 496 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesARPL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesALIGN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1465 "parser.cc"
     break;
 
-  case 63: // Opcode: _KW_BOUND
+  case 63: // Opcode: _KW_ALIGNB
 #line 497 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBOUND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesALIGNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1471 "parser.cc"
     break;
 
-  case 64: // Opcode: _KW_BSF
+  case 64: // Opcode: _KW_ARPL
 #line 498 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesARPL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1477 "parser.cc"
     break;
 
-  case 65: // Opcode: _KW_BSR
+  case 65: // Opcode: _KW_BOUND
 #line 499 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBOUND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1483 "parser.cc"
     break;
 
-  case 66: // Opcode: _KW_BSWAP
+  case 66: // Opcode: _KW_BSF
 #line 500 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSWAP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1489 "parser.cc"
     break;
 
-  case 67: // Opcode: _KW_BT
+  case 67: // Opcode: _KW_BSR
 #line 501 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1495 "parser.cc"
     break;
 
-  case 68: // Opcode: _KW_BTC
+  case 68: // Opcode: _KW_BSWAP
 #line 502 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBSWAP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1501 "parser.cc"
     break;
 
-  case 69: // Opcode: _KW_BTR
+  case 69: // Opcode: _KW_BT
 #line 503 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1507 "parser.cc"
     break;
 
-  case 70: // Opcode: _KW_BTS
+  case 70: // Opcode: _KW_BTC
 #line 504 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1513 "parser.cc"
     break;
 
-  case 71: // Opcode: _KW_CALL
+  case 71: // Opcode: _KW_BTR
 #line 505 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCALL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1519 "parser.cc"
     break;
 
-  case 72: // Opcode: _KW_CBW
+  case 72: // Opcode: _KW_BTS
 #line 506 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCBW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesBTS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1525 "parser.cc"
     break;
 
-  case 73: // Opcode: _KW_CDQ
+  case 73: // Opcode: _KW_CALL
 #line 507 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCDQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCALL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1531 "parser.cc"
     break;
 
-  case 74: // Opcode: _KW_CLC
+  case 74: // Opcode: _KW_CBW
 #line 508 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCBW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1537 "parser.cc"
     break;
 
-  case 75: // Opcode: _KW_CLD
+  case 75: // Opcode: _KW_CDQ
 #line 509 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCDQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1543 "parser.cc"
     break;
 
-  case 76: // Opcode: _KW_CLI
+  case 76: // Opcode: _KW_CLC
 #line 510 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1549 "parser.cc"
     break;
 
-  case 77: // Opcode: _KW_CLTS
+  case 77: // Opcode: _KW_CLD
 #line 511 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLTS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1555 "parser.cc"
     break;
 
-  case 78: // Opcode: _KW_CMC
+  case 78: // Opcode: _KW_CLI
 #line 512 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1561 "parser.cc"
     break;
 
-  case 79: // Opcode: _KW_CMP
+  case 79: // Opcode: _KW_CLTS
 #line 513 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCLTS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1567 "parser.cc"
     break;
 
-  case 80: // Opcode: _KW_CMPSB
+  case 80: // Opcode: _KW_CMC
 #line 514 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1573 "parser.cc"
     break;
 
-  case 81: // Opcode: _KW_CMPSD
+  case 81: // Opcode: _KW_CMP
 #line 515 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1579 "parser.cc"
     break;
 
-  case 82: // Opcode: _KW_CMPSW
+  case 82: // Opcode: _KW_CMPSB
 #line 516 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1585 "parser.cc"
     break;
 
-  case 83: // Opcode: _KW_CMPXCHG
+  case 83: // Opcode: _KW_CMPSD
 #line 517 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPXCHG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1591 "parser.cc"
     break;
 
-  case 84: // Opcode: _KW_CPUID
+  case 84: // Opcode: _KW_CMPSW
 #line 518 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCPUID>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1597 "parser.cc"
     break;
 
-  case 85: // Opcode: _KW_CWD
+  case 85: // Opcode: _KW_CMPXCHG
 #line 519 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCWD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCMPXCHG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1603 "parser.cc"
     break;
 
-  case 86: // Opcode: _KW_CWDE
+  case 86: // Opcode: _KW_CPUID
 #line 520 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCWDE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCPUID>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1609 "parser.cc"
     break;
 
-  case 87: // Opcode: _KW_DAA
+  case 87: // Opcode: _KW_CWD
 #line 521 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDAA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCWD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1615 "parser.cc"
     break;
 
-  case 88: // Opcode: _KW_DAS
+  case 88: // Opcode: _KW_CWDE
 #line 522 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDAS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesCWDE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1621 "parser.cc"
     break;
 
-  case 89: // Opcode: _KW_DB
+  case 89: // Opcode: _KW_DAA
 #line 523 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDAA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1627 "parser.cc"
     break;
 
-  case 90: // Opcode: _KW_DD
+  case 90: // Opcode: _KW_DAS
 #line 524 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDAS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1633 "parser.cc"
     break;
 
-  case 91: // Opcode: _KW_DEC
+  case 91: // Opcode: _KW_DB
 #line 525 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDEC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1639 "parser.cc"
     break;
 
-  case 92: // Opcode: _KW_DIV
+  case 92: // Opcode: _KW_DD
 #line 526 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1645 "parser.cc"
     break;
 
-  case 93: // Opcode: _KW_DQ
+  case 93: // Opcode: _KW_DEC
 #line 527 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDEC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1651 "parser.cc"
     break;
 
-  case 94: // Opcode: _KW_DT
+  case 94: // Opcode: _KW_DIV
 #line 528 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1657 "parser.cc"
     break;
 
-  case 95: // Opcode: _KW_DW
+  case 95: // Opcode: _KW_DQ
 #line 529 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1663 "parser.cc"
     break;
 
-  case 96: // Opcode: _KW_END
+  case 96: // Opcode: _KW_DT
 #line 530 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesEND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1669 "parser.cc"
     break;
 
-  case 97: // Opcode: _KW_ENTER
+  case 97: // Opcode: _KW_DW
 #line 531 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesENTER>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesDW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1675 "parser.cc"
     break;
 
-  case 98: // Opcode: _KW_F2XM1
+  case 98: // Opcode: _KW_END
 #line 532 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesF2XM1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesEND>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1681 "parser.cc"
     break;
 
-  case 99: // Opcode: _KW_FABS
+  case 99: // Opcode: _KW_ENTER
 #line 533 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFABS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesENTER>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1687 "parser.cc"
     break;
 
-  case 100: // Opcode: _KW_FADD
+  case 100: // Opcode: _KW_F2XM1
 #line 534 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesF2XM1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1693 "parser.cc"
     break;
 
-  case 101: // Opcode: _KW_FADDP
+  case 101: // Opcode: _KW_FABS
 #line 535 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFADDP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFABS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1699 "parser.cc"
     break;
 
-  case 102: // Opcode: _KW_FBLD
+  case 102: // Opcode: _KW_FADD
 #line 536 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFBLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1705 "parser.cc"
     break;
 
-  case 103: // Opcode: _KW_FBSTP
+  case 103: // Opcode: _KW_FADDP
 #line 537 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFBSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFADDP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1711 "parser.cc"
     break;
 
-  case 104: // Opcode: _KW_FCHS
+  case 104: // Opcode: _KW_FBLD
 #line 538 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCHS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFBLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1717 "parser.cc"
     break;
 
-  case 105: // Opcode: _KW_FCLEX
+  case 105: // Opcode: _KW_FBSTP
 #line 539 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCLEX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFBSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1723 "parser.cc"
     break;
 
-  case 106: // Opcode: _KW_FCOM
+  case 106: // Opcode: _KW_FCHS
 #line 540 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCHS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1729 "parser.cc"
     break;
 
-  case 107: // Opcode: _KW_FCOMP
+  case 107: // Opcode: _KW_FCLEX
 #line 541 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCLEX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1735 "parser.cc"
     break;
 
-  case 108: // Opcode: _KW_FCOMPP
+  case 108: // Opcode: _KW_FCOM
 #line 542 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOMPP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1741 "parser.cc"
     break;
 
-  case 109: // Opcode: _KW_FCOS
+  case 109: // Opcode: _KW_FCOMP
 #line 543 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1747 "parser.cc"
     break;
 
-  case 110: // Opcode: _KW_FDECSTP
+  case 110: // Opcode: _KW_FCOMPP
 #line 544 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDECSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOMPP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1753 "parser.cc"
     break;
 
-  case 111: // Opcode: _KW_FDISI
+  case 111: // Opcode: _KW_FCOS
 #line 545 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDISI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFCOS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1759 "parser.cc"
     break;
 
-  case 112: // Opcode: _KW_FDIV
+  case 112: // Opcode: _KW_FDECSTP
 #line 546 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDECSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1765 "parser.cc"
     break;
 
-  case 113: // Opcode: _KW_FDIVP
+  case 113: // Opcode: _KW_FDISI
 #line 547 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDISI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1771 "parser.cc"
     break;
 
-  case 114: // Opcode: _KW_FDIVR
+  case 114: // Opcode: _KW_FDIV
 #line 548 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1777 "parser.cc"
     break;
 
-  case 115: // Opcode: _KW_FDIVRP
+  case 115: // Opcode: _KW_FDIVP
 #line 549 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVRP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1783 "parser.cc"
     break;
 
-  case 116: // Opcode: _KW_FENI
+  case 116: // Opcode: _KW_FDIVR
 #line 550 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFENI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1789 "parser.cc"
     break;
 
-  case 117: // Opcode: _KW_FFREE
+  case 117: // Opcode: _KW_FDIVRP
 #line 551 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFFREE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFDIVRP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1795 "parser.cc"
     break;
 
-  case 118: // Opcode: _KW_FIADD
+  case 118: // Opcode: _KW_FENI
 #line 552 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFENI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1801 "parser.cc"
     break;
 
-  case 119: // Opcode: _KW_FICOM
+  case 119: // Opcode: _KW_FFREE
 #line 553 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFICOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFFREE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1807 "parser.cc"
     break;
 
-  case 120: // Opcode: _KW_FICOMP
+  case 120: // Opcode: _KW_FIADD
 #line 554 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFICOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1813 "parser.cc"
     break;
 
-  case 121: // Opcode: _KW_FIDIV
+  case 121: // Opcode: _KW_FICOM
 #line 555 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFICOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1819 "parser.cc"
     break;
 
-  case 122: // Opcode: _KW_FIDIVR
+  case 122: // Opcode: _KW_FICOMP
 #line 556 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIDIVR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFICOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1825 "parser.cc"
     break;
 
-  case 123: // Opcode: _KW_FILD
+  case 123: // Opcode: _KW_FIDIV
 #line 557 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFILD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1831 "parser.cc"
     break;
 
-  case 124: // Opcode: _KW_FIMUL
+  case 124: // Opcode: _KW_FIDIVR
 #line 558 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIDIVR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1837 "parser.cc"
     break;
 
-  case 125: // Opcode: _KW_FINCSTP
+  case 125: // Opcode: _KW_FILD
 #line 559 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFINCSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFILD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1843 "parser.cc"
     break;
 
-  case 126: // Opcode: _KW_FINIT
+  case 126: // Opcode: _KW_FIMUL
 #line 560 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFINIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1849 "parser.cc"
     break;
 
-  case 127: // Opcode: _KW_FIST
+  case 127: // Opcode: _KW_FINCSTP
 #line 561 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFINCSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1855 "parser.cc"
     break;
 
-  case 128: // Opcode: _KW_FISTP
+  case 128: // Opcode: _KW_FINIT
 #line 562 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFINIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1861 "parser.cc"
     break;
 
-  case 129: // Opcode: _KW_FISUB
+  case 129: // Opcode: _KW_FIST
 #line 563 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFIST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1867 "parser.cc"
     break;
 
-  case 130: // Opcode: _KW_FISUBR
+  case 130: // Opcode: _KW_FISTP
 #line 564 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISUBR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1873 "parser.cc"
     break;
 
-  case 131: // Opcode: _KW_FLD
+  case 131: // Opcode: _KW_FISUB
 #line 565 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1879 "parser.cc"
     break;
 
-  case 132: // Opcode: _KW_FLD1
+  case 132: // Opcode: _KW_FISUBR
 #line 566 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLD1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFISUBR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1885 "parser.cc"
     break;
 
-  case 133: // Opcode: _KW_FLDCW
+  case 133: // Opcode: _KW_FLD
 #line 567 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1891 "parser.cc"
     break;
 
-  case 134: // Opcode: _KW_FLDENV
+  case 134: // Opcode: _KW_FLD1
 #line 568 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLD1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1897 "parser.cc"
     break;
 
-  case 135: // Opcode: _KW_FLDL2E
+  case 135: // Opcode: _KW_FLDCW
 #line 569 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDL2E>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1903 "parser.cc"
     break;
 
-  case 136: // Opcode: _KW_FLDL2T
+  case 136: // Opcode: _KW_FLDENV
 #line 570 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDL2T>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1909 "parser.cc"
     break;
 
-  case 137: // Opcode: _KW_FLDLG2
+  case 137: // Opcode: _KW_FLDL2E
 #line 571 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDLG2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDL2E>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1915 "parser.cc"
     break;
 
-  case 138: // Opcode: _KW_FLDLN2
+  case 138: // Opcode: _KW_FLDL2T
 #line 572 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDLN2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDL2T>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1921 "parser.cc"
     break;
 
-  case 139: // Opcode: _KW_FLDPI
+  case 139: // Opcode: _KW_FLDLG2
 #line 573 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDPI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDLG2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1927 "parser.cc"
     break;
 
-  case 140: // Opcode: _KW_FLDZ
+  case 140: // Opcode: _KW_FLDLN2
 #line 574 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDLN2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1933 "parser.cc"
     break;
 
-  case 141: // Opcode: _KW_FMUL
+  case 141: // Opcode: _KW_FLDPI
 #line 575 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDPI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1939 "parser.cc"
     break;
 
-  case 142: // Opcode: _KW_FMULP
+  case 142: // Opcode: _KW_FLDZ
 #line 576 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFMULP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFLDZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1945 "parser.cc"
     break;
 
-  case 143: // Opcode: _KW_FNCLEX
+  case 143: // Opcode: _KW_FMUL
 #line 577 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNCLEX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1951 "parser.cc"
     break;
 
-  case 144: // Opcode: _KW_FNDISI
+  case 144: // Opcode: _KW_FMULP
 #line 578 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNDISI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFMULP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1957 "parser.cc"
     break;
 
-  case 145: // Opcode: _KW_FNENI
+  case 145: // Opcode: _KW_FNCLEX
 #line 579 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNENI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNCLEX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1963 "parser.cc"
     break;
 
-  case 146: // Opcode: _KW_FNINIT
+  case 146: // Opcode: _KW_FNDISI
 #line 580 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNINIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNDISI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1969 "parser.cc"
     break;
 
-  case 147: // Opcode: _KW_FNOP
+  case 147: // Opcode: _KW_FNENI
 #line 581 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNENI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1975 "parser.cc"
     break;
 
-  case 148: // Opcode: _KW_FNSAVE
+  case 148: // Opcode: _KW_FNINIT
 #line 582 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNINIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1981 "parser.cc"
     break;
 
-  case 149: // Opcode: _KW_FNSTCW
+  case 149: // Opcode: _KW_FNOP
 #line 583 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1987 "parser.cc"
     break;
 
-  case 150: // Opcode: _KW_FNSTENV
+  case 150: // Opcode: _KW_FNSAVE
 #line 584 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1993 "parser.cc"
     break;
 
-  case 151: // Opcode: _KW_FNSTSW
+  case 151: // Opcode: _KW_FNSTCW
 #line 585 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 1999 "parser.cc"
     break;
 
-  case 152: // Opcode: _KW_FPATAN
+  case 152: // Opcode: _KW_FNSTENV
 #line 586 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPATAN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2005 "parser.cc"
     break;
 
-  case 153: // Opcode: _KW_FPTAN
+  case 153: // Opcode: _KW_FNSTSW
 #line 587 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPTAN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFNSTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2011 "parser.cc"
     break;
 
-  case 154: // Opcode: _KW_FPREM
+  case 154: // Opcode: _KW_FPATAN
 #line 588 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPREM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPATAN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2017 "parser.cc"
     break;
 
-  case 155: // Opcode: _KW_FPREM1
+  case 155: // Opcode: _KW_FPTAN
 #line 589 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPREM1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPTAN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2023 "parser.cc"
     break;
 
-  case 156: // Opcode: _KW_FRNDINT
+  case 156: // Opcode: _KW_FPREM
 #line 590 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFRNDINT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPREM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2029 "parser.cc"
     break;
 
-  case 157: // Opcode: _KW_FRSTOR
+  case 157: // Opcode: _KW_FPREM1
 #line 591 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFRSTOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFPREM1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2035 "parser.cc"
     break;
 
-  case 158: // Opcode: _KW_FSAVE
+  case 158: // Opcode: _KW_FRNDINT
 #line 592 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFRNDINT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2041 "parser.cc"
     break;
 
-  case 159: // Opcode: _KW_FSCALE
+  case 159: // Opcode: _KW_FRSTOR
 #line 593 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSCALE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFRSTOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2047 "parser.cc"
     break;
 
-  case 160: // Opcode: _KW_FSETPM
+  case 160: // Opcode: _KW_FSAVE
 #line 594 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSETPM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2053 "parser.cc"
     break;
 
-  case 161: // Opcode: _KW_FSIN
+  case 161: // Opcode: _KW_FSCALE
 #line 595 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSIN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSCALE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2059 "parser.cc"
     break;
 
-  case 162: // Opcode: _KW_FSINCOS
+  case 162: // Opcode: _KW_FSETPM
 #line 596 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSINCOS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSETPM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2065 "parser.cc"
     break;
 
-  case 163: // Opcode: _KW_FSQRT
+  case 163: // Opcode: _KW_FSIN
 #line 597 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSQRT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSIN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2071 "parser.cc"
     break;
 
-  case 164: // Opcode: _KW_FST
+  case 164: // Opcode: _KW_FSINCOS
 #line 598 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSINCOS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2077 "parser.cc"
     break;
 
-  case 165: // Opcode: _KW_FSTCW
+  case 165: // Opcode: _KW_FSQRT
 #line 599 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSQRT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2083 "parser.cc"
     break;
 
-  case 166: // Opcode: _KW_FSTENV
+  case 166: // Opcode: _KW_FST
 #line 600 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2089 "parser.cc"
     break;
 
-  case 167: // Opcode: _KW_FSTP
+  case 167: // Opcode: _KW_FSTCW
 #line 601 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTCW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2095 "parser.cc"
     break;
 
-  case 168: // Opcode: _KW_FSTSW
+  case 168: // Opcode: _KW_FSTENV
 #line 602 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTENV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2101 "parser.cc"
     break;
 
-  case 169: // Opcode: _KW_FSUB
+  case 169: // Opcode: _KW_FSTP
 #line 603 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2107 "parser.cc"
     break;
 
-  case 170: // Opcode: _KW_FSUBP
+  case 170: // Opcode: _KW_FSTSW
 #line 604 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2113 "parser.cc"
     break;
 
-  case 171: // Opcode: _KW_FSUBR
+  case 171: // Opcode: _KW_FSUB
 #line 605 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2119 "parser.cc"
     break;
 
-  case 172: // Opcode: _KW_FSUBRP
+  case 172: // Opcode: _KW_FSUBP
 #line 606 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBRP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2125 "parser.cc"
     break;
 
-  case 173: // Opcode: _KW_FTST
+  case 173: // Opcode: _KW_FSUBR
 #line 607 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFTST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2131 "parser.cc"
     break;
 
-  case 174: // Opcode: _KW_FUCOM
+  case 174: // Opcode: _KW_FSUBRP
 #line 608 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFSUBRP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2137 "parser.cc"
     break;
 
-  case 175: // Opcode: _KW_FUCOMP
+  case 175: // Opcode: _KW_FTST
 #line 609 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFTST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2143 "parser.cc"
     break;
 
-  case 176: // Opcode: _KW_FUCOMPP
+  case 176: // Opcode: _KW_FUCOM
 #line 610 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOMPP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2149 "parser.cc"
     break;
 
-  case 177: // Opcode: _KW_FXAM
+  case 177: // Opcode: _KW_FUCOMP
 #line 611 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXAM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2155 "parser.cc"
     break;
 
-  case 178: // Opcode: _KW_FXCH
+  case 178: // Opcode: _KW_FUCOMPP
 #line 612 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXCH>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFUCOMPP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2161 "parser.cc"
     break;
 
-  case 179: // Opcode: _KW_FXTRACT
+  case 179: // Opcode: _KW_FXAM
 #line 613 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXTRACT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXAM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2167 "parser.cc"
     break;
 
-  case 180: // Opcode: _KW_FYL2X
+  case 180: // Opcode: _KW_FXCH
 #line 614 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFYL2X>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXCH>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2173 "parser.cc"
     break;
 
-  case 181: // Opcode: _KW_FYL2XP1
+  case 181: // Opcode: _KW_FXTRACT
 #line 615 "nask.yy"
-                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFYL2XP1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFXTRACT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2179 "parser.cc"
     break;
 
-  case 182: // Opcode: _KW_HLT
+  case 182: // Opcode: _KW_FYL2X
 #line 616 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesHLT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFYL2X>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2185 "parser.cc"
     break;
 
-  case 183: // Opcode: _KW_IDIV
+  case 183: // Opcode: _KW_FYL2XP1
 #line 617 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+                { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesFYL2XP1>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2191 "parser.cc"
     break;
 
-  case 184: // Opcode: _KW_IMUL
+  case 184: // Opcode: _KW_HLT
 #line 618 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesHLT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2197 "parser.cc"
     break;
 
-  case 185: // Opcode: _KW_IN
+  case 185: // Opcode: _KW_IDIV
 #line 619 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIDIV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2203 "parser.cc"
     break;
 
-  case 186: // Opcode: _KW_INC
+  case 186: // Opcode: _KW_IMUL
 #line 620 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2209 "parser.cc"
     break;
 
-  case 187: // Opcode: _KW_INCO
+  case 187: // Opcode: _KW_IN
 #line 621 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINCO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2215 "parser.cc"
     break;
 
-  case 188: // Opcode: _KW_INSB
+  case 188: // Opcode: _KW_INC
 #line 622 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2221 "parser.cc"
     break;
 
-  case 189: // Opcode: _KW_INSD
+  case 189: // Opcode: _KW_INCO
 #line 623 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINCO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2227 "parser.cc"
     break;
 
-  case 190: // Opcode: _KW_INSW
+  case 190: // Opcode: _KW_INSB
 #line 624 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2233 "parser.cc"
     break;
 
-  case 191: // Opcode: _KW_INT
+  case 191: // Opcode: _KW_INSD
 #line 625 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2239 "parser.cc"
     break;
 
-  case 192: // Opcode: _KW_INT3
+  case 192: // Opcode: _KW_INSW
 #line 626 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINT3>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2245 "parser.cc"
     break;
 
-  case 193: // Opcode: _KW_INTO
+  case 193: // Opcode: _KW_INT
 #line 627 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINTO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2251 "parser.cc"
     break;
 
-  case 194: // Opcode: _KW_INVD
+  case 194: // Opcode: _KW_INT3
 #line 628 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINVD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINT3>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2257 "parser.cc"
     break;
 
-  case 195: // Opcode: _KW_INVLPG
+  case 195: // Opcode: _KW_INTO
 #line 629 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINVLPG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINTO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2263 "parser.cc"
     break;
 
-  case 196: // Opcode: _KW_IRET
+  case 196: // Opcode: _KW_INVD
 #line 630 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRET>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINVD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2269 "parser.cc"
     break;
 
-  case 197: // Opcode: _KW_IRETD
+  case 197: // Opcode: _KW_INVLPG
 #line 631 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRETD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesINVLPG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2275 "parser.cc"
     break;
 
-  case 198: // Opcode: _KW_IRETW
+  case 198: // Opcode: _KW_IRET
 #line 632 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRETW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRET>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2281 "parser.cc"
     break;
 
-  case 199: // Opcode: _KW_JA
+  case 199: // Opcode: _KW_IRETD
 #line 633 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRETD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2287 "parser.cc"
     break;
 
-  case 200: // Opcode: _KW_JAE
+  case 200: // Opcode: _KW_IRETW
 #line 634 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesIRETW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2293 "parser.cc"
     break;
 
-  case 201: // Opcode: _KW_JB
+  case 201: // Opcode: _KW_JA
 #line 635 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2299 "parser.cc"
     break;
 
-  case 202: // Opcode: _KW_JBE
+  case 202: // Opcode: _KW_JAE
 #line 636 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2305 "parser.cc"
     break;
 
-  case 203: // Opcode: _KW_JC
+  case 203: // Opcode: _KW_JB
 #line 637 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2311 "parser.cc"
     break;
 
-  case 204: // Opcode: _KW_JCXZ
+  case 204: // Opcode: _KW_JBE
 #line 638 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJCXZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2317 "parser.cc"
     break;
 
-  case 205: // Opcode: _KW_JE
+  case 205: // Opcode: _KW_JC
 #line 639 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2323 "parser.cc"
     break;
 
-  case 206: // Opcode: _KW_JECXZ
+  case 206: // Opcode: _KW_JCXZ
 #line 640 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJECXZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJCXZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2329 "parser.cc"
     break;
 
-  case 207: // Opcode: _KW_JG
+  case 207: // Opcode: _KW_JE
 #line 641 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2335 "parser.cc"
     break;
 
-  case 208: // Opcode: _KW_JGE
+  case 208: // Opcode: _KW_JECXZ
 #line 642 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJECXZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2341 "parser.cc"
     break;
 
-  case 209: // Opcode: _KW_JL
+  case 209: // Opcode: _KW_JG
 #line 643 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2347 "parser.cc"
     break;
 
-  case 210: // Opcode: _KW_JLE
+  case 210: // Opcode: _KW_JGE
 #line 644 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2353 "parser.cc"
     break;
 
-  case 211: // Opcode: _KW_JMP
+  case 211: // Opcode: _KW_JL
 #line 645 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2359 "parser.cc"
     break;
 
-  case 212: // Opcode: _KW_JNA
+  case 212: // Opcode: _KW_JLE
 #line 646 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2365 "parser.cc"
     break;
 
-  case 213: // Opcode: _KW_JNAE
+  case 213: // Opcode: _KW_JMP
 #line 647 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJMP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2371 "parser.cc"
     break;
 
-  case 214: // Opcode: _KW_JNB
+  case 214: // Opcode: _KW_JNA
 #line 648 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2377 "parser.cc"
     break;
 
-  case 215: // Opcode: _KW_JNBE
+  case 215: // Opcode: _KW_JNAE
 #line 649 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2383 "parser.cc"
     break;
 
-  case 216: // Opcode: _KW_JNC
+  case 216: // Opcode: _KW_JNB
 #line 650 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2389 "parser.cc"
     break;
 
-  case 217: // Opcode: _KW_JNE
+  case 217: // Opcode: _KW_JNBE
 #line 651 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2395 "parser.cc"
     break;
 
-  case 218: // Opcode: _KW_JNG
+  case 218: // Opcode: _KW_JNC
 #line 652 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2401 "parser.cc"
     break;
 
-  case 219: // Opcode: _KW_JNGE
+  case 219: // Opcode: _KW_JNE
 #line 653 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2407 "parser.cc"
     break;
 
-  case 220: // Opcode: _KW_JNL
+  case 220: // Opcode: _KW_JNG
 #line 654 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2413 "parser.cc"
     break;
 
-  case 221: // Opcode: _KW_JNLE
+  case 221: // Opcode: _KW_JNGE
 #line 655 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2419 "parser.cc"
     break;
 
-  case 222: // Opcode: _KW_JNO
+  case 222: // Opcode: _KW_JNL
 #line 656 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2425 "parser.cc"
     break;
 
-  case 223: // Opcode: _KW_JNP
+  case 223: // Opcode: _KW_JNLE
 #line 657 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2431 "parser.cc"
     break;
 
-  case 224: // Opcode: _KW_JNS
+  case 224: // Opcode: _KW_JNO
 #line 658 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2437 "parser.cc"
     break;
 
-  case 225: // Opcode: _KW_JNZ
+  case 225: // Opcode: _KW_JNP
 #line 659 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2443 "parser.cc"
     break;
 
-  case 226: // Opcode: _KW_JO
+  case 226: // Opcode: _KW_JNS
 #line 660 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2449 "parser.cc"
     break;
 
-  case 227: // Opcode: _KW_JP
+  case 227: // Opcode: _KW_JNZ
 #line 661 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2455 "parser.cc"
     break;
 
-  case 228: // Opcode: _KW_JPE
+  case 228: // Opcode: _KW_JO
 #line 662 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2461 "parser.cc"
     break;
 
-  case 229: // Opcode: _KW_JPO
+  case 229: // Opcode: _KW_JP
 #line 663 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJPO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2467 "parser.cc"
     break;
 
-  case 230: // Opcode: _KW_JS
+  case 230: // Opcode: _KW_JPE
 #line 664 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2473 "parser.cc"
     break;
 
-  case 231: // Opcode: _KW_JZ
+  case 231: // Opcode: _KW_JPO
 #line 665 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJPO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2479 "parser.cc"
     break;
 
-  case 232: // Opcode: _KW_LAHF
+  case 232: // Opcode: _KW_JS
 #line 666 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLAHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2485 "parser.cc"
     break;
 
-  case 233: // Opcode: _KW_LAR
+  case 233: // Opcode: _KW_JZ
 #line 667 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLAR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesJZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2491 "parser.cc"
     break;
 
-  case 234: // Opcode: _KW_LDS
+  case 234: // Opcode: _KW_LAHF
 #line 668 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLDS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLAHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2497 "parser.cc"
     break;
 
-  case 235: // Opcode: _KW_LEA
+  case 235: // Opcode: _KW_LAR
 #line 669 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLEA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLAR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2503 "parser.cc"
     break;
 
-  case 236: // Opcode: _KW_LEAVE
+  case 236: // Opcode: _KW_LDS
 #line 670 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLEAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLDS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2509 "parser.cc"
     break;
 
-  case 237: // Opcode: _KW_LES
+  case 237: // Opcode: _KW_LEA
 #line 671 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLES>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLEA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2515 "parser.cc"
     break;
 
-  case 238: // Opcode: _KW_LFS
+  case 238: // Opcode: _KW_LEAVE
 #line 672 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLFS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLEAVE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2521 "parser.cc"
     break;
 
-  case 239: // Opcode: _KW_LGDT
+  case 239: // Opcode: _KW_LES
 #line 673 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLGDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLES>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2527 "parser.cc"
     break;
 
-  case 240: // Opcode: _KW_LGS
+  case 240: // Opcode: _KW_LFS
 #line 674 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLGS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLFS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2533 "parser.cc"
     break;
 
-  case 241: // Opcode: _KW_LIDT
+  case 241: // Opcode: _KW_LGDT
 #line 675 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLIDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLGDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2539 "parser.cc"
     break;
 
-  case 242: // Opcode: _KW_LLDT
+  case 242: // Opcode: _KW_LGS
 #line 676 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLLDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLGS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2545 "parser.cc"
     break;
 
-  case 243: // Opcode: _KW_LMSW
+  case 243: // Opcode: _KW_LIDT
 #line 677 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLMSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLIDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2551 "parser.cc"
     break;
 
-  case 244: // Opcode: _KW_LOCK
+  case 244: // Opcode: _KW_LLDT
 #line 678 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOCK>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLLDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2557 "parser.cc"
     break;
 
-  case 245: // Opcode: _KW_LODSB
+  case 245: // Opcode: _KW_LMSW
 #line 679 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLMSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2563 "parser.cc"
     break;
 
-  case 246: // Opcode: _KW_LODSD
+  case 246: // Opcode: _KW_LOCK
 #line 680 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOCK>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2569 "parser.cc"
     break;
 
-  case 247: // Opcode: _KW_LODSW
+  case 247: // Opcode: _KW_LODSB
 #line 681 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2575 "parser.cc"
     break;
 
-  case 248: // Opcode: _KW_LOOP
+  case 248: // Opcode: _KW_LODSD
 #line 682 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2581 "parser.cc"
     break;
 
-  case 249: // Opcode: _KW_LOOPE
+  case 249: // Opcode: _KW_LODSW
 #line 683 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLODSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2587 "parser.cc"
     break;
 
-  case 250: // Opcode: _KW_LOOPNE
+  case 250: // Opcode: _KW_LOOP
 #line 684 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2593 "parser.cc"
     break;
 
-  case 251: // Opcode: _KW_LOOPNZ
+  case 251: // Opcode: _KW_LOOPE
 #line 685 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2599 "parser.cc"
     break;
 
-  case 252: // Opcode: _KW_LOOPZ
+  case 252: // Opcode: _KW_LOOPNE
 #line 686 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2605 "parser.cc"
     break;
 
-  case 253: // Opcode: _KW_LSL
+  case 253: // Opcode: _KW_LOOPNZ
 #line 687 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLSL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2611 "parser.cc"
     break;
 
-  case 254: // Opcode: _KW_LSS
+  case 254: // Opcode: _KW_LOOPZ
 #line 688 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLSS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLOOPZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2617 "parser.cc"
     break;
 
-  case 255: // Opcode: _KW_LTR
+  case 255: // Opcode: _KW_LSL
 #line 689 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLSL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2623 "parser.cc"
     break;
 
-  case 256: // Opcode: _KW_MOV
+  case 256: // Opcode: _KW_LSS
 #line 690 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLSS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2629 "parser.cc"
     break;
 
-  case 257: // Opcode: _KW_MOVSB
+  case 257: // Opcode: _KW_LTR
 #line 691 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesLTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2635 "parser.cc"
     break;
 
-  case 258: // Opcode: _KW_MOVSD
+  case 258: // Opcode: _KW_MOV
 #line 692 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOV>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2641 "parser.cc"
     break;
 
-  case 259: // Opcode: _KW_MOVSW
+  case 259: // Opcode: _KW_MOVSB
 #line 693 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2647 "parser.cc"
     break;
 
-  case 260: // Opcode: _KW_MOVSX
+  case 260: // Opcode: _KW_MOVSD
 #line 694 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2653 "parser.cc"
     break;
 
-  case 261: // Opcode: _KW_MOVZX
+  case 261: // Opcode: _KW_MOVSW
 #line 695 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVZX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2659 "parser.cc"
     break;
 
-  case 262: // Opcode: _KW_MUL
+  case 262: // Opcode: _KW_MOVSX
 #line 696 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVSX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2665 "parser.cc"
     break;
 
-  case 263: // Opcode: _KW_NEG
+  case 263: // Opcode: _KW_MOVZX
 #line 697 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNEG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMOVZX>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2671 "parser.cc"
     break;
 
-  case 264: // Opcode: _KW_NOP
+  case 264: // Opcode: _KW_MUL
 #line 698 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesMUL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2677 "parser.cc"
     break;
 
-  case 265: // Opcode: _KW_NOT
+  case 265: // Opcode: _KW_NEG
 #line 699 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNOT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNEG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2683 "parser.cc"
     break;
 
-  case 266: // Opcode: _KW_OR
+  case 266: // Opcode: _KW_NOP
 #line 700 "nask.yy"
-           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2689 "parser.cc"
     break;
 
-  case 267: // Opcode: _KW_ORG
+  case 267: // Opcode: _KW_NOT
 #line 701 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesORG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesNOT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2695 "parser.cc"
     break;
 
-  case 268: // Opcode: _KW_OUT
+  case 268: // Opcode: _KW_OR
 #line 702 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+           { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2701 "parser.cc"
     break;
 
-  case 269: // Opcode: _KW_OUTSB
+  case 269: // Opcode: _KW_ORG
 #line 703 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesORG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2707 "parser.cc"
     break;
 
-  case 270: // Opcode: _KW_OUTSD
+  case 270: // Opcode: _KW_OUT
 #line 704 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2713 "parser.cc"
     break;
 
-  case 271: // Opcode: _KW_OUTSW
+  case 271: // Opcode: _KW_OUTSB
 #line 705 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2719 "parser.cc"
     break;
 
-  case 272: // Opcode: _KW_POP
+  case 272: // Opcode: _KW_OUTSD
 #line 706 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2725 "parser.cc"
     break;
 
-  case 273: // Opcode: _KW_POPA
+  case 273: // Opcode: _KW_OUTSW
 #line 707 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesOUTSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2731 "parser.cc"
     break;
 
-  case 274: // Opcode: _KW_POPAD
+  case 274: // Opcode: _KW_POP
 #line 708 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2737 "parser.cc"
     break;
 
-  case 275: // Opcode: _KW_POPAW
+  case 275: // Opcode: _KW_POPA
 #line 709 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPAW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2743 "parser.cc"
     break;
 
-  case 276: // Opcode: _KW_POPF
+  case 276: // Opcode: _KW_POPAD
 #line 710 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2749 "parser.cc"
     break;
 
-  case 277: // Opcode: _KW_POPFD
+  case 277: // Opcode: _KW_POPAW
 #line 711 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPFD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPAW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2755 "parser.cc"
     break;
 
-  case 278: // Opcode: _KW_POPFW
+  case 278: // Opcode: _KW_POPF
 #line 712 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPFW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2761 "parser.cc"
     break;
 
-  case 279: // Opcode: _KW_PUSH
+  case 279: // Opcode: _KW_POPFD
 #line 713 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSH>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPFD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2767 "parser.cc"
     break;
 
-  case 280: // Opcode: _KW_PUSHA
+  case 280: // Opcode: _KW_POPFW
 #line 714 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPOPFW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2773 "parser.cc"
     break;
 
-  case 281: // Opcode: _KW_PUSHD
+  case 281: // Opcode: _KW_PUSH
 #line 715 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSH>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2779 "parser.cc"
     break;
 
-  case 282: // Opcode: _KW_PUSHAD
+  case 282: // Opcode: _KW_PUSHA
 #line 716 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2785 "parser.cc"
     break;
 
-  case 283: // Opcode: _KW_PUSHAW
+  case 283: // Opcode: _KW_PUSHD
 #line 717 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHAW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2791 "parser.cc"
     break;
 
-  case 284: // Opcode: _KW_PUSHF
+  case 284: // Opcode: _KW_PUSHAD
 #line 718 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHAD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2797 "parser.cc"
     break;
 
-  case 285: // Opcode: _KW_PUSHFD
+  case 285: // Opcode: _KW_PUSHAW
 #line 719 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHFD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHAW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2803 "parser.cc"
     break;
 
-  case 286: // Opcode: _KW_PUSHFW
+  case 286: // Opcode: _KW_PUSHF
 #line 720 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHFW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2809 "parser.cc"
     break;
 
-  case 287: // Opcode: _KW_RCL
+  case 287: // Opcode: _KW_PUSHFD
 #line 721 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRCL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHFD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2815 "parser.cc"
     break;
 
-  case 288: // Opcode: _KW_RCR
+  case 288: // Opcode: _KW_PUSHFW
 #line 722 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRCR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesPUSHFW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2821 "parser.cc"
     break;
 
-  case 289: // Opcode: _KW_RDMSR
+  case 289: // Opcode: _KW_RCL
 #line 723 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRDMSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRCL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2827 "parser.cc"
     break;
 
-  case 290: // Opcode: _KW_RDPMC
+  case 290: // Opcode: _KW_RCR
 #line 724 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRDPMC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRCR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2833 "parser.cc"
     break;
 
-  case 291: // Opcode: _KW_REP
+  case 291: // Opcode: _KW_RDMSR
 #line 725 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRDMSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2839 "parser.cc"
     break;
 
-  case 292: // Opcode: _KW_REPE
+  case 292: // Opcode: _KW_RDPMC
 #line 726 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRDPMC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2845 "parser.cc"
     break;
 
-  case 293: // Opcode: _KW_REPNE
+  case 293: // Opcode: _KW_REP
 #line 727 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2851 "parser.cc"
     break;
 
-  case 294: // Opcode: _KW_REPNZ
+  case 294: // Opcode: _KW_REPE
 #line 728 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2857 "parser.cc"
     break;
 
-  case 295: // Opcode: _KW_REPZ
+  case 295: // Opcode: _KW_REPNE
 #line 729 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2863 "parser.cc"
     break;
 
-  case 296: // Opcode: _KW_RESB
+  case 296: // Opcode: _KW_REPNZ
 #line 730 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2869 "parser.cc"
     break;
 
-  case 297: // Opcode: _KW_RESD
+  case 297: // Opcode: _KW_REPZ
 #line 731 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREPZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2875 "parser.cc"
     break;
 
-  case 298: // Opcode: _KW_RESQ
+  case 298: // Opcode: _KW_RESB
 #line 732 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2881 "parser.cc"
     break;
 
-  case 299: // Opcode: _KW_REST
+  case 299: // Opcode: _KW_RESD
 #line 733 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2887 "parser.cc"
     break;
 
-  case 300: // Opcode: _KW_RESW
+  case 300: // Opcode: _KW_RESQ
 #line 734 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESQ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2893 "parser.cc"
     break;
 
-  case 301: // Opcode: _KW_RET
+  case 301: // Opcode: _KW_REST
 #line 735 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRET>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesREST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2899 "parser.cc"
     break;
 
-  case 302: // Opcode: _KW_RETF
+  case 302: // Opcode: _KW_RESW
 #line 736 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRETF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRESW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2905 "parser.cc"
     break;
 
-  case 303: // Opcode: _KW_RETN
+  case 303: // Opcode: _KW_RET
 #line 737 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRETN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRET>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2911 "parser.cc"
     break;
 
-  case 304: // Opcode: _KW_ROL
+  case 304: // Opcode: _KW_RETF
 #line 738 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesROL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRETF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2917 "parser.cc"
     break;
 
-  case 305: // Opcode: _KW_ROR
+  case 305: // Opcode: _KW_RETN
 #line 739 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesROR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRETN>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2923 "parser.cc"
     break;
 
-  case 306: // Opcode: _KW_RSM
+  case 306: // Opcode: _KW_ROL
 #line 740 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRSM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesROL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2929 "parser.cc"
     break;
 
-  case 307: // Opcode: _KW_SAHF
+  case 307: // Opcode: _KW_ROR
 #line 741 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesROR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2935 "parser.cc"
     break;
 
-  case 308: // Opcode: _KW_SAL
+  case 308: // Opcode: _KW_RSM
 #line 742 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesRSM>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2941 "parser.cc"
     break;
 
-  case 309: // Opcode: _KW_SAR
+  case 309: // Opcode: _KW_SAHF
 #line 743 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAHF>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2947 "parser.cc"
     break;
 
-  case 310: // Opcode: _KW_SBB
+  case 310: // Opcode: _KW_SAL
 #line 744 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSBB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2953 "parser.cc"
     break;
 
-  case 311: // Opcode: _KW_SCASB
+  case 311: // Opcode: _KW_SAR
 #line 745 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSAR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2959 "parser.cc"
     break;
 
-  case 312: // Opcode: _KW_SCASD
+  case 312: // Opcode: _KW_SBB
 #line 746 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSBB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2965 "parser.cc"
     break;
 
-  case 313: // Opcode: _KW_SCASW
+  case 313: // Opcode: _KW_SCASB
 #line 747 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2971 "parser.cc"
     break;
 
-  case 314: // Opcode: _KW_SETA
+  case 314: // Opcode: _KW_SCASD
 #line 748 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2977 "parser.cc"
     break;
 
-  case 315: // Opcode: _KW_SETAE
+  case 315: // Opcode: _KW_SCASW
 #line 749 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSCASW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2983 "parser.cc"
     break;
 
-  case 316: // Opcode: _KW_SETB
+  case 316: // Opcode: _KW_SETA
 #line 750 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2989 "parser.cc"
     break;
 
-  case 317: // Opcode: _KW_SETBE
+  case 317: // Opcode: _KW_SETAE
 #line 751 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 2995 "parser.cc"
     break;
 
-  case 318: // Opcode: _KW_SETC
+  case 318: // Opcode: _KW_SETB
 #line 752 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3001 "parser.cc"
     break;
 
-  case 319: // Opcode: _KW_SETE
+  case 319: // Opcode: _KW_SETBE
 #line 753 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3007 "parser.cc"
     break;
 
-  case 320: // Opcode: _KW_SETG
+  case 320: // Opcode: _KW_SETC
 #line 754 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3013 "parser.cc"
     break;
 
-  case 321: // Opcode: _KW_SETGE
+  case 321: // Opcode: _KW_SETE
 #line 755 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3019 "parser.cc"
     break;
 
-  case 322: // Opcode: _KW_SETL
+  case 322: // Opcode: _KW_SETG
 #line 756 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3025 "parser.cc"
     break;
 
-  case 323: // Opcode: _KW_SETLE
+  case 323: // Opcode: _KW_SETGE
 #line 757 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3031 "parser.cc"
     break;
 
-  case 324: // Opcode: _KW_SETNA
+  case 324: // Opcode: _KW_SETL
 #line 758 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3037 "parser.cc"
     break;
 
-  case 325: // Opcode: _KW_SETNAE
+  case 325: // Opcode: _KW_SETLE
 #line 759 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3043 "parser.cc"
     break;
 
-  case 326: // Opcode: _KW_SETNB
+  case 326: // Opcode: _KW_SETNA
 #line 760 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNA>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3049 "parser.cc"
     break;
 
-  case 327: // Opcode: _KW_SETNBE
+  case 327: // Opcode: _KW_SETNAE
 #line 761 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNAE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3055 "parser.cc"
     break;
 
-  case 328: // Opcode: _KW_SETNC
+  case 328: // Opcode: _KW_SETNB
 #line 762 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3061 "parser.cc"
     break;
 
-  case 329: // Opcode: _KW_SETNE
+  case 329: // Opcode: _KW_SETNBE
 #line 763 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNBE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3067 "parser.cc"
     break;
 
-  case 330: // Opcode: _KW_SETNG
+  case 330: // Opcode: _KW_SETNC
 #line 764 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3073 "parser.cc"
     break;
 
-  case 331: // Opcode: _KW_SETNGE
+  case 331: // Opcode: _KW_SETNE
 #line 765 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3079 "parser.cc"
     break;
 
-  case 332: // Opcode: _KW_SETNL
+  case 332: // Opcode: _KW_SETNG
 #line 766 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3085 "parser.cc"
     break;
 
-  case 333: // Opcode: _KW_SETNLE
+  case 333: // Opcode: _KW_SETNGE
 #line 767 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNGE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3091 "parser.cc"
     break;
 
-  case 334: // Opcode: _KW_SETNO
+  case 334: // Opcode: _KW_SETNL
 #line 768 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3097 "parser.cc"
     break;
 
-  case 335: // Opcode: _KW_SETNP
+  case 335: // Opcode: _KW_SETNLE
 #line 769 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNLE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3103 "parser.cc"
     break;
 
-  case 336: // Opcode: _KW_SETNS
+  case 336: // Opcode: _KW_SETNO
 #line 770 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3109 "parser.cc"
     break;
 
-  case 337: // Opcode: _KW_SETNZ
+  case 337: // Opcode: _KW_SETNP
 #line 771 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3115 "parser.cc"
     break;
 
-  case 338: // Opcode: _KW_SETO
+  case 338: // Opcode: _KW_SETNS
 #line 772 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3121 "parser.cc"
     break;
 
-  case 339: // Opcode: _KW_SETP
+  case 339: // Opcode: _KW_SETNZ
 #line 773 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETNZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3127 "parser.cc"
     break;
 
-  case 340: // Opcode: _KW_SETPE
+  case 340: // Opcode: _KW_SETO
 #line 774 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3133 "parser.cc"
     break;
 
-  case 341: // Opcode: _KW_SETPO
+  case 341: // Opcode: _KW_SETP
 #line 775 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETPO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETP>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3139 "parser.cc"
     break;
 
-  case 342: // Opcode: _KW_SETS
+  case 342: // Opcode: _KW_SETPE
 #line 776 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETPE>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3145 "parser.cc"
     break;
 
-  case 343: // Opcode: _KW_SETZ
+  case 343: // Opcode: _KW_SETPO
 #line 777 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETPO>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3151 "parser.cc"
     break;
 
-  case 344: // Opcode: _KW_SGDT
+  case 344: // Opcode: _KW_SETS
 #line 778 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSGDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETS>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3157 "parser.cc"
     break;
 
-  case 345: // Opcode: _KW_SHL
+  case 345: // Opcode: _KW_SETZ
 #line 779 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSETZ>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3163 "parser.cc"
     break;
 
-  case 346: // Opcode: _KW_SHLD
+  case 346: // Opcode: _KW_SGDT
 #line 780 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSGDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3169 "parser.cc"
     break;
 
-  case 347: // Opcode: _KW_SHR
+  case 347: // Opcode: _KW_SHL
 #line 781 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHL>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3175 "parser.cc"
     break;
 
-  case 348: // Opcode: _KW_SHRD
+  case 348: // Opcode: _KW_SHLD
 #line 782 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHRD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHLD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3181 "parser.cc"
     break;
 
-  case 349: // Opcode: _KW_SIDT
+  case 349: // Opcode: _KW_SHR
 #line 783 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSIDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3187 "parser.cc"
     break;
 
-  case 350: // Opcode: _KW_SLDT
+  case 350: // Opcode: _KW_SHRD
 #line 784 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSLDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSHRD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3193 "parser.cc"
     break;
 
-  case 351: // Opcode: _KW_SMSW
+  case 351: // Opcode: _KW_SIDT
 #line 785 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSMSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSIDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3199 "parser.cc"
     break;
 
-  case 352: // Opcode: _KW_STC
+  case 352: // Opcode: _KW_SLDT
 #line 786 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSLDT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3205 "parser.cc"
     break;
 
-  case 353: // Opcode: _KW_STD
+  case 353: // Opcode: _KW_SMSW
 #line 787 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSMSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3211 "parser.cc"
     break;
 
-  case 354: // Opcode: _KW_STI
+  case 354: // Opcode: _KW_STC
 #line 788 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTC>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3217 "parser.cc"
     break;
 
-  case 355: // Opcode: _KW_STOSB
+  case 355: // Opcode: _KW_STD
 #line 789 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3223 "parser.cc"
     break;
 
-  case 356: // Opcode: _KW_STOSD
+  case 356: // Opcode: _KW_STI
 #line 790 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTI>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3229 "parser.cc"
     break;
 
-  case 357: // Opcode: _KW_STOSW
+  case 357: // Opcode: _KW_STOSB
 #line 791 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3235 "parser.cc"
     break;
 
-  case 358: // Opcode: _KW_STR
+  case 358: // Opcode: _KW_STOSD
 #line 792 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3241 "parser.cc"
     break;
 
-  case 359: // Opcode: _KW_SUB
+  case 359: // Opcode: _KW_STOSW
 #line 793 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTOSW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3247 "parser.cc"
     break;
 
-  case 360: // Opcode: _KW_TEST
+  case 360: // Opcode: _KW_STR
 #line 794 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesTEST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSTR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3253 "parser.cc"
     break;
 
-  case 361: // Opcode: _KW_TIMES
+  case 361: // Opcode: _KW_SUB
 #line 795 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesTIMES>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesSUB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3259 "parser.cc"
     break;
 
-  case 362: // Opcode: _KW_UD2
+  case 362: // Opcode: _KW_TEST
 #line 796 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesUD2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesTEST>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3265 "parser.cc"
     break;
 
-  case 363: // Opcode: _KW_VERR
+  case 363: // Opcode: _KW_TIMES
 #line 797 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesVERR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesTIMES>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3271 "parser.cc"
     break;
 
-  case 364: // Opcode: _KW_VERW
+  case 364: // Opcode: _KW_UD2
 #line 798 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesVERW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesUD2>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3277 "parser.cc"
     break;
 
-  case 365: // Opcode: _KW_WAIT
+  case 365: // Opcode: _KW_VERR
 #line 799 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWAIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesVERR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3283 "parser.cc"
     break;
 
-  case 366: // Opcode: _KW_WBINVD
+  case 366: // Opcode: _KW_VERW
 #line 800 "nask.yy"
-               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWBINVD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesVERW>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3289 "parser.cc"
     break;
 
-  case 367: // Opcode: _KW_WRMSR
+  case 367: // Opcode: _KW_WAIT
 #line 801 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWRMSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWAIT>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3295 "parser.cc"
     break;
 
-  case 368: // Opcode: _KW_XADD
+  case 368: // Opcode: _KW_WBINVD
 #line 802 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+               { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWBINVD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3301 "parser.cc"
     break;
 
-  case 369: // Opcode: _KW_XCHG
+  case 369: // Opcode: _KW_WRMSR
 #line 803 "nask.yy"
-             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXCHG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesWRMSR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3307 "parser.cc"
     break;
 
-  case 370: // Opcode: _KW_XLATB
+  case 370: // Opcode: _KW_XADD
 #line 804 "nask.yy"
-              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXLATB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXADD>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3313 "parser.cc"
     break;
 
-  case 371: // Opcode: _KW_XOR
+  case 371: // Opcode: _KW_XCHG
 #line 805 "nask.yy"
-            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+             { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXCHG>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
 #line 3319 "parser.cc"
     break;
 
+  case 372: // Opcode: _KW_XLATB
+#line 806 "nask.yy"
+              { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXLATB>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+#line 3325 "parser.cc"
+    break;
 
-#line 3323 "parser.cc"
+  case 373: // Opcode: _KW_XOR
+#line 807 "nask.yy"
+            { yylhs.value.as < std::shared_ptr<Opcode> > () = std::make_shared<OpcodesXOR>(); yylhs.value.as < std::shared_ptr<Opcode> > ()->line_number = yylhs.location.begin.line; yylhs.value.as < std::shared_ptr<Opcode> > ()->char_number = yylhs.location.begin.column; driver.opcode_ = yylhs.value.as < std::shared_ptr<Opcode> > (); }
+#line 3331 "parser.cc"
+    break;
+
+
+#line 3335 "parser.cc"
 
             default:
               break;
@@ -3512,156 +3524,158 @@ namespace nask_ {
 
 
 
-  const short NaskParser::yypact_ninf_ = -350;
+  const short NaskParser::yypact_ninf_ = -342;
 
   const signed char NaskParser::yytable_ninf_ = -1;
 
   const short
   NaskParser::yypact_[] =
   {
-     355,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -320,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -320,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,   -13,   -52,  -350,    25,  -350,   355,    -5,  -350,
-    -350,  -350,  -350,  -350,    17,  -350,  -350,  -350,  -350,  -350,
-    -350,  -350,  -350,  -350,  -350,  -320,    -5,  -350,  -350,    -5,
-    -350,  -350,  -350,     2,  -350,    22,    40,    16,  -350,  -350,
-    -350,    -5,  -320,  -308,    40,    28,    10,    -7,    35,    -5,
-      14,    14,    14,    14,    14,    29,  -350,  -350,  -350,  -350,
-    -304,     9,  -350,  -302,  -350,    16,    16,  -350,  -350,  -350,
-      -5,  -350,    -2,     5,    44,  -293,    40,  -297,  -350,  -350,
-    -296,  -350,  -290,  -289,  -350,  -350
+     355,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -313,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -313,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,   -15,   -58,  -342,     8,  -342,   355,    -5,  -342,
+    -342,  -342,  -342,  -342,    29,  -342,  -342,  -342,  -342,  -342,
+    -342,  -342,  -342,  -342,  -342,  -313,    -5,  -342,  -342,    -5,
+    -342,  -342,  -342,     2,     6,  -342,    32,    13,    22,  -342,
+    -342,  -342,    -5,  -313,  -296,    13,    38,     4,     5,    45,
+      -5,    -5,    14,    14,    -5,    14,    14,    14,    37,  -342,
+    -342,  -342,  -342,  -297,     9,  -342,  -293,    13,  -342,    22,
+      22,    13,  -342,  -342,  -342,    -5,  -342,    -2,    12,    54,
+    -285,    13,  -289,  -342,  -342,  -287,  -342,  -281,  -279,  -342,
+    -342
   };
 
   const short
   NaskParser::yydefact_[] =
   {
-       0,    53,    54,    56,    55,    57,    58,    60,    61,    59,
-      62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
-      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
-      82,    83,    84,    85,    86,    87,    88,    89,    90,    91,
-      92,    93,    94,    95,    96,    97,    11,    98,    99,   100,
-     101,   102,   103,   104,   105,   106,   107,   108,   109,   110,
-     111,   112,   113,   114,   115,   116,   117,   118,   119,   120,
-     121,   122,   123,   124,   125,   126,   127,   128,   129,   130,
-     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
-     141,   142,   143,   144,   145,   146,   147,   148,   149,   150,
-     151,   152,   154,   155,   153,   156,   157,   158,   159,   160,
-     161,   162,   163,   164,   165,   166,   167,   168,   169,   170,
-     171,   172,   173,   174,   175,   176,   177,   178,   179,   180,
-     181,    11,   182,   183,   184,   185,   186,   187,   188,   189,
-     190,   191,   192,   193,   194,   195,   196,   197,   198,   199,
-     200,   201,   202,   203,   204,   205,   206,   207,   208,   209,
-     210,   211,   212,   213,   214,   215,   216,   217,   218,   219,
-     220,   221,   222,   223,   224,   225,   226,   227,   228,   229,
-     230,   231,   232,   233,   234,   235,   236,   237,   238,   239,
-     240,   241,   242,   243,   244,   245,   246,   247,   248,   249,
-     250,   251,   252,   253,   254,   255,   256,   257,   258,   259,
-     260,   261,   262,   263,   264,   265,   266,   267,   268,   269,
-     270,   271,   272,   273,   274,   275,   276,   277,   278,   279,
-     280,   282,   283,   281,   284,   285,   286,   287,   288,   289,
-     290,   291,   292,   293,   294,   295,   296,   297,   298,   299,
-     300,   301,   302,   303,   304,   305,   306,   307,   308,   309,
-     310,   311,   312,   313,   314,   315,   316,   317,   318,   319,
-     320,   321,   322,   323,   324,   325,   326,   327,   328,   329,
-     330,   331,   332,   333,   334,   335,   336,   337,   338,   339,
-     340,   341,   342,   343,   344,   345,   346,   347,   348,   349,
-     350,   351,   352,   353,   354,   355,   356,   357,   358,   359,
-     360,   361,   362,   363,   364,   365,   366,   367,   368,   369,
-     370,   371,     0,     0,     5,     0,     2,     3,    14,    38,
-      39,    40,    37,     8,    12,     7,    48,    41,    49,    44,
-      42,    43,    45,    46,    47,     0,     0,     1,     4,     0,
-      50,    52,    51,     0,    10,    15,    17,    20,    27,    23,
-      28,     0,    11,     0,     6,     0,    39,     0,     0,    14,
-       0,     0,     0,     0,     0,     0,    21,    13,     9,    29,
-       0,     0,    30,     0,    16,    18,    19,    26,    24,    25,
-       0,    36,    39,     0,     0,     0,    22,     0,    33,    31,
-       0,    32,     0,     0,    34,    35
+       0,    55,    56,    58,    57,    59,    60,    62,    63,    61,
+      64,    65,    66,    67,    68,    69,    70,    71,    72,    73,
+      74,    75,    76,    77,    78,    79,    80,    81,    82,    83,
+      84,    85,    86,    87,    88,    89,    90,    91,    92,    93,
+      94,    95,    96,    97,    98,    99,    11,   100,   101,   102,
+     103,   104,   105,   106,   107,   108,   109,   110,   111,   112,
+     113,   114,   115,   116,   117,   118,   119,   120,   121,   122,
+     123,   124,   125,   126,   127,   128,   129,   130,   131,   132,
+     133,   134,   135,   136,   137,   138,   139,   140,   141,   142,
+     143,   144,   145,   146,   147,   148,   149,   150,   151,   152,
+     153,   154,   156,   157,   155,   158,   159,   160,   161,   162,
+     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
+     173,   174,   175,   176,   177,   178,   179,   180,   181,   182,
+     183,    11,   184,   185,   186,   187,   188,   189,   190,   191,
+     192,   193,   194,   195,   196,   197,   198,   199,   200,   201,
+     202,   203,   204,   205,   206,   207,   208,   209,   210,   211,
+     212,   213,   214,   215,   216,   217,   218,   219,   220,   221,
+     222,   223,   224,   225,   226,   227,   228,   229,   230,   231,
+     232,   233,   234,   235,   236,   237,   238,   239,   240,   241,
+     242,   243,   244,   245,   246,   247,   248,   249,   250,   251,
+     252,   253,   254,   255,   256,   257,   258,   259,   260,   261,
+     262,   263,   264,   265,   266,   267,   268,   269,   270,   271,
+     272,   273,   274,   275,   276,   277,   278,   279,   280,   281,
+     282,   284,   285,   283,   286,   287,   288,   289,   290,   291,
+     292,   293,   294,   295,   296,   297,   298,   299,   300,   301,
+     302,   303,   304,   305,   306,   307,   308,   309,   310,   311,
+     312,   313,   314,   315,   316,   317,   318,   319,   320,   321,
+     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
+     332,   333,   334,   335,   336,   337,   338,   339,   340,   341,
+     342,   343,   344,   345,   346,   347,   348,   349,   350,   351,
+     352,   353,   354,   355,   356,   357,   358,   359,   360,   361,
+     362,   363,   364,   365,   366,   367,   368,   369,   370,   371,
+     372,   373,     0,     0,     5,     0,     2,     3,    14,    40,
+      41,    42,    39,     8,    12,     7,    50,    43,    51,    46,
+      44,    45,    47,    48,    49,     0,     0,     1,     4,     0,
+      52,    54,    53,     0,    41,    10,    15,    17,    20,    29,
+      25,    30,     0,    11,     0,     6,     0,    41,     0,     0,
+       0,    14,     0,     0,     0,     0,     0,     0,     0,    21,
+      13,     9,    31,     0,     0,    32,     0,    24,    16,    18,
+      19,    23,    28,    26,    27,     0,    38,    41,     0,     0,
+       0,    22,     0,    35,    33,     0,    34,     0,     0,    36,
+      37
   };
 
   const short
   NaskParser::yypgoto_[] =
   {
-    -350,  -350,  -267,  -350,  -123,  -307,  -350,  -337,  -349,  -327,
-    -298,  -317,   -44,  -350,  -350,  -350
+    -342,  -342,  -257,  -342,  -128,  -300,  -342,  -319,  -341,  -318,
+    -290,  -311,   -45,  -342,  -342,  -342
   };
 
   const short
   NaskParser::yydefgoto_[] =
   {
-       0,   325,   326,   327,   333,   354,   355,   356,   357,   358,
-     359,   368,   360,   345,   361,   328
+       0,   325,   326,   327,   333,   355,   356,   357,   358,   359,
+     360,   369,   361,   345,   362,   328
   };
 
   const short
   NaskParser::yytable_[] =
   {
-     349,   370,   334,   371,   336,   380,   397,   349,   335,   364,
-     346,   337,   365,   370,   349,   371,   367,   380,   381,   349,
-     372,   385,   386,   373,   375,   347,   362,   374,   350,   329,
-     330,   369,   331,   332,   379,   350,   370,   370,   371,   371,
-     378,   390,   350,   383,   393,   387,   388,   389,   370,   391,
-     371,   395,   400,   396,   351,   401,   402,   403,   404,   405,
-     348,   351,   384,   376,   394,     0,     0,     0,   351,     0,
-       0,     0,     0,     0,     0,     0,     0,   338,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,   334,     0,     0,
+     349,   334,   336,   335,   346,   383,   402,   349,   347,   337,
+     370,   383,   384,   372,   349,   373,   370,   374,   370,   349,
+     372,   372,   373,   373,   374,   374,   375,   365,   350,   376,
+     366,   389,   390,   377,   368,   350,   329,   330,   363,   331,
+     332,   371,   350,   378,   382,   372,   372,   373,   373,   395,
+     374,   387,   381,   386,   351,   391,   396,   392,   393,   394,
+     400,   351,   405,   406,   407,   398,   408,   409,   351,   410,
+     348,   388,   379,   399,     0,   338,   401,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,   334,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,   339,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,   340,     0,     0,     0,
+       0,     0,     0,     0,   339,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,   340,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,   341,     0,     0,     0,     0,     0,     0,
-     342,   343,     0,     0,     0,     0,     0,     0,     0,   377,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,   341,     0,     0,     0,     0,     0,     0,   342,   343,
+       0,     0,     0,     0,     0,   380,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   344,     0,     0,     0,     0,     0,
+       0,     0,   344,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,   363,     0,     0,     0,     0,     0,     0,     0,     0,
+     364,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,   334,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,   352,     0,     0,     0,
-       0,   382,   353,   352,   329,   330,   398,   331,   332,   353,
-     352,   329,   366,   399,   331,   332,   353,     0,   329,   392,
-       0,   331,   332,   329,   330,     0,   331,   332,     1,     2,
+       0,     0,   353,   352,   329,   354,   403,   331,   332,   353,
+     352,   329,   367,   385,   331,   332,   353,     0,   329,   397,
+     404,   331,   332,   329,   330,     0,   331,   332,     1,     2,
        3,     4,     0,     5,     6,     7,     8,     9,    10,     0,
       11,    12,    13,    14,    15,    16,    17,    18,     0,    19,
       20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
@@ -3701,43 +3715,43 @@ namespace nask_ {
   const short
   NaskParser::yycheck_[] =
   {
-       5,     8,    46,    10,    17,     7,     8,     5,   131,   346,
-      62,    24,   349,     8,     5,    10,   353,     7,     8,     5,
-       4,   370,   371,     7,   361,     0,     9,    11,    33,   349,
-     350,     9,   352,   353,     6,    33,     8,     8,    10,    10,
-     348,    12,    33,     8,   381,   372,   373,   374,     8,   353,
-      10,   353,     8,   390,    59,   348,   353,   353,   348,   348,
-     327,    59,   369,   361,   381,    -1,    -1,    -1,    59,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    90,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,   131,    -1,    -1,
+       5,    46,    17,   131,    62,     7,     8,     5,     0,    24,
+      12,     7,     8,     8,     5,    10,    12,    12,    12,     5,
+       8,     8,    10,    10,    12,    12,     4,   346,    33,     7,
+     349,   372,   373,    11,   353,    33,   349,   350,     9,   352,
+     353,     9,    33,   362,     6,     8,     8,    10,    10,    12,
+      12,   370,   348,     8,    59,   374,   353,   375,   376,   377,
+     353,    59,     8,   348,   353,   384,   353,   348,    59,   348,
+     327,   371,   362,   384,    -1,    90,   395,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,   131,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,   119,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,   159,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,   119,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,   159,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,   236,    -1,    -1,    -1,    -1,    -1,    -1,
-     243,   244,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   362,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,   236,    -1,    -1,    -1,    -1,    -1,    -1,   243,   244,
+      -1,    -1,    -1,    -1,    -1,   363,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,   287,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,   287,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,   345,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   362,    -1,
+     345,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,   363,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,   341,    -1,    -1,    -1,
-      -1,   348,   347,   341,   349,   350,   348,   352,   353,   347,
+      -1,    -1,   347,   341,   349,   350,   348,   352,   353,   347,
      341,   349,   350,   348,   352,   353,   347,    -1,   349,   350,
-      -1,   352,   353,   349,   350,    -1,   352,   353,    13,    14,
+     348,   352,   353,   349,   350,    -1,   352,   353,    13,    14,
       15,    16,    -1,    18,    19,    20,    21,    22,    23,    -1,
       25,    26,    27,    28,    29,    30,    31,    32,    -1,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
@@ -3812,12 +3826,13 @@ namespace nask_ {
      345,   346,   347,   350,   351,   355,   356,   357,   369,   349,
      350,   352,   353,   358,   366,   358,    17,    24,    90,   119,
      159,   236,   243,   244,   287,   367,    62,     0,   356,     5,
-      33,    59,   341,   347,   359,   360,   361,   362,   363,   364,
-     366,   368,     9,   366,   361,   361,   350,   361,   365,     9,
-       8,    10,     4,     7,    11,   361,   364,   358,   348,     6,
-       7,     8,   348,     8,   359,   362,   362,   363,   363,   363,
-      12,   353,   350,   361,   365,   353,   361,     8,   348,   348,
-       8,   348,   353,   353,   348,   348
+      33,    59,   341,   347,   350,   359,   360,   361,   362,   363,
+     364,   366,   368,     9,   366,   361,   361,   350,   361,   365,
+      12,     9,     8,    10,    12,     4,     7,    11,   361,   364,
+     358,   348,     6,     7,     8,   348,     8,   361,   359,   362,
+     362,   361,   363,   363,   363,    12,   353,   350,   361,   365,
+     353,   361,     8,   348,   348,     8,   348,   353,   353,   348,
+     348
   };
 
   const short
@@ -3825,10 +3840,10 @@ namespace nask_ {
   {
        0,   354,   355,   356,   356,   357,   357,   357,   357,   357,
      357,   358,   358,   358,   359,   359,   359,   360,   361,   361,
-     361,   361,   361,   361,   362,   362,   362,   362,   363,   363,
-     364,   364,   364,   364,   364,   364,   365,   366,   366,   366,
-     366,   367,   367,   367,   367,   367,   367,   367,   367,   367,
-     368,   368,   368,   369,   369,   369,   369,   369,   369,   369,
+     361,   361,   361,   361,   361,   361,   362,   362,   362,   362,
+     363,   363,   364,   364,   364,   364,   364,   364,   365,   366,
+     366,   366,   366,   367,   367,   367,   367,   367,   367,   367,
+     367,   367,   368,   368,   368,   369,   369,   369,   369,   369,
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
@@ -3860,7 +3875,7 @@ namespace nask_ {
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
      369,   369,   369,   369,   369,   369,   369,   369,   369,   369,
-     369,   369
+     369,   369,   369,   369
   };
 
   const signed char
@@ -3868,8 +3883,8 @@ namespace nask_ {
   {
        0,     2,     1,     1,     2,     1,     3,     2,     2,     4,
        2,     0,     1,     3,     0,     1,     3,     1,     3,     3,
-       1,     2,     4,     1,     3,     3,     3,     1,     1,     3,
-       3,     5,     5,     5,     7,     7,     3,     1,     1,     1,
+       1,     2,     4,     3,     3,     1,     3,     3,     3,     1,
+       1,     3,     3,     5,     5,     5,     7,     7,     3,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
@@ -3903,7 +3918,7 @@ namespace nask_ {
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1
+       1,     1,     1,     1
   };
 
 
@@ -3990,10 +4005,10 @@ namespace nask_ {
   {
        0,   422,   422,   424,   425,   427,   428,   429,   430,   431,
      432,   434,   435,   436,   438,   439,   440,   442,   444,   445,
-     446,   447,   448,   449,   451,   452,   453,   454,   456,   457,
-     459,   460,   461,   462,   463,   464,   466,   468,   469,   470,
-     471,   473,   474,   475,   476,   477,   478,   479,   480,   481,
-     483,   484,   485,   487,   488,   489,   490,   491,   492,   493,
+     446,   447,   448,   449,   450,   451,   453,   454,   455,   456,
+     458,   459,   461,   462,   463,   464,   465,   466,   468,   470,
+     471,   472,   473,   475,   476,   477,   478,   479,   480,   481,
+     482,   483,   485,   486,   487,   489,   490,   491,   492,   493,
      494,   495,   496,   497,   498,   499,   500,   501,   502,   503,
      504,   505,   506,   507,   508,   509,   510,   511,   512,   513,
      514,   515,   516,   517,   518,   519,   520,   521,   522,   523,
@@ -4025,7 +4040,7 @@ namespace nask_ {
      774,   775,   776,   777,   778,   779,   780,   781,   782,   783,
      784,   785,   786,   787,   788,   789,   790,   791,   792,   793,
      794,   795,   796,   797,   798,   799,   800,   801,   802,   803,
-     804,   805
+     804,   805,   806,   807
   };
 
   void
@@ -4138,9 +4153,9 @@ namespace nask_ {
   }
 
 } // nask_
-#line 4142 "parser.cc"
+#line 4157 "parser.cc"
 
-#line 808 "nask.yy"
+#line 810 "nask.yy"
 
 
 

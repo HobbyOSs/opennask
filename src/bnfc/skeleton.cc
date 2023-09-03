@@ -150,13 +150,31 @@ void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
 
 }
 
+void Skeleton::visitSegmentOffsetDataExp(SegmentOffsetDataExp *segment_offset_data_exp)
+{
+  /* Code For SegmentOffsetDataExp Goes Here */
+
+  if (segment_offset_data_exp->datatype_) segment_offset_data_exp->datatype_->accept(this);
+  if (segment_offset_data_exp->exp_1) segment_offset_data_exp->exp_1->accept(this);
+  if (segment_offset_data_exp->exp_2) segment_offset_data_exp->exp_2->accept(this);
+
+}
+
 void Skeleton::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp)
 {
   /* Code For SegmentOffsetExp Goes Here */
 
-  if (segment_offset_exp->datatype_) segment_offset_exp->datatype_->accept(this);
   if (segment_offset_exp->exp_1) segment_offset_exp->exp_1->accept(this);
   if (segment_offset_exp->exp_2) segment_offset_exp->exp_2->accept(this);
+
+}
+
+void Skeleton::visitSregFrameExp(SregFrameExp *sreg_frame_exp)
+{
+  /* Code For SregFrameExp Goes Here */
+
+  visitId(sreg_frame_exp->id_);
+  if (sreg_frame_exp->exp_) sreg_frame_exp->exp_->accept(this);
 
 }
 

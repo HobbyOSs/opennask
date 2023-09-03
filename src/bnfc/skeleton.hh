@@ -35,7 +35,9 @@ public:
   void visitModExp(ModExp *p);
   void visitImmExp(ImmExp *p);
   void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
+  void visitSregFrameExp(SregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);

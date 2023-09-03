@@ -445,7 +445,9 @@ Exp : Exp _PLUS Exp1 { $$ = std::make_shared<PlusExp>($1, $3); $$->line_number =
   | Exp _MINUS Exp1 { $$ = std::make_shared<MinusExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | Exp1 { $$ = $1; $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | DataType MemoryAddr { $$ = std::make_shared<DatatypeExp>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
-  | DataType Exp _COLON Exp { $$ = std::make_shared<SegmentOffsetExp>($1, $2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | DataType Exp _COLON Exp { $$ = std::make_shared<SegmentOffsetDataExp>($1, $2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | Exp _COLON Exp { $$ = std::make_shared<SegmentOffsetExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | T_Id _COLON Exp { $$ = std::make_shared<SregFrameExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | MemoryAddr { $$ = std::make_shared<MemoryAddrExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
 ;
 Exp1 : Exp1 _STAR Exp2 { $$ = std::make_shared<MulExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
