@@ -12,18 +12,25 @@
 Program* pProgram(std::istream &stream);
 ListStatement* pListStatement(std::istream &stream);
 Statement* pStatement(std::istream &stream);
+Statement* pStatement1(std::istream &stream);
 ListFactor* pListFactor(std::istream &stream);
 ListMnemonicArgs* pListMnemonicArgs(std::istream &stream);
 MnemonicArgs* pMnemonicArgs(std::istream &stream);
 Exp* pExp(std::istream &stream);
 Exp* pExp1(std::istream &stream);
+Label* pLabel(std::istream &stream);
 Exp* pExp2(std::istream &stream);
+Exp* pExp3(std::istream &stream);
+Exp* pExp4(std::istream &stream);
 MemoryAddr* pMemoryAddr(std::istream &stream);
 IndexExp* pIndexExp(std::istream &stream);
+UnaryOperator* pUnaryOperator(std::istream &stream);
 Factor* pFactor(std::istream &stream);
 JumpDir* pJumpDir(std::istream &stream);
+SReg* pSReg(std::istream &stream);
 ConfigType* pConfigType(std::istream &stream);
 DataType* pDataType(std::istream &stream);
+OpcodeNoParam* pOpcodeNoParam(std::istream &stream);
 Opcode* pOpcode(std::istream &stream);
 
 

@@ -118,6 +118,22 @@ std::shared_ptr<Statement> MnemonicStmt::clone() const
 
 
 
+/********************   OpcodeStmt    ********************/
+
+
+
+void OpcodeStmt::accept(Visitor *v)
+{
+    v->visitOpcodeStmt(this);
+}
+
+std::shared_ptr<Statement> OpcodeStmt::clone() const
+{
+    return std::make_shared<OpcodeStmt>(*this);
+}
+
+
+
 /********************   MnemoArg    ********************/
 
 
@@ -130,6 +146,102 @@ void MnemoArg::accept(Visitor *v)
 std::shared_ptr<MnemonicArgs> MnemoArg::clone() const
 {
     return std::make_shared<MnemoArg>(*this);
+}
+
+
+
+/********************   SregExp    ********************/
+
+
+
+void SregExp::accept(Visitor *v)
+{
+    v->visitSregExp(this);
+}
+
+std::shared_ptr<Exp> SregExp::clone() const
+{
+    return std::make_shared<SregExp>(*this);
+}
+
+
+
+/********************   DatatypeExp    ********************/
+
+
+
+void DatatypeExp::accept(Visitor *v)
+{
+    v->visitDatatypeExp(this);
+}
+
+std::shared_ptr<Exp> DatatypeExp::clone() const
+{
+    return std::make_shared<DatatypeExp>(*this);
+}
+
+
+
+/********************   MemoryAddrExp    ********************/
+
+
+
+void MemoryAddrExp::accept(Visitor *v)
+{
+    v->visitMemoryAddrExp(this);
+}
+
+std::shared_ptr<Exp> MemoryAddrExp::clone() const
+{
+    return std::make_shared<MemoryAddrExp>(*this);
+}
+
+
+
+/********************   JmpMemoryAddrExp    ********************/
+
+
+
+void JmpMemoryAddrExp::accept(Visitor *v)
+{
+    v->visitJmpMemoryAddrExp(this);
+}
+
+std::shared_ptr<Exp> JmpMemoryAddrExp::clone() const
+{
+    return std::make_shared<JmpMemoryAddrExp>(*this);
+}
+
+
+
+/********************   SegmentOffsetDataExp    ********************/
+
+
+
+void SegmentOffsetDataExp::accept(Visitor *v)
+{
+    v->visitSegmentOffsetDataExp(this);
+}
+
+std::shared_ptr<Exp> SegmentOffsetDataExp::clone() const
+{
+    return std::make_shared<SegmentOffsetDataExp>(*this);
+}
+
+
+
+/********************   SegmentOffsetExp    ********************/
+
+
+
+void SegmentOffsetExp::accept(Visitor *v)
+{
+    v->visitSegmentOffsetExp(this);
+}
+
+std::shared_ptr<Exp> SegmentOffsetExp::clone() const
+{
+    return std::make_shared<SegmentOffsetExp>(*this);
 }
 
 
@@ -214,6 +326,38 @@ std::shared_ptr<Exp> ModExp::clone() const
 
 
 
+/********************   SregFrameExp    ********************/
+
+
+
+void SregFrameExp::accept(Visitor *v)
+{
+    v->visitSregFrameExp(this);
+}
+
+std::shared_ptr<Exp> SregFrameExp::clone() const
+{
+    return std::make_shared<SregFrameExp>(*this);
+}
+
+
+
+/********************   PreOpExp    ********************/
+
+
+
+void PreOpExp::accept(Visitor *v)
+{
+    v->visitPreOpExp(this);
+}
+
+std::shared_ptr<Exp> PreOpExp::clone() const
+{
+    return std::make_shared<PreOpExp>(*this);
+}
+
+
+
 /********************   ImmExp    ********************/
 
 
@@ -230,66 +374,18 @@ std::shared_ptr<Exp> ImmExp::clone() const
 
 
 
-/********************   DatatypeExp    ********************/
+/********************   LabelExp    ********************/
 
 
 
-void DatatypeExp::accept(Visitor *v)
+void LabelExp::accept(Visitor *v)
 {
-    v->visitDatatypeExp(this);
+    v->visitLabelExp(this);
 }
 
-std::shared_ptr<Exp> DatatypeExp::clone() const
+std::shared_ptr<Label> LabelExp::clone() const
 {
-    return std::make_shared<DatatypeExp>(*this);
-}
-
-
-
-/********************   SegmentOffsetExp    ********************/
-
-
-
-void SegmentOffsetExp::accept(Visitor *v)
-{
-    v->visitSegmentOffsetExp(this);
-}
-
-std::shared_ptr<Exp> SegmentOffsetExp::clone() const
-{
-    return std::make_shared<SegmentOffsetExp>(*this);
-}
-
-
-
-/********************   MemoryAddrExp    ********************/
-
-
-
-void MemoryAddrExp::accept(Visitor *v)
-{
-    v->visitMemoryAddrExp(this);
-}
-
-std::shared_ptr<Exp> MemoryAddrExp::clone() const
-{
-    return std::make_shared<MemoryAddrExp>(*this);
-}
-
-
-
-/********************   JmpMemoryAddrExp    ********************/
-
-
-
-void JmpMemoryAddrExp::accept(Visitor *v)
-{
-    v->visitJmpMemoryAddrExp(this);
-}
-
-std::shared_ptr<Exp> JmpMemoryAddrExp::clone() const
-{
-    return std::make_shared<JmpMemoryAddrExp>(*this);
+    return std::make_shared<LabelExp>(*this);
 }
 
 
@@ -402,6 +498,22 @@ void IndexScaleExp::accept(Visitor *v)
 std::shared_ptr<IndexExp> IndexScaleExp::clone() const
 {
     return std::make_shared<IndexScaleExp>(*this);
+}
+
+
+
+/********************   Negative    ********************/
+
+
+
+void Negative::accept(Visitor *v)
+{
+    v->visitNegative(this);
+}
+
+std::shared_ptr<UnaryOperator> Negative::clone() const
+{
+    return std::make_shared<Negative>(*this);
 }
 
 
@@ -530,6 +642,102 @@ void FarJumpDir::accept(Visitor *v)
 std::shared_ptr<JumpDir> FarJumpDir::clone() const
 {
     return std::make_shared<FarJumpDir>(*this);
+}
+
+
+
+/********************   SRegCS    ********************/
+
+
+
+void SRegCS::accept(Visitor *v)
+{
+    v->visitSRegCS(this);
+}
+
+std::shared_ptr<SReg> SRegCS::clone() const
+{
+    return std::make_shared<SRegCS>(*this);
+}
+
+
+
+/********************   SRegDS    ********************/
+
+
+
+void SRegDS::accept(Visitor *v)
+{
+    v->visitSRegDS(this);
+}
+
+std::shared_ptr<SReg> SRegDS::clone() const
+{
+    return std::make_shared<SRegDS>(*this);
+}
+
+
+
+/********************   SRegES    ********************/
+
+
+
+void SRegES::accept(Visitor *v)
+{
+    v->visitSRegES(this);
+}
+
+std::shared_ptr<SReg> SRegES::clone() const
+{
+    return std::make_shared<SRegES>(*this);
+}
+
+
+
+/********************   SRegSS    ********************/
+
+
+
+void SRegSS::accept(Visitor *v)
+{
+    v->visitSRegSS(this);
+}
+
+std::shared_ptr<SReg> SRegSS::clone() const
+{
+    return std::make_shared<SRegSS>(*this);
+}
+
+
+
+/********************   SRegFS    ********************/
+
+
+
+void SRegFS::accept(Visitor *v)
+{
+    v->visitSRegFS(this);
+}
+
+std::shared_ptr<SReg> SRegFS::clone() const
+{
+    return std::make_shared<SRegFS>(*this);
+}
+
+
+
+/********************   SRegGS    ********************/
+
+
+
+void SRegGS::accept(Visitor *v)
+{
+    v->visitSRegGS(this);
+}
+
+std::shared_ptr<SReg> SRegGS::clone() const
+{
+    return std::make_shared<SRegGS>(*this);
 }
 
 
@@ -735,9 +943,1593 @@ void OpcodesAAA::accept(Visitor *v)
     v->visitOpcodesAAA(this);
 }
 
-std::shared_ptr<Opcode> OpcodesAAA::clone() const
+std::shared_ptr<OpcodeNoParam> OpcodesAAA::clone() const
 {
     return std::make_shared<OpcodesAAA>(*this);
+}
+
+
+
+/********************   OpcodesAAS    ********************/
+
+
+
+void OpcodesAAS::accept(Visitor *v)
+{
+    v->visitOpcodesAAS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesAAS::clone() const
+{
+    return std::make_shared<OpcodesAAS>(*this);
+}
+
+
+
+/********************   OpcodesCBW    ********************/
+
+
+
+void OpcodesCBW::accept(Visitor *v)
+{
+    v->visitOpcodesCBW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCBW::clone() const
+{
+    return std::make_shared<OpcodesCBW>(*this);
+}
+
+
+
+/********************   OpcodesCDQ    ********************/
+
+
+
+void OpcodesCDQ::accept(Visitor *v)
+{
+    v->visitOpcodesCDQ(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCDQ::clone() const
+{
+    return std::make_shared<OpcodesCDQ>(*this);
+}
+
+
+
+/********************   OpcodesCLC    ********************/
+
+
+
+void OpcodesCLC::accept(Visitor *v)
+{
+    v->visitOpcodesCLC(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCLC::clone() const
+{
+    return std::make_shared<OpcodesCLC>(*this);
+}
+
+
+
+/********************   OpcodesCLD    ********************/
+
+
+
+void OpcodesCLD::accept(Visitor *v)
+{
+    v->visitOpcodesCLD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCLD::clone() const
+{
+    return std::make_shared<OpcodesCLD>(*this);
+}
+
+
+
+/********************   OpcodesCLI    ********************/
+
+
+
+void OpcodesCLI::accept(Visitor *v)
+{
+    v->visitOpcodesCLI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCLI::clone() const
+{
+    return std::make_shared<OpcodesCLI>(*this);
+}
+
+
+
+/********************   OpcodesCLTS    ********************/
+
+
+
+void OpcodesCLTS::accept(Visitor *v)
+{
+    v->visitOpcodesCLTS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCLTS::clone() const
+{
+    return std::make_shared<OpcodesCLTS>(*this);
+}
+
+
+
+/********************   OpcodesCMC    ********************/
+
+
+
+void OpcodesCMC::accept(Visitor *v)
+{
+    v->visitOpcodesCMC(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCMC::clone() const
+{
+    return std::make_shared<OpcodesCMC>(*this);
+}
+
+
+
+/********************   OpcodesCMPSB    ********************/
+
+
+
+void OpcodesCMPSB::accept(Visitor *v)
+{
+    v->visitOpcodesCMPSB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCMPSB::clone() const
+{
+    return std::make_shared<OpcodesCMPSB>(*this);
+}
+
+
+
+/********************   OpcodesCMPSD    ********************/
+
+
+
+void OpcodesCMPSD::accept(Visitor *v)
+{
+    v->visitOpcodesCMPSD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCMPSD::clone() const
+{
+    return std::make_shared<OpcodesCMPSD>(*this);
+}
+
+
+
+/********************   OpcodesCMPSW    ********************/
+
+
+
+void OpcodesCMPSW::accept(Visitor *v)
+{
+    v->visitOpcodesCMPSW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCMPSW::clone() const
+{
+    return std::make_shared<OpcodesCMPSW>(*this);
+}
+
+
+
+/********************   OpcodesCWD    ********************/
+
+
+
+void OpcodesCWD::accept(Visitor *v)
+{
+    v->visitOpcodesCWD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCWD::clone() const
+{
+    return std::make_shared<OpcodesCWD>(*this);
+}
+
+
+
+/********************   OpcodesCWDE    ********************/
+
+
+
+void OpcodesCWDE::accept(Visitor *v)
+{
+    v->visitOpcodesCWDE(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesCWDE::clone() const
+{
+    return std::make_shared<OpcodesCWDE>(*this);
+}
+
+
+
+/********************   OpcodesDAA    ********************/
+
+
+
+void OpcodesDAA::accept(Visitor *v)
+{
+    v->visitOpcodesDAA(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesDAA::clone() const
+{
+    return std::make_shared<OpcodesDAA>(*this);
+}
+
+
+
+/********************   OpcodesDAS    ********************/
+
+
+
+void OpcodesDAS::accept(Visitor *v)
+{
+    v->visitOpcodesDAS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesDAS::clone() const
+{
+    return std::make_shared<OpcodesDAS>(*this);
+}
+
+
+
+/********************   OpcodesF2XM1    ********************/
+
+
+
+void OpcodesF2XM1::accept(Visitor *v)
+{
+    v->visitOpcodesF2XM1(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesF2XM1::clone() const
+{
+    return std::make_shared<OpcodesF2XM1>(*this);
+}
+
+
+
+/********************   OpcodesFABS    ********************/
+
+
+
+void OpcodesFABS::accept(Visitor *v)
+{
+    v->visitOpcodesFABS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFABS::clone() const
+{
+    return std::make_shared<OpcodesFABS>(*this);
+}
+
+
+
+/********************   OpcodesFCHS    ********************/
+
+
+
+void OpcodesFCHS::accept(Visitor *v)
+{
+    v->visitOpcodesFCHS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFCHS::clone() const
+{
+    return std::make_shared<OpcodesFCHS>(*this);
+}
+
+
+
+/********************   OpcodesFCLEX    ********************/
+
+
+
+void OpcodesFCLEX::accept(Visitor *v)
+{
+    v->visitOpcodesFCLEX(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFCLEX::clone() const
+{
+    return std::make_shared<OpcodesFCLEX>(*this);
+}
+
+
+
+/********************   OpcodesFCOMPP    ********************/
+
+
+
+void OpcodesFCOMPP::accept(Visitor *v)
+{
+    v->visitOpcodesFCOMPP(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFCOMPP::clone() const
+{
+    return std::make_shared<OpcodesFCOMPP>(*this);
+}
+
+
+
+/********************   OpcodesFCOS    ********************/
+
+
+
+void OpcodesFCOS::accept(Visitor *v)
+{
+    v->visitOpcodesFCOS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFCOS::clone() const
+{
+    return std::make_shared<OpcodesFCOS>(*this);
+}
+
+
+
+/********************   OpcodesFDECSTP    ********************/
+
+
+
+void OpcodesFDECSTP::accept(Visitor *v)
+{
+    v->visitOpcodesFDECSTP(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFDECSTP::clone() const
+{
+    return std::make_shared<OpcodesFDECSTP>(*this);
+}
+
+
+
+/********************   OpcodesFDISI    ********************/
+
+
+
+void OpcodesFDISI::accept(Visitor *v)
+{
+    v->visitOpcodesFDISI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFDISI::clone() const
+{
+    return std::make_shared<OpcodesFDISI>(*this);
+}
+
+
+
+/********************   OpcodesFENI    ********************/
+
+
+
+void OpcodesFENI::accept(Visitor *v)
+{
+    v->visitOpcodesFENI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFENI::clone() const
+{
+    return std::make_shared<OpcodesFENI>(*this);
+}
+
+
+
+/********************   OpcodesFINCSTP    ********************/
+
+
+
+void OpcodesFINCSTP::accept(Visitor *v)
+{
+    v->visitOpcodesFINCSTP(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFINCSTP::clone() const
+{
+    return std::make_shared<OpcodesFINCSTP>(*this);
+}
+
+
+
+/********************   OpcodesFINIT    ********************/
+
+
+
+void OpcodesFINIT::accept(Visitor *v)
+{
+    v->visitOpcodesFINIT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFINIT::clone() const
+{
+    return std::make_shared<OpcodesFINIT>(*this);
+}
+
+
+
+/********************   OpcodesFLD1    ********************/
+
+
+
+void OpcodesFLD1::accept(Visitor *v)
+{
+    v->visitOpcodesFLD1(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLD1::clone() const
+{
+    return std::make_shared<OpcodesFLD1>(*this);
+}
+
+
+
+/********************   OpcodesFLDL2E    ********************/
+
+
+
+void OpcodesFLDL2E::accept(Visitor *v)
+{
+    v->visitOpcodesFLDL2E(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDL2E::clone() const
+{
+    return std::make_shared<OpcodesFLDL2E>(*this);
+}
+
+
+
+/********************   OpcodesFLDL2T    ********************/
+
+
+
+void OpcodesFLDL2T::accept(Visitor *v)
+{
+    v->visitOpcodesFLDL2T(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDL2T::clone() const
+{
+    return std::make_shared<OpcodesFLDL2T>(*this);
+}
+
+
+
+/********************   OpcodesFLDLG2    ********************/
+
+
+
+void OpcodesFLDLG2::accept(Visitor *v)
+{
+    v->visitOpcodesFLDLG2(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDLG2::clone() const
+{
+    return std::make_shared<OpcodesFLDLG2>(*this);
+}
+
+
+
+/********************   OpcodesFLDLN2    ********************/
+
+
+
+void OpcodesFLDLN2::accept(Visitor *v)
+{
+    v->visitOpcodesFLDLN2(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDLN2::clone() const
+{
+    return std::make_shared<OpcodesFLDLN2>(*this);
+}
+
+
+
+/********************   OpcodesFLDPI    ********************/
+
+
+
+void OpcodesFLDPI::accept(Visitor *v)
+{
+    v->visitOpcodesFLDPI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDPI::clone() const
+{
+    return std::make_shared<OpcodesFLDPI>(*this);
+}
+
+
+
+/********************   OpcodesFLDZ    ********************/
+
+
+
+void OpcodesFLDZ::accept(Visitor *v)
+{
+    v->visitOpcodesFLDZ(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFLDZ::clone() const
+{
+    return std::make_shared<OpcodesFLDZ>(*this);
+}
+
+
+
+/********************   OpcodesFNCLEX    ********************/
+
+
+
+void OpcodesFNCLEX::accept(Visitor *v)
+{
+    v->visitOpcodesFNCLEX(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFNCLEX::clone() const
+{
+    return std::make_shared<OpcodesFNCLEX>(*this);
+}
+
+
+
+/********************   OpcodesFNDISI    ********************/
+
+
+
+void OpcodesFNDISI::accept(Visitor *v)
+{
+    v->visitOpcodesFNDISI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFNDISI::clone() const
+{
+    return std::make_shared<OpcodesFNDISI>(*this);
+}
+
+
+
+/********************   OpcodesFNENI    ********************/
+
+
+
+void OpcodesFNENI::accept(Visitor *v)
+{
+    v->visitOpcodesFNENI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFNENI::clone() const
+{
+    return std::make_shared<OpcodesFNENI>(*this);
+}
+
+
+
+/********************   OpcodesFNINIT    ********************/
+
+
+
+void OpcodesFNINIT::accept(Visitor *v)
+{
+    v->visitOpcodesFNINIT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFNINIT::clone() const
+{
+    return std::make_shared<OpcodesFNINIT>(*this);
+}
+
+
+
+/********************   OpcodesFNOP    ********************/
+
+
+
+void OpcodesFNOP::accept(Visitor *v)
+{
+    v->visitOpcodesFNOP(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFNOP::clone() const
+{
+    return std::make_shared<OpcodesFNOP>(*this);
+}
+
+
+
+/********************   OpcodesFPATAN    ********************/
+
+
+
+void OpcodesFPATAN::accept(Visitor *v)
+{
+    v->visitOpcodesFPATAN(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFPATAN::clone() const
+{
+    return std::make_shared<OpcodesFPATAN>(*this);
+}
+
+
+
+/********************   OpcodesFPTAN    ********************/
+
+
+
+void OpcodesFPTAN::accept(Visitor *v)
+{
+    v->visitOpcodesFPTAN(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFPTAN::clone() const
+{
+    return std::make_shared<OpcodesFPTAN>(*this);
+}
+
+
+
+/********************   OpcodesFPREM    ********************/
+
+
+
+void OpcodesFPREM::accept(Visitor *v)
+{
+    v->visitOpcodesFPREM(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFPREM::clone() const
+{
+    return std::make_shared<OpcodesFPREM>(*this);
+}
+
+
+
+/********************   OpcodesFPREM1    ********************/
+
+
+
+void OpcodesFPREM1::accept(Visitor *v)
+{
+    v->visitOpcodesFPREM1(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFPREM1::clone() const
+{
+    return std::make_shared<OpcodesFPREM1>(*this);
+}
+
+
+
+/********************   OpcodesFRNDINT    ********************/
+
+
+
+void OpcodesFRNDINT::accept(Visitor *v)
+{
+    v->visitOpcodesFRNDINT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFRNDINT::clone() const
+{
+    return std::make_shared<OpcodesFRNDINT>(*this);
+}
+
+
+
+/********************   OpcodesFSCALE    ********************/
+
+
+
+void OpcodesFSCALE::accept(Visitor *v)
+{
+    v->visitOpcodesFSCALE(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFSCALE::clone() const
+{
+    return std::make_shared<OpcodesFSCALE>(*this);
+}
+
+
+
+/********************   OpcodesFSETPM    ********************/
+
+
+
+void OpcodesFSETPM::accept(Visitor *v)
+{
+    v->visitOpcodesFSETPM(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFSETPM::clone() const
+{
+    return std::make_shared<OpcodesFSETPM>(*this);
+}
+
+
+
+/********************   OpcodesFSIN    ********************/
+
+
+
+void OpcodesFSIN::accept(Visitor *v)
+{
+    v->visitOpcodesFSIN(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFSIN::clone() const
+{
+    return std::make_shared<OpcodesFSIN>(*this);
+}
+
+
+
+/********************   OpcodesFSINCOS    ********************/
+
+
+
+void OpcodesFSINCOS::accept(Visitor *v)
+{
+    v->visitOpcodesFSINCOS(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFSINCOS::clone() const
+{
+    return std::make_shared<OpcodesFSINCOS>(*this);
+}
+
+
+
+/********************   OpcodesFSQRT    ********************/
+
+
+
+void OpcodesFSQRT::accept(Visitor *v)
+{
+    v->visitOpcodesFSQRT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFSQRT::clone() const
+{
+    return std::make_shared<OpcodesFSQRT>(*this);
+}
+
+
+
+/********************   OpcodesFTST    ********************/
+
+
+
+void OpcodesFTST::accept(Visitor *v)
+{
+    v->visitOpcodesFTST(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFTST::clone() const
+{
+    return std::make_shared<OpcodesFTST>(*this);
+}
+
+
+
+/********************   OpcodesFUCOMPP    ********************/
+
+
+
+void OpcodesFUCOMPP::accept(Visitor *v)
+{
+    v->visitOpcodesFUCOMPP(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFUCOMPP::clone() const
+{
+    return std::make_shared<OpcodesFUCOMPP>(*this);
+}
+
+
+
+/********************   OpcodesFXAM    ********************/
+
+
+
+void OpcodesFXAM::accept(Visitor *v)
+{
+    v->visitOpcodesFXAM(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFXAM::clone() const
+{
+    return std::make_shared<OpcodesFXAM>(*this);
+}
+
+
+
+/********************   OpcodesFXTRACT    ********************/
+
+
+
+void OpcodesFXTRACT::accept(Visitor *v)
+{
+    v->visitOpcodesFXTRACT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFXTRACT::clone() const
+{
+    return std::make_shared<OpcodesFXTRACT>(*this);
+}
+
+
+
+/********************   OpcodesFYL2X    ********************/
+
+
+
+void OpcodesFYL2X::accept(Visitor *v)
+{
+    v->visitOpcodesFYL2X(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFYL2X::clone() const
+{
+    return std::make_shared<OpcodesFYL2X>(*this);
+}
+
+
+
+/********************   OpcodesFYL2XP1    ********************/
+
+
+
+void OpcodesFYL2XP1::accept(Visitor *v)
+{
+    v->visitOpcodesFYL2XP1(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesFYL2XP1::clone() const
+{
+    return std::make_shared<OpcodesFYL2XP1>(*this);
+}
+
+
+
+/********************   OpcodesHLT    ********************/
+
+
+
+void OpcodesHLT::accept(Visitor *v)
+{
+    v->visitOpcodesHLT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesHLT::clone() const
+{
+    return std::make_shared<OpcodesHLT>(*this);
+}
+
+
+
+/********************   OpcodesINSB    ********************/
+
+
+
+void OpcodesINSB::accept(Visitor *v)
+{
+    v->visitOpcodesINSB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINSB::clone() const
+{
+    return std::make_shared<OpcodesINSB>(*this);
+}
+
+
+
+/********************   OpcodesINSD    ********************/
+
+
+
+void OpcodesINSD::accept(Visitor *v)
+{
+    v->visitOpcodesINSD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINSD::clone() const
+{
+    return std::make_shared<OpcodesINSD>(*this);
+}
+
+
+
+/********************   OpcodesINSW    ********************/
+
+
+
+void OpcodesINSW::accept(Visitor *v)
+{
+    v->visitOpcodesINSW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINSW::clone() const
+{
+    return std::make_shared<OpcodesINSW>(*this);
+}
+
+
+
+/********************   OpcodesINT3    ********************/
+
+
+
+void OpcodesINT3::accept(Visitor *v)
+{
+    v->visitOpcodesINT3(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINT3::clone() const
+{
+    return std::make_shared<OpcodesINT3>(*this);
+}
+
+
+
+/********************   OpcodesINTO    ********************/
+
+
+
+void OpcodesINTO::accept(Visitor *v)
+{
+    v->visitOpcodesINTO(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINTO::clone() const
+{
+    return std::make_shared<OpcodesINTO>(*this);
+}
+
+
+
+/********************   OpcodesINVD    ********************/
+
+
+
+void OpcodesINVD::accept(Visitor *v)
+{
+    v->visitOpcodesINVD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesINVD::clone() const
+{
+    return std::make_shared<OpcodesINVD>(*this);
+}
+
+
+
+/********************   OpcodesIRET    ********************/
+
+
+
+void OpcodesIRET::accept(Visitor *v)
+{
+    v->visitOpcodesIRET(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesIRET::clone() const
+{
+    return std::make_shared<OpcodesIRET>(*this);
+}
+
+
+
+/********************   OpcodesIRETD    ********************/
+
+
+
+void OpcodesIRETD::accept(Visitor *v)
+{
+    v->visitOpcodesIRETD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesIRETD::clone() const
+{
+    return std::make_shared<OpcodesIRETD>(*this);
+}
+
+
+
+/********************   OpcodesIRETW    ********************/
+
+
+
+void OpcodesIRETW::accept(Visitor *v)
+{
+    v->visitOpcodesIRETW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesIRETW::clone() const
+{
+    return std::make_shared<OpcodesIRETW>(*this);
+}
+
+
+
+/********************   OpcodesLAHF    ********************/
+
+
+
+void OpcodesLAHF::accept(Visitor *v)
+{
+    v->visitOpcodesLAHF(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesLAHF::clone() const
+{
+    return std::make_shared<OpcodesLAHF>(*this);
+}
+
+
+
+/********************   OpcodesLEAVE    ********************/
+
+
+
+void OpcodesLEAVE::accept(Visitor *v)
+{
+    v->visitOpcodesLEAVE(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesLEAVE::clone() const
+{
+    return std::make_shared<OpcodesLEAVE>(*this);
+}
+
+
+
+/********************   OpcodesLODSB    ********************/
+
+
+
+void OpcodesLODSB::accept(Visitor *v)
+{
+    v->visitOpcodesLODSB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesLODSB::clone() const
+{
+    return std::make_shared<OpcodesLODSB>(*this);
+}
+
+
+
+/********************   OpcodesLODSD    ********************/
+
+
+
+void OpcodesLODSD::accept(Visitor *v)
+{
+    v->visitOpcodesLODSD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesLODSD::clone() const
+{
+    return std::make_shared<OpcodesLODSD>(*this);
+}
+
+
+
+/********************   OpcodesLODSW    ********************/
+
+
+
+void OpcodesLODSW::accept(Visitor *v)
+{
+    v->visitOpcodesLODSW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesLODSW::clone() const
+{
+    return std::make_shared<OpcodesLODSW>(*this);
+}
+
+
+
+/********************   OpcodesMOVSB    ********************/
+
+
+
+void OpcodesMOVSB::accept(Visitor *v)
+{
+    v->visitOpcodesMOVSB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesMOVSB::clone() const
+{
+    return std::make_shared<OpcodesMOVSB>(*this);
+}
+
+
+
+/********************   OpcodesMOVSD    ********************/
+
+
+
+void OpcodesMOVSD::accept(Visitor *v)
+{
+    v->visitOpcodesMOVSD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesMOVSD::clone() const
+{
+    return std::make_shared<OpcodesMOVSD>(*this);
+}
+
+
+
+/********************   OpcodesMOVSW    ********************/
+
+
+
+void OpcodesMOVSW::accept(Visitor *v)
+{
+    v->visitOpcodesMOVSW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesMOVSW::clone() const
+{
+    return std::make_shared<OpcodesMOVSW>(*this);
+}
+
+
+
+/********************   OpcodesPOPA    ********************/
+
+
+
+void OpcodesPOPA::accept(Visitor *v)
+{
+    v->visitOpcodesPOPA(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPA::clone() const
+{
+    return std::make_shared<OpcodesPOPA>(*this);
+}
+
+
+
+/********************   OpcodesPOPAD    ********************/
+
+
+
+void OpcodesPOPAD::accept(Visitor *v)
+{
+    v->visitOpcodesPOPAD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPAD::clone() const
+{
+    return std::make_shared<OpcodesPOPAD>(*this);
+}
+
+
+
+/********************   OpcodesPOPAW    ********************/
+
+
+
+void OpcodesPOPAW::accept(Visitor *v)
+{
+    v->visitOpcodesPOPAW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPAW::clone() const
+{
+    return std::make_shared<OpcodesPOPAW>(*this);
+}
+
+
+
+/********************   OpcodesPOPF    ********************/
+
+
+
+void OpcodesPOPF::accept(Visitor *v)
+{
+    v->visitOpcodesPOPF(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPF::clone() const
+{
+    return std::make_shared<OpcodesPOPF>(*this);
+}
+
+
+
+/********************   OpcodesPOPFD    ********************/
+
+
+
+void OpcodesPOPFD::accept(Visitor *v)
+{
+    v->visitOpcodesPOPFD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPFD::clone() const
+{
+    return std::make_shared<OpcodesPOPFD>(*this);
+}
+
+
+
+/********************   OpcodesPOPFW    ********************/
+
+
+
+void OpcodesPOPFW::accept(Visitor *v)
+{
+    v->visitOpcodesPOPFW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPOPFW::clone() const
+{
+    return std::make_shared<OpcodesPOPFW>(*this);
+}
+
+
+
+/********************   OpcodesPUSHA    ********************/
+
+
+
+void OpcodesPUSHA::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHA(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHA::clone() const
+{
+    return std::make_shared<OpcodesPUSHA>(*this);
+}
+
+
+
+/********************   OpcodesPUSHD    ********************/
+
+
+
+void OpcodesPUSHD::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHD::clone() const
+{
+    return std::make_shared<OpcodesPUSHD>(*this);
+}
+
+
+
+/********************   OpcodesPUSHAD    ********************/
+
+
+
+void OpcodesPUSHAD::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHAD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHAD::clone() const
+{
+    return std::make_shared<OpcodesPUSHAD>(*this);
+}
+
+
+
+/********************   OpcodesPUSHAW    ********************/
+
+
+
+void OpcodesPUSHAW::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHAW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHAW::clone() const
+{
+    return std::make_shared<OpcodesPUSHAW>(*this);
+}
+
+
+
+/********************   OpcodesPUSHF    ********************/
+
+
+
+void OpcodesPUSHF::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHF(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHF::clone() const
+{
+    return std::make_shared<OpcodesPUSHF>(*this);
+}
+
+
+
+/********************   OpcodesPUSHFD    ********************/
+
+
+
+void OpcodesPUSHFD::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHFD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHFD::clone() const
+{
+    return std::make_shared<OpcodesPUSHFD>(*this);
+}
+
+
+
+/********************   OpcodesPUSHFW    ********************/
+
+
+
+void OpcodesPUSHFW::accept(Visitor *v)
+{
+    v->visitOpcodesPUSHFW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesPUSHFW::clone() const
+{
+    return std::make_shared<OpcodesPUSHFW>(*this);
+}
+
+
+
+/********************   OpcodesRET    ********************/
+
+
+
+void OpcodesRET::accept(Visitor *v)
+{
+    v->visitOpcodesRET(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesRET::clone() const
+{
+    return std::make_shared<OpcodesRET>(*this);
+}
+
+
+
+/********************   OpcodesSAHF    ********************/
+
+
+
+void OpcodesSAHF::accept(Visitor *v)
+{
+    v->visitOpcodesSAHF(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSAHF::clone() const
+{
+    return std::make_shared<OpcodesSAHF>(*this);
+}
+
+
+
+/********************   OpcodesSCASB    ********************/
+
+
+
+void OpcodesSCASB::accept(Visitor *v)
+{
+    v->visitOpcodesSCASB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSCASB::clone() const
+{
+    return std::make_shared<OpcodesSCASB>(*this);
+}
+
+
+
+/********************   OpcodesSCASD    ********************/
+
+
+
+void OpcodesSCASD::accept(Visitor *v)
+{
+    v->visitOpcodesSCASD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSCASD::clone() const
+{
+    return std::make_shared<OpcodesSCASD>(*this);
+}
+
+
+
+/********************   OpcodesSCASW    ********************/
+
+
+
+void OpcodesSCASW::accept(Visitor *v)
+{
+    v->visitOpcodesSCASW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSCASW::clone() const
+{
+    return std::make_shared<OpcodesSCASW>(*this);
+}
+
+
+
+/********************   OpcodesSTC    ********************/
+
+
+
+void OpcodesSTC::accept(Visitor *v)
+{
+    v->visitOpcodesSTC(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTC::clone() const
+{
+    return std::make_shared<OpcodesSTC>(*this);
+}
+
+
+
+/********************   OpcodesSTD    ********************/
+
+
+
+void OpcodesSTD::accept(Visitor *v)
+{
+    v->visitOpcodesSTD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTD::clone() const
+{
+    return std::make_shared<OpcodesSTD>(*this);
+}
+
+
+
+/********************   OpcodesSTI    ********************/
+
+
+
+void OpcodesSTI::accept(Visitor *v)
+{
+    v->visitOpcodesSTI(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTI::clone() const
+{
+    return std::make_shared<OpcodesSTI>(*this);
+}
+
+
+
+/********************   OpcodesSTOSB    ********************/
+
+
+
+void OpcodesSTOSB::accept(Visitor *v)
+{
+    v->visitOpcodesSTOSB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTOSB::clone() const
+{
+    return std::make_shared<OpcodesSTOSB>(*this);
+}
+
+
+
+/********************   OpcodesSTOSD    ********************/
+
+
+
+void OpcodesSTOSD::accept(Visitor *v)
+{
+    v->visitOpcodesSTOSD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTOSD::clone() const
+{
+    return std::make_shared<OpcodesSTOSD>(*this);
+}
+
+
+
+/********************   OpcodesSTOSW    ********************/
+
+
+
+void OpcodesSTOSW::accept(Visitor *v)
+{
+    v->visitOpcodesSTOSW(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesSTOSW::clone() const
+{
+    return std::make_shared<OpcodesSTOSW>(*this);
+}
+
+
+
+/********************   OpcodesWAIT    ********************/
+
+
+
+void OpcodesWAIT::accept(Visitor *v)
+{
+    v->visitOpcodesWAIT(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesWAIT::clone() const
+{
+    return std::make_shared<OpcodesWAIT>(*this);
+}
+
+
+
+/********************   OpcodesWBINVD    ********************/
+
+
+
+void OpcodesWBINVD::accept(Visitor *v)
+{
+    v->visitOpcodesWBINVD(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesWBINVD::clone() const
+{
+    return std::make_shared<OpcodesWBINVD>(*this);
+}
+
+
+
+/********************   OpcodesXLATB    ********************/
+
+
+
+void OpcodesXLATB::accept(Visitor *v)
+{
+    v->visitOpcodesXLATB(this);
+}
+
+std::shared_ptr<OpcodeNoParam> OpcodesXLATB::clone() const
+{
+    return std::make_shared<OpcodesXLATB>(*this);
 }
 
 
@@ -754,22 +2546,6 @@ void OpcodesAAD::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesAAD::clone() const
 {
     return std::make_shared<OpcodesAAD>(*this);
-}
-
-
-
-/********************   OpcodesAAS    ********************/
-
-
-
-void OpcodesAAS::accept(Visitor *v)
-{
-    v->visitOpcodesAAS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesAAS::clone() const
-{
-    return std::make_shared<OpcodesAAS>(*this);
 }
 
 
@@ -1030,118 +2806,6 @@ std::shared_ptr<Opcode> OpcodesCALL::clone() const
 
 
 
-/********************   OpcodesCBW    ********************/
-
-
-
-void OpcodesCBW::accept(Visitor *v)
-{
-    v->visitOpcodesCBW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCBW::clone() const
-{
-    return std::make_shared<OpcodesCBW>(*this);
-}
-
-
-
-/********************   OpcodesCDQ    ********************/
-
-
-
-void OpcodesCDQ::accept(Visitor *v)
-{
-    v->visitOpcodesCDQ(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCDQ::clone() const
-{
-    return std::make_shared<OpcodesCDQ>(*this);
-}
-
-
-
-/********************   OpcodesCLC    ********************/
-
-
-
-void OpcodesCLC::accept(Visitor *v)
-{
-    v->visitOpcodesCLC(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCLC::clone() const
-{
-    return std::make_shared<OpcodesCLC>(*this);
-}
-
-
-
-/********************   OpcodesCLD    ********************/
-
-
-
-void OpcodesCLD::accept(Visitor *v)
-{
-    v->visitOpcodesCLD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCLD::clone() const
-{
-    return std::make_shared<OpcodesCLD>(*this);
-}
-
-
-
-/********************   OpcodesCLI    ********************/
-
-
-
-void OpcodesCLI::accept(Visitor *v)
-{
-    v->visitOpcodesCLI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCLI::clone() const
-{
-    return std::make_shared<OpcodesCLI>(*this);
-}
-
-
-
-/********************   OpcodesCLTS    ********************/
-
-
-
-void OpcodesCLTS::accept(Visitor *v)
-{
-    v->visitOpcodesCLTS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCLTS::clone() const
-{
-    return std::make_shared<OpcodesCLTS>(*this);
-}
-
-
-
-/********************   OpcodesCMC    ********************/
-
-
-
-void OpcodesCMC::accept(Visitor *v)
-{
-    v->visitOpcodesCMC(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCMC::clone() const
-{
-    return std::make_shared<OpcodesCMC>(*this);
-}
-
-
-
 /********************   OpcodesCMP    ********************/
 
 
@@ -1154,54 +2818,6 @@ void OpcodesCMP::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesCMP::clone() const
 {
     return std::make_shared<OpcodesCMP>(*this);
-}
-
-
-
-/********************   OpcodesCMPSB    ********************/
-
-
-
-void OpcodesCMPSB::accept(Visitor *v)
-{
-    v->visitOpcodesCMPSB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCMPSB::clone() const
-{
-    return std::make_shared<OpcodesCMPSB>(*this);
-}
-
-
-
-/********************   OpcodesCMPSD    ********************/
-
-
-
-void OpcodesCMPSD::accept(Visitor *v)
-{
-    v->visitOpcodesCMPSD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCMPSD::clone() const
-{
-    return std::make_shared<OpcodesCMPSD>(*this);
-}
-
-
-
-/********************   OpcodesCMPSW    ********************/
-
-
-
-void OpcodesCMPSW::accept(Visitor *v)
-{
-    v->visitOpcodesCMPSW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCMPSW::clone() const
-{
-    return std::make_shared<OpcodesCMPSW>(*this);
 }
 
 
@@ -1234,70 +2850,6 @@ void OpcodesCPUID::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesCPUID::clone() const
 {
     return std::make_shared<OpcodesCPUID>(*this);
-}
-
-
-
-/********************   OpcodesCWD    ********************/
-
-
-
-void OpcodesCWD::accept(Visitor *v)
-{
-    v->visitOpcodesCWD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCWD::clone() const
-{
-    return std::make_shared<OpcodesCWD>(*this);
-}
-
-
-
-/********************   OpcodesCWDE    ********************/
-
-
-
-void OpcodesCWDE::accept(Visitor *v)
-{
-    v->visitOpcodesCWDE(this);
-}
-
-std::shared_ptr<Opcode> OpcodesCWDE::clone() const
-{
-    return std::make_shared<OpcodesCWDE>(*this);
-}
-
-
-
-/********************   OpcodesDAA    ********************/
-
-
-
-void OpcodesDAA::accept(Visitor *v)
-{
-    v->visitOpcodesDAA(this);
-}
-
-std::shared_ptr<Opcode> OpcodesDAA::clone() const
-{
-    return std::make_shared<OpcodesDAA>(*this);
-}
-
-
-
-/********************   OpcodesDAS    ********************/
-
-
-
-void OpcodesDAS::accept(Visitor *v)
-{
-    v->visitOpcodesDAS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesDAS::clone() const
-{
-    return std::make_shared<OpcodesDAS>(*this);
 }
 
 
@@ -1446,38 +2998,6 @@ std::shared_ptr<Opcode> OpcodesENTER::clone() const
 
 
 
-/********************   OpcodesF2XM1    ********************/
-
-
-
-void OpcodesF2XM1::accept(Visitor *v)
-{
-    v->visitOpcodesF2XM1(this);
-}
-
-std::shared_ptr<Opcode> OpcodesF2XM1::clone() const
-{
-    return std::make_shared<OpcodesF2XM1>(*this);
-}
-
-
-
-/********************   OpcodesFABS    ********************/
-
-
-
-void OpcodesFABS::accept(Visitor *v)
-{
-    v->visitOpcodesFABS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFABS::clone() const
-{
-    return std::make_shared<OpcodesFABS>(*this);
-}
-
-
-
 /********************   OpcodesFADD    ********************/
 
 
@@ -1542,38 +3062,6 @@ std::shared_ptr<Opcode> OpcodesFBSTP::clone() const
 
 
 
-/********************   OpcodesFCHS    ********************/
-
-
-
-void OpcodesFCHS::accept(Visitor *v)
-{
-    v->visitOpcodesFCHS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFCHS::clone() const
-{
-    return std::make_shared<OpcodesFCHS>(*this);
-}
-
-
-
-/********************   OpcodesFCLEX    ********************/
-
-
-
-void OpcodesFCLEX::accept(Visitor *v)
-{
-    v->visitOpcodesFCLEX(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFCLEX::clone() const
-{
-    return std::make_shared<OpcodesFCLEX>(*this);
-}
-
-
-
 /********************   OpcodesFCOM    ********************/
 
 
@@ -1602,70 +3090,6 @@ void OpcodesFCOMP::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesFCOMP::clone() const
 {
     return std::make_shared<OpcodesFCOMP>(*this);
-}
-
-
-
-/********************   OpcodesFCOMPP    ********************/
-
-
-
-void OpcodesFCOMPP::accept(Visitor *v)
-{
-    v->visitOpcodesFCOMPP(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFCOMPP::clone() const
-{
-    return std::make_shared<OpcodesFCOMPP>(*this);
-}
-
-
-
-/********************   OpcodesFCOS    ********************/
-
-
-
-void OpcodesFCOS::accept(Visitor *v)
-{
-    v->visitOpcodesFCOS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFCOS::clone() const
-{
-    return std::make_shared<OpcodesFCOS>(*this);
-}
-
-
-
-/********************   OpcodesFDECSTP    ********************/
-
-
-
-void OpcodesFDECSTP::accept(Visitor *v)
-{
-    v->visitOpcodesFDECSTP(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFDECSTP::clone() const
-{
-    return std::make_shared<OpcodesFDECSTP>(*this);
-}
-
-
-
-/********************   OpcodesFDISI    ********************/
-
-
-
-void OpcodesFDISI::accept(Visitor *v)
-{
-    v->visitOpcodesFDISI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFDISI::clone() const
-{
-    return std::make_shared<OpcodesFDISI>(*this);
 }
 
 
@@ -1730,22 +3154,6 @@ void OpcodesFDIVRP::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesFDIVRP::clone() const
 {
     return std::make_shared<OpcodesFDIVRP>(*this);
-}
-
-
-
-/********************   OpcodesFENI    ********************/
-
-
-
-void OpcodesFENI::accept(Visitor *v)
-{
-    v->visitOpcodesFENI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFENI::clone() const
-{
-    return std::make_shared<OpcodesFENI>(*this);
 }
 
 
@@ -1878,38 +3286,6 @@ std::shared_ptr<Opcode> OpcodesFIMUL::clone() const
 
 
 
-/********************   OpcodesFINCSTP    ********************/
-
-
-
-void OpcodesFINCSTP::accept(Visitor *v)
-{
-    v->visitOpcodesFINCSTP(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFINCSTP::clone() const
-{
-    return std::make_shared<OpcodesFINCSTP>(*this);
-}
-
-
-
-/********************   OpcodesFINIT    ********************/
-
-
-
-void OpcodesFINIT::accept(Visitor *v)
-{
-    v->visitOpcodesFINIT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFINIT::clone() const
-{
-    return std::make_shared<OpcodesFINIT>(*this);
-}
-
-
-
 /********************   OpcodesFIST    ********************/
 
 
@@ -1990,22 +3366,6 @@ std::shared_ptr<Opcode> OpcodesFLD::clone() const
 
 
 
-/********************   OpcodesFLD1    ********************/
-
-
-
-void OpcodesFLD1::accept(Visitor *v)
-{
-    v->visitOpcodesFLD1(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLD1::clone() const
-{
-    return std::make_shared<OpcodesFLD1>(*this);
-}
-
-
-
 /********************   OpcodesFLDCW    ********************/
 
 
@@ -2038,102 +3398,6 @@ std::shared_ptr<Opcode> OpcodesFLDENV::clone() const
 
 
 
-/********************   OpcodesFLDL2E    ********************/
-
-
-
-void OpcodesFLDL2E::accept(Visitor *v)
-{
-    v->visitOpcodesFLDL2E(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDL2E::clone() const
-{
-    return std::make_shared<OpcodesFLDL2E>(*this);
-}
-
-
-
-/********************   OpcodesFLDL2T    ********************/
-
-
-
-void OpcodesFLDL2T::accept(Visitor *v)
-{
-    v->visitOpcodesFLDL2T(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDL2T::clone() const
-{
-    return std::make_shared<OpcodesFLDL2T>(*this);
-}
-
-
-
-/********************   OpcodesFLDLG2    ********************/
-
-
-
-void OpcodesFLDLG2::accept(Visitor *v)
-{
-    v->visitOpcodesFLDLG2(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDLG2::clone() const
-{
-    return std::make_shared<OpcodesFLDLG2>(*this);
-}
-
-
-
-/********************   OpcodesFLDLN2    ********************/
-
-
-
-void OpcodesFLDLN2::accept(Visitor *v)
-{
-    v->visitOpcodesFLDLN2(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDLN2::clone() const
-{
-    return std::make_shared<OpcodesFLDLN2>(*this);
-}
-
-
-
-/********************   OpcodesFLDPI    ********************/
-
-
-
-void OpcodesFLDPI::accept(Visitor *v)
-{
-    v->visitOpcodesFLDPI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDPI::clone() const
-{
-    return std::make_shared<OpcodesFLDPI>(*this);
-}
-
-
-
-/********************   OpcodesFLDZ    ********************/
-
-
-
-void OpcodesFLDZ::accept(Visitor *v)
-{
-    v->visitOpcodesFLDZ(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFLDZ::clone() const
-{
-    return std::make_shared<OpcodesFLDZ>(*this);
-}
-
-
-
 /********************   OpcodesFMUL    ********************/
 
 
@@ -2162,86 +3426,6 @@ void OpcodesFMULP::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesFMULP::clone() const
 {
     return std::make_shared<OpcodesFMULP>(*this);
-}
-
-
-
-/********************   OpcodesFNCLEX    ********************/
-
-
-
-void OpcodesFNCLEX::accept(Visitor *v)
-{
-    v->visitOpcodesFNCLEX(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFNCLEX::clone() const
-{
-    return std::make_shared<OpcodesFNCLEX>(*this);
-}
-
-
-
-/********************   OpcodesFNDISI    ********************/
-
-
-
-void OpcodesFNDISI::accept(Visitor *v)
-{
-    v->visitOpcodesFNDISI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFNDISI::clone() const
-{
-    return std::make_shared<OpcodesFNDISI>(*this);
-}
-
-
-
-/********************   OpcodesFNENI    ********************/
-
-
-
-void OpcodesFNENI::accept(Visitor *v)
-{
-    v->visitOpcodesFNENI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFNENI::clone() const
-{
-    return std::make_shared<OpcodesFNENI>(*this);
-}
-
-
-
-/********************   OpcodesFNINIT    ********************/
-
-
-
-void OpcodesFNINIT::accept(Visitor *v)
-{
-    v->visitOpcodesFNINIT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFNINIT::clone() const
-{
-    return std::make_shared<OpcodesFNINIT>(*this);
-}
-
-
-
-/********************   OpcodesFNOP    ********************/
-
-
-
-void OpcodesFNOP::accept(Visitor *v)
-{
-    v->visitOpcodesFNOP(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFNOP::clone() const
-{
-    return std::make_shared<OpcodesFNOP>(*this);
 }
 
 
@@ -2310,86 +3494,6 @@ std::shared_ptr<Opcode> OpcodesFNSTSW::clone() const
 
 
 
-/********************   OpcodesFPATAN    ********************/
-
-
-
-void OpcodesFPATAN::accept(Visitor *v)
-{
-    v->visitOpcodesFPATAN(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFPATAN::clone() const
-{
-    return std::make_shared<OpcodesFPATAN>(*this);
-}
-
-
-
-/********************   OpcodesFPTAN    ********************/
-
-
-
-void OpcodesFPTAN::accept(Visitor *v)
-{
-    v->visitOpcodesFPTAN(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFPTAN::clone() const
-{
-    return std::make_shared<OpcodesFPTAN>(*this);
-}
-
-
-
-/********************   OpcodesFPREM    ********************/
-
-
-
-void OpcodesFPREM::accept(Visitor *v)
-{
-    v->visitOpcodesFPREM(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFPREM::clone() const
-{
-    return std::make_shared<OpcodesFPREM>(*this);
-}
-
-
-
-/********************   OpcodesFPREM1    ********************/
-
-
-
-void OpcodesFPREM1::accept(Visitor *v)
-{
-    v->visitOpcodesFPREM1(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFPREM1::clone() const
-{
-    return std::make_shared<OpcodesFPREM1>(*this);
-}
-
-
-
-/********************   OpcodesFRNDINT    ********************/
-
-
-
-void OpcodesFRNDINT::accept(Visitor *v)
-{
-    v->visitOpcodesFRNDINT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFRNDINT::clone() const
-{
-    return std::make_shared<OpcodesFRNDINT>(*this);
-}
-
-
-
 /********************   OpcodesFRSTOR    ********************/
 
 
@@ -2418,86 +3522,6 @@ void OpcodesFSAVE::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesFSAVE::clone() const
 {
     return std::make_shared<OpcodesFSAVE>(*this);
-}
-
-
-
-/********************   OpcodesFSCALE    ********************/
-
-
-
-void OpcodesFSCALE::accept(Visitor *v)
-{
-    v->visitOpcodesFSCALE(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFSCALE::clone() const
-{
-    return std::make_shared<OpcodesFSCALE>(*this);
-}
-
-
-
-/********************   OpcodesFSETPM    ********************/
-
-
-
-void OpcodesFSETPM::accept(Visitor *v)
-{
-    v->visitOpcodesFSETPM(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFSETPM::clone() const
-{
-    return std::make_shared<OpcodesFSETPM>(*this);
-}
-
-
-
-/********************   OpcodesFSIN    ********************/
-
-
-
-void OpcodesFSIN::accept(Visitor *v)
-{
-    v->visitOpcodesFSIN(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFSIN::clone() const
-{
-    return std::make_shared<OpcodesFSIN>(*this);
-}
-
-
-
-/********************   OpcodesFSINCOS    ********************/
-
-
-
-void OpcodesFSINCOS::accept(Visitor *v)
-{
-    v->visitOpcodesFSINCOS(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFSINCOS::clone() const
-{
-    return std::make_shared<OpcodesFSINCOS>(*this);
-}
-
-
-
-/********************   OpcodesFSQRT    ********************/
-
-
-
-void OpcodesFSQRT::accept(Visitor *v)
-{
-    v->visitOpcodesFSQRT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFSQRT::clone() const
-{
-    return std::make_shared<OpcodesFSQRT>(*this);
 }
 
 
@@ -2646,22 +3670,6 @@ std::shared_ptr<Opcode> OpcodesFSUBRP::clone() const
 
 
 
-/********************   OpcodesFTST    ********************/
-
-
-
-void OpcodesFTST::accept(Visitor *v)
-{
-    v->visitOpcodesFTST(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFTST::clone() const
-{
-    return std::make_shared<OpcodesFTST>(*this);
-}
-
-
-
 /********************   OpcodesFUCOM    ********************/
 
 
@@ -2694,38 +3702,6 @@ std::shared_ptr<Opcode> OpcodesFUCOMP::clone() const
 
 
 
-/********************   OpcodesFUCOMPP    ********************/
-
-
-
-void OpcodesFUCOMPP::accept(Visitor *v)
-{
-    v->visitOpcodesFUCOMPP(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFUCOMPP::clone() const
-{
-    return std::make_shared<OpcodesFUCOMPP>(*this);
-}
-
-
-
-/********************   OpcodesFXAM    ********************/
-
-
-
-void OpcodesFXAM::accept(Visitor *v)
-{
-    v->visitOpcodesFXAM(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFXAM::clone() const
-{
-    return std::make_shared<OpcodesFXAM>(*this);
-}
-
-
-
 /********************   OpcodesFXCH    ********************/
 
 
@@ -2738,70 +3714,6 @@ void OpcodesFXCH::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesFXCH::clone() const
 {
     return std::make_shared<OpcodesFXCH>(*this);
-}
-
-
-
-/********************   OpcodesFXTRACT    ********************/
-
-
-
-void OpcodesFXTRACT::accept(Visitor *v)
-{
-    v->visitOpcodesFXTRACT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFXTRACT::clone() const
-{
-    return std::make_shared<OpcodesFXTRACT>(*this);
-}
-
-
-
-/********************   OpcodesFYL2X    ********************/
-
-
-
-void OpcodesFYL2X::accept(Visitor *v)
-{
-    v->visitOpcodesFYL2X(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFYL2X::clone() const
-{
-    return std::make_shared<OpcodesFYL2X>(*this);
-}
-
-
-
-/********************   OpcodesFYL2XP1    ********************/
-
-
-
-void OpcodesFYL2XP1::accept(Visitor *v)
-{
-    v->visitOpcodesFYL2XP1(this);
-}
-
-std::shared_ptr<Opcode> OpcodesFYL2XP1::clone() const
-{
-    return std::make_shared<OpcodesFYL2XP1>(*this);
-}
-
-
-
-/********************   OpcodesHLT    ********************/
-
-
-
-void OpcodesHLT::accept(Visitor *v)
-{
-    v->visitOpcodesHLT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesHLT::clone() const
-{
-    return std::make_shared<OpcodesHLT>(*this);
 }
 
 
@@ -2886,54 +3798,6 @@ std::shared_ptr<Opcode> OpcodesINCO::clone() const
 
 
 
-/********************   OpcodesINSB    ********************/
-
-
-
-void OpcodesINSB::accept(Visitor *v)
-{
-    v->visitOpcodesINSB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINSB::clone() const
-{
-    return std::make_shared<OpcodesINSB>(*this);
-}
-
-
-
-/********************   OpcodesINSD    ********************/
-
-
-
-void OpcodesINSD::accept(Visitor *v)
-{
-    v->visitOpcodesINSD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINSD::clone() const
-{
-    return std::make_shared<OpcodesINSD>(*this);
-}
-
-
-
-/********************   OpcodesINSW    ********************/
-
-
-
-void OpcodesINSW::accept(Visitor *v)
-{
-    v->visitOpcodesINSW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINSW::clone() const
-{
-    return std::make_shared<OpcodesINSW>(*this);
-}
-
-
-
 /********************   OpcodesINT    ********************/
 
 
@@ -2950,54 +3814,6 @@ std::shared_ptr<Opcode> OpcodesINT::clone() const
 
 
 
-/********************   OpcodesINT3    ********************/
-
-
-
-void OpcodesINT3::accept(Visitor *v)
-{
-    v->visitOpcodesINT3(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINT3::clone() const
-{
-    return std::make_shared<OpcodesINT3>(*this);
-}
-
-
-
-/********************   OpcodesINTO    ********************/
-
-
-
-void OpcodesINTO::accept(Visitor *v)
-{
-    v->visitOpcodesINTO(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINTO::clone() const
-{
-    return std::make_shared<OpcodesINTO>(*this);
-}
-
-
-
-/********************   OpcodesINVD    ********************/
-
-
-
-void OpcodesINVD::accept(Visitor *v)
-{
-    v->visitOpcodesINVD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesINVD::clone() const
-{
-    return std::make_shared<OpcodesINVD>(*this);
-}
-
-
-
 /********************   OpcodesINVLPG    ********************/
 
 
@@ -3010,54 +3826,6 @@ void OpcodesINVLPG::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesINVLPG::clone() const
 {
     return std::make_shared<OpcodesINVLPG>(*this);
-}
-
-
-
-/********************   OpcodesIRET    ********************/
-
-
-
-void OpcodesIRET::accept(Visitor *v)
-{
-    v->visitOpcodesIRET(this);
-}
-
-std::shared_ptr<Opcode> OpcodesIRET::clone() const
-{
-    return std::make_shared<OpcodesIRET>(*this);
-}
-
-
-
-/********************   OpcodesIRETD    ********************/
-
-
-
-void OpcodesIRETD::accept(Visitor *v)
-{
-    v->visitOpcodesIRETD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesIRETD::clone() const
-{
-    return std::make_shared<OpcodesIRETD>(*this);
-}
-
-
-
-/********************   OpcodesIRETW    ********************/
-
-
-
-void OpcodesIRETW::accept(Visitor *v)
-{
-    v->visitOpcodesIRETW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesIRETW::clone() const
-{
-    return std::make_shared<OpcodesIRETW>(*this);
 }
 
 
@@ -3590,22 +4358,6 @@ std::shared_ptr<Opcode> OpcodesJZ::clone() const
 
 
 
-/********************   OpcodesLAHF    ********************/
-
-
-
-void OpcodesLAHF::accept(Visitor *v)
-{
-    v->visitOpcodesLAHF(this);
-}
-
-std::shared_ptr<Opcode> OpcodesLAHF::clone() const
-{
-    return std::make_shared<OpcodesLAHF>(*this);
-}
-
-
-
 /********************   OpcodesLAR    ********************/
 
 
@@ -3650,22 +4402,6 @@ void OpcodesLEA::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesLEA::clone() const
 {
     return std::make_shared<OpcodesLEA>(*this);
-}
-
-
-
-/********************   OpcodesLEAVE    ********************/
-
-
-
-void OpcodesLEAVE::accept(Visitor *v)
-{
-    v->visitOpcodesLEAVE(this);
-}
-
-std::shared_ptr<Opcode> OpcodesLEAVE::clone() const
-{
-    return std::make_shared<OpcodesLEAVE>(*this);
 }
 
 
@@ -3794,54 +4530,6 @@ void OpcodesLOCK::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesLOCK::clone() const
 {
     return std::make_shared<OpcodesLOCK>(*this);
-}
-
-
-
-/********************   OpcodesLODSB    ********************/
-
-
-
-void OpcodesLODSB::accept(Visitor *v)
-{
-    v->visitOpcodesLODSB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesLODSB::clone() const
-{
-    return std::make_shared<OpcodesLODSB>(*this);
-}
-
-
-
-/********************   OpcodesLODSD    ********************/
-
-
-
-void OpcodesLODSD::accept(Visitor *v)
-{
-    v->visitOpcodesLODSD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesLODSD::clone() const
-{
-    return std::make_shared<OpcodesLODSD>(*this);
-}
-
-
-
-/********************   OpcodesLODSW    ********************/
-
-
-
-void OpcodesLODSW::accept(Visitor *v)
-{
-    v->visitOpcodesLODSW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesLODSW::clone() const
-{
-    return std::make_shared<OpcodesLODSW>(*this);
 }
 
 
@@ -3986,54 +4674,6 @@ void OpcodesMOV::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesMOV::clone() const
 {
     return std::make_shared<OpcodesMOV>(*this);
-}
-
-
-
-/********************   OpcodesMOVSB    ********************/
-
-
-
-void OpcodesMOVSB::accept(Visitor *v)
-{
-    v->visitOpcodesMOVSB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesMOVSB::clone() const
-{
-    return std::make_shared<OpcodesMOVSB>(*this);
-}
-
-
-
-/********************   OpcodesMOVSD    ********************/
-
-
-
-void OpcodesMOVSD::accept(Visitor *v)
-{
-    v->visitOpcodesMOVSD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesMOVSD::clone() const
-{
-    return std::make_shared<OpcodesMOVSD>(*this);
-}
-
-
-
-/********************   OpcodesMOVSW    ********************/
-
-
-
-void OpcodesMOVSW::accept(Visitor *v)
-{
-    v->visitOpcodesMOVSW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesMOVSW::clone() const
-{
-    return std::make_shared<OpcodesMOVSW>(*this);
 }
 
 
@@ -4246,102 +4886,6 @@ std::shared_ptr<Opcode> OpcodesPOP::clone() const
 
 
 
-/********************   OpcodesPOPA    ********************/
-
-
-
-void OpcodesPOPA::accept(Visitor *v)
-{
-    v->visitOpcodesPOPA(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPA::clone() const
-{
-    return std::make_shared<OpcodesPOPA>(*this);
-}
-
-
-
-/********************   OpcodesPOPAD    ********************/
-
-
-
-void OpcodesPOPAD::accept(Visitor *v)
-{
-    v->visitOpcodesPOPAD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPAD::clone() const
-{
-    return std::make_shared<OpcodesPOPAD>(*this);
-}
-
-
-
-/********************   OpcodesPOPAW    ********************/
-
-
-
-void OpcodesPOPAW::accept(Visitor *v)
-{
-    v->visitOpcodesPOPAW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPAW::clone() const
-{
-    return std::make_shared<OpcodesPOPAW>(*this);
-}
-
-
-
-/********************   OpcodesPOPF    ********************/
-
-
-
-void OpcodesPOPF::accept(Visitor *v)
-{
-    v->visitOpcodesPOPF(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPF::clone() const
-{
-    return std::make_shared<OpcodesPOPF>(*this);
-}
-
-
-
-/********************   OpcodesPOPFD    ********************/
-
-
-
-void OpcodesPOPFD::accept(Visitor *v)
-{
-    v->visitOpcodesPOPFD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPFD::clone() const
-{
-    return std::make_shared<OpcodesPOPFD>(*this);
-}
-
-
-
-/********************   OpcodesPOPFW    ********************/
-
-
-
-void OpcodesPOPFW::accept(Visitor *v)
-{
-    v->visitOpcodesPOPFW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPOPFW::clone() const
-{
-    return std::make_shared<OpcodesPOPFW>(*this);
-}
-
-
-
 /********************   OpcodesPUSH    ********************/
 
 
@@ -4354,118 +4898,6 @@ void OpcodesPUSH::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesPUSH::clone() const
 {
     return std::make_shared<OpcodesPUSH>(*this);
-}
-
-
-
-/********************   OpcodesPUSHA    ********************/
-
-
-
-void OpcodesPUSHA::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHA(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHA::clone() const
-{
-    return std::make_shared<OpcodesPUSHA>(*this);
-}
-
-
-
-/********************   OpcodesPUSHD    ********************/
-
-
-
-void OpcodesPUSHD::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHD::clone() const
-{
-    return std::make_shared<OpcodesPUSHD>(*this);
-}
-
-
-
-/********************   OpcodesPUSHAD    ********************/
-
-
-
-void OpcodesPUSHAD::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHAD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHAD::clone() const
-{
-    return std::make_shared<OpcodesPUSHAD>(*this);
-}
-
-
-
-/********************   OpcodesPUSHAW    ********************/
-
-
-
-void OpcodesPUSHAW::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHAW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHAW::clone() const
-{
-    return std::make_shared<OpcodesPUSHAW>(*this);
-}
-
-
-
-/********************   OpcodesPUSHF    ********************/
-
-
-
-void OpcodesPUSHF::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHF(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHF::clone() const
-{
-    return std::make_shared<OpcodesPUSHF>(*this);
-}
-
-
-
-/********************   OpcodesPUSHFD    ********************/
-
-
-
-void OpcodesPUSHFD::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHFD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHFD::clone() const
-{
-    return std::make_shared<OpcodesPUSHFD>(*this);
-}
-
-
-
-/********************   OpcodesPUSHFW    ********************/
-
-
-
-void OpcodesPUSHFW::accept(Visitor *v)
-{
-    v->visitOpcodesPUSHFW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesPUSHFW::clone() const
-{
-    return std::make_shared<OpcodesPUSHFW>(*this);
 }
 
 
@@ -4694,22 +5126,6 @@ std::shared_ptr<Opcode> OpcodesRESW::clone() const
 
 
 
-/********************   OpcodesRET    ********************/
-
-
-
-void OpcodesRET::accept(Visitor *v)
-{
-    v->visitOpcodesRET(this);
-}
-
-std::shared_ptr<Opcode> OpcodesRET::clone() const
-{
-    return std::make_shared<OpcodesRET>(*this);
-}
-
-
-
 /********************   OpcodesRETF    ********************/
 
 
@@ -4790,22 +5206,6 @@ std::shared_ptr<Opcode> OpcodesRSM::clone() const
 
 
 
-/********************   OpcodesSAHF    ********************/
-
-
-
-void OpcodesSAHF::accept(Visitor *v)
-{
-    v->visitOpcodesSAHF(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSAHF::clone() const
-{
-    return std::make_shared<OpcodesSAHF>(*this);
-}
-
-
-
 /********************   OpcodesSAL    ********************/
 
 
@@ -4850,54 +5250,6 @@ void OpcodesSBB::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesSBB::clone() const
 {
     return std::make_shared<OpcodesSBB>(*this);
-}
-
-
-
-/********************   OpcodesSCASB    ********************/
-
-
-
-void OpcodesSCASB::accept(Visitor *v)
-{
-    v->visitOpcodesSCASB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSCASB::clone() const
-{
-    return std::make_shared<OpcodesSCASB>(*this);
-}
-
-
-
-/********************   OpcodesSCASD    ********************/
-
-
-
-void OpcodesSCASD::accept(Visitor *v)
-{
-    v->visitOpcodesSCASD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSCASD::clone() const
-{
-    return std::make_shared<OpcodesSCASD>(*this);
-}
-
-
-
-/********************   OpcodesSCASW    ********************/
-
-
-
-void OpcodesSCASW::accept(Visitor *v)
-{
-    v->visitOpcodesSCASW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSCASW::clone() const
-{
-    return std::make_shared<OpcodesSCASW>(*this);
 }
 
 
@@ -5510,102 +5862,6 @@ std::shared_ptr<Opcode> OpcodesSMSW::clone() const
 
 
 
-/********************   OpcodesSTC    ********************/
-
-
-
-void OpcodesSTC::accept(Visitor *v)
-{
-    v->visitOpcodesSTC(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTC::clone() const
-{
-    return std::make_shared<OpcodesSTC>(*this);
-}
-
-
-
-/********************   OpcodesSTD    ********************/
-
-
-
-void OpcodesSTD::accept(Visitor *v)
-{
-    v->visitOpcodesSTD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTD::clone() const
-{
-    return std::make_shared<OpcodesSTD>(*this);
-}
-
-
-
-/********************   OpcodesSTI    ********************/
-
-
-
-void OpcodesSTI::accept(Visitor *v)
-{
-    v->visitOpcodesSTI(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTI::clone() const
-{
-    return std::make_shared<OpcodesSTI>(*this);
-}
-
-
-
-/********************   OpcodesSTOSB    ********************/
-
-
-
-void OpcodesSTOSB::accept(Visitor *v)
-{
-    v->visitOpcodesSTOSB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTOSB::clone() const
-{
-    return std::make_shared<OpcodesSTOSB>(*this);
-}
-
-
-
-/********************   OpcodesSTOSD    ********************/
-
-
-
-void OpcodesSTOSD::accept(Visitor *v)
-{
-    v->visitOpcodesSTOSD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTOSD::clone() const
-{
-    return std::make_shared<OpcodesSTOSD>(*this);
-}
-
-
-
-/********************   OpcodesSTOSW    ********************/
-
-
-
-void OpcodesSTOSW::accept(Visitor *v)
-{
-    v->visitOpcodesSTOSW(this);
-}
-
-std::shared_ptr<Opcode> OpcodesSTOSW::clone() const
-{
-    return std::make_shared<OpcodesSTOSW>(*this);
-}
-
-
-
 /********************   OpcodesSTR    ********************/
 
 
@@ -5718,38 +5974,6 @@ std::shared_ptr<Opcode> OpcodesVERW::clone() const
 
 
 
-/********************   OpcodesWAIT    ********************/
-
-
-
-void OpcodesWAIT::accept(Visitor *v)
-{
-    v->visitOpcodesWAIT(this);
-}
-
-std::shared_ptr<Opcode> OpcodesWAIT::clone() const
-{
-    return std::make_shared<OpcodesWAIT>(*this);
-}
-
-
-
-/********************   OpcodesWBINVD    ********************/
-
-
-
-void OpcodesWBINVD::accept(Visitor *v)
-{
-    v->visitOpcodesWBINVD(this);
-}
-
-std::shared_ptr<Opcode> OpcodesWBINVD::clone() const
-{
-    return std::make_shared<OpcodesWBINVD>(*this);
-}
-
-
-
 /********************   OpcodesWRMSR    ********************/
 
 
@@ -5794,22 +6018,6 @@ void OpcodesXCHG::accept(Visitor *v)
 std::shared_ptr<Opcode> OpcodesXCHG::clone() const
 {
     return std::make_shared<OpcodesXCHG>(*this);
-}
-
-
-
-/********************   OpcodesXLATB    ********************/
-
-
-
-void OpcodesXLATB::accept(Visitor *v)
-{
-    v->visitOpcodesXLATB(this);
-}
-
-std::shared_ptr<Opcode> OpcodesXLATB::clone() const
-{
-    return std::make_shared<OpcodesXLATB>(*this);
 }
 
 

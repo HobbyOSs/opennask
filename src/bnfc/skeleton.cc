@@ -14,12 +14,16 @@ void Skeleton::visitProgram(Program *t) {} //abstract class
 void Skeleton::visitStatement(Statement *t) {} //abstract class
 void Skeleton::visitMnemonicArgs(MnemonicArgs *t) {} //abstract class
 void Skeleton::visitExp(Exp *t) {} //abstract class
+void Skeleton::visitLabel(Label *t) {} //abstract class
 void Skeleton::visitMemoryAddr(MemoryAddr *t) {} //abstract class
 void Skeleton::visitIndexExp(IndexExp *t) {} //abstract class
+void Skeleton::visitUnaryOperator(UnaryOperator *t) {} //abstract class
 void Skeleton::visitFactor(Factor *t) {} //abstract class
 void Skeleton::visitJumpDir(JumpDir *t) {} //abstract class
+void Skeleton::visitSReg(SReg *t) {} //abstract class
 void Skeleton::visitConfigType(ConfigType *t) {} //abstract class
 void Skeleton::visitDataType(DataType *t) {} //abstract class
+void Skeleton::visitOpcodeNoParam(OpcodeNoParam *t) {} //abstract class
 void Skeleton::visitOpcode(Opcode *t) {} //abstract class
 
 void Skeleton::visitProg(Prog *prog)
@@ -34,7 +38,7 @@ void Skeleton::visitLabelStmt(LabelStmt *label_stmt)
 {
   /* Code For LabelStmt Goes Here */
 
-  visitLabel(label_stmt->label_);
+  if (label_stmt->label_) label_stmt->label_->accept(this);
 
 }
 
@@ -81,11 +85,72 @@ void Skeleton::visitMnemonicStmt(MnemonicStmt *mnemonic_stmt)
 
 }
 
+void Skeleton::visitOpcodeStmt(OpcodeStmt *opcode_stmt)
+{
+  /* Code For OpcodeStmt Goes Here */
+
+  if (opcode_stmt->opcodenoparam_) opcode_stmt->opcodenoparam_->accept(this);
+
+}
+
 void Skeleton::visitMnemoArg(MnemoArg *mnemo_arg)
 {
   /* Code For MnemoArg Goes Here */
 
   if (mnemo_arg->exp_) mnemo_arg->exp_->accept(this);
+
+}
+
+void Skeleton::visitSregExp(SregExp *sreg_exp)
+{
+  /* Code For SregExp Goes Here */
+
+  if (sreg_exp->sreg_) sreg_exp->sreg_->accept(this);
+
+}
+
+void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
+{
+  /* Code For DatatypeExp Goes Here */
+
+  if (datatype_exp->datatype_) datatype_exp->datatype_->accept(this);
+  if (datatype_exp->memoryaddr_) datatype_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitMemoryAddrExp(MemoryAddrExp *memory_addr_exp)
+{
+  /* Code For MemoryAddrExp Goes Here */
+
+  if (memory_addr_exp->memoryaddr_) memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp)
+{
+  /* Code For JmpMemoryAddrExp Goes Here */
+
+  if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
+  if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
+void Skeleton::visitSegmentOffsetDataExp(SegmentOffsetDataExp *segment_offset_data_exp)
+{
+  /* Code For SegmentOffsetDataExp Goes Here */
+
+  if (segment_offset_data_exp->datatype_) segment_offset_data_exp->datatype_->accept(this);
+  if (segment_offset_data_exp->exp_1) segment_offset_data_exp->exp_1->accept(this);
+  if (segment_offset_data_exp->exp_2) segment_offset_data_exp->exp_2->accept(this);
+
+}
+
+void Skeleton::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp)
+{
+  /* Code For SegmentOffsetExp Goes Here */
+
+  if (segment_offset_exp->exp_1) segment_offset_exp->exp_1->accept(this);
+  if (segment_offset_exp->exp_2) segment_offset_exp->exp_2->accept(this);
 
 }
 
@@ -134,6 +199,24 @@ void Skeleton::visitModExp(ModExp *mod_exp)
 
 }
 
+void Skeleton::visitSregFrameExp(SregFrameExp *sreg_frame_exp)
+{
+  /* Code For SregFrameExp Goes Here */
+
+  if (sreg_frame_exp->sreg_) sreg_frame_exp->sreg_->accept(this);
+  visitId(sreg_frame_exp->id_);
+
+}
+
+void Skeleton::visitPreOpExp(PreOpExp *pre_op_exp)
+{
+  /* Code For PreOpExp Goes Here */
+
+  if (pre_op_exp->unaryoperator_) pre_op_exp->unaryoperator_->accept(this);
+  if (pre_op_exp->factor_) pre_op_exp->factor_->accept(this);
+
+}
+
 void Skeleton::visitImmExp(ImmExp *imm_exp)
 {
   /* Code For ImmExp Goes Here */
@@ -142,39 +225,11 @@ void Skeleton::visitImmExp(ImmExp *imm_exp)
 
 }
 
-void Skeleton::visitDatatypeExp(DatatypeExp *datatype_exp)
+void Skeleton::visitLabelExp(LabelExp *label_exp)
 {
-  /* Code For DatatypeExp Goes Here */
+  /* Code For LabelExp Goes Here */
 
-  if (datatype_exp->datatype_) datatype_exp->datatype_->accept(this);
-  if (datatype_exp->memoryaddr_) datatype_exp->memoryaddr_->accept(this);
-
-}
-
-void Skeleton::visitSegmentOffsetExp(SegmentOffsetExp *segment_offset_exp)
-{
-  /* Code For SegmentOffsetExp Goes Here */
-
-  if (segment_offset_exp->datatype_) segment_offset_exp->datatype_->accept(this);
-  if (segment_offset_exp->exp_1) segment_offset_exp->exp_1->accept(this);
-  if (segment_offset_exp->exp_2) segment_offset_exp->exp_2->accept(this);
-
-}
-
-void Skeleton::visitMemoryAddrExp(MemoryAddrExp *memory_addr_exp)
-{
-  /* Code For MemoryAddrExp Goes Here */
-
-  if (memory_addr_exp->memoryaddr_) memory_addr_exp->memoryaddr_->accept(this);
-
-}
-
-void Skeleton::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp)
-{
-  /* Code For JmpMemoryAddrExp Goes Here */
-
-  if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
-  if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
+  if (label_exp->exp_) label_exp->exp_->accept(this);
 
 }
 
@@ -242,6 +297,13 @@ void Skeleton::visitIndexScaleExp(IndexScaleExp *index_scale_exp)
 
 }
 
+void Skeleton::visitNegative(Negative *negative)
+{
+  /* Code For Negative Goes Here */
+
+
+}
+
 void Skeleton::visitNumberFactor(NumberFactor *number_factor)
 {
   /* Code For NumberFactor Goes Here */
@@ -299,6 +361,48 @@ void Skeleton::visitNearJumpDir(NearJumpDir *near_jump_dir)
 void Skeleton::visitFarJumpDir(FarJumpDir *far_jump_dir)
 {
   /* Code For FarJumpDir Goes Here */
+
+
+}
+
+void Skeleton::visitSRegCS(SRegCS *s_reg_cs)
+{
+  /* Code For SRegCS Goes Here */
+
+
+}
+
+void Skeleton::visitSRegDS(SRegDS *s_reg_ds)
+{
+  /* Code For SRegDS Goes Here */
+
+
+}
+
+void Skeleton::visitSRegES(SRegES *s_reg_es)
+{
+  /* Code For SRegES Goes Here */
+
+
+}
+
+void Skeleton::visitSRegSS(SRegSS *s_reg_ss)
+{
+  /* Code For SRegSS Goes Here */
+
+
+}
+
+void Skeleton::visitSRegFS(SRegFS *s_reg_fs)
+{
+  /* Code For SRegFS Goes Here */
+
+
+}
+
+void Skeleton::visitSRegGS(SRegGS *s_reg_gs)
+{
+  /* Code For SRegGS Goes Here */
 
 
 }
@@ -394,16 +498,702 @@ void Skeleton::visitOpcodesAAA(OpcodesAAA *opcodes_aaa)
 
 }
 
-void Skeleton::visitOpcodesAAD(OpcodesAAD *opcodes_aad)
+void Skeleton::visitOpcodesAAS(OpcodesAAS *opcodes_aas)
 {
-  /* Code For OpcodesAAD Goes Here */
+  /* Code For OpcodesAAS Goes Here */
 
 
 }
 
-void Skeleton::visitOpcodesAAS(OpcodesAAS *opcodes_aas)
+void Skeleton::visitOpcodesCBW(OpcodesCBW *opcodes_cbw)
 {
-  /* Code For OpcodesAAS Goes Here */
+  /* Code For OpcodesCBW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCDQ(OpcodesCDQ *opcodes_cdq)
+{
+  /* Code For OpcodesCDQ Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCLC(OpcodesCLC *opcodes_clc)
+{
+  /* Code For OpcodesCLC Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCLD(OpcodesCLD *opcodes_cld)
+{
+  /* Code For OpcodesCLD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCLI(OpcodesCLI *opcodes_cli)
+{
+  /* Code For OpcodesCLI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCLTS(OpcodesCLTS *opcodes_clts)
+{
+  /* Code For OpcodesCLTS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCMC(OpcodesCMC *opcodes_cmc)
+{
+  /* Code For OpcodesCMC Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCMPSB(OpcodesCMPSB *opcodes_cmpsb)
+{
+  /* Code For OpcodesCMPSB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCMPSD(OpcodesCMPSD *opcodes_cmpsd)
+{
+  /* Code For OpcodesCMPSD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCMPSW(OpcodesCMPSW *opcodes_cmpsw)
+{
+  /* Code For OpcodesCMPSW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCWD(OpcodesCWD *opcodes_cwd)
+{
+  /* Code For OpcodesCWD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesCWDE(OpcodesCWDE *opcodes_cwde)
+{
+  /* Code For OpcodesCWDE Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesDAA(OpcodesDAA *opcodes_daa)
+{
+  /* Code For OpcodesDAA Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesDAS(OpcodesDAS *opcodes_das)
+{
+  /* Code For OpcodesDAS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesF2XM1(OpcodesF2XM1 *opcodes_f_xm)
+{
+  /* Code For OpcodesF2XM1 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFABS(OpcodesFABS *opcodes_fabs)
+{
+  /* Code For OpcodesFABS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFCHS(OpcodesFCHS *opcodes_fchs)
+{
+  /* Code For OpcodesFCHS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFCLEX(OpcodesFCLEX *opcodes_fclex)
+{
+  /* Code For OpcodesFCLEX Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFCOMPP(OpcodesFCOMPP *opcodes_fcompp)
+{
+  /* Code For OpcodesFCOMPP Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFCOS(OpcodesFCOS *opcodes_fcos)
+{
+  /* Code For OpcodesFCOS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFDECSTP(OpcodesFDECSTP *opcodes_fdecstp)
+{
+  /* Code For OpcodesFDECSTP Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFDISI(OpcodesFDISI *opcodes_fdisi)
+{
+  /* Code For OpcodesFDISI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFENI(OpcodesFENI *opcodes_feni)
+{
+  /* Code For OpcodesFENI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFINCSTP(OpcodesFINCSTP *opcodes_fincstp)
+{
+  /* Code For OpcodesFINCSTP Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFINIT(OpcodesFINIT *opcodes_finit)
+{
+  /* Code For OpcodesFINIT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLD1(OpcodesFLD1 *opcodes_fld)
+{
+  /* Code For OpcodesFLD1 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDL2E(OpcodesFLDL2E *opcodes_fldl_e)
+{
+  /* Code For OpcodesFLDL2E Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDL2T(OpcodesFLDL2T *opcodes_fldl_t)
+{
+  /* Code For OpcodesFLDL2T Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDLG2(OpcodesFLDLG2 *opcodes_fldlg)
+{
+  /* Code For OpcodesFLDLG2 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDLN2(OpcodesFLDLN2 *opcodes_fldln)
+{
+  /* Code For OpcodesFLDLN2 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDPI(OpcodesFLDPI *opcodes_fldpi)
+{
+  /* Code For OpcodesFLDPI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFLDZ(OpcodesFLDZ *opcodes_fldz)
+{
+  /* Code For OpcodesFLDZ Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFNCLEX(OpcodesFNCLEX *opcodes_fnclex)
+{
+  /* Code For OpcodesFNCLEX Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFNDISI(OpcodesFNDISI *opcodes_fndisi)
+{
+  /* Code For OpcodesFNDISI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFNENI(OpcodesFNENI *opcodes_fneni)
+{
+  /* Code For OpcodesFNENI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFNINIT(OpcodesFNINIT *opcodes_fninit)
+{
+  /* Code For OpcodesFNINIT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFNOP(OpcodesFNOP *opcodes_fnop)
+{
+  /* Code For OpcodesFNOP Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFPATAN(OpcodesFPATAN *opcodes_fpatan)
+{
+  /* Code For OpcodesFPATAN Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFPTAN(OpcodesFPTAN *opcodes_fptan)
+{
+  /* Code For OpcodesFPTAN Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFPREM(OpcodesFPREM *opcodes_fprem)
+{
+  /* Code For OpcodesFPREM Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFPREM1(OpcodesFPREM1 *opcodes_fprem)
+{
+  /* Code For OpcodesFPREM1 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFRNDINT(OpcodesFRNDINT *opcodes_frndint)
+{
+  /* Code For OpcodesFRNDINT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFSCALE(OpcodesFSCALE *opcodes_fscale)
+{
+  /* Code For OpcodesFSCALE Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFSETPM(OpcodesFSETPM *opcodes_fsetpm)
+{
+  /* Code For OpcodesFSETPM Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFSIN(OpcodesFSIN *opcodes_fsin)
+{
+  /* Code For OpcodesFSIN Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFSINCOS(OpcodesFSINCOS *opcodes_fsincos)
+{
+  /* Code For OpcodesFSINCOS Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFSQRT(OpcodesFSQRT *opcodes_fsqrt)
+{
+  /* Code For OpcodesFSQRT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFTST(OpcodesFTST *opcodes_ftst)
+{
+  /* Code For OpcodesFTST Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFUCOMPP(OpcodesFUCOMPP *opcodes_fucompp)
+{
+  /* Code For OpcodesFUCOMPP Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFXAM(OpcodesFXAM *opcodes_fxam)
+{
+  /* Code For OpcodesFXAM Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFXTRACT(OpcodesFXTRACT *opcodes_fxtract)
+{
+  /* Code For OpcodesFXTRACT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFYL2X(OpcodesFYL2X *opcodes_fyl_x)
+{
+  /* Code For OpcodesFYL2X Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesFYL2XP1(OpcodesFYL2XP1 *opcodes_fyl_xp)
+{
+  /* Code For OpcodesFYL2XP1 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesHLT(OpcodesHLT *opcodes_hlt)
+{
+  /* Code For OpcodesHLT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINSB(OpcodesINSB *opcodes_insb)
+{
+  /* Code For OpcodesINSB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINSD(OpcodesINSD *opcodes_insd)
+{
+  /* Code For OpcodesINSD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINSW(OpcodesINSW *opcodes_insw)
+{
+  /* Code For OpcodesINSW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINT3(OpcodesINT3 *opcodes_int)
+{
+  /* Code For OpcodesINT3 Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINTO(OpcodesINTO *opcodes_into)
+{
+  /* Code For OpcodesINTO Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesINVD(OpcodesINVD *opcodes_invd)
+{
+  /* Code For OpcodesINVD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesIRET(OpcodesIRET *opcodes_iret)
+{
+  /* Code For OpcodesIRET Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesIRETD(OpcodesIRETD *opcodes_iretd)
+{
+  /* Code For OpcodesIRETD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesIRETW(OpcodesIRETW *opcodes_iretw)
+{
+  /* Code For OpcodesIRETW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesLAHF(OpcodesLAHF *opcodes_lahf)
+{
+  /* Code For OpcodesLAHF Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesLEAVE(OpcodesLEAVE *opcodes_leave)
+{
+  /* Code For OpcodesLEAVE Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesLODSB(OpcodesLODSB *opcodes_lodsb)
+{
+  /* Code For OpcodesLODSB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesLODSD(OpcodesLODSD *opcodes_lodsd)
+{
+  /* Code For OpcodesLODSD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesLODSW(OpcodesLODSW *opcodes_lodsw)
+{
+  /* Code For OpcodesLODSW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesMOVSB(OpcodesMOVSB *opcodes_movsb)
+{
+  /* Code For OpcodesMOVSB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesMOVSD(OpcodesMOVSD *opcodes_movsd)
+{
+  /* Code For OpcodesMOVSD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesMOVSW(OpcodesMOVSW *opcodes_movsw)
+{
+  /* Code For OpcodesMOVSW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPA(OpcodesPOPA *opcodes_popa)
+{
+  /* Code For OpcodesPOPA Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPAD(OpcodesPOPAD *opcodes_popad)
+{
+  /* Code For OpcodesPOPAD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPAW(OpcodesPOPAW *opcodes_popaw)
+{
+  /* Code For OpcodesPOPAW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPF(OpcodesPOPF *opcodes_popf)
+{
+  /* Code For OpcodesPOPF Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPFD(OpcodesPOPFD *opcodes_popfd)
+{
+  /* Code For OpcodesPOPFD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPOPFW(OpcodesPOPFW *opcodes_popfw)
+{
+  /* Code For OpcodesPOPFW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHA(OpcodesPUSHA *opcodes_pusha)
+{
+  /* Code For OpcodesPUSHA Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHD(OpcodesPUSHD *opcodes_pushd)
+{
+  /* Code For OpcodesPUSHD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHAD(OpcodesPUSHAD *opcodes_pushad)
+{
+  /* Code For OpcodesPUSHAD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHAW(OpcodesPUSHAW *opcodes_pushaw)
+{
+  /* Code For OpcodesPUSHAW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHF(OpcodesPUSHF *opcodes_pushf)
+{
+  /* Code For OpcodesPUSHF Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHFD(OpcodesPUSHFD *opcodes_pushfd)
+{
+  /* Code For OpcodesPUSHFD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesPUSHFW(OpcodesPUSHFW *opcodes_pushfw)
+{
+  /* Code For OpcodesPUSHFW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesRET(OpcodesRET *opcodes_ret)
+{
+  /* Code For OpcodesRET Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSAHF(OpcodesSAHF *opcodes_sahf)
+{
+  /* Code For OpcodesSAHF Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSCASB(OpcodesSCASB *opcodes_scasb)
+{
+  /* Code For OpcodesSCASB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSCASD(OpcodesSCASD *opcodes_scasd)
+{
+  /* Code For OpcodesSCASD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSCASW(OpcodesSCASW *opcodes_scasw)
+{
+  /* Code For OpcodesSCASW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTC(OpcodesSTC *opcodes_stc)
+{
+  /* Code For OpcodesSTC Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTD(OpcodesSTD *opcodes_std)
+{
+  /* Code For OpcodesSTD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTI(OpcodesSTI *opcodes_sti)
+{
+  /* Code For OpcodesSTI Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTOSB(OpcodesSTOSB *opcodes_stosb)
+{
+  /* Code For OpcodesSTOSB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTOSD(OpcodesSTOSD *opcodes_stosd)
+{
+  /* Code For OpcodesSTOSD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesSTOSW(OpcodesSTOSW *opcodes_stosw)
+{
+  /* Code For OpcodesSTOSW Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesWAIT(OpcodesWAIT *opcodes_wait)
+{
+  /* Code For OpcodesWAIT Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesWBINVD(OpcodesWBINVD *opcodes_wbinvd)
+{
+  /* Code For OpcodesWBINVD Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesXLATB(OpcodesXLATB *opcodes_xlatb)
+{
+  /* Code For OpcodesXLATB Goes Here */
+
+
+}
+
+void Skeleton::visitOpcodesAAD(OpcodesAAD *opcodes_aad)
+{
+  /* Code For OpcodesAAD Goes Here */
 
 
 }
@@ -520,79 +1310,9 @@ void Skeleton::visitOpcodesCALL(OpcodesCALL *opcodes_call)
 
 }
 
-void Skeleton::visitOpcodesCBW(OpcodesCBW *opcodes_cbw)
-{
-  /* Code For OpcodesCBW Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCDQ(OpcodesCDQ *opcodes_cdq)
-{
-  /* Code For OpcodesCDQ Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCLC(OpcodesCLC *opcodes_clc)
-{
-  /* Code For OpcodesCLC Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCLD(OpcodesCLD *opcodes_cld)
-{
-  /* Code For OpcodesCLD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCLI(OpcodesCLI *opcodes_cli)
-{
-  /* Code For OpcodesCLI Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCLTS(OpcodesCLTS *opcodes_clts)
-{
-  /* Code For OpcodesCLTS Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCMC(OpcodesCMC *opcodes_cmc)
-{
-  /* Code For OpcodesCMC Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesCMP(OpcodesCMP *opcodes_cmp)
 {
   /* Code For OpcodesCMP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCMPSB(OpcodesCMPSB *opcodes_cmpsb)
-{
-  /* Code For OpcodesCMPSB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCMPSD(OpcodesCMPSD *opcodes_cmpsd)
-{
-  /* Code For OpcodesCMPSD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCMPSW(OpcodesCMPSW *opcodes_cmpsw)
-{
-  /* Code For OpcodesCMPSW Goes Here */
 
 
 }
@@ -607,34 +1327,6 @@ void Skeleton::visitOpcodesCMPXCHG(OpcodesCMPXCHG *opcodes_cmpxchg)
 void Skeleton::visitOpcodesCPUID(OpcodesCPUID *opcodes_cpuid)
 {
   /* Code For OpcodesCPUID Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCWD(OpcodesCWD *opcodes_cwd)
-{
-  /* Code For OpcodesCWD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesCWDE(OpcodesCWDE *opcodes_cwde)
-{
-  /* Code For OpcodesCWDE Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesDAA(OpcodesDAA *opcodes_daa)
-{
-  /* Code For OpcodesDAA Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesDAS(OpcodesDAS *opcodes_das)
-{
-  /* Code For OpcodesDAS Goes Here */
 
 
 }
@@ -702,20 +1394,6 @@ void Skeleton::visitOpcodesENTER(OpcodesENTER *opcodes_enter)
 
 }
 
-void Skeleton::visitOpcodesF2XM1(OpcodesF2XM1 *opcodes_f_xm)
-{
-  /* Code For OpcodesF2XM1 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFABS(OpcodesFABS *opcodes_fabs)
-{
-  /* Code For OpcodesFABS Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFADD(OpcodesFADD *opcodes_fadd)
 {
   /* Code For OpcodesFADD Goes Here */
@@ -744,20 +1422,6 @@ void Skeleton::visitOpcodesFBSTP(OpcodesFBSTP *opcodes_fbstp)
 
 }
 
-void Skeleton::visitOpcodesFCHS(OpcodesFCHS *opcodes_fchs)
-{
-  /* Code For OpcodesFCHS Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFCLEX(OpcodesFCLEX *opcodes_fclex)
-{
-  /* Code For OpcodesFCLEX Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFCOM(OpcodesFCOM *opcodes_fcom)
 {
   /* Code For OpcodesFCOM Goes Here */
@@ -768,34 +1432,6 @@ void Skeleton::visitOpcodesFCOM(OpcodesFCOM *opcodes_fcom)
 void Skeleton::visitOpcodesFCOMP(OpcodesFCOMP *opcodes_fcomp)
 {
   /* Code For OpcodesFCOMP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFCOMPP(OpcodesFCOMPP *opcodes_fcompp)
-{
-  /* Code For OpcodesFCOMPP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFCOS(OpcodesFCOS *opcodes_fcos)
-{
-  /* Code For OpcodesFCOS Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFDECSTP(OpcodesFDECSTP *opcodes_fdecstp)
-{
-  /* Code For OpcodesFDECSTP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFDISI(OpcodesFDISI *opcodes_fdisi)
-{
-  /* Code For OpcodesFDISI Goes Here */
 
 
 }
@@ -824,13 +1460,6 @@ void Skeleton::visitOpcodesFDIVR(OpcodesFDIVR *opcodes_fdivr)
 void Skeleton::visitOpcodesFDIVRP(OpcodesFDIVRP *opcodes_fdivrp)
 {
   /* Code For OpcodesFDIVRP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFENI(OpcodesFENI *opcodes_feni)
-{
-  /* Code For OpcodesFENI Goes Here */
 
 
 }
@@ -891,20 +1520,6 @@ void Skeleton::visitOpcodesFIMUL(OpcodesFIMUL *opcodes_fimul)
 
 }
 
-void Skeleton::visitOpcodesFINCSTP(OpcodesFINCSTP *opcodes_fincstp)
-{
-  /* Code For OpcodesFINCSTP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFINIT(OpcodesFINIT *opcodes_finit)
-{
-  /* Code For OpcodesFINIT Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFIST(OpcodesFIST *opcodes_fist)
 {
   /* Code For OpcodesFIST Goes Here */
@@ -940,13 +1555,6 @@ void Skeleton::visitOpcodesFLD(OpcodesFLD *opcodes_fld)
 
 }
 
-void Skeleton::visitOpcodesFLD1(OpcodesFLD1 *opcodes_fld)
-{
-  /* Code For OpcodesFLD1 Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFLDCW(OpcodesFLDCW *opcodes_fldcw)
 {
   /* Code For OpcodesFLDCW Goes Here */
@@ -961,48 +1569,6 @@ void Skeleton::visitOpcodesFLDENV(OpcodesFLDENV *opcodes_fldenv)
 
 }
 
-void Skeleton::visitOpcodesFLDL2E(OpcodesFLDL2E *opcodes_fldl_e)
-{
-  /* Code For OpcodesFLDL2E Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFLDL2T(OpcodesFLDL2T *opcodes_fldl_t)
-{
-  /* Code For OpcodesFLDL2T Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFLDLG2(OpcodesFLDLG2 *opcodes_fldlg)
-{
-  /* Code For OpcodesFLDLG2 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFLDLN2(OpcodesFLDLN2 *opcodes_fldln)
-{
-  /* Code For OpcodesFLDLN2 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFLDPI(OpcodesFLDPI *opcodes_fldpi)
-{
-  /* Code For OpcodesFLDPI Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFLDZ(OpcodesFLDZ *opcodes_fldz)
-{
-  /* Code For OpcodesFLDZ Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFMUL(OpcodesFMUL *opcodes_fmul)
 {
   /* Code For OpcodesFMUL Goes Here */
@@ -1013,41 +1579,6 @@ void Skeleton::visitOpcodesFMUL(OpcodesFMUL *opcodes_fmul)
 void Skeleton::visitOpcodesFMULP(OpcodesFMULP *opcodes_fmulp)
 {
   /* Code For OpcodesFMULP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFNCLEX(OpcodesFNCLEX *opcodes_fnclex)
-{
-  /* Code For OpcodesFNCLEX Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFNDISI(OpcodesFNDISI *opcodes_fndisi)
-{
-  /* Code For OpcodesFNDISI Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFNENI(OpcodesFNENI *opcodes_fneni)
-{
-  /* Code For OpcodesFNENI Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFNINIT(OpcodesFNINIT *opcodes_fninit)
-{
-  /* Code For OpcodesFNINIT Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFNOP(OpcodesFNOP *opcodes_fnop)
-{
-  /* Code For OpcodesFNOP Goes Here */
 
 
 }
@@ -1080,41 +1611,6 @@ void Skeleton::visitOpcodesFNSTSW(OpcodesFNSTSW *opcodes_fnstsw)
 
 }
 
-void Skeleton::visitOpcodesFPATAN(OpcodesFPATAN *opcodes_fpatan)
-{
-  /* Code For OpcodesFPATAN Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFPTAN(OpcodesFPTAN *opcodes_fptan)
-{
-  /* Code For OpcodesFPTAN Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFPREM(OpcodesFPREM *opcodes_fprem)
-{
-  /* Code For OpcodesFPREM Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFPREM1(OpcodesFPREM1 *opcodes_fprem)
-{
-  /* Code For OpcodesFPREM1 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFRNDINT(OpcodesFRNDINT *opcodes_frndint)
-{
-  /* Code For OpcodesFRNDINT Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFRSTOR(OpcodesFRSTOR *opcodes_frstor)
 {
   /* Code For OpcodesFRSTOR Goes Here */
@@ -1125,41 +1621,6 @@ void Skeleton::visitOpcodesFRSTOR(OpcodesFRSTOR *opcodes_frstor)
 void Skeleton::visitOpcodesFSAVE(OpcodesFSAVE *opcodes_fsave)
 {
   /* Code For OpcodesFSAVE Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFSCALE(OpcodesFSCALE *opcodes_fscale)
-{
-  /* Code For OpcodesFSCALE Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFSETPM(OpcodesFSETPM *opcodes_fsetpm)
-{
-  /* Code For OpcodesFSETPM Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFSIN(OpcodesFSIN *opcodes_fsin)
-{
-  /* Code For OpcodesFSIN Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFSINCOS(OpcodesFSINCOS *opcodes_fsincos)
-{
-  /* Code For OpcodesFSINCOS Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFSQRT(OpcodesFSQRT *opcodes_fsqrt)
-{
-  /* Code For OpcodesFSQRT Goes Here */
 
 
 }
@@ -1227,13 +1688,6 @@ void Skeleton::visitOpcodesFSUBRP(OpcodesFSUBRP *opcodes_fsubrp)
 
 }
 
-void Skeleton::visitOpcodesFTST(OpcodesFTST *opcodes_ftst)
-{
-  /* Code For OpcodesFTST Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFUCOM(OpcodesFUCOM *opcodes_fucom)
 {
   /* Code For OpcodesFUCOM Goes Here */
@@ -1248,51 +1702,9 @@ void Skeleton::visitOpcodesFUCOMP(OpcodesFUCOMP *opcodes_fucomp)
 
 }
 
-void Skeleton::visitOpcodesFUCOMPP(OpcodesFUCOMPP *opcodes_fucompp)
-{
-  /* Code For OpcodesFUCOMPP Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFXAM(OpcodesFXAM *opcodes_fxam)
-{
-  /* Code For OpcodesFXAM Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesFXCH(OpcodesFXCH *opcodes_fxch)
 {
   /* Code For OpcodesFXCH Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFXTRACT(OpcodesFXTRACT *opcodes_fxtract)
-{
-  /* Code For OpcodesFXTRACT Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFYL2X(OpcodesFYL2X *opcodes_fyl_x)
-{
-  /* Code For OpcodesFYL2X Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesFYL2XP1(OpcodesFYL2XP1 *opcodes_fyl_xp)
-{
-  /* Code For OpcodesFYL2XP1 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesHLT(OpcodesHLT *opcodes_hlt)
-{
-  /* Code For OpcodesHLT Goes Here */
 
 
 }
@@ -1332,27 +1744,6 @@ void Skeleton::visitOpcodesINCO(OpcodesINCO *opcodes_inco)
 
 }
 
-void Skeleton::visitOpcodesINSB(OpcodesINSB *opcodes_insb)
-{
-  /* Code For OpcodesINSB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesINSD(OpcodesINSD *opcodes_insd)
-{
-  /* Code For OpcodesINSD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesINSW(OpcodesINSW *opcodes_insw)
-{
-  /* Code For OpcodesINSW Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesINT(OpcodesINT *opcodes_int)
 {
   /* Code For OpcodesINT Goes Here */
@@ -1360,51 +1751,9 @@ void Skeleton::visitOpcodesINT(OpcodesINT *opcodes_int)
 
 }
 
-void Skeleton::visitOpcodesINT3(OpcodesINT3 *opcodes_int)
-{
-  /* Code For OpcodesINT3 Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesINTO(OpcodesINTO *opcodes_into)
-{
-  /* Code For OpcodesINTO Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesINVD(OpcodesINVD *opcodes_invd)
-{
-  /* Code For OpcodesINVD Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesINVLPG(OpcodesINVLPG *opcodes_invlpg)
 {
   /* Code For OpcodesINVLPG Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesIRET(OpcodesIRET *opcodes_iret)
-{
-  /* Code For OpcodesIRET Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesIRETD(OpcodesIRETD *opcodes_iretd)
-{
-  /* Code For OpcodesIRETD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesIRETW(OpcodesIRETW *opcodes_iretw)
-{
-  /* Code For OpcodesIRETW Goes Here */
 
 
 }
@@ -1640,13 +1989,6 @@ void Skeleton::visitOpcodesJZ(OpcodesJZ *opcodes_jz)
 
 }
 
-void Skeleton::visitOpcodesLAHF(OpcodesLAHF *opcodes_lahf)
-{
-  /* Code For OpcodesLAHF Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesLAR(OpcodesLAR *opcodes_lar)
 {
   /* Code For OpcodesLAR Goes Here */
@@ -1664,13 +2006,6 @@ void Skeleton::visitOpcodesLDS(OpcodesLDS *opcodes_lds)
 void Skeleton::visitOpcodesLEA(OpcodesLEA *opcodes_lea)
 {
   /* Code For OpcodesLEA Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesLEAVE(OpcodesLEAVE *opcodes_leave)
-{
-  /* Code For OpcodesLEAVE Goes Here */
 
 
 }
@@ -1727,27 +2062,6 @@ void Skeleton::visitOpcodesLMSW(OpcodesLMSW *opcodes_lmsw)
 void Skeleton::visitOpcodesLOCK(OpcodesLOCK *opcodes_lock)
 {
   /* Code For OpcodesLOCK Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesLODSB(OpcodesLODSB *opcodes_lodsb)
-{
-  /* Code For OpcodesLODSB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesLODSD(OpcodesLODSD *opcodes_lodsd)
-{
-  /* Code For OpcodesLODSD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesLODSW(OpcodesLODSW *opcodes_lodsw)
-{
-  /* Code For OpcodesLODSW Goes Here */
 
 
 }
@@ -1811,27 +2125,6 @@ void Skeleton::visitOpcodesLTR(OpcodesLTR *opcodes_ltr)
 void Skeleton::visitOpcodesMOV(OpcodesMOV *opcodes_mov)
 {
   /* Code For OpcodesMOV Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesMOVSB(OpcodesMOVSB *opcodes_movsb)
-{
-  /* Code For OpcodesMOVSB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesMOVSD(OpcodesMOVSD *opcodes_movsd)
-{
-  /* Code For OpcodesMOVSD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesMOVSW(OpcodesMOVSW *opcodes_movsw)
-{
-  /* Code For OpcodesMOVSW Goes Here */
 
 
 }
@@ -1927,100 +2220,9 @@ void Skeleton::visitOpcodesPOP(OpcodesPOP *opcodes_pop)
 
 }
 
-void Skeleton::visitOpcodesPOPA(OpcodesPOPA *opcodes_popa)
-{
-  /* Code For OpcodesPOPA Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPOPAD(OpcodesPOPAD *opcodes_popad)
-{
-  /* Code For OpcodesPOPAD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPOPAW(OpcodesPOPAW *opcodes_popaw)
-{
-  /* Code For OpcodesPOPAW Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPOPF(OpcodesPOPF *opcodes_popf)
-{
-  /* Code For OpcodesPOPF Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPOPFD(OpcodesPOPFD *opcodes_popfd)
-{
-  /* Code For OpcodesPOPFD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPOPFW(OpcodesPOPFW *opcodes_popfw)
-{
-  /* Code For OpcodesPOPFW Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesPUSH(OpcodesPUSH *opcodes_push)
 {
   /* Code For OpcodesPUSH Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHA(OpcodesPUSHA *opcodes_pusha)
-{
-  /* Code For OpcodesPUSHA Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHD(OpcodesPUSHD *opcodes_pushd)
-{
-  /* Code For OpcodesPUSHD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHAD(OpcodesPUSHAD *opcodes_pushad)
-{
-  /* Code For OpcodesPUSHAD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHAW(OpcodesPUSHAW *opcodes_pushaw)
-{
-  /* Code For OpcodesPUSHAW Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHF(OpcodesPUSHF *opcodes_pushf)
-{
-  /* Code For OpcodesPUSHF Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHFD(OpcodesPUSHFD *opcodes_pushfd)
-{
-  /* Code For OpcodesPUSHFD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesPUSHFW(OpcodesPUSHFW *opcodes_pushfw)
-{
-  /* Code For OpcodesPUSHFW Goes Here */
 
 
 }
@@ -2123,13 +2325,6 @@ void Skeleton::visitOpcodesRESW(OpcodesRESW *opcodes_resw)
 
 }
 
-void Skeleton::visitOpcodesRET(OpcodesRET *opcodes_ret)
-{
-  /* Code For OpcodesRET Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesRETF(OpcodesRETF *opcodes_retf)
 {
   /* Code For OpcodesRETF Goes Here */
@@ -2165,13 +2360,6 @@ void Skeleton::visitOpcodesRSM(OpcodesRSM *opcodes_rsm)
 
 }
 
-void Skeleton::visitOpcodesSAHF(OpcodesSAHF *opcodes_sahf)
-{
-  /* Code For OpcodesSAHF Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesSAL(OpcodesSAL *opcodes_sal)
 {
   /* Code For OpcodesSAL Goes Here */
@@ -2189,27 +2377,6 @@ void Skeleton::visitOpcodesSAR(OpcodesSAR *opcodes_sar)
 void Skeleton::visitOpcodesSBB(OpcodesSBB *opcodes_sbb)
 {
   /* Code For OpcodesSBB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSCASB(OpcodesSCASB *opcodes_scasb)
-{
-  /* Code For OpcodesSCASB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSCASD(OpcodesSCASD *opcodes_scasd)
-{
-  /* Code For OpcodesSCASD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSCASW(OpcodesSCASW *opcodes_scasw)
-{
-  /* Code For OpcodesSCASW Goes Here */
 
 
 }
@@ -2480,48 +2647,6 @@ void Skeleton::visitOpcodesSMSW(OpcodesSMSW *opcodes_smsw)
 
 }
 
-void Skeleton::visitOpcodesSTC(OpcodesSTC *opcodes_stc)
-{
-  /* Code For OpcodesSTC Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSTD(OpcodesSTD *opcodes_std)
-{
-  /* Code For OpcodesSTD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSTI(OpcodesSTI *opcodes_sti)
-{
-  /* Code For OpcodesSTI Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSTOSB(OpcodesSTOSB *opcodes_stosb)
-{
-  /* Code For OpcodesSTOSB Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSTOSD(OpcodesSTOSD *opcodes_stosd)
-{
-  /* Code For OpcodesSTOSD Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesSTOSW(OpcodesSTOSW *opcodes_stosw)
-{
-  /* Code For OpcodesSTOSW Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesSTR(OpcodesSTR *opcodes_str)
 {
   /* Code For OpcodesSTR Goes Here */
@@ -2571,20 +2696,6 @@ void Skeleton::visitOpcodesVERW(OpcodesVERW *opcodes_verw)
 
 }
 
-void Skeleton::visitOpcodesWAIT(OpcodesWAIT *opcodes_wait)
-{
-  /* Code For OpcodesWAIT Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesWBINVD(OpcodesWBINVD *opcodes_wbinvd)
-{
-  /* Code For OpcodesWBINVD Goes Here */
-
-
-}
-
 void Skeleton::visitOpcodesWRMSR(OpcodesWRMSR *opcodes_wrmsr)
 {
   /* Code For OpcodesWRMSR Goes Here */
@@ -2602,13 +2713,6 @@ void Skeleton::visitOpcodesXADD(OpcodesXADD *opcodes_xadd)
 void Skeleton::visitOpcodesXCHG(OpcodesXCHG *opcodes_xchg)
 {
   /* Code For OpcodesXCHG Goes Here */
-
-
-}
-
-void Skeleton::visitOpcodesXLATB(OpcodesXLATB *opcodes_xlatb)
-{
-  /* Code For OpcodesXLATB Goes Here */
 
 
 }
@@ -2679,11 +2783,6 @@ void Skeleton::visitNaskChar(NaskChar x)
 void Skeleton::visitHex(Hex x)
 {
   /* Code for Hex Goes Here */
-}
-
-void Skeleton::visitLabel(Label x)
-{
-  /* Code for Label Goes Here */
 }
 
 void Skeleton::visitId(Id x)

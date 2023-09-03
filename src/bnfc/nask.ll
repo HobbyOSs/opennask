@@ -76,6 +76,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"["      	 return token::_LBRACK;
 <INITIAL>"]"      	 return token::_RBRACK;
 <INITIAL>","      	 return token::_COMMA;
+<INITIAL>":"      	 return token::_COLON;
 <INITIAL>"+"      	 return token::_PLUS;
 <INITIAL>"-"      	 return token::_MINUS;
 <INITIAL>"*"      	 return token::_STAR;
@@ -83,7 +84,6 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"%"      	 return token::_PERCENT;
 <INITIAL>"("      	 return token::_LPAREN;
 <INITIAL>")"      	 return token::_RPAREN;
-<INITIAL>":"      	 return token::_COLON;
 <INITIAL>"AAA"      	 return token::_KW_AAA;
 <INITIAL>"AAD"      	 return token::_KW_AAD;
 <INITIAL>"AAM"      	 return token::_KW_AAM;
@@ -119,6 +119,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"CMPSW"      	 return token::_KW_CMPSW;
 <INITIAL>"CMPXCHG"      	 return token::_KW_CMPXCHG;
 <INITIAL>"CPUID"      	 return token::_KW_CPUID;
+<INITIAL>"CS"      	 return token::_KW_CS;
 <INITIAL>"CWD"      	 return token::_KW_CWD;
 <INITIAL>"CWDE"      	 return token::_KW_CWDE;
 <INITIAL>"DAA"      	 return token::_KW_DAA;
@@ -128,12 +129,14 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"DEC"      	 return token::_KW_DEC;
 <INITIAL>"DIV"      	 return token::_KW_DIV;
 <INITIAL>"DQ"      	 return token::_KW_DQ;
+<INITIAL>"DS"      	 return token::_KW_DS;
 <INITIAL>"DT"      	 return token::_KW_DT;
 <INITIAL>"DW"      	 return token::_KW_DW;
 <INITIAL>"DWORD"      	 return token::_KW_DWORD;
 <INITIAL>"END"      	 return token::_KW_END;
 <INITIAL>"ENTER"      	 return token::_KW_ENTER;
 <INITIAL>"EQU"      	 return token::_KW_EQU;
+<INITIAL>"ES"      	 return token::_KW_ES;
 <INITIAL>"EXTERN"      	 return token::_KW_EXTERN;
 <INITIAL>"F2XM1"      	 return token::_KW_F2XM1;
 <INITIAL>"FABS"      	 return token::_KW_FABS;
@@ -198,6 +201,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"FPTAN"      	 return token::_KW_FPTAN;
 <INITIAL>"FRNDINT"      	 return token::_KW_FRNDINT;
 <INITIAL>"FRSTOR"      	 return token::_KW_FRSTOR;
+<INITIAL>"FS"      	 return token::_KW_FS;
 <INITIAL>"FSAVE"      	 return token::_KW_FSAVE;
 <INITIAL>"FSCALE"      	 return token::_KW_FSCALE;
 <INITIAL>"FSETPM"      	 return token::_KW_FSETPM;
@@ -223,6 +227,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"FYL2X"      	 return token::_KW_FYL2X;
 <INITIAL>"FYL2XP1"      	 return token::_KW_FYL2XP1;
 <INITIAL>"GLOBAL"      	 return token::_KW_GLOBAL;
+<INITIAL>"GS"      	 return token::_KW_GS;
 <INITIAL>"HLT"      	 return token::_KW_HLT;
 <INITIAL>"IDIV"      	 return token::_KW_IDIV;
 <INITIAL>"IMUL"      	 return token::_KW_IMUL;
@@ -400,6 +405,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"SIDT"      	 return token::_KW_SIDT;
 <INITIAL>"SLDT"      	 return token::_KW_SLDT;
 <INITIAL>"SMSW"      	 return token::_KW_SMSW;
+<INITIAL>"SS"      	 return token::_KW_SS;
 <INITIAL>"STC"      	 return token::_KW_STC;
 <INITIAL>"STD"      	 return token::_KW_STD;
 <INITIAL>"STI"      	 return token::_KW_STI;
@@ -431,7 +437,6 @@ IDENT [a-zA-Z0-9'_]
 
 <INITIAL>'([^'\\]|\\('|\\|n|r|t))*'    	 yylval->emplace<std::string>(yytext); return token::T_NaskChar;
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
-<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:(\\|n|r|t)*    	 yylval->emplace<std::string>(yytext); return token::T_Label;
 <INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;

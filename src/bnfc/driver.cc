@@ -106,6 +106,14 @@ NaskDriver::pStatement(std::istream &stream)
     return this->statement_;
 }
 
+std::shared_ptr<Statement>
+NaskDriver::pStatement1(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->statement_;
+}
+
 std::shared_ptr<ListFactor>
 NaskDriver::pListFactor(std::istream &stream)
 {
@@ -146,8 +154,32 @@ NaskDriver::pExp1(std::istream &stream)
     return this->exp_;
 }
 
+std::shared_ptr<Label>
+NaskDriver::pLabel(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->label_;
+}
+
 std::shared_ptr<Exp>
 NaskDriver::pExp2(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->exp_;
+}
+
+std::shared_ptr<Exp>
+NaskDriver::pExp3(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->exp_;
+}
+
+std::shared_ptr<Exp>
+NaskDriver::pExp4(std::istream &stream)
 {
     parse_helper( stream );
 
@@ -170,6 +202,14 @@ NaskDriver::pIndexExp(std::istream &stream)
     return this->indexexp_;
 }
 
+std::shared_ptr<UnaryOperator>
+NaskDriver::pUnaryOperator(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->unaryoperator_;
+}
+
 std::shared_ptr<Factor>
 NaskDriver::pFactor(std::istream &stream)
 {
@@ -186,6 +226,14 @@ NaskDriver::pJumpDir(std::istream &stream)
     return this->jumpdir_;
 }
 
+std::shared_ptr<SReg>
+NaskDriver::pSReg(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->sreg_;
+}
+
 std::shared_ptr<ConfigType>
 NaskDriver::pConfigType(std::istream &stream)
 {
@@ -200,6 +248,14 @@ NaskDriver::pDataType(std::istream &stream)
     parse_helper( stream );
 
     return this->datatype_;
+}
+
+std::shared_ptr<OpcodeNoParam>
+NaskDriver::pOpcodeNoParam(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->opcodenoparam_;
 }
 
 std::shared_ptr<Opcode>
