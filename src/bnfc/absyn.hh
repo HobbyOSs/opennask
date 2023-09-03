@@ -52,7 +52,9 @@ class DivExp;
 class ModExp;
 class ImmExp;
 class DatatypeExp;
+class SegmentOffsetDataExp;
 class SegmentOffsetExp;
+class SregFrameExp;
 class MemoryAddrExp;
 class JmpMemoryAddrExp;
 class Direct;
@@ -437,7 +439,9 @@ public:
     virtual void visitModExp(ModExp *p) = 0;
     virtual void visitImmExp(ImmExp *p) = 0;
     virtual void visitDatatypeExp(DatatypeExp *p) = 0;
+    virtual void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p) = 0;
     virtual void visitSegmentOffsetExp(SegmentOffsetExp *p) = 0;
+    virtual void visitSregFrameExp(SregFrameExp *p) = 0;
     virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
     virtual void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p) = 0;
     virtual void visitDirect(Direct *p) = 0;
@@ -1112,15 +1116,45 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
-class SegmentOffsetExp : public Exp
+class SegmentOffsetDataExp : public Exp
 {
 public:
     std::shared_ptr<DataType> datatype_;
     std::shared_ptr<Exp> exp_1;
     std::shared_ptr<Exp> exp_2;
 
-    SegmentOffsetExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2, std::shared_ptr<Exp> p3)
+    SegmentOffsetDataExp(std::shared_ptr<DataType> p1, std::shared_ptr<Exp> p2, std::shared_ptr<Exp> p3)
     : Exp(), datatype_{p1}, exp_1{p2}, exp_2{p3}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
+class SegmentOffsetExp : public Exp
+{
+public:
+    std::shared_ptr<Exp> exp_1;
+    std::shared_ptr<Exp> exp_2;
+
+    SegmentOffsetExp(std::shared_ptr<Exp> p1, std::shared_ptr<Exp> p2)
+    : Exp(), exp_1{p1}, exp_2{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
+class SregFrameExp : public Exp
+{
+public:
+    Id id_;
+    std::shared_ptr<Exp> exp_;
+
+    SregFrameExp(Id p1, std::shared_ptr<Exp> p2)
+    : Exp(), id_{p1}, exp_{p2}
     {};
 
 

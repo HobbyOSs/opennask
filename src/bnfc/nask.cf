@@ -33,7 +33,9 @@ ImmExp.                  Exp2  ::= Factor ;
 coercions                Exp 2;
 
 DatatypeExp.             Exp   ::= DataType MemoryAddr ;
-SegmentOffsetExp.        Exp   ::= DataType Exp ":" Exp ;
+SegmentOffsetDataExp.    Exp   ::= DataType Exp ":" Exp ;
+SegmentOffsetExp.        Exp   ::= Exp ":" Exp ;
+SregFrameExp.            Exp   ::= Id ":" Exp ;
 MemoryAddrExp.           Exp   ::= MemoryAddr ;
 JmpMemoryAddrExp.        Exp   ::= JumpDir MemoryAddr ; -- FAR [ESP+4]
 

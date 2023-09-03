@@ -56,7 +56,9 @@ class PrintAbsyn : public Visitor
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
   void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
+  void visitSregFrameExp(SregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
@@ -509,7 +511,9 @@ class ShowAbsyn : public Visitor
   void visitPlusExp(PlusExp *p);
   void visitMinusExp(MinusExp *p);
   void visitDatatypeExp(DatatypeExp *p);
+  void visitSegmentOffsetDataExp(SegmentOffsetDataExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
+  void visitSregFrameExp(SregFrameExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
   void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);

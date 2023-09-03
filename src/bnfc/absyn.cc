@@ -246,6 +246,22 @@ std::shared_ptr<Exp> DatatypeExp::clone() const
 
 
 
+/********************   SegmentOffsetDataExp    ********************/
+
+
+
+void SegmentOffsetDataExp::accept(Visitor *v)
+{
+    v->visitSegmentOffsetDataExp(this);
+}
+
+std::shared_ptr<Exp> SegmentOffsetDataExp::clone() const
+{
+    return std::make_shared<SegmentOffsetDataExp>(*this);
+}
+
+
+
 /********************   SegmentOffsetExp    ********************/
 
 
@@ -258,6 +274,22 @@ void SegmentOffsetExp::accept(Visitor *v)
 std::shared_ptr<Exp> SegmentOffsetExp::clone() const
 {
     return std::make_shared<SegmentOffsetExp>(*this);
+}
+
+
+
+/********************   SregFrameExp    ********************/
+
+
+
+void SregFrameExp::accept(Visitor *v)
+{
+    v->visitSregFrameExp(this);
+}
+
+std::shared_ptr<Exp> SregFrameExp::clone() const
+{
+    return std::make_shared<SregFrameExp>(*this);
 }
 
 
