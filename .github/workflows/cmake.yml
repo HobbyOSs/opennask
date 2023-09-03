@@ -38,8 +38,8 @@ jobs:
     - name: Install build tools
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev
-        version: 1.1
+        packages: clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils
+        version: 1.2
 
     - name: Configure CMake
       run: |
