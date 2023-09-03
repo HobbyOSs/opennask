@@ -600,7 +600,6 @@ void FrontEnd::processRET(std::vector<TParaToken>& mnemonic_args) {
 void FrontEnd::processSHR(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
-    using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
         mnemonic_args[0].AsString(),

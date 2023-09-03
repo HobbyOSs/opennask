@@ -113,6 +113,7 @@ public:
 
     // expression
     void visitImmExp(ImmExp *p) override;
+    void visitDatatypeExp(DatatypeExp *p) override;
     void visitSegmentOffsetExp(SegmentOffsetExp *p) override;
     void visitDirect(Direct *direct) override;
     void visitBasedOrIndexed(BasedOrIndexed *p) override;
@@ -122,7 +123,6 @@ public:
     void visitBasedIndexedDispScale(BasedIndexedDispScale *p) override;
     void visitIndexScaleExp(IndexScaleExp *p) override;
 
-    void visitDatatypeExp(DatatypeExp *p) override;
     void visitByteDataType(ByteDataType *p) override;
     void visitWordDataType(WordDataType *p) override;
     void visitDwordDataType(DwordDataType *p) override;

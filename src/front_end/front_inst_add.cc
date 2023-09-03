@@ -10,7 +10,6 @@ template <asmjit::x86::Inst::Id id, uint8_t acc_opcode>
 void FrontEnd::processEmitAdd(std::vector<TParaToken>& mnemonic_args) {
 
     using namespace matchit;
-    using Attr = TParaToken::TIdentiferAttribute;
     auto operands = std::make_tuple(
         mnemonic_args[0].AsString(),
         mnemonic_args[0].AsAttr(),
@@ -18,7 +17,11 @@ void FrontEnd::processEmitAdd(std::vector<TParaToken>& mnemonic_args) {
     );
     auto dst = mnemonic_args[0];
     auto src = mnemonic_args[1];
-    log()->debug("[pass2] processADD dst={}", dst.AsString());
+
+    asmjit::String tmp;
+    asmjit::InstAPI::instIdToString(asmjit::Arch::kX86, id, tmp);
+    std::string op = to_upper(std::string(tmp.data()));
+    log()->debug("[pass2] process{} dst={}", op, dst.AsString());
 
     with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
         using namespace asmjit;
@@ -48,7 +51,7 @@ void FrontEnd::processEmitAdd(std::vector<TParaToken>& mnemonic_args) {
                 a.emit(id, mnemonic_args[0].AsAsmJitGp(), mnemonic_args[1].AsInt32());
             },
             pattern | ds(_, or_(TParaToken::ttMem8, TParaToken::ttMem16, TParaToken::ttMem32), TParaToken::ttImm) = [&] {
-                a.emit(id, mnemonic_args[0].AsMem(), mnemonic_args[1].AsInt32());
+                a.emit(id, mnemonic_args[0].AsMem(), Imm(mnemonic_args[1].AsInt32()));
             },
             // 0x00 /r		ADD r/m8, r8		r8をr/m8に加算する
             // 0x01 /r		ADD r/m16, r16		r16をr/m16に加算する
