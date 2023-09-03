@@ -313,3 +313,12 @@ endif()
 
 target_compile_features(day09test PRIVATE cxx_std_17)
 gtest_discover_tests(day09test)
+
+# `ctest -R day12`
+add_test(NAME create_day12_file
+  COMMAND $<TARGET_FILE:nask_parse> ${root_SOURCE_DIR}/projects/12_day/harib09a/naskfunc.nas ${root_BINARY_DIR}/12_day_harib09a_naskfunc.img)
+add_test(NAME day12test
+  COMMAND sha256sum -c ${root_SOURCE_DIR}/test/day12_naskfunc.sha256
+  WORKING_DIRECTORY ${root_SOURCE_DIR})
+set_tests_properties(day12test
+  PROPERTIES DEPENDS create_day12_file)
