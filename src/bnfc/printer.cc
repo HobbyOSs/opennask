@@ -566,6 +566,17 @@ void PrintAbsyn::visitStringFactor(StringFactor* p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitCharFactor(CharFactor* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  visitNaskChar(p->naskchar_);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitConfigType(ConfigType *p) {} //abstract class
 
 void PrintAbsyn::visitBitsConfig(BitsConfig* p)
@@ -4247,6 +4258,12 @@ void PrintAbsyn::visitIdent(String s)
   render(s);
 }
 
+void PrintAbsyn::visitNaskChar(String s)
+{
+  render(s);
+}
+
+
 void PrintAbsyn::visitHex(String s)
 {
   render(s);
@@ -4644,6 +4661,14 @@ void ShowAbsyn::visitStringFactor(StringFactor* p)
   bufAppend("StringFactor");
   bufAppend(' ');
   visitString(p->string_);  bufAppend(')');
+}
+
+void ShowAbsyn::visitCharFactor(CharFactor* p)
+{
+  bufAppend('(');
+  bufAppend("CharFactor");
+  bufAppend(' ');
+  visitNaskChar(p->naskchar_);  bufAppend(')');
 }
 
 void ShowAbsyn::visitConfigType(ConfigType *p) {} //abstract class
@@ -6337,6 +6362,14 @@ void ShowAbsyn::visitIdent(String s)
   bufAppend(s);
   bufAppend('\"');
 }
+
+void ShowAbsyn::visitNaskChar(String s)
+{
+  bufAppend('\"');
+  bufAppend(s);
+  bufAppend('\"');
+}
+
 
 void ShowAbsyn::visitHex(String s)
 {

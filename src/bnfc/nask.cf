@@ -48,6 +48,7 @@ NumberFactor. Factor         ::= Integer ;
 HexFactor.    Factor         ::= Hex ;
 IdentFactor.  Factor         ::= Id ;
 StringFactor. Factor         ::= String ;
+CharFactor.   Factor         ::= NaskChar ;
 
 BitsConfig.   ConfigType     ::= "BITS" ;
 InstConfig.   ConfigType     ::= "INSTRSET" ;
@@ -383,6 +384,7 @@ OpcodesXCHG.    Opcode       ::= "XCHG" ;
 OpcodesXLATB.   Opcode       ::= "XLATB" ;
 OpcodesXOR.     Opcode       ::= "XOR" ;
 
+token NaskChar '\'' ((char - ["'\\"]) | ('\\' ["'\\ntr"]))* '\'';
 token Hex '0' ('x'|'X') (digit | ["abcdef"] | ["ABCDEF"])+ '-'? '$'? ;
 token Label (letter | '$' | '_' | '.' ) (letter | '$' | '_' | '.' | digit)* (':' ["\\ntr"]*) ;
 token Id (letter | '$' | '_' | '.' ) (letter | '$' | '_' | '.' | digit)* ;

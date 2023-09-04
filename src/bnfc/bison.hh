@@ -432,6 +432,7 @@ namespace nask_ {
       // T_Hex
       // T_Id
       // T_Label
+      // T_NaskChar
       // _STRING_
       char dummy15[sizeof (std::string)];
     };
@@ -832,8 +833,9 @@ namespace nask_ {
     T_Hex = 604,                   // T_Hex
     T_Id = 605,                    // T_Id
     T_Label = 606,                 // T_Label
-    _STRING_ = 607,                // _STRING_
-    _INTEGER_ = 608                // _INTEGER_
+    T_NaskChar = 607,              // T_NaskChar
+    _STRING_ = 608,                // _STRING_
+    _INTEGER_ = 609                // _INTEGER_
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -850,7 +852,7 @@ namespace nask_ {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 354, ///< Number of tokens.
+        YYNTOKENS = 355, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -1204,24 +1206,25 @@ namespace nask_ {
         S_T_Hex = 349,                           // T_Hex
         S_T_Id = 350,                            // T_Id
         S_T_Label = 351,                         // T_Label
-        S__STRING_ = 352,                        // _STRING_
-        S__INTEGER_ = 353,                       // _INTEGER_
-        S_YYACCEPT = 354,                        // $accept
-        S_Program = 355,                         // Program
-        S_ListStatement = 356,                   // ListStatement
-        S_Statement = 357,                       // Statement
-        S_ListFactor = 358,                      // ListFactor
-        S_ListMnemonicArgs = 359,                // ListMnemonicArgs
-        S_MnemonicArgs = 360,                    // MnemonicArgs
-        S_Exp = 361,                             // Exp
-        S_Exp1 = 362,                            // Exp1
-        S_Exp2 = 363,                            // Exp2
-        S_MemoryAddr = 364,                      // MemoryAddr
-        S_IndexExp = 365,                        // IndexExp
-        S_Factor = 366,                          // Factor
-        S_ConfigType = 367,                      // ConfigType
-        S_DataType = 368,                        // DataType
-        S_Opcode = 369                           // Opcode
+        S_T_NaskChar = 352,                      // T_NaskChar
+        S__STRING_ = 353,                        // _STRING_
+        S__INTEGER_ = 354,                       // _INTEGER_
+        S_YYACCEPT = 355,                        // $accept
+        S_Program = 356,                         // Program
+        S_ListStatement = 357,                   // ListStatement
+        S_Statement = 358,                       // Statement
+        S_ListFactor = 359,                      // ListFactor
+        S_ListMnemonicArgs = 360,                // ListMnemonicArgs
+        S_MnemonicArgs = 361,                    // MnemonicArgs
+        S_Exp = 362,                             // Exp
+        S_Exp1 = 363,                            // Exp1
+        S_Exp2 = 364,                            // Exp2
+        S_MemoryAddr = 365,                      // MemoryAddr
+        S_IndexExp = 366,                        // IndexExp
+        S_Factor = 367,                          // Factor
+        S_ConfigType = 368,                      // ConfigType
+        S_DataType = 369,                        // DataType
+        S_Opcode = 370                           // Opcode
       };
     };
 
@@ -1319,6 +1322,7 @@ namespace nask_ {
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
       case symbol_kind::S_T_Label: // T_Label
+      case symbol_kind::S_T_NaskChar: // T_NaskChar
       case symbol_kind::S__STRING_: // _STRING_
         value.move< std::string > (std::move (that.value));
         break;
@@ -1641,6 +1645,7 @@ switch (yykind)
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
       case symbol_kind::S_T_Label: // T_Label
+      case symbol_kind::S_T_NaskChar: // T_NaskChar
       case symbol_kind::S__STRING_: // _STRING_
         value.template destroy< std::string > ();
         break;
@@ -7094,6 +7099,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_T_NaskChar (std::string v, location_type l)
+      {
+        return symbol_type (token::T_NaskChar, std::move (v), std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_T_NaskChar (const std::string& v, const location_type& l)
+      {
+        return symbol_type (token::T_NaskChar, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make__STRING_ (std::string v, location_type l)
       {
         return symbol_type (token::_STRING_, std::move (v), std::move (l));
@@ -7425,9 +7445,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 706,     ///< Last index in yytable_.
+      yylast_ = 714,     ///< Last index in yytable_.
       yynnts_ = 16,  ///< Number of nonterminal symbols.
-      yyfinal_ = 347 ///< Termination state number.
+      yyfinal_ = 348 ///< Termination state number.
     };
 
 
@@ -7439,7 +7459,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7443 "bison.hh"
+#line 7463 "bison.hh"
 
 
 

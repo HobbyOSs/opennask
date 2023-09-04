@@ -454,6 +454,22 @@ std::shared_ptr<Factor> StringFactor::clone() const
 
 
 
+/********************   CharFactor    ********************/
+
+
+
+void CharFactor::accept(Visitor *v)
+{
+    v->visitCharFactor(this);
+}
+
+std::shared_ptr<Factor> CharFactor::clone() const
+{
+    return std::make_shared<CharFactor>(*this);
+}
+
+
+
 /********************   BitsConfig    ********************/
 
 

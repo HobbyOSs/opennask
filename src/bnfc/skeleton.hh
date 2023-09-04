@@ -48,6 +48,7 @@ public:
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
   void visitOptiConfig(OptiConfig *p);
@@ -388,6 +389,7 @@ public:
   void visitDouble(Double x);
   void visitString(String x);
   void visitIdent(Ident x);
+  void visitNaskChar(NaskChar x);
   void visitHex(Hex x);
   void visitLabel(Label x);
   void visitId(Id x);

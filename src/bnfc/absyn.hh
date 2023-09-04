@@ -18,6 +18,7 @@ using Double = double;
 using String = std::string;
 using Ident = std::string;
 
+using NaskChar = std::string;
 using Hex = std::string;
 using Label = std::string;
 using Id = std::string;
@@ -63,6 +64,7 @@ class NumberFactor;
 class HexFactor;
 class IdentFactor;
 class StringFactor;
+class CharFactor;
 class BitsConfig;
 class InstConfig;
 class OptiConfig;
@@ -442,6 +444,7 @@ public:
     virtual void visitHexFactor(HexFactor *p) = 0;
     virtual void visitIdentFactor(IdentFactor *p) = 0;
     virtual void visitStringFactor(StringFactor *p) = 0;
+    virtual void visitCharFactor(CharFactor *p) = 0;
     virtual void visitBitsConfig(BitsConfig *p) = 0;
     virtual void visitInstConfig(InstConfig *p) = 0;
     virtual void visitOptiConfig(OptiConfig *p) = 0;
@@ -783,6 +786,7 @@ public:
     virtual void visitDouble(Double x) = 0;
     virtual void visitString(String x) = 0;
     virtual void visitIdent(Ident x) = 0;
+    virtual void visitNaskChar(NaskChar x) = 0;
     virtual void visitHex(Hex x) = 0;
     virtual void visitLabel(Label x) = 0;
     virtual void visitId(Id x) = 0;
@@ -1276,6 +1280,20 @@ public:
 
     StringFactor(String p1)
     : Factor(), string_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Factor>  clone() const;
+};
+
+class CharFactor : public Factor
+{
+public:
+    NaskChar naskchar_;
+
+    CharFactor(NaskChar p1)
+    : Factor(), naskchar_{p1}
     {};
 
 

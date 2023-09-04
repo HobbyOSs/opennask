@@ -179,6 +179,7 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         // DB,DW,DD---
         StatementToMachineCodeParam(ID_16BIT_MODE, "DB 1,2,3", std::vector<uint8_t>{0x01, 0x02, 0x03}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DB 'hello'", std::vector<uint8_t>{0x68,0x65,0x6c,0x6c,0x6f}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DW 512", std::vector<uint8_t>{0x00, 0x02}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
         // CLI,HLT,NOP

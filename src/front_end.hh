@@ -142,6 +142,7 @@ public:
     void visitHexFactor(HexFactor *p) override;
     void visitIdentFactor(IdentFactor *p) override;
     void visitStringFactor(StringFactor *p) override;
+    void visitCharFactor(CharFactor *p) override;
 
     // token
     void visitInteger(Integer x) override;
@@ -149,6 +150,7 @@ public:
     void visitDouble(Double x) override;
     void visitString(String x) override;
     void visitIdent(Ident x) override;
+    void visitNaskChar(NaskChar x) override;
     void visitHex(Hex x) override;
     void visitLabel(Label x) override;
     void visitId(Id x) override;

@@ -293,6 +293,8 @@ void FrontEnd::visitFactor(Factor *t) {
         this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
     } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
         this->visitStringFactor(dynamic_cast<StringFactor*>(t));
+    } else if (dynamic_cast<CharFactor*>(t) != nullptr) {
+        this->visitCharFactor(dynamic_cast<CharFactor*>(t));
     }
 }
 
@@ -567,6 +569,14 @@ void FrontEnd::visitStringFactor(StringFactor *string_factor) {
     this->ctx.push(t);
 }
 
+void FrontEnd::visitCharFactor(CharFactor *char_factor) {
+    visitNaskChar(char_factor->naskchar_);
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttIdentifier);
+    this->ctx.pop();
+    this->ctx.push(t);
+}
+
 //
 // tokenの処理
 //
@@ -599,6 +609,13 @@ void FrontEnd::visitIdent(Ident x) {
         this->ctx.push(t);
         return;
     }
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
+}
+
+void FrontEnd::visitNaskChar(NaskChar x) {
+    x.erase(x.begin());
+    x.pop_back();
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

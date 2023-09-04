@@ -264,6 +264,14 @@ void Skeleton::visitStringFactor(StringFactor *string_factor)
 
 }
 
+void Skeleton::visitCharFactor(CharFactor *char_factor)
+{
+  /* Code For CharFactor Goes Here */
+
+  visitNaskChar(char_factor->naskchar_);
+
+}
+
 void Skeleton::visitBitsConfig(BitsConfig *bits_config)
 {
   /* Code For BitsConfig Goes Here */
@@ -2630,6 +2638,11 @@ void Skeleton::visitString(String x)
 void Skeleton::visitIdent(Ident x)
 {
   /* Code for Ident Goes Here */
+}
+
+void Skeleton::visitNaskChar(NaskChar x)
+{
+  /* Code for NaskChar Goes Here */
 }
 
 void Skeleton::visitHex(Hex x)
