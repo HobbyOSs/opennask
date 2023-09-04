@@ -427,7 +427,7 @@ IDENT [a-zA-Z0-9'_]
 <COMMENT1>[^\n] /* skip */;
 
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
-<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:    	 yylval->emplace<std::string>(yytext); return token::T_Label;
+<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:(\\|n|r|t)*    	 yylval->emplace<std::string>(yytext); return token::T_Label;
 <INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;
