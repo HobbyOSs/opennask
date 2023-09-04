@@ -21,6 +21,7 @@ Exp* pExp2(std::istream &stream);
 MemoryAddr* pMemoryAddr(std::istream &stream);
 IndexExp* pIndexExp(std::istream &stream);
 Factor* pFactor(std::istream &stream);
+JumpDir* pJumpDir(std::istream &stream);
 ConfigType* pConfigType(std::istream &stream);
 DataType* pDataType(std::istream &stream);
 Opcode* pOpcode(std::istream &stream);

@@ -17,6 +17,7 @@ public:
   void visitMemoryAddr(MemoryAddr *p);
   void visitIndexExp(IndexExp *p);
   void visitFactor(Factor *p);
+  void visitJumpDir(JumpDir *p);
   void visitConfigType(ConfigType *p);
   void visitDataType(DataType *p);
   void visitOpcode(Opcode *p);
@@ -37,6 +38,7 @@ public:
   void visitDatatypeExp(DatatypeExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitDirect(Direct *p);
   void visitBasedOrIndexed(BasedOrIndexed *p);
   void visitIndexed(Indexed *p);
@@ -49,6 +51,9 @@ public:
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
   void visitCharFactor(CharFactor *p);
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
   void visitOptiConfig(OptiConfig *p);

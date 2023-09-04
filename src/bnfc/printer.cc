@@ -361,6 +361,18 @@ void PrintAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
   _i_ = oldi;
 }
 
+void PrintAbsyn::visitJmpMemoryAddrExp(JmpMemoryAddrExp* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  _i_ = 0; p->jumpdir_->accept(this);
+  _i_ = 0; p->memoryaddr_->accept(this);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
 void PrintAbsyn::visitMulExp(MulExp* p)
 {
   int oldi = _i_;
@@ -572,6 +584,41 @@ void PrintAbsyn::visitCharFactor(CharFactor* p)
   if (oldi > 0) render(_L_PAREN);
 
   visitNaskChar(p->naskchar_);
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitJumpDir(JumpDir *p) {} //abstract class
+
+void PrintAbsyn::visitShortJumpDir(ShortJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("SHORT");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitNearJumpDir(NearJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("NEAR");
+
+  if (oldi > 0) render(_R_PAREN);
+  _i_ = oldi;
+}
+
+void PrintAbsyn::visitFarJumpDir(FarJumpDir* p)
+{
+  int oldi = _i_;
+  if (oldi > 0) render(_L_PAREN);
+
+  render("FAR");
 
   if (oldi > 0) render(_R_PAREN);
   _i_ = oldi;
@@ -4497,6 +4544,21 @@ void ShowAbsyn::visitMemoryAddrExp(MemoryAddrExp* p)
   bufAppend(')');
 }
 
+void ShowAbsyn::visitJmpMemoryAddrExp(JmpMemoryAddrExp* p)
+{
+  bufAppend('(');
+  bufAppend("JmpMemoryAddrExp");
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->jumpdir_)  p->jumpdir_->accept(this);
+  bufAppend(']');
+  bufAppend(' ');
+  bufAppend('[');
+  if (p->memoryaddr_)  p->memoryaddr_->accept(this);
+  bufAppend(']');
+  bufAppend(')');
+}
+
 void ShowAbsyn::visitMulExp(MulExp* p)
 {
   bufAppend('(');
@@ -4669,6 +4731,23 @@ void ShowAbsyn::visitCharFactor(CharFactor* p)
   bufAppend("CharFactor");
   bufAppend(' ');
   visitNaskChar(p->naskchar_);  bufAppend(')');
+}
+
+void ShowAbsyn::visitJumpDir(JumpDir *p) {} //abstract class
+
+void ShowAbsyn::visitShortJumpDir(ShortJumpDir* p)
+{
+  bufAppend("ShortJumpDir");
+}
+
+void ShowAbsyn::visitNearJumpDir(NearJumpDir* p)
+{
+  bufAppend("NearJumpDir");
+}
+
+void ShowAbsyn::visitFarJumpDir(FarJumpDir* p)
+{
+  bufAppend("FarJumpDir");
 }
 
 void ShowAbsyn::visitConfigType(ConfigType *p) {} //abstract class

@@ -278,6 +278,22 @@ std::shared_ptr<Exp> MemoryAddrExp::clone() const
 
 
 
+/********************   JmpMemoryAddrExp    ********************/
+
+
+
+void JmpMemoryAddrExp::accept(Visitor *v)
+{
+    v->visitJmpMemoryAddrExp(this);
+}
+
+std::shared_ptr<Exp> JmpMemoryAddrExp::clone() const
+{
+    return std::make_shared<JmpMemoryAddrExp>(*this);
+}
+
+
+
 /********************   Direct    ********************/
 
 
@@ -466,6 +482,54 @@ void CharFactor::accept(Visitor *v)
 std::shared_ptr<Factor> CharFactor::clone() const
 {
     return std::make_shared<CharFactor>(*this);
+}
+
+
+
+/********************   ShortJumpDir    ********************/
+
+
+
+void ShortJumpDir::accept(Visitor *v)
+{
+    v->visitShortJumpDir(this);
+}
+
+std::shared_ptr<JumpDir> ShortJumpDir::clone() const
+{
+    return std::make_shared<ShortJumpDir>(*this);
+}
+
+
+
+/********************   NearJumpDir    ********************/
+
+
+
+void NearJumpDir::accept(Visitor *v)
+{
+    v->visitNearJumpDir(this);
+}
+
+std::shared_ptr<JumpDir> NearJumpDir::clone() const
+{
+    return std::make_shared<NearJumpDir>(*this);
+}
+
+
+
+/********************   FarJumpDir    ********************/
+
+
+
+void FarJumpDir::accept(Visitor *v)
+{
+    v->visitFarJumpDir(this);
+}
+
+std::shared_ptr<JumpDir> FarJumpDir::clone() const
+{
+    return std::make_shared<FarJumpDir>(*this);
 }
 
 

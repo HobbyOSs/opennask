@@ -111,6 +111,7 @@
 %token              _KW_FABS      /* FABS */
 %token              _KW_FADD      /* FADD */
 %token              _KW_FADDP     /* FADDP */
+%token              _KW_FAR       /* FAR */
 %token              _KW_FBLD      /* FBLD */
 %token              _KW_FBSTP     /* FBSTP */
 %token              _KW_FCHS      /* FCHS */
@@ -276,6 +277,7 @@
 %token              _KW_MOVSX     /* MOVSX */
 %token              _KW_MOVZX     /* MOVZX */
 %token              _KW_MUL       /* MUL */
+%token              _KW_NEAR      /* NEAR */
 %token              _KW_NEG       /* NEG */
 %token              _KW_NOP       /* NOP */
 %token              _KW_NOT       /* NOT */
@@ -364,6 +366,7 @@
 %token              _KW_SGDT      /* SGDT */
 %token              _KW_SHL       /* SHL */
 %token              _KW_SHLD      /* SHLD */
+%token              _KW_SHORT     /* SHORT */
 %token              _KW_SHR       /* SHR */
 %token              _KW_SHRD      /* SHRD */
 %token              _KW_SIDT      /* SIDT */
@@ -412,6 +415,7 @@
 %type <std::shared_ptr<MemoryAddr>> MemoryAddr
 %type <std::shared_ptr<IndexExp>> IndexExp
 %type <std::shared_ptr<Factor>> Factor
+%type <std::shared_ptr<JumpDir>> JumpDir
 %type <std::shared_ptr<ConfigType>> ConfigType
 %type <std::shared_ptr<DataType>> DataType
 %type <std::shared_ptr<Opcode>> Opcode
@@ -448,6 +452,7 @@ Exp : Exp _PLUS Exp1 { $$ = std::make_shared<PlusExp>($1, $3); $$->line_number =
   | DataType MemoryAddr { $$ = std::make_shared<DatatypeExp>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | DataType Exp _COLON Exp { $$ = std::make_shared<SegmentOffsetExp>($1, $2, $4); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | MemoryAddr { $$ = std::make_shared<MemoryAddrExp>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
+  | JumpDir MemoryAddr { $$ = std::make_shared<JmpMemoryAddrExp>($1, $2); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
 ;
 Exp1 : Exp1 _STAR Exp2 { $$ = std::make_shared<MulExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
   | Exp1 _SLASH Exp2 { $$ = std::make_shared<DivExp>($1, $3); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.exp_ = $$; }
@@ -471,6 +476,10 @@ Factor : _INTEGER_ { $$ = std::make_shared<NumberFactor>($1); $$->line_number = 
   | T_Id { $$ = std::make_shared<IdentFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
   | _STRING_ { $$ = std::make_shared<StringFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
   | T_NaskChar { $$ = std::make_shared<CharFactor>($1); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.factor_ = $$; }
+;
+JumpDir : _KW_SHORT { $$ = std::make_shared<ShortJumpDir>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.jumpdir_ = $$; }
+  | _KW_NEAR { $$ = std::make_shared<NearJumpDir>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.jumpdir_ = $$; }
+  | _KW_FAR { $$ = std::make_shared<FarJumpDir>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.jumpdir_ = $$; }
 ;
 ConfigType : _KW_BITS { $$ = std::make_shared<BitsConfig>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.configtype_ = $$; }
   | _KW_INSTRSET { $$ = std::make_shared<InstConfig>(); $$->line_number = @$.begin.line; $$->char_number = @$.begin.column; driver.configtype_ = $$; }

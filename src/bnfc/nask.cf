@@ -35,6 +35,7 @@ coercions                Exp 2;
 DatatypeExp.             Exp   ::= DataType MemoryAddr ;
 SegmentOffsetExp.        Exp   ::= DataType Exp ":" Exp ;
 MemoryAddrExp.           Exp   ::= MemoryAddr ;
+JmpMemoryAddrExp.        Exp   ::= JumpDir MemoryAddr ; -- FAR [ESP+4]
 
 Direct.                  MemoryAddr ::= "[" Exp "]" ;
 BasedOrIndexed.          MemoryAddr ::= "[" Id "+" Exp "]" ;
@@ -49,6 +50,10 @@ HexFactor.    Factor         ::= Hex ;
 IdentFactor.  Factor         ::= Id ;
 StringFactor. Factor         ::= String ;
 CharFactor.   Factor         ::= NaskChar ;
+
+ShortJumpDir.   JumpDir      ::= "SHORT" ;
+NearJumpDir.    JumpDir      ::= "NEAR" ;
+FarJumpDir.     JumpDir      ::= "FAR" ;
 
 BitsConfig.   ConfigType     ::= "BITS" ;
 InstConfig.   ConfigType     ::= "INSTRSET" ;

@@ -58,6 +58,7 @@ class PrintAbsyn : public Visitor
   void visitDatatypeExp(DatatypeExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
@@ -77,6 +78,10 @@ class PrintAbsyn : public Visitor
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
   void visitCharFactor(CharFactor *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
@@ -506,6 +511,7 @@ class ShowAbsyn : public Visitor
   void visitDatatypeExp(DatatypeExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
@@ -525,6 +531,10 @@ class ShowAbsyn : public Visitor
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
   void visitCharFactor(CharFactor *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);

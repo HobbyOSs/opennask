@@ -166,7 +166,8 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
 
     auto operands = std::make_tuple(
         mnemonic_args[0].AsAttr(),
-        mnemonic_args[0].GetImmSize()
+        mnemonic_args[0].GetImmSize(),
+        mnemonic_args.size() >= 2 ? std::make_optional(mnemonic_args[1].AsString()) : std::nullopt
     );
     auto arg = mnemonic_args[0];
     log()->debug("[pass2] type: {}, value: {}", type(arg), arg.AsString());
@@ -179,26 +180,26 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
         // asmjitでのJMP即値処理はうまい方法がないので下記のように実装しておく
         // そもそも即値へのジャンプというのが一般的ではないのかもしれない
         // MEMO: https://stackoverflow.com/a/63500826/2565527
-        pattern | ds(TParaToken::ttImm, 1) = [&] {
+        pattern | ds(TParaToken::ttImm, 1, _) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xeb);
                 a.db(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
-        pattern | ds(TParaToken::ttImm, 2) = [&] {
+        pattern | ds(TParaToken::ttImm, 2, _) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xe9);
                 a.dw(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
-        pattern | ds(TParaToken::ttImm, 4) = [&] {
+        pattern | ds(TParaToken::ttImm, 4, _) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 a.db(0xe9);
                 a.dd(arg.AsInt32() - dollar_position - code_.codeSize() + 2);
             });
         },
         // ラベル処理
-        pattern | ds(TParaToken::ttLabel, _) = [&] {
+        pattern | ds(TParaToken::ttLabel, _, _) = [&] {
             with_asmjit([&](asmjit::x86::Assembler& a, PrefixInfo& pp) {
                 using namespace asmjit;
 
@@ -237,7 +238,8 @@ void FrontEnd::processJMP(std::vector<TParaToken>& mnemonic_args) {
                 );
             });
         },
-        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _) = [&] {
+        pattern | ds(or_(TParaToken::ttMem16, TParaToken::ttMem32), _, _) = [&] {
+            // TODO: FARジャンプの判定を整理して実装する
             match(std::make_tuple(arg.AsAttr(), arg.AsMem().hasBase()))(
                 // 0xEA cd | JMP ptr16:16 | オペランドで指定されるアドレスに絶対ファージャンプする
                 // 0xEA cp | JMP ptr16:32 | オペランドで指定されるアドレスに絶対ファージャンプする

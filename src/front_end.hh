@@ -65,8 +65,10 @@ public:
     void visitMnemonicArgs(MnemonicArgs *t) override;
     void visitExp(Exp *t) override;
     void visitMemoryAddrExp(MemoryAddrExp *p) override;
+    void visitJmpMemoryAddrExp(JmpMemoryAddrExp *t) override;
     void visitIndexExp(IndexExp *t) override;
     void visitFactor(Factor *t) override;
+    void visitJumpDir(JumpDir *t) override;
     void visitConfigType(ConfigType *t) override;
     void visitDataType(DataType *t) override;
     void visitOpcode(Opcode *t) override;
