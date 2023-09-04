@@ -179,6 +179,7 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         // DB,DW,DD---
         StatementToMachineCodeParam(ID_16BIT_MODE, "DB 1,2,3", std::vector<uint8_t>{0x01, 0x02, 0x03}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DB \"Hello\"", std::vector<uint8_t>{0x48,0x65,0x6c,0x6c,0x6f}),
+        StatementToMachineCodeParam(ID_16BIT_MODE, "DB 'hello'", std::vector<uint8_t>{0x68,0x65,0x6c,0x6c,0x6f}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DW 512", std::vector<uint8_t>{0x00, 0x02}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "DD 0xffffffff", std::vector<uint8_t>{0xff, 0xff, 0xff, 0xff}),
         // CLI,HLT,NOP
@@ -241,6 +242,9 @@ INSTANTIATE_TEST_SUITE_P(InstSuite, StatementToMachineCode,
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV BX,SP", std::vector<uint8_t>{0x89, 0xe3}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV SP,BX", std::vector<uint8_t>{0x89, 0xdc}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "JMP 0xc200", std::vector<uint8_t>{0xe9, 0x01, 0xc2}),
+        // TODO: FAR call, FAR jmpの実装
+        //StatementToMachineCodeParam(ID_32BIT_MODE, "JMP FAR [ESP+4]", std::vector<uint8_t>{0xff, 0x6C, 0x24, 0x04}),
+        //StatementToMachineCodeParam(ID_32BIT_MODE, "CALL FAR [ESP+4]", std::vector<uint8_t>{0xff, 0x5c, 0x24, 0x04}),
         StatementToMachineCodeParam(ID_16BIT_MODE, "MOV [0x0ff0],CH", std::vector<uint8_t>{0x88, 0x2e, 0xf0, 0x0f}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "MOV AX,SS", std::vector<uint8_t>{0x66, 0x8c, 0xd0}),
         StatementToMachineCodeParam(ID_32BIT_MODE, "MOV DS,AX", std::vector<uint8_t>{0x8e, 0xd8}),

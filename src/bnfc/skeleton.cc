@@ -17,6 +17,7 @@ void Skeleton::visitExp(Exp *t) {} //abstract class
 void Skeleton::visitMemoryAddr(MemoryAddr *t) {} //abstract class
 void Skeleton::visitIndexExp(IndexExp *t) {} //abstract class
 void Skeleton::visitFactor(Factor *t) {} //abstract class
+void Skeleton::visitJumpDir(JumpDir *t) {} //abstract class
 void Skeleton::visitConfigType(ConfigType *t) {} //abstract class
 void Skeleton::visitDataType(DataType *t) {} //abstract class
 void Skeleton::visitOpcode(Opcode *t) {} //abstract class
@@ -168,6 +169,15 @@ void Skeleton::visitMemoryAddrExp(MemoryAddrExp *memory_addr_exp)
 
 }
 
+void Skeleton::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp)
+{
+  /* Code For JmpMemoryAddrExp Goes Here */
+
+  if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
+  if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
+
+}
+
 void Skeleton::visitDirect(Direct *direct)
 {
   /* Code For Direct Goes Here */
@@ -261,6 +271,35 @@ void Skeleton::visitStringFactor(StringFactor *string_factor)
   /* Code For StringFactor Goes Here */
 
   visitString(string_factor->string_);
+
+}
+
+void Skeleton::visitCharFactor(CharFactor *char_factor)
+{
+  /* Code For CharFactor Goes Here */
+
+  visitNaskChar(char_factor->naskchar_);
+
+}
+
+void Skeleton::visitShortJumpDir(ShortJumpDir *short_jump_dir)
+{
+  /* Code For ShortJumpDir Goes Here */
+
+
+}
+
+void Skeleton::visitNearJumpDir(NearJumpDir *near_jump_dir)
+{
+  /* Code For NearJumpDir Goes Here */
+
+
+}
+
+void Skeleton::visitFarJumpDir(FarJumpDir *far_jump_dir)
+{
+  /* Code For FarJumpDir Goes Here */
+
 
 }
 
@@ -2630,6 +2669,11 @@ void Skeleton::visitString(String x)
 void Skeleton::visitIdent(Ident x)
 {
   /* Code for Ident Goes Here */
+}
+
+void Skeleton::visitNaskChar(NaskChar x)
+{
+  /* Code for NaskChar Goes Here */
 }
 
 void Skeleton::visitHex(Hex x)

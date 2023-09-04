@@ -58,6 +58,7 @@ class PrintAbsyn : public Visitor
   void visitDatatypeExp(DatatypeExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
@@ -76,6 +77,11 @@ class PrintAbsyn : public Visitor
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
@@ -416,6 +422,7 @@ class PrintAbsyn : public Visitor
   void visitChar(Char c);
   void visitString(String s);
   void visitIdent(String s);
+  void visitNaskChar(String s);
   void visitHex(String s);
   void visitLabel(String s);
   void visitId(String s);
@@ -504,6 +511,7 @@ class ShowAbsyn : public Visitor
   void visitDatatypeExp(DatatypeExp *p);
   void visitSegmentOffsetExp(SegmentOffsetExp *p);
   void visitMemoryAddrExp(MemoryAddrExp *p);
+  void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p);
   void visitMulExp(MulExp *p);
   void visitDivExp(DivExp *p);
   void visitModExp(ModExp *p);
@@ -522,6 +530,11 @@ class ShowAbsyn : public Visitor
   void visitHexFactor(HexFactor *p);
   void visitIdentFactor(IdentFactor *p);
   void visitStringFactor(StringFactor *p);
+  void visitCharFactor(CharFactor *p);
+  void visitJumpDir(JumpDir *p); /* abstract class */
+  void visitShortJumpDir(ShortJumpDir *p);
+  void visitNearJumpDir(NearJumpDir *p);
+  void visitFarJumpDir(FarJumpDir *p);
   void visitConfigType(ConfigType *p); /* abstract class */
   void visitBitsConfig(BitsConfig *p);
   void visitInstConfig(InstConfig *p);
@@ -862,6 +875,7 @@ class ShowAbsyn : public Visitor
   void visitChar(Char c);
   void visitString(String s);
   void visitIdent(String s);
+  void visitNaskChar(String s);
   void visitHex(String s);
   void visitLabel(String s);
   void visitId(String s);

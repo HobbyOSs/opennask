@@ -178,6 +178,14 @@ NaskDriver::pFactor(std::istream &stream)
     return this->factor_;
 }
 
+std::shared_ptr<JumpDir>
+NaskDriver::pJumpDir(std::istream &stream)
+{
+    parse_helper( stream );
+
+    return this->jumpdir_;
+}
+
 std::shared_ptr<ConfigType>
 NaskDriver::pConfigType(std::istream &stream)
 {

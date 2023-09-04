@@ -257,12 +257,18 @@ void Pass1Strategy::visitExp(Exp *t) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
         this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
+    } else if (dynamic_cast<JmpMemoryAddrExp*>(t) != nullptr) {
+        this->visitJmpMemoryAddrExp(dynamic_cast<JmpMemoryAddrExp*>(t));
     }
 }
 
 void Pass1Strategy::visitMemoryAddrExp(MemoryAddrExp *t) {
-
     if (t->memoryaddr_) t->memoryaddr_->accept(this);
+}
+
+void Pass1Strategy::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp) {
+    if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
+    if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
 }
 
 void Pass1Strategy::visitFactor(Factor *t) {
@@ -275,6 +281,19 @@ void Pass1Strategy::visitFactor(Factor *t) {
         this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
     } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
         this->visitStringFactor(dynamic_cast<StringFactor*>(t));
+    } else if (dynamic_cast<CharFactor*>(t) != nullptr) {
+        this->visitCharFactor(dynamic_cast<CharFactor*>(t));
+    }
+}
+
+void Pass1Strategy::visitJumpDir(JumpDir *t) {
+
+    if (dynamic_cast<ShortJumpDir*>(t) != nullptr) {
+        this->visitShortJumpDir(dynamic_cast<ShortJumpDir*>(t));
+    } else if (dynamic_cast<NearJumpDir*>(t) != nullptr) {
+        this->visitNearJumpDir(dynamic_cast<NearJumpDir*>(t));
+    } else if (dynamic_cast<FarJumpDir*>(t) != nullptr) {
+        this->visitFarJumpDir(dynamic_cast<FarJumpDir*>(t));
     }
 }
 
@@ -1639,6 +1658,14 @@ void Pass1Strategy::visitStringFactor(StringFactor *string_factor) {
     this->ctx.push(t);
 }
 
+void Pass1Strategy::visitCharFactor(CharFactor *char_factor) {
+    visitNaskChar(char_factor->naskchar_);
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttIdentifier);
+    this->ctx.pop();
+    this->ctx.push(t);
+}
+
 //
 // tokenの処理
 //
@@ -1671,6 +1698,13 @@ void Pass1Strategy::visitIdent(Ident x) {
         this->ctx.push(t);
         return;
     }
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
+}
+
+void Pass1Strategy::visitNaskChar(NaskChar x) {
+    x.erase(x.begin());
+    x.pop_back();
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

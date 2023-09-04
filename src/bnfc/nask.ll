@@ -139,6 +139,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"FABS"      	 return token::_KW_FABS;
 <INITIAL>"FADD"      	 return token::_KW_FADD;
 <INITIAL>"FADDP"      	 return token::_KW_FADDP;
+<INITIAL>"FAR"      	 return token::_KW_FAR;
 <INITIAL>"FBLD"      	 return token::_KW_FBLD;
 <INITIAL>"FBSTP"      	 return token::_KW_FBSTP;
 <INITIAL>"FCHS"      	 return token::_KW_FCHS;
@@ -304,6 +305,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"MOVSX"      	 return token::_KW_MOVSX;
 <INITIAL>"MOVZX"      	 return token::_KW_MOVZX;
 <INITIAL>"MUL"      	 return token::_KW_MUL;
+<INITIAL>"NEAR"      	 return token::_KW_NEAR;
 <INITIAL>"NEG"      	 return token::_KW_NEG;
 <INITIAL>"NOP"      	 return token::_KW_NOP;
 <INITIAL>"NOT"      	 return token::_KW_NOT;
@@ -392,6 +394,7 @@ IDENT [a-zA-Z0-9'_]
 <INITIAL>"SGDT"      	 return token::_KW_SGDT;
 <INITIAL>"SHL"      	 return token::_KW_SHL;
 <INITIAL>"SHLD"      	 return token::_KW_SHLD;
+<INITIAL>"SHORT"      	 return token::_KW_SHORT;
 <INITIAL>"SHR"      	 return token::_KW_SHR;
 <INITIAL>"SHRD"      	 return token::_KW_SHRD;
 <INITIAL>"SIDT"      	 return token::_KW_SIDT;
@@ -426,8 +429,9 @@ IDENT [a-zA-Z0-9'_]
 <COMMENT1>\n BEGIN INITIAL;
 <COMMENT1>[^\n] /* skip */;
 
+<INITIAL>'([^'\\]|\\('|\\|n|r|t))*'    	 yylval->emplace<std::string>(yytext); return token::T_NaskChar;
 <INITIAL>0(X|x)(A|B|C|D|E|F|a|b|c|d|e|f|{DIGIT})+\-?\$?    	 yylval->emplace<std::string>(yytext); return token::T_Hex;
-<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:    	 yylval->emplace<std::string>(yytext); return token::T_Label;
+<INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*\:(\\|n|r|t)*    	 yylval->emplace<std::string>(yytext); return token::T_Label;
 <INITIAL>(\$|\.|\_|{LETTER})(\$|\.|\_|({DIGIT}|{LETTER}))*    	 yylval->emplace<std::string>(yytext); return token::T_Id;
 <INITIAL>"\""        	 LITERAL_BUFFER_CREATE(); BEGIN STRING;
 <STRING>\\             	 BEGIN ESCAPED;

@@ -35,6 +35,7 @@ public:
     std::shared_ptr<MemoryAddr> memoryaddr_;
     std::shared_ptr<IndexExp> indexexp_;
     std::shared_ptr<Factor> factor_;
+    std::shared_ptr<JumpDir> jumpdir_;
     std::shared_ptr<ConfigType> configtype_;
     std::shared_ptr<DataType> datatype_;
     std::shared_ptr<Opcode> opcode_;
@@ -52,6 +53,7 @@ public:
     std::shared_ptr<MemoryAddr> pMemoryAddr(std::istream &stream);
     std::shared_ptr<IndexExp> pIndexExp(std::istream &stream);
     std::shared_ptr<Factor> pFactor(std::istream &stream);
+    std::shared_ptr<JumpDir> pJumpDir(std::istream &stream);
     std::shared_ptr<ConfigType> pConfigType(std::istream &stream);
     std::shared_ptr<DataType> pDataType(std::istream &stream);
     std::shared_ptr<Opcode> pOpcode(std::istream &stream);

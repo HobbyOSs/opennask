@@ -65,8 +65,10 @@ public:
     void visitMnemonicArgs(MnemonicArgs *t) override;
     void visitExp(Exp *t) override;
     void visitMemoryAddrExp(MemoryAddrExp *p) override;
+    void visitJmpMemoryAddrExp(JmpMemoryAddrExp *t) override;
     void visitIndexExp(IndexExp *t) override;
     void visitFactor(Factor *t) override;
+    void visitJumpDir(JumpDir *t) override;
     void visitConfigType(ConfigType *t) override;
     void visitDataType(DataType *t) override;
     void visitOpcode(Opcode *t) override;
@@ -142,6 +144,7 @@ public:
     void visitHexFactor(HexFactor *p) override;
     void visitIdentFactor(IdentFactor *p) override;
     void visitStringFactor(StringFactor *p) override;
+    void visitCharFactor(CharFactor *p) override;
 
     // token
     void visitInteger(Integer x) override;
@@ -149,6 +152,7 @@ public:
     void visitDouble(Double x) override;
     void visitString(String x) override;
     void visitIdent(Ident x) override;
+    void visitNaskChar(NaskChar x) override;
     void visitHex(Hex x) override;
     void visitLabel(Label x) override;
     void visitId(Id x) override;

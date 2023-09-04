@@ -58,6 +58,10 @@ TEST_F(ExpSuite, ParaToken)
     d->visitHex("hello3");
     EXPECT_EQ("hello3", d->ctx.top().AsString());
     d->ctx.pop();
+
+    d->visitNaskChar("'hello4'");
+    EXPECT_EQ("hello4", d->ctx.top().AsString());
+    d->ctx.pop();
 }
 
 TEST_F(ExpSuite, Factor)
@@ -78,8 +82,8 @@ TEST_F(ExpSuite, Factor)
     EXPECT_EQ("hello2", d->ctx.top().AsString());
     d->ctx.pop();
 
-    auto stringFactor = StringFactor("hello3");
-    d->visitStringFactor(&stringFactor);
+    auto charFactor = CharFactor("'hello3'");
+    d->visitCharFactor(&charFactor);
     EXPECT_EQ("hello3", d->ctx.top().AsString());
     d->ctx.pop();
 }
@@ -92,6 +96,7 @@ TEST_F(ExpSuite, ImmExp)
     auto hexFactor = HexFactor("hello1");
     auto identFactor = IdentFactor("hello2");
     auto stringFactor = StringFactor("hello3");
+    auto charFactor = CharFactor("'hello4'");
 
     {
         auto immExp = ImmExp(numberFactor.clone());
@@ -115,6 +120,12 @@ TEST_F(ExpSuite, ImmExp)
         auto immExp = ImmExp(stringFactor.clone());
         d->visitImmExp(&immExp);
         EXPECT_EQ("hello3", d->ctx.top().AsString());
+        d->ctx.pop();
+    }
+    {
+        auto immExp = ImmExp(charFactor.clone());
+        d->visitImmExp(&immExp);
+        EXPECT_EQ("hello4", d->ctx.top().AsString());
         d->ctx.pop();
     }
 }

@@ -18,6 +18,7 @@ using Double = double;
 using String = std::string;
 using Ident = std::string;
 
+using NaskChar = std::string;
 using Hex = std::string;
 using Label = std::string;
 using Id = std::string;
@@ -32,6 +33,7 @@ class Exp;
 class MemoryAddr;
 class IndexExp;
 class Factor;
+class JumpDir;
 class ConfigType;
 class DataType;
 class Opcode;
@@ -52,6 +54,7 @@ class ImmExp;
 class DatatypeExp;
 class SegmentOffsetExp;
 class MemoryAddrExp;
+class JmpMemoryAddrExp;
 class Direct;
 class BasedOrIndexed;
 class Indexed;
@@ -63,6 +66,10 @@ class NumberFactor;
 class HexFactor;
 class IdentFactor;
 class StringFactor;
+class CharFactor;
+class ShortJumpDir;
+class NearJumpDir;
+class FarJumpDir;
 class BitsConfig;
 class InstConfig;
 class OptiConfig;
@@ -411,6 +418,7 @@ public:
     virtual void visitMemoryAddr(MemoryAddr *p) = 0;
     virtual void visitIndexExp(IndexExp *p) = 0;
     virtual void visitFactor(Factor *p) = 0;
+    virtual void visitJumpDir(JumpDir *p) = 0;
     virtual void visitConfigType(ConfigType *p) = 0;
     virtual void visitDataType(DataType *p) = 0;
     virtual void visitOpcode(Opcode *p) = 0;
@@ -431,6 +439,7 @@ public:
     virtual void visitDatatypeExp(DatatypeExp *p) = 0;
     virtual void visitSegmentOffsetExp(SegmentOffsetExp *p) = 0;
     virtual void visitMemoryAddrExp(MemoryAddrExp *p) = 0;
+    virtual void visitJmpMemoryAddrExp(JmpMemoryAddrExp *p) = 0;
     virtual void visitDirect(Direct *p) = 0;
     virtual void visitBasedOrIndexed(BasedOrIndexed *p) = 0;
     virtual void visitIndexed(Indexed *p) = 0;
@@ -442,6 +451,10 @@ public:
     virtual void visitHexFactor(HexFactor *p) = 0;
     virtual void visitIdentFactor(IdentFactor *p) = 0;
     virtual void visitStringFactor(StringFactor *p) = 0;
+    virtual void visitCharFactor(CharFactor *p) = 0;
+    virtual void visitShortJumpDir(ShortJumpDir *p) = 0;
+    virtual void visitNearJumpDir(NearJumpDir *p) = 0;
+    virtual void visitFarJumpDir(FarJumpDir *p) = 0;
     virtual void visitBitsConfig(BitsConfig *p) = 0;
     virtual void visitInstConfig(InstConfig *p) = 0;
     virtual void visitOptiConfig(OptiConfig *p) = 0;
@@ -783,6 +796,7 @@ public:
     virtual void visitDouble(Double x) = 0;
     virtual void visitString(String x) = 0;
     virtual void visitIdent(Ident x) = 0;
+    virtual void visitNaskChar(NaskChar x) = 0;
     virtual void visitHex(Hex x) = 0;
     virtual void visitLabel(Label x) = 0;
     virtual void visitId(Id x) = 0;
@@ -846,6 +860,13 @@ class Factor : public Visitable
 {
 public:
     virtual std::shared_ptr<Factor> clone() const = 0;
+    int line_number, char_number;
+};
+
+class JumpDir : public Visitable
+{
+public:
+    virtual std::shared_ptr<JumpDir> clone() const = 0;
     int line_number, char_number;
 };
 
@@ -1121,6 +1142,21 @@ public:
     std::shared_ptr<Exp>  clone() const;
 };
 
+class JmpMemoryAddrExp : public Exp
+{
+public:
+    std::shared_ptr<JumpDir> jumpdir_;
+    std::shared_ptr<MemoryAddr> memoryaddr_;
+
+    JmpMemoryAddrExp(std::shared_ptr<JumpDir> p1, std::shared_ptr<MemoryAddr> p2)
+    : Exp(), jumpdir_{p1}, memoryaddr_{p2}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Exp>  clone() const;
+};
+
 class Direct : public MemoryAddr
 {
 public:
@@ -1281,6 +1317,50 @@ public:
 
     virtual void accept(Visitor *v) override;
     std::shared_ptr<Factor>  clone() const;
+};
+
+class CharFactor : public Factor
+{
+public:
+    NaskChar naskchar_;
+
+    CharFactor(NaskChar p1)
+    : Factor(), naskchar_{p1}
+    {};
+
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<Factor>  clone() const;
+};
+
+class ShortJumpDir : public JumpDir
+{
+public:
+
+    ShortJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
+};
+
+class NearJumpDir : public JumpDir
+{
+public:
+
+    NearJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
+};
+
+class FarJumpDir : public JumpDir
+{
+public:
+
+    FarJumpDir(): JumpDir (){};
+
+    virtual void accept(Visitor *v) override;
+    std::shared_ptr<JumpDir>  clone() const;
 };
 
 class BitsConfig : public ConfigType

@@ -268,13 +268,32 @@ void FrontEnd::visitExp(Exp *t) {
         this->visitImmExp(dynamic_cast<ImmExp*>(t));
     } else if (dynamic_cast<MemoryAddrExp*>(t) != nullptr) {
         this->visitMemoryAddrExp(dynamic_cast<MemoryAddrExp*>(t));
+    } else if (dynamic_cast<JmpMemoryAddrExp*>(t) != nullptr) {
+        this->visitJmpMemoryAddrExp(dynamic_cast<JmpMemoryAddrExp*>(t));
     }
 }
 
 void FrontEnd::visitMemoryAddrExp(MemoryAddrExp *t) {
-
+    // 派生クラスでの読み取りは front_memory_addr.cc に記述
     if (t->memoryaddr_) t->memoryaddr_->accept(this);
 }
+
+void FrontEnd::visitJmpMemoryAddrExp(JmpMemoryAddrExp *jmp_memory_addr_exp) {
+    // 派生クラスでの読み取りは front_memory_addr.cc に記述
+    if (jmp_memory_addr_exp->jumpdir_) jmp_memory_addr_exp->jumpdir_->accept(this);
+    if (jmp_memory_addr_exp->memoryaddr_) jmp_memory_addr_exp->memoryaddr_->accept(this);
+
+    using namespace matchit;
+    auto jump_type = match(type(*jmp_memory_addr_exp->jumpdir_))(
+        pattern | "ShortJumpDir" = "SHORT",
+        pattern | "NearJumpDir" = "NEAR",
+        pattern | "FarJumpDir" = "FAR"
+    );
+
+    log()->debug("[pass2] jump directive = {}", jump_type);
+    this->ctx.push(TParaToken(jump_type, TParaToken::ttKeyword));
+}
+
 
 void FrontEnd::visitIndexExp(IndexExp *t) {
 
@@ -293,6 +312,19 @@ void FrontEnd::visitFactor(Factor *t) {
         this->visitIdentFactor(dynamic_cast<IdentFactor*>(t));
     } else if (dynamic_cast<StringFactor*>(t) != nullptr) {
         this->visitStringFactor(dynamic_cast<StringFactor*>(t));
+    } else if (dynamic_cast<CharFactor*>(t) != nullptr) {
+        this->visitCharFactor(dynamic_cast<CharFactor*>(t));
+    }
+}
+
+void FrontEnd::visitJumpDir(JumpDir *t) {
+
+    if (dynamic_cast<ShortJumpDir*>(t) != nullptr) {
+        this->visitShortJumpDir(dynamic_cast<ShortJumpDir*>(t));
+    } else if (dynamic_cast<NearJumpDir*>(t) != nullptr) {
+        this->visitNearJumpDir(dynamic_cast<NearJumpDir*>(t));
+    } else if (dynamic_cast<FarJumpDir*>(t) != nullptr) {
+        this->visitFarJumpDir(dynamic_cast<FarJumpDir*>(t));
     }
 }
 
@@ -567,6 +599,14 @@ void FrontEnd::visitStringFactor(StringFactor *string_factor) {
     this->ctx.push(t);
 }
 
+void FrontEnd::visitCharFactor(CharFactor *char_factor) {
+    visitNaskChar(char_factor->naskchar_);
+    TParaToken t = this->ctx.top();
+    t.MustBe(TParaToken::ttIdentifier);
+    this->ctx.pop();
+    this->ctx.push(t);
+}
+
 //
 // tokenの処理
 //
@@ -599,6 +639,13 @@ void FrontEnd::visitIdent(Ident x) {
         this->ctx.push(t);
         return;
     }
+    TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
+    this->ctx.push(t);
+}
+
+void FrontEnd::visitNaskChar(NaskChar x) {
+    x.erase(x.begin());
+    x.pop_back();
     TParaToken t = TParaToken(x, TParaToken::ttIdentifier);
     this->ctx.push(t);
 }

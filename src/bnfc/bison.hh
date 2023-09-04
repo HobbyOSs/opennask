@@ -405,35 +405,39 @@ namespace nask_ {
       // IndexExp
       char dummy6[sizeof (std::shared_ptr<IndexExp>)];
 
+      // JumpDir
+      char dummy7[sizeof (std::shared_ptr<JumpDir>)];
+
       // ListFactor
-      char dummy7[sizeof (std::shared_ptr<ListFactor>)];
+      char dummy8[sizeof (std::shared_ptr<ListFactor>)];
 
       // ListMnemonicArgs
-      char dummy8[sizeof (std::shared_ptr<ListMnemonicArgs>)];
+      char dummy9[sizeof (std::shared_ptr<ListMnemonicArgs>)];
 
       // ListStatement
-      char dummy9[sizeof (std::shared_ptr<ListStatement>)];
+      char dummy10[sizeof (std::shared_ptr<ListStatement>)];
 
       // MemoryAddr
-      char dummy10[sizeof (std::shared_ptr<MemoryAddr>)];
+      char dummy11[sizeof (std::shared_ptr<MemoryAddr>)];
 
       // MnemonicArgs
-      char dummy11[sizeof (std::shared_ptr<MnemonicArgs>)];
+      char dummy12[sizeof (std::shared_ptr<MnemonicArgs>)];
 
       // Opcode
-      char dummy12[sizeof (std::shared_ptr<Opcode>)];
+      char dummy13[sizeof (std::shared_ptr<Opcode>)];
 
       // Program
-      char dummy13[sizeof (std::shared_ptr<Program>)];
+      char dummy14[sizeof (std::shared_ptr<Program>)];
 
       // Statement
-      char dummy14[sizeof (std::shared_ptr<Statement>)];
+      char dummy15[sizeof (std::shared_ptr<Statement>)];
 
       // T_Hex
       // T_Id
       // T_Label
+      // T_NaskChar
       // _STRING_
-      char dummy15[sizeof (std::string)];
+      char dummy16[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -548,292 +552,296 @@ namespace nask_ {
     _KW_FABS = 320,                // _KW_FABS
     _KW_FADD = 321,                // _KW_FADD
     _KW_FADDP = 322,               // _KW_FADDP
-    _KW_FBLD = 323,                // _KW_FBLD
-    _KW_FBSTP = 324,               // _KW_FBSTP
-    _KW_FCHS = 325,                // _KW_FCHS
-    _KW_FCLEX = 326,               // _KW_FCLEX
-    _KW_FCOM = 327,                // _KW_FCOM
-    _KW_FCOMP = 328,               // _KW_FCOMP
-    _KW_FCOMPP = 329,              // _KW_FCOMPP
-    _KW_FCOS = 330,                // _KW_FCOS
-    _KW_FDECSTP = 331,             // _KW_FDECSTP
-    _KW_FDISI = 332,               // _KW_FDISI
-    _KW_FDIV = 333,                // _KW_FDIV
-    _KW_FDIVP = 334,               // _KW_FDIVP
-    _KW_FDIVR = 335,               // _KW_FDIVR
-    _KW_FDIVRP = 336,              // _KW_FDIVRP
-    _KW_FENI = 337,                // _KW_FENI
-    _KW_FFREE = 338,               // _KW_FFREE
-    _KW_FIADD = 339,               // _KW_FIADD
-    _KW_FICOM = 340,               // _KW_FICOM
-    _KW_FICOMP = 341,              // _KW_FICOMP
-    _KW_FIDIV = 342,               // _KW_FIDIV
-    _KW_FIDIVR = 343,              // _KW_FIDIVR
-    _KW_FILD = 344,                // _KW_FILD
-    _KW_FILE = 345,                // _KW_FILE
-    _KW_FIMUL = 346,               // _KW_FIMUL
-    _KW_FINCSTP = 347,             // _KW_FINCSTP
-    _KW_FINIT = 348,               // _KW_FINIT
-    _KW_FIST = 349,                // _KW_FIST
-    _KW_FISTP = 350,               // _KW_FISTP
-    _KW_FISUB = 351,               // _KW_FISUB
-    _KW_FISUBR = 352,              // _KW_FISUBR
-    _KW_FLD = 353,                 // _KW_FLD
-    _KW_FLD1 = 354,                // _KW_FLD1
-    _KW_FLDCW = 355,               // _KW_FLDCW
-    _KW_FLDENV = 356,              // _KW_FLDENV
-    _KW_FLDL2E = 357,              // _KW_FLDL2E
-    _KW_FLDL2T = 358,              // _KW_FLDL2T
-    _KW_FLDLG2 = 359,              // _KW_FLDLG2
-    _KW_FLDLN2 = 360,              // _KW_FLDLN2
-    _KW_FLDPI = 361,               // _KW_FLDPI
-    _KW_FLDZ = 362,                // _KW_FLDZ
-    _KW_FMUL = 363,                // _KW_FMUL
-    _KW_FMULP = 364,               // _KW_FMULP
-    _KW_FNCLEX = 365,              // _KW_FNCLEX
-    _KW_FNDISI = 366,              // _KW_FNDISI
-    _KW_FNENI = 367,               // _KW_FNENI
-    _KW_FNINIT = 368,              // _KW_FNINIT
-    _KW_FNOP = 369,                // _KW_FNOP
-    _KW_FNSAVE = 370,              // _KW_FNSAVE
-    _KW_FNSTCW = 371,              // _KW_FNSTCW
-    _KW_FNSTENV = 372,             // _KW_FNSTENV
-    _KW_FNSTSW = 373,              // _KW_FNSTSW
-    _KW_FORMAT = 374,              // _KW_FORMAT
-    _KW_FPATAN = 375,              // _KW_FPATAN
-    _KW_FPREM = 376,               // _KW_FPREM
-    _KW_FPREM1 = 377,              // _KW_FPREM1
-    _KW_FPTAN = 378,               // _KW_FPTAN
-    _KW_FRNDINT = 379,             // _KW_FRNDINT
-    _KW_FRSTOR = 380,              // _KW_FRSTOR
-    _KW_FSAVE = 381,               // _KW_FSAVE
-    _KW_FSCALE = 382,              // _KW_FSCALE
-    _KW_FSETPM = 383,              // _KW_FSETPM
-    _KW_FSIN = 384,                // _KW_FSIN
-    _KW_FSINCOS = 385,             // _KW_FSINCOS
-    _KW_FSQRT = 386,               // _KW_FSQRT
-    _KW_FST = 387,                 // _KW_FST
-    _KW_FSTCW = 388,               // _KW_FSTCW
-    _KW_FSTENV = 389,              // _KW_FSTENV
-    _KW_FSTP = 390,                // _KW_FSTP
-    _KW_FSTSW = 391,               // _KW_FSTSW
-    _KW_FSUB = 392,                // _KW_FSUB
-    _KW_FSUBP = 393,               // _KW_FSUBP
-    _KW_FSUBR = 394,               // _KW_FSUBR
-    _KW_FSUBRP = 395,              // _KW_FSUBRP
-    _KW_FTST = 396,                // _KW_FTST
-    _KW_FUCOM = 397,               // _KW_FUCOM
-    _KW_FUCOMP = 398,              // _KW_FUCOMP
-    _KW_FUCOMPP = 399,             // _KW_FUCOMPP
-    _KW_FXAM = 400,                // _KW_FXAM
-    _KW_FXCH = 401,                // _KW_FXCH
-    _KW_FXTRACT = 402,             // _KW_FXTRACT
-    _KW_FYL2X = 403,               // _KW_FYL2X
-    _KW_FYL2XP1 = 404,             // _KW_FYL2XP1
-    _KW_GLOBAL = 405,              // _KW_GLOBAL
-    _KW_HLT = 406,                 // _KW_HLT
-    _KW_IDIV = 407,                // _KW_IDIV
-    _KW_IMUL = 408,                // _KW_IMUL
-    _KW_IN = 409,                  // _KW_IN
-    _KW_INC = 410,                 // _KW_INC
-    _KW_INCO = 411,                // _KW_INCO
-    _KW_INSB = 412,                // _KW_INSB
-    _KW_INSD = 413,                // _KW_INSD
-    _KW_INSTRSET = 414,            // _KW_INSTRSET
-    _KW_INSW = 415,                // _KW_INSW
-    _KW_INT = 416,                 // _KW_INT
-    _KW_INT3 = 417,                // _KW_INT3
-    _KW_INTO = 418,                // _KW_INTO
-    _KW_INVD = 419,                // _KW_INVD
-    _KW_INVLPG = 420,              // _KW_INVLPG
-    _KW_IRET = 421,                // _KW_IRET
-    _KW_IRETD = 422,               // _KW_IRETD
-    _KW_IRETW = 423,               // _KW_IRETW
-    _KW_JA = 424,                  // _KW_JA
-    _KW_JAE = 425,                 // _KW_JAE
-    _KW_JB = 426,                  // _KW_JB
-    _KW_JBE = 427,                 // _KW_JBE
-    _KW_JC = 428,                  // _KW_JC
-    _KW_JCXZ = 429,                // _KW_JCXZ
-    _KW_JE = 430,                  // _KW_JE
-    _KW_JECXZ = 431,               // _KW_JECXZ
-    _KW_JG = 432,                  // _KW_JG
-    _KW_JGE = 433,                 // _KW_JGE
-    _KW_JL = 434,                  // _KW_JL
-    _KW_JLE = 435,                 // _KW_JLE
-    _KW_JMP = 436,                 // _KW_JMP
-    _KW_JNA = 437,                 // _KW_JNA
-    _KW_JNAE = 438,                // _KW_JNAE
-    _KW_JNB = 439,                 // _KW_JNB
-    _KW_JNBE = 440,                // _KW_JNBE
-    _KW_JNC = 441,                 // _KW_JNC
-    _KW_JNE = 442,                 // _KW_JNE
-    _KW_JNG = 443,                 // _KW_JNG
-    _KW_JNGE = 444,                // _KW_JNGE
-    _KW_JNL = 445,                 // _KW_JNL
-    _KW_JNLE = 446,                // _KW_JNLE
-    _KW_JNO = 447,                 // _KW_JNO
-    _KW_JNP = 448,                 // _KW_JNP
-    _KW_JNS = 449,                 // _KW_JNS
-    _KW_JNZ = 450,                 // _KW_JNZ
-    _KW_JO = 451,                  // _KW_JO
-    _KW_JP = 452,                  // _KW_JP
-    _KW_JPE = 453,                 // _KW_JPE
-    _KW_JPO = 454,                 // _KW_JPO
-    _KW_JS = 455,                  // _KW_JS
-    _KW_JZ = 456,                  // _KW_JZ
-    _KW_LAHF = 457,                // _KW_LAHF
-    _KW_LAR = 458,                 // _KW_LAR
-    _KW_LDS = 459,                 // _KW_LDS
-    _KW_LEA = 460,                 // _KW_LEA
-    _KW_LEAVE = 461,               // _KW_LEAVE
-    _KW_LES = 462,                 // _KW_LES
-    _KW_LFS = 463,                 // _KW_LFS
-    _KW_LGDT = 464,                // _KW_LGDT
-    _KW_LGS = 465,                 // _KW_LGS
-    _KW_LIDT = 466,                // _KW_LIDT
-    _KW_LLDT = 467,                // _KW_LLDT
-    _KW_LMSW = 468,                // _KW_LMSW
-    _KW_LOCK = 469,                // _KW_LOCK
-    _KW_LODSB = 470,               // _KW_LODSB
-    _KW_LODSD = 471,               // _KW_LODSD
-    _KW_LODSW = 472,               // _KW_LODSW
-    _KW_LOOP = 473,                // _KW_LOOP
-    _KW_LOOPE = 474,               // _KW_LOOPE
-    _KW_LOOPNE = 475,              // _KW_LOOPNE
-    _KW_LOOPNZ = 476,              // _KW_LOOPNZ
-    _KW_LOOPZ = 477,               // _KW_LOOPZ
-    _KW_LSL = 478,                 // _KW_LSL
-    _KW_LSS = 479,                 // _KW_LSS
-    _KW_LTR = 480,                 // _KW_LTR
-    _KW_MOV = 481,                 // _KW_MOV
-    _KW_MOVSB = 482,               // _KW_MOVSB
-    _KW_MOVSD = 483,               // _KW_MOVSD
-    _KW_MOVSW = 484,               // _KW_MOVSW
-    _KW_MOVSX = 485,               // _KW_MOVSX
-    _KW_MOVZX = 486,               // _KW_MOVZX
-    _KW_MUL = 487,                 // _KW_MUL
-    _KW_NEG = 488,                 // _KW_NEG
-    _KW_NOP = 489,                 // _KW_NOP
-    _KW_NOT = 490,                 // _KW_NOT
-    _KW_OPTIMIZE = 491,            // _KW_OPTIMIZE
-    _KW_OR = 492,                  // _KW_OR
-    _KW_ORG = 493,                 // _KW_ORG
-    _KW_OUT = 494,                 // _KW_OUT
-    _KW_OUTSB = 495,               // _KW_OUTSB
-    _KW_OUTSD = 496,               // _KW_OUTSD
-    _KW_OUTSW = 497,               // _KW_OUTSW
-    _KW_PADDING = 498,             // _KW_PADDING
-    _KW_PADSET = 499,              // _KW_PADSET
-    _KW_POP = 500,                 // _KW_POP
-    _KW_POPA = 501,                // _KW_POPA
-    _KW_POPAD = 502,               // _KW_POPAD
-    _KW_POPAW = 503,               // _KW_POPAW
-    _KW_POPF = 504,                // _KW_POPF
-    _KW_POPFD = 505,               // _KW_POPFD
-    _KW_POPFW = 506,               // _KW_POPFW
-    _KW_PUSH = 507,                // _KW_PUSH
-    _KW_PUSHA = 508,               // _KW_PUSHA
-    _KW_PUSHAD = 509,              // _KW_PUSHAD
-    _KW_PUSHAW = 510,              // _KW_PUSHAW
-    _KW_PUSHD = 511,               // _KW_PUSHD
-    _KW_PUSHF = 512,               // _KW_PUSHF
-    _KW_PUSHFD = 513,              // _KW_PUSHFD
-    _KW_PUSHFW = 514,              // _KW_PUSHFW
-    _KW_RCL = 515,                 // _KW_RCL
-    _KW_RCR = 516,                 // _KW_RCR
-    _KW_RDMSR = 517,               // _KW_RDMSR
-    _KW_RDPMC = 518,               // _KW_RDPMC
-    _KW_REP = 519,                 // _KW_REP
-    _KW_REPE = 520,                // _KW_REPE
-    _KW_REPNE = 521,               // _KW_REPNE
-    _KW_REPNZ = 522,               // _KW_REPNZ
-    _KW_REPZ = 523,                // _KW_REPZ
-    _KW_RESB = 524,                // _KW_RESB
-    _KW_RESD = 525,                // _KW_RESD
-    _KW_RESQ = 526,                // _KW_RESQ
-    _KW_REST = 527,                // _KW_REST
-    _KW_RESW = 528,                // _KW_RESW
-    _KW_RET = 529,                 // _KW_RET
-    _KW_RETF = 530,                // _KW_RETF
-    _KW_RETN = 531,                // _KW_RETN
-    _KW_ROL = 532,                 // _KW_ROL
-    _KW_ROR = 533,                 // _KW_ROR
-    _KW_RSM = 534,                 // _KW_RSM
-    _KW_SAHF = 535,                // _KW_SAHF
-    _KW_SAL = 536,                 // _KW_SAL
-    _KW_SAR = 537,                 // _KW_SAR
-    _KW_SBB = 538,                 // _KW_SBB
-    _KW_SCASB = 539,               // _KW_SCASB
-    _KW_SCASD = 540,               // _KW_SCASD
-    _KW_SCASW = 541,               // _KW_SCASW
-    _KW_SECTION = 542,             // _KW_SECTION
-    _KW_SETA = 543,                // _KW_SETA
-    _KW_SETAE = 544,               // _KW_SETAE
-    _KW_SETB = 545,                // _KW_SETB
-    _KW_SETBE = 546,               // _KW_SETBE
-    _KW_SETC = 547,                // _KW_SETC
-    _KW_SETE = 548,                // _KW_SETE
-    _KW_SETG = 549,                // _KW_SETG
-    _KW_SETGE = 550,               // _KW_SETGE
-    _KW_SETL = 551,                // _KW_SETL
-    _KW_SETLE = 552,               // _KW_SETLE
-    _KW_SETNA = 553,               // _KW_SETNA
-    _KW_SETNAE = 554,              // _KW_SETNAE
-    _KW_SETNB = 555,               // _KW_SETNB
-    _KW_SETNBE = 556,              // _KW_SETNBE
-    _KW_SETNC = 557,               // _KW_SETNC
-    _KW_SETNE = 558,               // _KW_SETNE
-    _KW_SETNG = 559,               // _KW_SETNG
-    _KW_SETNGE = 560,              // _KW_SETNGE
-    _KW_SETNL = 561,               // _KW_SETNL
-    _KW_SETNLE = 562,              // _KW_SETNLE
-    _KW_SETNO = 563,               // _KW_SETNO
-    _KW_SETNP = 564,               // _KW_SETNP
-    _KW_SETNS = 565,               // _KW_SETNS
-    _KW_SETNZ = 566,               // _KW_SETNZ
-    _KW_SETO = 567,                // _KW_SETO
-    _KW_SETP = 568,                // _KW_SETP
-    _KW_SETPE = 569,               // _KW_SETPE
-    _KW_SETPO = 570,               // _KW_SETPO
-    _KW_SETS = 571,                // _KW_SETS
-    _KW_SETZ = 572,                // _KW_SETZ
-    _KW_SGDT = 573,                // _KW_SGDT
-    _KW_SHL = 574,                 // _KW_SHL
-    _KW_SHLD = 575,                // _KW_SHLD
-    _KW_SHR = 576,                 // _KW_SHR
-    _KW_SHRD = 577,                // _KW_SHRD
-    _KW_SIDT = 578,                // _KW_SIDT
-    _KW_SLDT = 579,                // _KW_SLDT
-    _KW_SMSW = 580,                // _KW_SMSW
-    _KW_STC = 581,                 // _KW_STC
-    _KW_STD = 582,                 // _KW_STD
-    _KW_STI = 583,                 // _KW_STI
-    _KW_STOSB = 584,               // _KW_STOSB
-    _KW_STOSD = 585,               // _KW_STOSD
-    _KW_STOSW = 586,               // _KW_STOSW
-    _KW_STR = 587,                 // _KW_STR
-    _KW_SUB = 588,                 // _KW_SUB
-    _KW_TEST = 589,                // _KW_TEST
-    _KW_TIMES = 590,               // _KW_TIMES
-    _KW_UD2 = 591,                 // _KW_UD2
-    _KW_VERR = 592,                // _KW_VERR
-    _KW_VERW = 593,                // _KW_VERW
-    _KW_WAIT = 594,                // _KW_WAIT
-    _KW_WBINVD = 595,              // _KW_WBINVD
-    _KW_WORD = 596,                // _KW_WORD
-    _KW_WRMSR = 597,               // _KW_WRMSR
-    _KW_XADD = 598,                // _KW_XADD
-    _KW_XCHG = 599,                // _KW_XCHG
-    _KW_XLATB = 600,               // _KW_XLATB
-    _KW_XOR = 601,                 // _KW_XOR
-    _LBRACK = 602,                 // _LBRACK
-    _RBRACK = 603,                 // _RBRACK
-    T_Hex = 604,                   // T_Hex
-    T_Id = 605,                    // T_Id
-    T_Label = 606,                 // T_Label
-    _STRING_ = 607,                // _STRING_
-    _INTEGER_ = 608                // _INTEGER_
+    _KW_FAR = 323,                 // _KW_FAR
+    _KW_FBLD = 324,                // _KW_FBLD
+    _KW_FBSTP = 325,               // _KW_FBSTP
+    _KW_FCHS = 326,                // _KW_FCHS
+    _KW_FCLEX = 327,               // _KW_FCLEX
+    _KW_FCOM = 328,                // _KW_FCOM
+    _KW_FCOMP = 329,               // _KW_FCOMP
+    _KW_FCOMPP = 330,              // _KW_FCOMPP
+    _KW_FCOS = 331,                // _KW_FCOS
+    _KW_FDECSTP = 332,             // _KW_FDECSTP
+    _KW_FDISI = 333,               // _KW_FDISI
+    _KW_FDIV = 334,                // _KW_FDIV
+    _KW_FDIVP = 335,               // _KW_FDIVP
+    _KW_FDIVR = 336,               // _KW_FDIVR
+    _KW_FDIVRP = 337,              // _KW_FDIVRP
+    _KW_FENI = 338,                // _KW_FENI
+    _KW_FFREE = 339,               // _KW_FFREE
+    _KW_FIADD = 340,               // _KW_FIADD
+    _KW_FICOM = 341,               // _KW_FICOM
+    _KW_FICOMP = 342,              // _KW_FICOMP
+    _KW_FIDIV = 343,               // _KW_FIDIV
+    _KW_FIDIVR = 344,              // _KW_FIDIVR
+    _KW_FILD = 345,                // _KW_FILD
+    _KW_FILE = 346,                // _KW_FILE
+    _KW_FIMUL = 347,               // _KW_FIMUL
+    _KW_FINCSTP = 348,             // _KW_FINCSTP
+    _KW_FINIT = 349,               // _KW_FINIT
+    _KW_FIST = 350,                // _KW_FIST
+    _KW_FISTP = 351,               // _KW_FISTP
+    _KW_FISUB = 352,               // _KW_FISUB
+    _KW_FISUBR = 353,              // _KW_FISUBR
+    _KW_FLD = 354,                 // _KW_FLD
+    _KW_FLD1 = 355,                // _KW_FLD1
+    _KW_FLDCW = 356,               // _KW_FLDCW
+    _KW_FLDENV = 357,              // _KW_FLDENV
+    _KW_FLDL2E = 358,              // _KW_FLDL2E
+    _KW_FLDL2T = 359,              // _KW_FLDL2T
+    _KW_FLDLG2 = 360,              // _KW_FLDLG2
+    _KW_FLDLN2 = 361,              // _KW_FLDLN2
+    _KW_FLDPI = 362,               // _KW_FLDPI
+    _KW_FLDZ = 363,                // _KW_FLDZ
+    _KW_FMUL = 364,                // _KW_FMUL
+    _KW_FMULP = 365,               // _KW_FMULP
+    _KW_FNCLEX = 366,              // _KW_FNCLEX
+    _KW_FNDISI = 367,              // _KW_FNDISI
+    _KW_FNENI = 368,               // _KW_FNENI
+    _KW_FNINIT = 369,              // _KW_FNINIT
+    _KW_FNOP = 370,                // _KW_FNOP
+    _KW_FNSAVE = 371,              // _KW_FNSAVE
+    _KW_FNSTCW = 372,              // _KW_FNSTCW
+    _KW_FNSTENV = 373,             // _KW_FNSTENV
+    _KW_FNSTSW = 374,              // _KW_FNSTSW
+    _KW_FORMAT = 375,              // _KW_FORMAT
+    _KW_FPATAN = 376,              // _KW_FPATAN
+    _KW_FPREM = 377,               // _KW_FPREM
+    _KW_FPREM1 = 378,              // _KW_FPREM1
+    _KW_FPTAN = 379,               // _KW_FPTAN
+    _KW_FRNDINT = 380,             // _KW_FRNDINT
+    _KW_FRSTOR = 381,              // _KW_FRSTOR
+    _KW_FSAVE = 382,               // _KW_FSAVE
+    _KW_FSCALE = 383,              // _KW_FSCALE
+    _KW_FSETPM = 384,              // _KW_FSETPM
+    _KW_FSIN = 385,                // _KW_FSIN
+    _KW_FSINCOS = 386,             // _KW_FSINCOS
+    _KW_FSQRT = 387,               // _KW_FSQRT
+    _KW_FST = 388,                 // _KW_FST
+    _KW_FSTCW = 389,               // _KW_FSTCW
+    _KW_FSTENV = 390,              // _KW_FSTENV
+    _KW_FSTP = 391,                // _KW_FSTP
+    _KW_FSTSW = 392,               // _KW_FSTSW
+    _KW_FSUB = 393,                // _KW_FSUB
+    _KW_FSUBP = 394,               // _KW_FSUBP
+    _KW_FSUBR = 395,               // _KW_FSUBR
+    _KW_FSUBRP = 396,              // _KW_FSUBRP
+    _KW_FTST = 397,                // _KW_FTST
+    _KW_FUCOM = 398,               // _KW_FUCOM
+    _KW_FUCOMP = 399,              // _KW_FUCOMP
+    _KW_FUCOMPP = 400,             // _KW_FUCOMPP
+    _KW_FXAM = 401,                // _KW_FXAM
+    _KW_FXCH = 402,                // _KW_FXCH
+    _KW_FXTRACT = 403,             // _KW_FXTRACT
+    _KW_FYL2X = 404,               // _KW_FYL2X
+    _KW_FYL2XP1 = 405,             // _KW_FYL2XP1
+    _KW_GLOBAL = 406,              // _KW_GLOBAL
+    _KW_HLT = 407,                 // _KW_HLT
+    _KW_IDIV = 408,                // _KW_IDIV
+    _KW_IMUL = 409,                // _KW_IMUL
+    _KW_IN = 410,                  // _KW_IN
+    _KW_INC = 411,                 // _KW_INC
+    _KW_INCO = 412,                // _KW_INCO
+    _KW_INSB = 413,                // _KW_INSB
+    _KW_INSD = 414,                // _KW_INSD
+    _KW_INSTRSET = 415,            // _KW_INSTRSET
+    _KW_INSW = 416,                // _KW_INSW
+    _KW_INT = 417,                 // _KW_INT
+    _KW_INT3 = 418,                // _KW_INT3
+    _KW_INTO = 419,                // _KW_INTO
+    _KW_INVD = 420,                // _KW_INVD
+    _KW_INVLPG = 421,              // _KW_INVLPG
+    _KW_IRET = 422,                // _KW_IRET
+    _KW_IRETD = 423,               // _KW_IRETD
+    _KW_IRETW = 424,               // _KW_IRETW
+    _KW_JA = 425,                  // _KW_JA
+    _KW_JAE = 426,                 // _KW_JAE
+    _KW_JB = 427,                  // _KW_JB
+    _KW_JBE = 428,                 // _KW_JBE
+    _KW_JC = 429,                  // _KW_JC
+    _KW_JCXZ = 430,                // _KW_JCXZ
+    _KW_JE = 431,                  // _KW_JE
+    _KW_JECXZ = 432,               // _KW_JECXZ
+    _KW_JG = 433,                  // _KW_JG
+    _KW_JGE = 434,                 // _KW_JGE
+    _KW_JL = 435,                  // _KW_JL
+    _KW_JLE = 436,                 // _KW_JLE
+    _KW_JMP = 437,                 // _KW_JMP
+    _KW_JNA = 438,                 // _KW_JNA
+    _KW_JNAE = 439,                // _KW_JNAE
+    _KW_JNB = 440,                 // _KW_JNB
+    _KW_JNBE = 441,                // _KW_JNBE
+    _KW_JNC = 442,                 // _KW_JNC
+    _KW_JNE = 443,                 // _KW_JNE
+    _KW_JNG = 444,                 // _KW_JNG
+    _KW_JNGE = 445,                // _KW_JNGE
+    _KW_JNL = 446,                 // _KW_JNL
+    _KW_JNLE = 447,                // _KW_JNLE
+    _KW_JNO = 448,                 // _KW_JNO
+    _KW_JNP = 449,                 // _KW_JNP
+    _KW_JNS = 450,                 // _KW_JNS
+    _KW_JNZ = 451,                 // _KW_JNZ
+    _KW_JO = 452,                  // _KW_JO
+    _KW_JP = 453,                  // _KW_JP
+    _KW_JPE = 454,                 // _KW_JPE
+    _KW_JPO = 455,                 // _KW_JPO
+    _KW_JS = 456,                  // _KW_JS
+    _KW_JZ = 457,                  // _KW_JZ
+    _KW_LAHF = 458,                // _KW_LAHF
+    _KW_LAR = 459,                 // _KW_LAR
+    _KW_LDS = 460,                 // _KW_LDS
+    _KW_LEA = 461,                 // _KW_LEA
+    _KW_LEAVE = 462,               // _KW_LEAVE
+    _KW_LES = 463,                 // _KW_LES
+    _KW_LFS = 464,                 // _KW_LFS
+    _KW_LGDT = 465,                // _KW_LGDT
+    _KW_LGS = 466,                 // _KW_LGS
+    _KW_LIDT = 467,                // _KW_LIDT
+    _KW_LLDT = 468,                // _KW_LLDT
+    _KW_LMSW = 469,                // _KW_LMSW
+    _KW_LOCK = 470,                // _KW_LOCK
+    _KW_LODSB = 471,               // _KW_LODSB
+    _KW_LODSD = 472,               // _KW_LODSD
+    _KW_LODSW = 473,               // _KW_LODSW
+    _KW_LOOP = 474,                // _KW_LOOP
+    _KW_LOOPE = 475,               // _KW_LOOPE
+    _KW_LOOPNE = 476,              // _KW_LOOPNE
+    _KW_LOOPNZ = 477,              // _KW_LOOPNZ
+    _KW_LOOPZ = 478,               // _KW_LOOPZ
+    _KW_LSL = 479,                 // _KW_LSL
+    _KW_LSS = 480,                 // _KW_LSS
+    _KW_LTR = 481,                 // _KW_LTR
+    _KW_MOV = 482,                 // _KW_MOV
+    _KW_MOVSB = 483,               // _KW_MOVSB
+    _KW_MOVSD = 484,               // _KW_MOVSD
+    _KW_MOVSW = 485,               // _KW_MOVSW
+    _KW_MOVSX = 486,               // _KW_MOVSX
+    _KW_MOVZX = 487,               // _KW_MOVZX
+    _KW_MUL = 488,                 // _KW_MUL
+    _KW_NEAR = 489,                // _KW_NEAR
+    _KW_NEG = 490,                 // _KW_NEG
+    _KW_NOP = 491,                 // _KW_NOP
+    _KW_NOT = 492,                 // _KW_NOT
+    _KW_OPTIMIZE = 493,            // _KW_OPTIMIZE
+    _KW_OR = 494,                  // _KW_OR
+    _KW_ORG = 495,                 // _KW_ORG
+    _KW_OUT = 496,                 // _KW_OUT
+    _KW_OUTSB = 497,               // _KW_OUTSB
+    _KW_OUTSD = 498,               // _KW_OUTSD
+    _KW_OUTSW = 499,               // _KW_OUTSW
+    _KW_PADDING = 500,             // _KW_PADDING
+    _KW_PADSET = 501,              // _KW_PADSET
+    _KW_POP = 502,                 // _KW_POP
+    _KW_POPA = 503,                // _KW_POPA
+    _KW_POPAD = 504,               // _KW_POPAD
+    _KW_POPAW = 505,               // _KW_POPAW
+    _KW_POPF = 506,                // _KW_POPF
+    _KW_POPFD = 507,               // _KW_POPFD
+    _KW_POPFW = 508,               // _KW_POPFW
+    _KW_PUSH = 509,                // _KW_PUSH
+    _KW_PUSHA = 510,               // _KW_PUSHA
+    _KW_PUSHAD = 511,              // _KW_PUSHAD
+    _KW_PUSHAW = 512,              // _KW_PUSHAW
+    _KW_PUSHD = 513,               // _KW_PUSHD
+    _KW_PUSHF = 514,               // _KW_PUSHF
+    _KW_PUSHFD = 515,              // _KW_PUSHFD
+    _KW_PUSHFW = 516,              // _KW_PUSHFW
+    _KW_RCL = 517,                 // _KW_RCL
+    _KW_RCR = 518,                 // _KW_RCR
+    _KW_RDMSR = 519,               // _KW_RDMSR
+    _KW_RDPMC = 520,               // _KW_RDPMC
+    _KW_REP = 521,                 // _KW_REP
+    _KW_REPE = 522,                // _KW_REPE
+    _KW_REPNE = 523,               // _KW_REPNE
+    _KW_REPNZ = 524,               // _KW_REPNZ
+    _KW_REPZ = 525,                // _KW_REPZ
+    _KW_RESB = 526,                // _KW_RESB
+    _KW_RESD = 527,                // _KW_RESD
+    _KW_RESQ = 528,                // _KW_RESQ
+    _KW_REST = 529,                // _KW_REST
+    _KW_RESW = 530,                // _KW_RESW
+    _KW_RET = 531,                 // _KW_RET
+    _KW_RETF = 532,                // _KW_RETF
+    _KW_RETN = 533,                // _KW_RETN
+    _KW_ROL = 534,                 // _KW_ROL
+    _KW_ROR = 535,                 // _KW_ROR
+    _KW_RSM = 536,                 // _KW_RSM
+    _KW_SAHF = 537,                // _KW_SAHF
+    _KW_SAL = 538,                 // _KW_SAL
+    _KW_SAR = 539,                 // _KW_SAR
+    _KW_SBB = 540,                 // _KW_SBB
+    _KW_SCASB = 541,               // _KW_SCASB
+    _KW_SCASD = 542,               // _KW_SCASD
+    _KW_SCASW = 543,               // _KW_SCASW
+    _KW_SECTION = 544,             // _KW_SECTION
+    _KW_SETA = 545,                // _KW_SETA
+    _KW_SETAE = 546,               // _KW_SETAE
+    _KW_SETB = 547,                // _KW_SETB
+    _KW_SETBE = 548,               // _KW_SETBE
+    _KW_SETC = 549,                // _KW_SETC
+    _KW_SETE = 550,                // _KW_SETE
+    _KW_SETG = 551,                // _KW_SETG
+    _KW_SETGE = 552,               // _KW_SETGE
+    _KW_SETL = 553,                // _KW_SETL
+    _KW_SETLE = 554,               // _KW_SETLE
+    _KW_SETNA = 555,               // _KW_SETNA
+    _KW_SETNAE = 556,              // _KW_SETNAE
+    _KW_SETNB = 557,               // _KW_SETNB
+    _KW_SETNBE = 558,              // _KW_SETNBE
+    _KW_SETNC = 559,               // _KW_SETNC
+    _KW_SETNE = 560,               // _KW_SETNE
+    _KW_SETNG = 561,               // _KW_SETNG
+    _KW_SETNGE = 562,              // _KW_SETNGE
+    _KW_SETNL = 563,               // _KW_SETNL
+    _KW_SETNLE = 564,              // _KW_SETNLE
+    _KW_SETNO = 565,               // _KW_SETNO
+    _KW_SETNP = 566,               // _KW_SETNP
+    _KW_SETNS = 567,               // _KW_SETNS
+    _KW_SETNZ = 568,               // _KW_SETNZ
+    _KW_SETO = 569,                // _KW_SETO
+    _KW_SETP = 570,                // _KW_SETP
+    _KW_SETPE = 571,               // _KW_SETPE
+    _KW_SETPO = 572,               // _KW_SETPO
+    _KW_SETS = 573,                // _KW_SETS
+    _KW_SETZ = 574,                // _KW_SETZ
+    _KW_SGDT = 575,                // _KW_SGDT
+    _KW_SHL = 576,                 // _KW_SHL
+    _KW_SHLD = 577,                // _KW_SHLD
+    _KW_SHORT = 578,               // _KW_SHORT
+    _KW_SHR = 579,                 // _KW_SHR
+    _KW_SHRD = 580,                // _KW_SHRD
+    _KW_SIDT = 581,                // _KW_SIDT
+    _KW_SLDT = 582,                // _KW_SLDT
+    _KW_SMSW = 583,                // _KW_SMSW
+    _KW_STC = 584,                 // _KW_STC
+    _KW_STD = 585,                 // _KW_STD
+    _KW_STI = 586,                 // _KW_STI
+    _KW_STOSB = 587,               // _KW_STOSB
+    _KW_STOSD = 588,               // _KW_STOSD
+    _KW_STOSW = 589,               // _KW_STOSW
+    _KW_STR = 590,                 // _KW_STR
+    _KW_SUB = 591,                 // _KW_SUB
+    _KW_TEST = 592,                // _KW_TEST
+    _KW_TIMES = 593,               // _KW_TIMES
+    _KW_UD2 = 594,                 // _KW_UD2
+    _KW_VERR = 595,                // _KW_VERR
+    _KW_VERW = 596,                // _KW_VERW
+    _KW_WAIT = 597,                // _KW_WAIT
+    _KW_WBINVD = 598,              // _KW_WBINVD
+    _KW_WORD = 599,                // _KW_WORD
+    _KW_WRMSR = 600,               // _KW_WRMSR
+    _KW_XADD = 601,                // _KW_XADD
+    _KW_XCHG = 602,                // _KW_XCHG
+    _KW_XLATB = 603,               // _KW_XLATB
+    _KW_XOR = 604,                 // _KW_XOR
+    _LBRACK = 605,                 // _LBRACK
+    _RBRACK = 606,                 // _RBRACK
+    T_Hex = 607,                   // T_Hex
+    T_Id = 608,                    // T_Id
+    T_Label = 609,                 // T_Label
+    T_NaskChar = 610,              // T_NaskChar
+    _STRING_ = 611,                // _STRING_
+    _INTEGER_ = 612                // _INTEGER_
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -850,7 +858,7 @@ namespace nask_ {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 354, ///< Number of tokens.
+        YYNTOKENS = 358, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -920,308 +928,313 @@ namespace nask_ {
         S__KW_FABS = 65,                         // _KW_FABS
         S__KW_FADD = 66,                         // _KW_FADD
         S__KW_FADDP = 67,                        // _KW_FADDP
-        S__KW_FBLD = 68,                         // _KW_FBLD
-        S__KW_FBSTP = 69,                        // _KW_FBSTP
-        S__KW_FCHS = 70,                         // _KW_FCHS
-        S__KW_FCLEX = 71,                        // _KW_FCLEX
-        S__KW_FCOM = 72,                         // _KW_FCOM
-        S__KW_FCOMP = 73,                        // _KW_FCOMP
-        S__KW_FCOMPP = 74,                       // _KW_FCOMPP
-        S__KW_FCOS = 75,                         // _KW_FCOS
-        S__KW_FDECSTP = 76,                      // _KW_FDECSTP
-        S__KW_FDISI = 77,                        // _KW_FDISI
-        S__KW_FDIV = 78,                         // _KW_FDIV
-        S__KW_FDIVP = 79,                        // _KW_FDIVP
-        S__KW_FDIVR = 80,                        // _KW_FDIVR
-        S__KW_FDIVRP = 81,                       // _KW_FDIVRP
-        S__KW_FENI = 82,                         // _KW_FENI
-        S__KW_FFREE = 83,                        // _KW_FFREE
-        S__KW_FIADD = 84,                        // _KW_FIADD
-        S__KW_FICOM = 85,                        // _KW_FICOM
-        S__KW_FICOMP = 86,                       // _KW_FICOMP
-        S__KW_FIDIV = 87,                        // _KW_FIDIV
-        S__KW_FIDIVR = 88,                       // _KW_FIDIVR
-        S__KW_FILD = 89,                         // _KW_FILD
-        S__KW_FILE = 90,                         // _KW_FILE
-        S__KW_FIMUL = 91,                        // _KW_FIMUL
-        S__KW_FINCSTP = 92,                      // _KW_FINCSTP
-        S__KW_FINIT = 93,                        // _KW_FINIT
-        S__KW_FIST = 94,                         // _KW_FIST
-        S__KW_FISTP = 95,                        // _KW_FISTP
-        S__KW_FISUB = 96,                        // _KW_FISUB
-        S__KW_FISUBR = 97,                       // _KW_FISUBR
-        S__KW_FLD = 98,                          // _KW_FLD
-        S__KW_FLD1 = 99,                         // _KW_FLD1
-        S__KW_FLDCW = 100,                       // _KW_FLDCW
-        S__KW_FLDENV = 101,                      // _KW_FLDENV
-        S__KW_FLDL2E = 102,                      // _KW_FLDL2E
-        S__KW_FLDL2T = 103,                      // _KW_FLDL2T
-        S__KW_FLDLG2 = 104,                      // _KW_FLDLG2
-        S__KW_FLDLN2 = 105,                      // _KW_FLDLN2
-        S__KW_FLDPI = 106,                       // _KW_FLDPI
-        S__KW_FLDZ = 107,                        // _KW_FLDZ
-        S__KW_FMUL = 108,                        // _KW_FMUL
-        S__KW_FMULP = 109,                       // _KW_FMULP
-        S__KW_FNCLEX = 110,                      // _KW_FNCLEX
-        S__KW_FNDISI = 111,                      // _KW_FNDISI
-        S__KW_FNENI = 112,                       // _KW_FNENI
-        S__KW_FNINIT = 113,                      // _KW_FNINIT
-        S__KW_FNOP = 114,                        // _KW_FNOP
-        S__KW_FNSAVE = 115,                      // _KW_FNSAVE
-        S__KW_FNSTCW = 116,                      // _KW_FNSTCW
-        S__KW_FNSTENV = 117,                     // _KW_FNSTENV
-        S__KW_FNSTSW = 118,                      // _KW_FNSTSW
-        S__KW_FORMAT = 119,                      // _KW_FORMAT
-        S__KW_FPATAN = 120,                      // _KW_FPATAN
-        S__KW_FPREM = 121,                       // _KW_FPREM
-        S__KW_FPREM1 = 122,                      // _KW_FPREM1
-        S__KW_FPTAN = 123,                       // _KW_FPTAN
-        S__KW_FRNDINT = 124,                     // _KW_FRNDINT
-        S__KW_FRSTOR = 125,                      // _KW_FRSTOR
-        S__KW_FSAVE = 126,                       // _KW_FSAVE
-        S__KW_FSCALE = 127,                      // _KW_FSCALE
-        S__KW_FSETPM = 128,                      // _KW_FSETPM
-        S__KW_FSIN = 129,                        // _KW_FSIN
-        S__KW_FSINCOS = 130,                     // _KW_FSINCOS
-        S__KW_FSQRT = 131,                       // _KW_FSQRT
-        S__KW_FST = 132,                         // _KW_FST
-        S__KW_FSTCW = 133,                       // _KW_FSTCW
-        S__KW_FSTENV = 134,                      // _KW_FSTENV
-        S__KW_FSTP = 135,                        // _KW_FSTP
-        S__KW_FSTSW = 136,                       // _KW_FSTSW
-        S__KW_FSUB = 137,                        // _KW_FSUB
-        S__KW_FSUBP = 138,                       // _KW_FSUBP
-        S__KW_FSUBR = 139,                       // _KW_FSUBR
-        S__KW_FSUBRP = 140,                      // _KW_FSUBRP
-        S__KW_FTST = 141,                        // _KW_FTST
-        S__KW_FUCOM = 142,                       // _KW_FUCOM
-        S__KW_FUCOMP = 143,                      // _KW_FUCOMP
-        S__KW_FUCOMPP = 144,                     // _KW_FUCOMPP
-        S__KW_FXAM = 145,                        // _KW_FXAM
-        S__KW_FXCH = 146,                        // _KW_FXCH
-        S__KW_FXTRACT = 147,                     // _KW_FXTRACT
-        S__KW_FYL2X = 148,                       // _KW_FYL2X
-        S__KW_FYL2XP1 = 149,                     // _KW_FYL2XP1
-        S__KW_GLOBAL = 150,                      // _KW_GLOBAL
-        S__KW_HLT = 151,                         // _KW_HLT
-        S__KW_IDIV = 152,                        // _KW_IDIV
-        S__KW_IMUL = 153,                        // _KW_IMUL
-        S__KW_IN = 154,                          // _KW_IN
-        S__KW_INC = 155,                         // _KW_INC
-        S__KW_INCO = 156,                        // _KW_INCO
-        S__KW_INSB = 157,                        // _KW_INSB
-        S__KW_INSD = 158,                        // _KW_INSD
-        S__KW_INSTRSET = 159,                    // _KW_INSTRSET
-        S__KW_INSW = 160,                        // _KW_INSW
-        S__KW_INT = 161,                         // _KW_INT
-        S__KW_INT3 = 162,                        // _KW_INT3
-        S__KW_INTO = 163,                        // _KW_INTO
-        S__KW_INVD = 164,                        // _KW_INVD
-        S__KW_INVLPG = 165,                      // _KW_INVLPG
-        S__KW_IRET = 166,                        // _KW_IRET
-        S__KW_IRETD = 167,                       // _KW_IRETD
-        S__KW_IRETW = 168,                       // _KW_IRETW
-        S__KW_JA = 169,                          // _KW_JA
-        S__KW_JAE = 170,                         // _KW_JAE
-        S__KW_JB = 171,                          // _KW_JB
-        S__KW_JBE = 172,                         // _KW_JBE
-        S__KW_JC = 173,                          // _KW_JC
-        S__KW_JCXZ = 174,                        // _KW_JCXZ
-        S__KW_JE = 175,                          // _KW_JE
-        S__KW_JECXZ = 176,                       // _KW_JECXZ
-        S__KW_JG = 177,                          // _KW_JG
-        S__KW_JGE = 178,                         // _KW_JGE
-        S__KW_JL = 179,                          // _KW_JL
-        S__KW_JLE = 180,                         // _KW_JLE
-        S__KW_JMP = 181,                         // _KW_JMP
-        S__KW_JNA = 182,                         // _KW_JNA
-        S__KW_JNAE = 183,                        // _KW_JNAE
-        S__KW_JNB = 184,                         // _KW_JNB
-        S__KW_JNBE = 185,                        // _KW_JNBE
-        S__KW_JNC = 186,                         // _KW_JNC
-        S__KW_JNE = 187,                         // _KW_JNE
-        S__KW_JNG = 188,                         // _KW_JNG
-        S__KW_JNGE = 189,                        // _KW_JNGE
-        S__KW_JNL = 190,                         // _KW_JNL
-        S__KW_JNLE = 191,                        // _KW_JNLE
-        S__KW_JNO = 192,                         // _KW_JNO
-        S__KW_JNP = 193,                         // _KW_JNP
-        S__KW_JNS = 194,                         // _KW_JNS
-        S__KW_JNZ = 195,                         // _KW_JNZ
-        S__KW_JO = 196,                          // _KW_JO
-        S__KW_JP = 197,                          // _KW_JP
-        S__KW_JPE = 198,                         // _KW_JPE
-        S__KW_JPO = 199,                         // _KW_JPO
-        S__KW_JS = 200,                          // _KW_JS
-        S__KW_JZ = 201,                          // _KW_JZ
-        S__KW_LAHF = 202,                        // _KW_LAHF
-        S__KW_LAR = 203,                         // _KW_LAR
-        S__KW_LDS = 204,                         // _KW_LDS
-        S__KW_LEA = 205,                         // _KW_LEA
-        S__KW_LEAVE = 206,                       // _KW_LEAVE
-        S__KW_LES = 207,                         // _KW_LES
-        S__KW_LFS = 208,                         // _KW_LFS
-        S__KW_LGDT = 209,                        // _KW_LGDT
-        S__KW_LGS = 210,                         // _KW_LGS
-        S__KW_LIDT = 211,                        // _KW_LIDT
-        S__KW_LLDT = 212,                        // _KW_LLDT
-        S__KW_LMSW = 213,                        // _KW_LMSW
-        S__KW_LOCK = 214,                        // _KW_LOCK
-        S__KW_LODSB = 215,                       // _KW_LODSB
-        S__KW_LODSD = 216,                       // _KW_LODSD
-        S__KW_LODSW = 217,                       // _KW_LODSW
-        S__KW_LOOP = 218,                        // _KW_LOOP
-        S__KW_LOOPE = 219,                       // _KW_LOOPE
-        S__KW_LOOPNE = 220,                      // _KW_LOOPNE
-        S__KW_LOOPNZ = 221,                      // _KW_LOOPNZ
-        S__KW_LOOPZ = 222,                       // _KW_LOOPZ
-        S__KW_LSL = 223,                         // _KW_LSL
-        S__KW_LSS = 224,                         // _KW_LSS
-        S__KW_LTR = 225,                         // _KW_LTR
-        S__KW_MOV = 226,                         // _KW_MOV
-        S__KW_MOVSB = 227,                       // _KW_MOVSB
-        S__KW_MOVSD = 228,                       // _KW_MOVSD
-        S__KW_MOVSW = 229,                       // _KW_MOVSW
-        S__KW_MOVSX = 230,                       // _KW_MOVSX
-        S__KW_MOVZX = 231,                       // _KW_MOVZX
-        S__KW_MUL = 232,                         // _KW_MUL
-        S__KW_NEG = 233,                         // _KW_NEG
-        S__KW_NOP = 234,                         // _KW_NOP
-        S__KW_NOT = 235,                         // _KW_NOT
-        S__KW_OPTIMIZE = 236,                    // _KW_OPTIMIZE
-        S__KW_OR = 237,                          // _KW_OR
-        S__KW_ORG = 238,                         // _KW_ORG
-        S__KW_OUT = 239,                         // _KW_OUT
-        S__KW_OUTSB = 240,                       // _KW_OUTSB
-        S__KW_OUTSD = 241,                       // _KW_OUTSD
-        S__KW_OUTSW = 242,                       // _KW_OUTSW
-        S__KW_PADDING = 243,                     // _KW_PADDING
-        S__KW_PADSET = 244,                      // _KW_PADSET
-        S__KW_POP = 245,                         // _KW_POP
-        S__KW_POPA = 246,                        // _KW_POPA
-        S__KW_POPAD = 247,                       // _KW_POPAD
-        S__KW_POPAW = 248,                       // _KW_POPAW
-        S__KW_POPF = 249,                        // _KW_POPF
-        S__KW_POPFD = 250,                       // _KW_POPFD
-        S__KW_POPFW = 251,                       // _KW_POPFW
-        S__KW_PUSH = 252,                        // _KW_PUSH
-        S__KW_PUSHA = 253,                       // _KW_PUSHA
-        S__KW_PUSHAD = 254,                      // _KW_PUSHAD
-        S__KW_PUSHAW = 255,                      // _KW_PUSHAW
-        S__KW_PUSHD = 256,                       // _KW_PUSHD
-        S__KW_PUSHF = 257,                       // _KW_PUSHF
-        S__KW_PUSHFD = 258,                      // _KW_PUSHFD
-        S__KW_PUSHFW = 259,                      // _KW_PUSHFW
-        S__KW_RCL = 260,                         // _KW_RCL
-        S__KW_RCR = 261,                         // _KW_RCR
-        S__KW_RDMSR = 262,                       // _KW_RDMSR
-        S__KW_RDPMC = 263,                       // _KW_RDPMC
-        S__KW_REP = 264,                         // _KW_REP
-        S__KW_REPE = 265,                        // _KW_REPE
-        S__KW_REPNE = 266,                       // _KW_REPNE
-        S__KW_REPNZ = 267,                       // _KW_REPNZ
-        S__KW_REPZ = 268,                        // _KW_REPZ
-        S__KW_RESB = 269,                        // _KW_RESB
-        S__KW_RESD = 270,                        // _KW_RESD
-        S__KW_RESQ = 271,                        // _KW_RESQ
-        S__KW_REST = 272,                        // _KW_REST
-        S__KW_RESW = 273,                        // _KW_RESW
-        S__KW_RET = 274,                         // _KW_RET
-        S__KW_RETF = 275,                        // _KW_RETF
-        S__KW_RETN = 276,                        // _KW_RETN
-        S__KW_ROL = 277,                         // _KW_ROL
-        S__KW_ROR = 278,                         // _KW_ROR
-        S__KW_RSM = 279,                         // _KW_RSM
-        S__KW_SAHF = 280,                        // _KW_SAHF
-        S__KW_SAL = 281,                         // _KW_SAL
-        S__KW_SAR = 282,                         // _KW_SAR
-        S__KW_SBB = 283,                         // _KW_SBB
-        S__KW_SCASB = 284,                       // _KW_SCASB
-        S__KW_SCASD = 285,                       // _KW_SCASD
-        S__KW_SCASW = 286,                       // _KW_SCASW
-        S__KW_SECTION = 287,                     // _KW_SECTION
-        S__KW_SETA = 288,                        // _KW_SETA
-        S__KW_SETAE = 289,                       // _KW_SETAE
-        S__KW_SETB = 290,                        // _KW_SETB
-        S__KW_SETBE = 291,                       // _KW_SETBE
-        S__KW_SETC = 292,                        // _KW_SETC
-        S__KW_SETE = 293,                        // _KW_SETE
-        S__KW_SETG = 294,                        // _KW_SETG
-        S__KW_SETGE = 295,                       // _KW_SETGE
-        S__KW_SETL = 296,                        // _KW_SETL
-        S__KW_SETLE = 297,                       // _KW_SETLE
-        S__KW_SETNA = 298,                       // _KW_SETNA
-        S__KW_SETNAE = 299,                      // _KW_SETNAE
-        S__KW_SETNB = 300,                       // _KW_SETNB
-        S__KW_SETNBE = 301,                      // _KW_SETNBE
-        S__KW_SETNC = 302,                       // _KW_SETNC
-        S__KW_SETNE = 303,                       // _KW_SETNE
-        S__KW_SETNG = 304,                       // _KW_SETNG
-        S__KW_SETNGE = 305,                      // _KW_SETNGE
-        S__KW_SETNL = 306,                       // _KW_SETNL
-        S__KW_SETNLE = 307,                      // _KW_SETNLE
-        S__KW_SETNO = 308,                       // _KW_SETNO
-        S__KW_SETNP = 309,                       // _KW_SETNP
-        S__KW_SETNS = 310,                       // _KW_SETNS
-        S__KW_SETNZ = 311,                       // _KW_SETNZ
-        S__KW_SETO = 312,                        // _KW_SETO
-        S__KW_SETP = 313,                        // _KW_SETP
-        S__KW_SETPE = 314,                       // _KW_SETPE
-        S__KW_SETPO = 315,                       // _KW_SETPO
-        S__KW_SETS = 316,                        // _KW_SETS
-        S__KW_SETZ = 317,                        // _KW_SETZ
-        S__KW_SGDT = 318,                        // _KW_SGDT
-        S__KW_SHL = 319,                         // _KW_SHL
-        S__KW_SHLD = 320,                        // _KW_SHLD
-        S__KW_SHR = 321,                         // _KW_SHR
-        S__KW_SHRD = 322,                        // _KW_SHRD
-        S__KW_SIDT = 323,                        // _KW_SIDT
-        S__KW_SLDT = 324,                        // _KW_SLDT
-        S__KW_SMSW = 325,                        // _KW_SMSW
-        S__KW_STC = 326,                         // _KW_STC
-        S__KW_STD = 327,                         // _KW_STD
-        S__KW_STI = 328,                         // _KW_STI
-        S__KW_STOSB = 329,                       // _KW_STOSB
-        S__KW_STOSD = 330,                       // _KW_STOSD
-        S__KW_STOSW = 331,                       // _KW_STOSW
-        S__KW_STR = 332,                         // _KW_STR
-        S__KW_SUB = 333,                         // _KW_SUB
-        S__KW_TEST = 334,                        // _KW_TEST
-        S__KW_TIMES = 335,                       // _KW_TIMES
-        S__KW_UD2 = 336,                         // _KW_UD2
-        S__KW_VERR = 337,                        // _KW_VERR
-        S__KW_VERW = 338,                        // _KW_VERW
-        S__KW_WAIT = 339,                        // _KW_WAIT
-        S__KW_WBINVD = 340,                      // _KW_WBINVD
-        S__KW_WORD = 341,                        // _KW_WORD
-        S__KW_WRMSR = 342,                       // _KW_WRMSR
-        S__KW_XADD = 343,                        // _KW_XADD
-        S__KW_XCHG = 344,                        // _KW_XCHG
-        S__KW_XLATB = 345,                       // _KW_XLATB
-        S__KW_XOR = 346,                         // _KW_XOR
-        S__LBRACK = 347,                         // _LBRACK
-        S__RBRACK = 348,                         // _RBRACK
-        S_T_Hex = 349,                           // T_Hex
-        S_T_Id = 350,                            // T_Id
-        S_T_Label = 351,                         // T_Label
-        S__STRING_ = 352,                        // _STRING_
-        S__INTEGER_ = 353,                       // _INTEGER_
-        S_YYACCEPT = 354,                        // $accept
-        S_Program = 355,                         // Program
-        S_ListStatement = 356,                   // ListStatement
-        S_Statement = 357,                       // Statement
-        S_ListFactor = 358,                      // ListFactor
-        S_ListMnemonicArgs = 359,                // ListMnemonicArgs
-        S_MnemonicArgs = 360,                    // MnemonicArgs
-        S_Exp = 361,                             // Exp
-        S_Exp1 = 362,                            // Exp1
-        S_Exp2 = 363,                            // Exp2
-        S_MemoryAddr = 364,                      // MemoryAddr
-        S_IndexExp = 365,                        // IndexExp
-        S_Factor = 366,                          // Factor
-        S_ConfigType = 367,                      // ConfigType
-        S_DataType = 368,                        // DataType
-        S_Opcode = 369                           // Opcode
+        S__KW_FAR = 68,                          // _KW_FAR
+        S__KW_FBLD = 69,                         // _KW_FBLD
+        S__KW_FBSTP = 70,                        // _KW_FBSTP
+        S__KW_FCHS = 71,                         // _KW_FCHS
+        S__KW_FCLEX = 72,                        // _KW_FCLEX
+        S__KW_FCOM = 73,                         // _KW_FCOM
+        S__KW_FCOMP = 74,                        // _KW_FCOMP
+        S__KW_FCOMPP = 75,                       // _KW_FCOMPP
+        S__KW_FCOS = 76,                         // _KW_FCOS
+        S__KW_FDECSTP = 77,                      // _KW_FDECSTP
+        S__KW_FDISI = 78,                        // _KW_FDISI
+        S__KW_FDIV = 79,                         // _KW_FDIV
+        S__KW_FDIVP = 80,                        // _KW_FDIVP
+        S__KW_FDIVR = 81,                        // _KW_FDIVR
+        S__KW_FDIVRP = 82,                       // _KW_FDIVRP
+        S__KW_FENI = 83,                         // _KW_FENI
+        S__KW_FFREE = 84,                        // _KW_FFREE
+        S__KW_FIADD = 85,                        // _KW_FIADD
+        S__KW_FICOM = 86,                        // _KW_FICOM
+        S__KW_FICOMP = 87,                       // _KW_FICOMP
+        S__KW_FIDIV = 88,                        // _KW_FIDIV
+        S__KW_FIDIVR = 89,                       // _KW_FIDIVR
+        S__KW_FILD = 90,                         // _KW_FILD
+        S__KW_FILE = 91,                         // _KW_FILE
+        S__KW_FIMUL = 92,                        // _KW_FIMUL
+        S__KW_FINCSTP = 93,                      // _KW_FINCSTP
+        S__KW_FINIT = 94,                        // _KW_FINIT
+        S__KW_FIST = 95,                         // _KW_FIST
+        S__KW_FISTP = 96,                        // _KW_FISTP
+        S__KW_FISUB = 97,                        // _KW_FISUB
+        S__KW_FISUBR = 98,                       // _KW_FISUBR
+        S__KW_FLD = 99,                          // _KW_FLD
+        S__KW_FLD1 = 100,                        // _KW_FLD1
+        S__KW_FLDCW = 101,                       // _KW_FLDCW
+        S__KW_FLDENV = 102,                      // _KW_FLDENV
+        S__KW_FLDL2E = 103,                      // _KW_FLDL2E
+        S__KW_FLDL2T = 104,                      // _KW_FLDL2T
+        S__KW_FLDLG2 = 105,                      // _KW_FLDLG2
+        S__KW_FLDLN2 = 106,                      // _KW_FLDLN2
+        S__KW_FLDPI = 107,                       // _KW_FLDPI
+        S__KW_FLDZ = 108,                        // _KW_FLDZ
+        S__KW_FMUL = 109,                        // _KW_FMUL
+        S__KW_FMULP = 110,                       // _KW_FMULP
+        S__KW_FNCLEX = 111,                      // _KW_FNCLEX
+        S__KW_FNDISI = 112,                      // _KW_FNDISI
+        S__KW_FNENI = 113,                       // _KW_FNENI
+        S__KW_FNINIT = 114,                      // _KW_FNINIT
+        S__KW_FNOP = 115,                        // _KW_FNOP
+        S__KW_FNSAVE = 116,                      // _KW_FNSAVE
+        S__KW_FNSTCW = 117,                      // _KW_FNSTCW
+        S__KW_FNSTENV = 118,                     // _KW_FNSTENV
+        S__KW_FNSTSW = 119,                      // _KW_FNSTSW
+        S__KW_FORMAT = 120,                      // _KW_FORMAT
+        S__KW_FPATAN = 121,                      // _KW_FPATAN
+        S__KW_FPREM = 122,                       // _KW_FPREM
+        S__KW_FPREM1 = 123,                      // _KW_FPREM1
+        S__KW_FPTAN = 124,                       // _KW_FPTAN
+        S__KW_FRNDINT = 125,                     // _KW_FRNDINT
+        S__KW_FRSTOR = 126,                      // _KW_FRSTOR
+        S__KW_FSAVE = 127,                       // _KW_FSAVE
+        S__KW_FSCALE = 128,                      // _KW_FSCALE
+        S__KW_FSETPM = 129,                      // _KW_FSETPM
+        S__KW_FSIN = 130,                        // _KW_FSIN
+        S__KW_FSINCOS = 131,                     // _KW_FSINCOS
+        S__KW_FSQRT = 132,                       // _KW_FSQRT
+        S__KW_FST = 133,                         // _KW_FST
+        S__KW_FSTCW = 134,                       // _KW_FSTCW
+        S__KW_FSTENV = 135,                      // _KW_FSTENV
+        S__KW_FSTP = 136,                        // _KW_FSTP
+        S__KW_FSTSW = 137,                       // _KW_FSTSW
+        S__KW_FSUB = 138,                        // _KW_FSUB
+        S__KW_FSUBP = 139,                       // _KW_FSUBP
+        S__KW_FSUBR = 140,                       // _KW_FSUBR
+        S__KW_FSUBRP = 141,                      // _KW_FSUBRP
+        S__KW_FTST = 142,                        // _KW_FTST
+        S__KW_FUCOM = 143,                       // _KW_FUCOM
+        S__KW_FUCOMP = 144,                      // _KW_FUCOMP
+        S__KW_FUCOMPP = 145,                     // _KW_FUCOMPP
+        S__KW_FXAM = 146,                        // _KW_FXAM
+        S__KW_FXCH = 147,                        // _KW_FXCH
+        S__KW_FXTRACT = 148,                     // _KW_FXTRACT
+        S__KW_FYL2X = 149,                       // _KW_FYL2X
+        S__KW_FYL2XP1 = 150,                     // _KW_FYL2XP1
+        S__KW_GLOBAL = 151,                      // _KW_GLOBAL
+        S__KW_HLT = 152,                         // _KW_HLT
+        S__KW_IDIV = 153,                        // _KW_IDIV
+        S__KW_IMUL = 154,                        // _KW_IMUL
+        S__KW_IN = 155,                          // _KW_IN
+        S__KW_INC = 156,                         // _KW_INC
+        S__KW_INCO = 157,                        // _KW_INCO
+        S__KW_INSB = 158,                        // _KW_INSB
+        S__KW_INSD = 159,                        // _KW_INSD
+        S__KW_INSTRSET = 160,                    // _KW_INSTRSET
+        S__KW_INSW = 161,                        // _KW_INSW
+        S__KW_INT = 162,                         // _KW_INT
+        S__KW_INT3 = 163,                        // _KW_INT3
+        S__KW_INTO = 164,                        // _KW_INTO
+        S__KW_INVD = 165,                        // _KW_INVD
+        S__KW_INVLPG = 166,                      // _KW_INVLPG
+        S__KW_IRET = 167,                        // _KW_IRET
+        S__KW_IRETD = 168,                       // _KW_IRETD
+        S__KW_IRETW = 169,                       // _KW_IRETW
+        S__KW_JA = 170,                          // _KW_JA
+        S__KW_JAE = 171,                         // _KW_JAE
+        S__KW_JB = 172,                          // _KW_JB
+        S__KW_JBE = 173,                         // _KW_JBE
+        S__KW_JC = 174,                          // _KW_JC
+        S__KW_JCXZ = 175,                        // _KW_JCXZ
+        S__KW_JE = 176,                          // _KW_JE
+        S__KW_JECXZ = 177,                       // _KW_JECXZ
+        S__KW_JG = 178,                          // _KW_JG
+        S__KW_JGE = 179,                         // _KW_JGE
+        S__KW_JL = 180,                          // _KW_JL
+        S__KW_JLE = 181,                         // _KW_JLE
+        S__KW_JMP = 182,                         // _KW_JMP
+        S__KW_JNA = 183,                         // _KW_JNA
+        S__KW_JNAE = 184,                        // _KW_JNAE
+        S__KW_JNB = 185,                         // _KW_JNB
+        S__KW_JNBE = 186,                        // _KW_JNBE
+        S__KW_JNC = 187,                         // _KW_JNC
+        S__KW_JNE = 188,                         // _KW_JNE
+        S__KW_JNG = 189,                         // _KW_JNG
+        S__KW_JNGE = 190,                        // _KW_JNGE
+        S__KW_JNL = 191,                         // _KW_JNL
+        S__KW_JNLE = 192,                        // _KW_JNLE
+        S__KW_JNO = 193,                         // _KW_JNO
+        S__KW_JNP = 194,                         // _KW_JNP
+        S__KW_JNS = 195,                         // _KW_JNS
+        S__KW_JNZ = 196,                         // _KW_JNZ
+        S__KW_JO = 197,                          // _KW_JO
+        S__KW_JP = 198,                          // _KW_JP
+        S__KW_JPE = 199,                         // _KW_JPE
+        S__KW_JPO = 200,                         // _KW_JPO
+        S__KW_JS = 201,                          // _KW_JS
+        S__KW_JZ = 202,                          // _KW_JZ
+        S__KW_LAHF = 203,                        // _KW_LAHF
+        S__KW_LAR = 204,                         // _KW_LAR
+        S__KW_LDS = 205,                         // _KW_LDS
+        S__KW_LEA = 206,                         // _KW_LEA
+        S__KW_LEAVE = 207,                       // _KW_LEAVE
+        S__KW_LES = 208,                         // _KW_LES
+        S__KW_LFS = 209,                         // _KW_LFS
+        S__KW_LGDT = 210,                        // _KW_LGDT
+        S__KW_LGS = 211,                         // _KW_LGS
+        S__KW_LIDT = 212,                        // _KW_LIDT
+        S__KW_LLDT = 213,                        // _KW_LLDT
+        S__KW_LMSW = 214,                        // _KW_LMSW
+        S__KW_LOCK = 215,                        // _KW_LOCK
+        S__KW_LODSB = 216,                       // _KW_LODSB
+        S__KW_LODSD = 217,                       // _KW_LODSD
+        S__KW_LODSW = 218,                       // _KW_LODSW
+        S__KW_LOOP = 219,                        // _KW_LOOP
+        S__KW_LOOPE = 220,                       // _KW_LOOPE
+        S__KW_LOOPNE = 221,                      // _KW_LOOPNE
+        S__KW_LOOPNZ = 222,                      // _KW_LOOPNZ
+        S__KW_LOOPZ = 223,                       // _KW_LOOPZ
+        S__KW_LSL = 224,                         // _KW_LSL
+        S__KW_LSS = 225,                         // _KW_LSS
+        S__KW_LTR = 226,                         // _KW_LTR
+        S__KW_MOV = 227,                         // _KW_MOV
+        S__KW_MOVSB = 228,                       // _KW_MOVSB
+        S__KW_MOVSD = 229,                       // _KW_MOVSD
+        S__KW_MOVSW = 230,                       // _KW_MOVSW
+        S__KW_MOVSX = 231,                       // _KW_MOVSX
+        S__KW_MOVZX = 232,                       // _KW_MOVZX
+        S__KW_MUL = 233,                         // _KW_MUL
+        S__KW_NEAR = 234,                        // _KW_NEAR
+        S__KW_NEG = 235,                         // _KW_NEG
+        S__KW_NOP = 236,                         // _KW_NOP
+        S__KW_NOT = 237,                         // _KW_NOT
+        S__KW_OPTIMIZE = 238,                    // _KW_OPTIMIZE
+        S__KW_OR = 239,                          // _KW_OR
+        S__KW_ORG = 240,                         // _KW_ORG
+        S__KW_OUT = 241,                         // _KW_OUT
+        S__KW_OUTSB = 242,                       // _KW_OUTSB
+        S__KW_OUTSD = 243,                       // _KW_OUTSD
+        S__KW_OUTSW = 244,                       // _KW_OUTSW
+        S__KW_PADDING = 245,                     // _KW_PADDING
+        S__KW_PADSET = 246,                      // _KW_PADSET
+        S__KW_POP = 247,                         // _KW_POP
+        S__KW_POPA = 248,                        // _KW_POPA
+        S__KW_POPAD = 249,                       // _KW_POPAD
+        S__KW_POPAW = 250,                       // _KW_POPAW
+        S__KW_POPF = 251,                        // _KW_POPF
+        S__KW_POPFD = 252,                       // _KW_POPFD
+        S__KW_POPFW = 253,                       // _KW_POPFW
+        S__KW_PUSH = 254,                        // _KW_PUSH
+        S__KW_PUSHA = 255,                       // _KW_PUSHA
+        S__KW_PUSHAD = 256,                      // _KW_PUSHAD
+        S__KW_PUSHAW = 257,                      // _KW_PUSHAW
+        S__KW_PUSHD = 258,                       // _KW_PUSHD
+        S__KW_PUSHF = 259,                       // _KW_PUSHF
+        S__KW_PUSHFD = 260,                      // _KW_PUSHFD
+        S__KW_PUSHFW = 261,                      // _KW_PUSHFW
+        S__KW_RCL = 262,                         // _KW_RCL
+        S__KW_RCR = 263,                         // _KW_RCR
+        S__KW_RDMSR = 264,                       // _KW_RDMSR
+        S__KW_RDPMC = 265,                       // _KW_RDPMC
+        S__KW_REP = 266,                         // _KW_REP
+        S__KW_REPE = 267,                        // _KW_REPE
+        S__KW_REPNE = 268,                       // _KW_REPNE
+        S__KW_REPNZ = 269,                       // _KW_REPNZ
+        S__KW_REPZ = 270,                        // _KW_REPZ
+        S__KW_RESB = 271,                        // _KW_RESB
+        S__KW_RESD = 272,                        // _KW_RESD
+        S__KW_RESQ = 273,                        // _KW_RESQ
+        S__KW_REST = 274,                        // _KW_REST
+        S__KW_RESW = 275,                        // _KW_RESW
+        S__KW_RET = 276,                         // _KW_RET
+        S__KW_RETF = 277,                        // _KW_RETF
+        S__KW_RETN = 278,                        // _KW_RETN
+        S__KW_ROL = 279,                         // _KW_ROL
+        S__KW_ROR = 280,                         // _KW_ROR
+        S__KW_RSM = 281,                         // _KW_RSM
+        S__KW_SAHF = 282,                        // _KW_SAHF
+        S__KW_SAL = 283,                         // _KW_SAL
+        S__KW_SAR = 284,                         // _KW_SAR
+        S__KW_SBB = 285,                         // _KW_SBB
+        S__KW_SCASB = 286,                       // _KW_SCASB
+        S__KW_SCASD = 287,                       // _KW_SCASD
+        S__KW_SCASW = 288,                       // _KW_SCASW
+        S__KW_SECTION = 289,                     // _KW_SECTION
+        S__KW_SETA = 290,                        // _KW_SETA
+        S__KW_SETAE = 291,                       // _KW_SETAE
+        S__KW_SETB = 292,                        // _KW_SETB
+        S__KW_SETBE = 293,                       // _KW_SETBE
+        S__KW_SETC = 294,                        // _KW_SETC
+        S__KW_SETE = 295,                        // _KW_SETE
+        S__KW_SETG = 296,                        // _KW_SETG
+        S__KW_SETGE = 297,                       // _KW_SETGE
+        S__KW_SETL = 298,                        // _KW_SETL
+        S__KW_SETLE = 299,                       // _KW_SETLE
+        S__KW_SETNA = 300,                       // _KW_SETNA
+        S__KW_SETNAE = 301,                      // _KW_SETNAE
+        S__KW_SETNB = 302,                       // _KW_SETNB
+        S__KW_SETNBE = 303,                      // _KW_SETNBE
+        S__KW_SETNC = 304,                       // _KW_SETNC
+        S__KW_SETNE = 305,                       // _KW_SETNE
+        S__KW_SETNG = 306,                       // _KW_SETNG
+        S__KW_SETNGE = 307,                      // _KW_SETNGE
+        S__KW_SETNL = 308,                       // _KW_SETNL
+        S__KW_SETNLE = 309,                      // _KW_SETNLE
+        S__KW_SETNO = 310,                       // _KW_SETNO
+        S__KW_SETNP = 311,                       // _KW_SETNP
+        S__KW_SETNS = 312,                       // _KW_SETNS
+        S__KW_SETNZ = 313,                       // _KW_SETNZ
+        S__KW_SETO = 314,                        // _KW_SETO
+        S__KW_SETP = 315,                        // _KW_SETP
+        S__KW_SETPE = 316,                       // _KW_SETPE
+        S__KW_SETPO = 317,                       // _KW_SETPO
+        S__KW_SETS = 318,                        // _KW_SETS
+        S__KW_SETZ = 319,                        // _KW_SETZ
+        S__KW_SGDT = 320,                        // _KW_SGDT
+        S__KW_SHL = 321,                         // _KW_SHL
+        S__KW_SHLD = 322,                        // _KW_SHLD
+        S__KW_SHORT = 323,                       // _KW_SHORT
+        S__KW_SHR = 324,                         // _KW_SHR
+        S__KW_SHRD = 325,                        // _KW_SHRD
+        S__KW_SIDT = 326,                        // _KW_SIDT
+        S__KW_SLDT = 327,                        // _KW_SLDT
+        S__KW_SMSW = 328,                        // _KW_SMSW
+        S__KW_STC = 329,                         // _KW_STC
+        S__KW_STD = 330,                         // _KW_STD
+        S__KW_STI = 331,                         // _KW_STI
+        S__KW_STOSB = 332,                       // _KW_STOSB
+        S__KW_STOSD = 333,                       // _KW_STOSD
+        S__KW_STOSW = 334,                       // _KW_STOSW
+        S__KW_STR = 335,                         // _KW_STR
+        S__KW_SUB = 336,                         // _KW_SUB
+        S__KW_TEST = 337,                        // _KW_TEST
+        S__KW_TIMES = 338,                       // _KW_TIMES
+        S__KW_UD2 = 339,                         // _KW_UD2
+        S__KW_VERR = 340,                        // _KW_VERR
+        S__KW_VERW = 341,                        // _KW_VERW
+        S__KW_WAIT = 342,                        // _KW_WAIT
+        S__KW_WBINVD = 343,                      // _KW_WBINVD
+        S__KW_WORD = 344,                        // _KW_WORD
+        S__KW_WRMSR = 345,                       // _KW_WRMSR
+        S__KW_XADD = 346,                        // _KW_XADD
+        S__KW_XCHG = 347,                        // _KW_XCHG
+        S__KW_XLATB = 348,                       // _KW_XLATB
+        S__KW_XOR = 349,                         // _KW_XOR
+        S__LBRACK = 350,                         // _LBRACK
+        S__RBRACK = 351,                         // _RBRACK
+        S_T_Hex = 352,                           // T_Hex
+        S_T_Id = 353,                            // T_Id
+        S_T_Label = 354,                         // T_Label
+        S_T_NaskChar = 355,                      // T_NaskChar
+        S__STRING_ = 356,                        // _STRING_
+        S__INTEGER_ = 357,                       // _INTEGER_
+        S_YYACCEPT = 358,                        // $accept
+        S_Program = 359,                         // Program
+        S_ListStatement = 360,                   // ListStatement
+        S_Statement = 361,                       // Statement
+        S_ListFactor = 362,                      // ListFactor
+        S_ListMnemonicArgs = 363,                // ListMnemonicArgs
+        S_MnemonicArgs = 364,                    // MnemonicArgs
+        S_Exp = 365,                             // Exp
+        S_Exp1 = 366,                            // Exp1
+        S_Exp2 = 367,                            // Exp2
+        S_MemoryAddr = 368,                      // MemoryAddr
+        S_IndexExp = 369,                        // IndexExp
+        S_Factor = 370,                          // Factor
+        S_JumpDir = 371,                         // JumpDir
+        S_ConfigType = 372,                      // ConfigType
+        S_DataType = 373,                        // DataType
+        S_Opcode = 374                           // Opcode
       };
     };
 
@@ -1284,6 +1297,10 @@ namespace nask_ {
         value.move< std::shared_ptr<IndexExp> > (std::move (that.value));
         break;
 
+      case symbol_kind::S_JumpDir: // JumpDir
+        value.move< std::shared_ptr<JumpDir> > (std::move (that.value));
+        break;
+
       case symbol_kind::S_ListFactor: // ListFactor
         value.move< std::shared_ptr<ListFactor> > (std::move (that.value));
         break;
@@ -1319,6 +1336,7 @@ namespace nask_ {
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
       case symbol_kind::S_T_Label: // T_Label
+      case symbol_kind::S_T_NaskChar: // T_NaskChar
       case symbol_kind::S__STRING_: // _STRING_
         value.move< std::string > (std::move (that.value));
         break;
@@ -1424,6 +1442,20 @@ namespace nask_ {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const std::shared_ptr<IndexExp>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::shared_ptr<JumpDir>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::shared_ptr<JumpDir>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -1606,6 +1638,10 @@ switch (yykind)
         value.template destroy< std::shared_ptr<IndexExp> > ();
         break;
 
+      case symbol_kind::S_JumpDir: // JumpDir
+        value.template destroy< std::shared_ptr<JumpDir> > ();
+        break;
+
       case symbol_kind::S_ListFactor: // ListFactor
         value.template destroy< std::shared_ptr<ListFactor> > ();
         break;
@@ -1641,6 +1677,7 @@ switch (yykind)
       case symbol_kind::S_T_Hex: // T_Hex
       case symbol_kind::S_T_Id: // T_Id
       case symbol_kind::S_T_Label: // T_Label
+      case symbol_kind::S_T_NaskChar: // T_NaskChar
       case symbol_kind::S__STRING_: // _STRING_
         value.template destroy< std::string > ();
         break;
@@ -2829,6 +2866,21 @@ switch (yykind)
       make__KW_FADDP (const location_type& l)
       {
         return symbol_type (token::_KW_FADDP, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make__KW_FAR (location_type l)
+      {
+        return symbol_type (token::_KW_FAR, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make__KW_FAR (const location_type& l)
+      {
+        return symbol_type (token::_KW_FAR, l);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
@@ -5309,6 +5361,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make__KW_NEAR (location_type l)
+      {
+        return symbol_type (token::_KW_NEAR, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make__KW_NEAR (const location_type& l)
+      {
+        return symbol_type (token::_KW_NEAR, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make__KW_NEG (location_type l)
       {
         return symbol_type (token::_KW_NEG, std::move (l));
@@ -6629,6 +6696,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make__KW_SHORT (location_type l)
+      {
+        return symbol_type (token::_KW_SHORT, std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make__KW_SHORT (const location_type& l)
+      {
+        return symbol_type (token::_KW_SHORT, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make__KW_SHR (location_type l)
       {
         return symbol_type (token::_KW_SHR, std::move (l));
@@ -7094,6 +7176,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_T_NaskChar (std::string v, location_type l)
+      {
+        return symbol_type (token::T_NaskChar, std::move (v), std::move (l));
+      }
+#else
+      static
+      symbol_type
+      make_T_NaskChar (const std::string& v, const location_type& l)
+      {
+        return symbol_type (token::T_NaskChar, v, l);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make__STRING_ (std::string v, location_type l)
       {
         return symbol_type (token::_STRING_, std::move (v), std::move (l));
@@ -7425,9 +7522,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 706,     ///< Last index in yytable_.
-      yynnts_ = 16,  ///< Number of nonterminal symbols.
-      yyfinal_ = 347 ///< Termination state number.
+      yylast_ = 720,     ///< Last index in yytable_.
+      yynnts_ = 17,  ///< Number of nonterminal symbols.
+      yyfinal_ = 348 ///< Termination state number.
     };
 
 
@@ -7439,7 +7536,7 @@ switch (yykind)
 
 
 } // nask_
-#line 7443 "bison.hh"
+#line 7540 "bison.hh"
 
 
 
