@@ -12,32 +12,41 @@ Prog.           Program        ::= [Statement] ;
 (:[]).          [Statement]    ::= Statement ;
 (:).            [Statement]    ::= Statement [Statement] ;
 
+_.              Statement      ::= Statement1 ;
 LabelStmt.      Statement      ::= Label ;
-DeclareStmt.    Statement      ::= Id "EQU" Exp ;
-ExportSymStmt.  Statement      ::= "GLOBAL" [Factor] ;
-ExternSymStmt.  Statement      ::= "EXTERN" [Factor] ;
-ConfigStmt.     Statement      ::= "[" ConfigType Factor "]" ;
-MnemonicStmt.   Statement      ::= Opcode [MnemonicArgs] ;
+DeclareStmt.    Statement1     ::= Id "EQU" Exp ;
+ExportSymStmt.  Statement1     ::= "GLOBAL" [Factor] ;
+ExternSymStmt.  Statement1     ::= "EXTERN" [Factor] ;
+ConfigStmt.     Statement1     ::= "[" ConfigType Factor "]" ;
+MnemonicStmt.   Statement1     ::= Opcode [MnemonicArgs] ;
+OpcodeStmt.     Statement1     ::= Opcode ;
 
 separator Factor "," ;
 separator MnemonicArgs "," ;
 
 MnemoArg.       MnemonicArgs   ::= Exp ;
 
-PlusExp.                 Exp   ::= Exp "+" Exp1 ;
-MinusExp.                Exp   ::= Exp "-" Exp1 ;
-MulExp.                  Exp1  ::= Exp1 "*" Exp2 ;
-DivExp.                  Exp1  ::= Exp1 "/" Exp2 ;
-ModExp.                  Exp1  ::= Exp1 "%" Exp2 ;
-ImmExp.                  Exp2  ::= Factor ;
-coercions                Exp 2;
+-- low precedence level
+_.                       Exp   ::= Exp1 ;
+_.                       Exp1  ::= Exp2 ;
+SregExp.                 Exp1  ::= SReg ;
+DatatypeExp.             Exp1  ::= DataType MemoryAddr ;
+MemoryAddrExp.           Exp1  ::= MemoryAddr ;
+JmpMemoryAddrExp.        Exp1  ::= JumpDir MemoryAddr ; -- FAR [ESP+4]
 
-DatatypeExp.             Exp   ::= DataType MemoryAddr ;
-SegmentOffsetDataExp.    Exp   ::= DataType Exp ":" Exp ;
-SegmentOffsetExp.        Exp   ::= Exp ":" Exp ;
-SregFrameExp.            Exp   ::= Id ":" Exp ;
-MemoryAddrExp.           Exp   ::= MemoryAddr ;
-JmpMemoryAddrExp.        Exp   ::= JumpDir MemoryAddr ; -- FAR [ESP+4]
+LabelExp.                Label ::= Exp2 ":" ;
+SegmentOffsetDataExp.    Exp2  ::= DataType Exp2 ":" Exp2 ;
+SegmentOffsetExp.        Exp2  ::= Exp2 ":" Exp2 ;
+
+PlusExp.                 Exp2  ::= Exp1 "+" Exp3 ;
+MinusExp.                Exp2  ::= Exp1 "-" Exp3 ;
+MulExp.                  Exp3  ::= Exp3 "*" Exp4 ;
+DivExp.                  Exp3  ::= Exp3 "/" Exp4 ;
+ModExp.                  Exp3  ::= Exp3 "%" Exp4 ;
+SregFrameExp.            Exp4  ::= SReg ":" Id ;
+ImmExp.                  Exp4  ::= Factor ;
+coercions                Exp 4;
+-- high precedence level
 
 Direct.                  MemoryAddr ::= "[" Exp "]" ;
 BasedOrIndexed.          MemoryAddr ::= "[" Id "+" Exp "]" ;
@@ -47,15 +56,23 @@ BasedIndexedDisp.        MemoryAddr ::= "[" Id "+" Id "+" Integer "]" ;
 BasedIndexedDispScale.   MemoryAddr ::= "[" Id "+" IndexExp "+" Integer "]" ;
 IndexScaleExp.           IndexExp   ::= Id "*" Integer ;
 
-NumberFactor. Factor         ::= Integer ;
-HexFactor.    Factor         ::= Hex ;
-IdentFactor.  Factor         ::= Id ;
-StringFactor. Factor         ::= String ;
-CharFactor.   Factor         ::= NaskChar ;
 
-ShortJumpDir.   JumpDir      ::= "SHORT" ;
-NearJumpDir.    JumpDir      ::= "NEAR" ;
-FarJumpDir.     JumpDir      ::= "FAR" ;
+NumberFactor.     Factor     ::= Integer ;
+HexFactor.        Factor     ::= Hex ;
+IdentFactor.      Factor     ::= Id ;
+StringFactor.     Factor     ::= String ;
+CharFactor.       Factor     ::= NaskChar ;
+
+ShortJumpDir. JumpDir        ::= "SHORT" ;
+NearJumpDir.  JumpDir        ::= "NEAR" ;
+FarJumpDir.   JumpDir        ::= "FAR" ;
+
+SRegCS.       SReg           ::= "CS" ;
+SRegDS.       SReg           ::= "DS" ;
+SRegES.       SReg           ::= "ES" ;
+SRegSS.       SReg           ::= "SS" ;
+SRegFS.       SReg           ::= "FS" ;
+SRegGS.       SReg           ::= "GS" ;
 
 BitsConfig.   ConfigType     ::= "BITS" ;
 InstConfig.   ConfigType     ::= "INSTRSET" ;
@@ -393,5 +410,4 @@ OpcodesXOR.     Opcode       ::= "XOR" ;
 
 token NaskChar '\'' ((char - ["'\\"]) | ('\\' ["'\\ntr"]))* '\'';
 token Hex '0' ('x'|'X') (digit | ["abcdef"] | ["ABCDEF"])+ '-'? '$'? ;
-token Label (letter | '$' | '_' | '.' ) (letter | '$' | '_' | '.' | digit)* (':' ["\\ntr"]*) ;
 token Id (letter | '$' | '_' | '.' ) (letter | '$' | '_' | '.' | digit)* ;
