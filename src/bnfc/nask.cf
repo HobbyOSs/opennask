@@ -27,8 +27,10 @@ separator MnemonicArgs "," ;
 MnemoArg.       MnemonicArgs   ::= Exp ;
 
 -- low precedence level
-_.                       Exp   ::= Exp1 ;
-_.                       Exp1  ::= Exp2 ;
+-- _.                       Exp   ::= Exp1 ;
+-- _.                       Exp1  ::= Exp2 ;
+coercions                Exp 4;
+
 SregExp.                 Exp1  ::= SReg ;
 DatatypeExp.             Exp1  ::= DataType MemoryAddr ;
 MemoryAddrExp.           Exp1  ::= MemoryAddr ;
@@ -46,7 +48,6 @@ ModExp.                  Exp3  ::= Exp3 "%" Exp4 ;
 SregFrameExp.            Exp4  ::= SReg ":" Id ;
 PreOpExp.                Exp4  ::= UnaryOperator Factor ;
 ImmExp.                  Exp4  ::= Factor ;
-coercions                Exp 4;
 -- high precedence level
 
 Direct.                  MemoryAddr ::= "[" Exp "]" ;

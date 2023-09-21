@@ -18,9 +18,14 @@ sed -e 's/Test/test/g' -e 's/Absyn/absyn/g' \
 find . -name \*.cc -or -name \*.hh -or -name \*.ll -or -name \*.yy | xargs sed -i 's/"\(.\+\)\.hh"/"\L\1\.hh"/'
 
 # flexでdebugログ出す設定
-#sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.ll
-#sed -i 's/set_debug(trace_scanning);/set_debug(true);/g' driver.cc
-#sed -i 's/set_debug_level (trace_parsing);/set_debug_level (true);/g' driver.cc
+sed -i 's/%option noyywrap noinput nounput/%option noyywrap noinput nounput debug/g' nask.ll
+sed -i 's/set_debug(trace_scanning);/set_debug(true);/g' driver.cc
+sed -i 's/set_debug_level (trace_parsing);/set_debug_level (true);/g' driver.cc
+
+# glr2
+sed -i 's/semantic_type/value_type/g' scanner.hh
+sed -i 's/%require "3.2"/%require "3.8"/g' nask.yy
+sed -i 's/%skeleton "lalr1.cc"/%skeleton "glr2.cc"\n%glr-parser\n%language "c++"\n/g' nask.yy
 
 # commentのstate設定の修正
 sed -i 's/<COMMENT>\".*\"/<COMMENT>\\n/g'   nask.ll
