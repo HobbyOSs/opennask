@@ -32,121 +32,121 @@ do
     WINE_BINARY_NAME=`echo ${NAS_FILE} | xargs basename | ${SED} -e 's/.nas/_wine.img/g'`
 
     if [ -e ${CMAKELISTS} ]; then
-	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
+	echo "########### next target ###############"                                                 >> ${CMAKELISTS}
     else
-	echo "#----------------------------------------------------------"                            | tee    ${CMAKELISTS}
-	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                            | tee -a ${CMAKELISTS}
-	echo ""								                              | tee -a ${CMAKELISTS}
-        echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                             | tee -a ${CMAKELISTS}
-        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                             | tee -a ${CMAKELISTS}
-        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                              | tee -a ${CMAKELISTS}
-	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                          | tee -a ${CMAKELISTS}
-        echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"            | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_IPLB  \${root_BINARY_DIR}/projects/${NAS_DIR}/ipl.bin)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_IPLS  \${root_SOURCE_DIR}/projects/${NAS_DIR}/ipl10.nas)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_HEADB \${root_BINARY_DIR}/projects/${NAS_DIR}/asmhead.bin)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_HEADS \${root_SOURCE_DIR}/projects/${NAS_DIR}/asmhead.nas)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_BOOTB \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.bin)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_CCO	  \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.o)"	      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		      | tee -a ${CMAKELISTS}
-	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/os.lds)"		              | tee -a ${CMAKELISTS}
+	echo "#----------------------------------------------------------"                             > ${CMAKELISTS}
+	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                             >> ${CMAKELISTS}
+	echo ""								                               >> ${CMAKELISTS}
+        echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                              >> ${CMAKELISTS}
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                              >> ${CMAKELISTS}
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                               >> ${CMAKELISTS}
+	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
+        echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"             >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_IPLB  \${root_BINARY_DIR}/projects/${NAS_DIR}/ipl.bin)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_IPLS  \${root_SOURCE_DIR}/projects/${NAS_DIR}/ipl10.nas)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_HEADB \${root_BINARY_DIR}/projects/${NAS_DIR}/asmhead.bin)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_HEADS \${root_SOURCE_DIR}/projects/${NAS_DIR}/asmhead.nas)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_BOOTB \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.bin)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_CCO	  \${root_BINARY_DIR}/projects/${NAS_DIR}/boot.o)"	       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_CCS	  \${root_SOURCE_DIR}/projects/${NAS_DIR}/*.c)"		       >> ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_LDS	  \${root_SOURCE_DIR}/projects/os.lds)"		               >> ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-	    echo "set(${NAS_DIR_TARGET}_FUNCS \${root_SOURCE_DIR}/projects/${NAS_DIR}/naskfunc.nas)"  | tee -a ${CMAKELISTS}
-	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"    | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FUNCS \${root_SOURCE_DIR}/projects/${NAS_DIR}/naskfunc.nas)"   >> ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FUNCO \${root_BINARY_DIR}/projects/${NAS_DIR}/naskfunc.o)"     >> ${CMAKELISTS}
 	fi
 	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
-	    echo "set(${NAS_DIR_TARGET}_FONTS \${root_SOURCE_DIR}/projects/${NAS_DIR}/hankaku.txt)"   | tee -a ${CMAKELISTS}
-	    echo "set(${NAS_DIR_TARGET}_FONTB \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.bin)"   | tee -a ${CMAKELISTS}
-	    echo "set(${NAS_DIR_TARGET}_FONTO \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.o)"     | tee -a ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FONTS \${root_SOURCE_DIR}/projects/${NAS_DIR}/hankaku.txt)"    >> ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FONTB \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.bin)"    >> ${CMAKELISTS}
+	    echo "set(${NAS_DIR_TARGET}_FONTO \${root_BINARY_DIR}/projects/${NAS_DIR}/hankaku.o)"      >> ${CMAKELISTS}
 	    # for golibc
-            echo "set(${NAS_DIR_TARGET}_LIBGE \${root_BINARY_DIR}/golibc/libgo.a)"                    | tee -a ${CMAKELISTS}
-            echo "set(${NAS_DIR_TARGET}_LIBGC \${root_BINARY_DIR}/projects/${NAS_DIR}/libgo.o)"       | tee -a ${CMAKELISTS}
+            echo "set(${NAS_DIR_TARGET}_LIBGE \${root_BINARY_DIR}/golibc/libgo.a)"                     >> ${CMAKELISTS}
+            echo "set(${NAS_DIR_TARGET}_LIBGC \${root_BINARY_DIR}/projects/${NAS_DIR}/libgo.o)"        >> ${CMAKELISTS}
 	fi
-	echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"	      | tee -a ${CMAKELISTS}
-	echo ""		        							              | tee -a ${CMAKELISTS}
-	echo ""		        							              | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_run"                                                | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                | tee -a ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                        | tee -a ${CMAKELISTS}
-        echo ")"                                                                                      | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_debug"                                              | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${QEMU} -s -S \${QEMUOPT} \${${NAS_DIR_TARGET}_OS} \${QEMU_DEBUG_OPT}"       | tee -a ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                        | tee -a ${CMAKELISTS}
-        echo ")"                                                                                      | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_clean"                                              | tee -a ${CMAKELISTS}
-        echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                               | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_SYS}"                                              | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_IPLB}"                                             | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_HEADB}"                                            | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                            | tee -a ${CMAKELISTS}
-	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                          | tee -a ${CMAKELISTS}
-        echo ")"                                                                                      | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	              | tee -a ${CMAKELISTS}
-	echo ")"                                                                                      | tee -a ${CMAKELISTS}
-	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                | tee -a ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"             | tee -a ${CMAKELISTS}
+	echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"	       >> ${CMAKELISTS}
+	echo ""		        							               >> ${CMAKELISTS}
+	echo ""		        							               >> ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_run"                                                 >> ${CMAKELISTS}
+        echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                 >> ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                         >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_debug"                                               >> ${CMAKELISTS}
+        echo "  COMMAND \${QEMU} -s -S \${QEMUOPT} \${${NAS_DIR_TARGET}_OS} \${QEMU_DEBUG_OPT}"        >> ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                         >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_clean"                                               >> ${CMAKELISTS}
+        echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                                >> ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_SYS}"                                               >> ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_IPLB}"                                              >> ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_HEADB}"                                             >> ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                             >> ${CMAKELISTS}
+	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                           >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                 >> ${CMAKELISTS}
+        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	               >> ${CMAKELISTS}
+	echo ")"                                                                                       >> ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                 >> ${CMAKELISTS}
+        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"              >> ${CMAKELISTS}
 	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
-	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"              | tee -a ${CMAKELISTS}
-	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"     | tee -a ${CMAKELISTS}
-	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}" | tee -a ${CMAKELISTS}
+	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"               >> ${CMAKELISTS}
+	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"      >> ${CMAKELISTS}
+	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}"  >> ${CMAKELISTS}
 	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"         | tee -a ${CMAKELISTS}
-	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
+            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"          >> ${CMAKELISTS}
+	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	else
-	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}" | tee -a ${CMAKELISTS}
+	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	fi
-        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}" | tee -a ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                        | tee -a ${CMAKELISTS}
-        echo ")"                                                                                      | tee -a ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_img"                                                | tee -a ${CMAKELISTS}
-        echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}" | tee -a ${CMAKELISTS}
-        echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${NAS_DIR_TARGET}_SYS} ::"               | tee -a ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_sys"                                                        | tee -a ${CMAKELISTS}
-        echo ")"                                                                                      | tee -a ${CMAKELISTS}
+        echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}"  >> ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                         >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
+        echo "add_custom_target(${TARGET_OS_NAME}_img"                                                 >> ${CMAKELISTS}
+        echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}"  >> ${CMAKELISTS}
+        echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${NAS_DIR_TARGET}_SYS} ::"                >> ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_sys"                                                         >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
 
-	echo "########### next target ###############"                                                | tee -a ${CMAKELISTS}
+	echo "########### next target ###############"                                                 >> ${CMAKELISTS}
     fi
-    echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${NAS_FILE})"                          | tee -a ${CMAKELISTS}
-    echo "set(${BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                          | tee -a ${CMAKELISTS}
+    echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${NAS_FILE})"                           >> ${CMAKELISTS}
+    echo "set(${BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                           >> ${CMAKELISTS}
 
-    echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                | tee -a ${CMAKELISTS}
-    echo ""                                                                                           | tee -a ${CMAKELISTS}
-    echo "add_custom_target(${TARGET_NAME}"                                                           | tee -a ${CMAKELISTS}
-    echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}" | tee -a ${CMAKELISTS}
-    echo ")"                                                                                          | tee -a ${CMAKELISTS}
+    echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                 >> ${CMAKELISTS}
+    echo ""                                                                                            >> ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}"                                                            >> ${CMAKELISTS}
+    echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"  >> ${CMAKELISTS}
+    echo ")"                                                                                           >> ${CMAKELISTS}
     # その他のnaskファイルのオブジェクト化, hdファイルのディレクトリに押し込む
     # mcopy -i ./fat.img ./myfile.bin ::/myfile.bin
     # This copies the file ./myfile.bin to the root of the filesystem contained in the file ./fat.img.
     if [[ $NAS_FILE != *naskfunc.nas ]] && [[ $NAS_FILE != *ipl10.nas ]] && [[ $NAS_FILE != *asmhead.nas ]]; then
-	echo "set(${BINARY_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                           | tee -a ${CMAKELISTS}
-	echo "add_custom_target(${TARGET_NAME}_hrb"                                                       | tee -a ${CMAKELISTS}
-	echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"  | tee -a ${CMAKELISTS}
-        echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${BINARY_NAME}_HRB} ::${HRB_NAME}"           | tee -a ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                            | tee -a ${CMAKELISTS}
-	echo ")"                                                                                          | tee -a ${CMAKELISTS}
-	echo ""                                                                                           | tee -a ${CMAKELISTS}
+	echo "set(${BINARY_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                            >> ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_NAME}_hrb"                                                        >> ${CMAKELISTS}
+	echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"   >> ${CMAKELISTS}
+        echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${BINARY_NAME}_HRB} ::${HRB_NAME}"            >> ${CMAKELISTS}
+        echo "  DEPENDS ${NAS_DIR_TARGET}_img"                                                             >> ${CMAKELISTS}
+	echo ")"                                                                                           >> ${CMAKELISTS}
+	echo ""                                                                                            >> ${CMAKELISTS}
 	if [[ $NAS_DIR_TARGET != 01_* ]] && [[ $NAS_DIR_TARGET != 02_* ]] && [[ $NAS_DIR_TARGET != 03_* ]]; then
-	    echo "add_dependencies(${NAS_DIR_TARGET}_run ${TARGET_NAME}_hrb)"				  | tee -a ${CMAKELISTS}
+	    echo "add_dependencies(${NAS_DIR_TARGET}_run ${TARGET_NAME}_hrb)"				   >> ${CMAKELISTS}
 	fi
     fi
-    echo "add_custom_target(${TARGET_NAME}_wine"                                                      | tee -a ${CMAKELISTS}
-    echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"      | tee -a ${CMAKELISTS}
-    echo ")"                                                                                          | tee -a ${CMAKELISTS}
-    echo "add_custom_target(${TARGET_NAME}_od"                                                        | tee -a ${CMAKELISTS}
-    echo "  COMMAND \${OD} -t x1 \${${BINARY_NAME}_OUTS}      > \${${BINARY_NAME}_OUTS}_f.txt"        | tee -a ${CMAKELISTS}
-    echo "  COMMAND \${OD} -t x1 \${${WINE_BINARY_NAME}_OUTS} > \${${WINE_BINARY_NAME}_OUTS}_t.txt"   | tee -a ${CMAKELISTS}
-    echo "  COMMAND diff -s \${${BINARY_NAME}_OUTS}_f.txt \${${WINE_BINARY_NAME}_OUTS}_t.txt"         | tee -a ${CMAKELISTS}
-    echo ")"                                                                                          | tee -a ${CMAKELISTS}
-    echo ""                                                                                           | tee -a ${CMAKELISTS}
-    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME})"                                         | tee -a ${CMAKELISTS}
-    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME}_wine)"                                    | tee -a ${CMAKELISTS}
-    echo ""                                                                                           | tee -a ${CMAKELISTS}
-    echo "add_dependencies(images ${TARGET_NAME})"                                                    | tee -a ${CMAKELISTS}
-    echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                 | tee -a ${CMAKELISTS}
-    echo "add_dependencies(od ${TARGET_NAME}_od)"                                                     | tee -a ${CMAKELISTS}
-    echo ""                                                                                           | tee -a ${CMAKELISTS}
-    echo "#----------------------------------------------------------"                                | tee -a ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}_wine"                                                       >> ${CMAKELISTS}
+    echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"       >> ${CMAKELISTS}
+    echo ")"                                                                                           >> ${CMAKELISTS}
+    echo "add_custom_target(${TARGET_NAME}_od"                                                         >> ${CMAKELISTS}
+    echo "  COMMAND \${OD} -t x1 \${${BINARY_NAME}_OUTS}      > \${${BINARY_NAME}_OUTS}_f.txt"         >> ${CMAKELISTS}
+    echo "  COMMAND \${OD} -t x1 \${${WINE_BINARY_NAME}_OUTS} > \${${WINE_BINARY_NAME}_OUTS}_t.txt"    >> ${CMAKELISTS}
+    echo "  COMMAND diff -s \${${BINARY_NAME}_OUTS}_f.txt \${${WINE_BINARY_NAME}_OUTS}_t.txt"          >> ${CMAKELISTS}
+    echo ")"                                                                                           >> ${CMAKELISTS}
+    echo ""                                                                                            >> ${CMAKELISTS}
+    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME})"                                          >> ${CMAKELISTS}
+    echo "add_dependencies(${TARGET_NAME}_od ${TARGET_NAME}_wine)"                                     >> ${CMAKELISTS}
+    echo ""                                                                                            >> ${CMAKELISTS}
+    echo "add_dependencies(images ${TARGET_NAME})"                                                     >> ${CMAKELISTS}
+    echo "add_dependencies(wine ${TARGET_NAME}_wine)"                                                  >> ${CMAKELISTS}
+    echo "add_dependencies(od ${TARGET_NAME}_od)"                                                      >> ${CMAKELISTS}
+    echo ""                                                                                            >> ${CMAKELISTS}
+    echo "#----------------------------------------------------------"                                 >> ${CMAKELISTS}
 done

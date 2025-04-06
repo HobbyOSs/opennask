@@ -28,14 +28,14 @@ do
     CHILD_DIRS=(`printf -- '%s\n' "${NAS_DIRS[@]}" | grep ${SUB_DIR}`)
     CMAKELISTS="${SUB_DIR}/CMakeLists.txt"
 
-    echo "#----------------------------------------------------------" | tee    ${CMAKELISTS}
-    echo "message(STATUS \"Entering directory projects/${SUB_DIR}/\")" | tee -a ${CMAKELISTS}
+    echo "#----------------------------------------------------------" >    ${CMAKELISTS}
+    echo "message(STATUS \"Entering directory projects/${SUB_DIR}/\")" >> ${CMAKELISTS}
     for CHILD_DIR in ${CHILD_DIRS[@]}
     do
 	CHILD_STR=`echo ${CHILD_DIR} | ${SED} -e 's|\.\/.*\/||' `
-	echo "add_subdirectory(${CHILD_STR})" | tee -a ${CMAKELISTS}
+	echo "add_subdirectory(${CHILD_STR})" >> ${CMAKELISTS}
     done
-    echo ""
+    echo "" >> ${CMAKELISTS} # Add an empty line for better formatting
 done
 
 echo "-------------------------------------------------"
