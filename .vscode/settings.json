@@ -1,0 +1,6 @@
+{
+  "makefile.configureOnOpen": false,
+  "workbench.editorAssociations": {
+    "*.md": "default"
+  }
+}

@@ -1,0 +1,182 @@
+# .clinerules
+
+**日本語で回答するようにしてください**
+
+# Clineのメモリーバンク（Memory Bank）
+
+- 私はCline、専門的なソフトウェアエンジニアであり、セッションごとに記憶が完全リセットされる
+- そのため**メモリバンク(Memory Bank)ファイル**が唯一の過去情報源となる
+- **すべてのタスクの開始時にMemory Bank内のファイルを読むことは必須であり、オプションではない**
+
+## メモリバンク(Memory Bank)ファイル構成
+
+```
+memory-bank/
+  ├─ core/                     # プロジェクトの中核となる情報
+  │   ├─ projectbrief.md       # プロジェクトの概要、目標、要件
+  │   ├─ productContext.md     # 製品の目的、解決する問題、動作方法
+  │   ├─ systemPatterns.md     # システムアーキテクチャ、技術的決定、設計パターン
+  │   │                        # - アーキテクチャの全体像
+  │   │                        # - コアコンポーネントの役割と連携
+  │   │                        # - 標準的な実装パターン
+  │   ├─ techContext.md        # 使用技術、開発環境、技術的制約
+  │   ├─ activeContext.md      # 現在の作業焦点、直近の変更点、次のステップ
+  │   ├─ progress.md           # 実装済機能、未実装部分、進捗状況、既知の問題
+  │   └─ rules_extras.md       # 詳細な運用ルールとポリシー
+  │                            # - テスト実行の詳細ルール
+  │                            # - コーディング規約の詳細
+  │                            # - レビュー・デプロイのポリシー
+  │
+  ├─ details/                        # 詳細な実装情報と技術文書
+  │   ├─ implementation_details.md  # 実装手順、コード例、エッジケース対応
+  │   │                              # - 具体的な実装手順とサンプル
+  │   │                              # - 特殊なケースへの対応方法
+  │   │                              # - 実装時の注意点
+  │   │
+  │   └─ technical_notes.md       # 技術的な詳細、外部ツール活用方法
+  │                                 # - 外部ツールの使用方法
+  │
+  ├─ archives/                 # 過去の記録のアーカイブ
+  │   ├─ YYYY/                # 年別のアーカイブディレクトリ
+  │   │   ├─ MM/             # 月別のアーカイブファイル
+  │   │   │   ├─ progress_archive_YYYYMM.md
+  │   │   │   └─ activeContext_archive_YYYYMM.md
+  │   │   └─ implementation_archive_YYYY.md
+  │
+  └─ docs/                     # プロジェクト文書
+```
+
+<if_tool_exists tool="filesystem">
+- **MCPサーバ (filesystem) が利用可能な場合、memory-bank/core/ 以下のすべてのマークダウンファイルを絶対パスで一括読み込みする**
+- `filesystem` MCPサーバーの`read_multiple_files`ツールを使用し、
+- `Current Working Directory` に指定された絶対パスで`paths`を指定する
+ 
+`filesystem` MCPサーバーの`read_multiple_files`指定の例
+
+```json
+{
+  "paths": [
+    "/<Current Working Directory>/memory-bank/core/projectbrief.md",
+    "/<Current Working Directory>/memory-bank/core/productContext.md",
+    "/<Current Working Directory>/memory-bank/core/systemPatterns.md",
+    "/<Current Working Directory>/memory-bank/core/techContext.md",
+    "/<Current Working Directory>/memory-bank/core/activeContext.md",
+    "/<Current Working Directory>/memory-bank/core/progress.md",
+    "/<Current Working Directory>/memory-bank/core/rules_extras.md"
+  ]
+}
+</if_tool_exists>
+
+<else>
+- **MCPサーバ (filesystem) が利用できない場合、すべてのタスク開始時には、memory-bank/core/ 以下の主要ファイルを必ず読む**
+</else>
+
+- 必要に応じて details/ フォルダやその他のドキュメントを参照
+
+
+### コアワークフロー（概要）
+
+1. **Plan Mode**:
+
+```mermaid
+flowchart TD
+    Start[開始] --> ReadFiles[Memory Bankを読む]
+    ReadFiles --> CheckFiles{ファイルは完全か？}
+    
+    CheckFiles -->|No| Plan[計画を作成]
+    Plan --> Document[チャットで記録]
+    
+    CheckFiles -->|Yes| Verify[コンテキストを検証]
+    Verify --> CheckTaskType{タスクタイプを確認}
+
+    CheckTaskType -->|リファクタリング| ReadTechnicalNotes[technical_notes.mdを読む]
+    ReadTechnicalNotes --> Strategy[戦略を立案]
+    
+    CheckTaskType -->|その他| Strategy[戦略を立案]
+    Strategy --> Present[アプローチを提示]
+```
+
+   - memory-bank/core/ のファイルを読み、状況を把握
+   - 新しい実装を開始するとき、またはリファクタリングタスクを実施する際は `implementation_details.md`, `technical_notes.md` を必ず確認すること
+   - 計画を立案し、チャットにまとめる
+
+2. **Act Mode**:
+
+```mermaid
+flowchart TD
+    Start[開始] --> Context[Memory Bankをチェック]
+    Context --> Update[ドキュメントを更新]
+    Update --> Rules[必要なら.clinerulesを更新]
+    Rules --> Execute[タスクを実行]
+    Execute --> Document[変更を記録]
+```
+
+   - 必要に応じてドキュメント更新 (`activeContext.md`や`progress.md`など)
+   - コード等の修正やテストを実施
+   - 大きな変更があれば「update memory bank」コマンドで再整理
+
+### ドキュメント更新時の留意
+
+- 実装内容は最初に `activeContext.md` に記載する。
+    - `activeContext.md` は常に「今フォーカス中のタスク・変更点・次のTODO」程度に留める。
+- その後、必要に応じて `progress.md` に移動する（実装済み機能として）。
+- メモリバンクを更新する際は **すべてのコアファイルを精査** し、詳細は `details/` に移動
+
+### メモリバンクのアーカイブ
+
+**【重要】メモリバンク(Memory Bank)アーカイブの目的：coreディレクトリの徹底的な軽量化**
+
+coreディレクトリは、プロジェクトの**最新の状況を「一目で把握」** できるように、**徹底的に軽量化** することを目的とします。
+
+- **coreディレクトリに置くもの**: 現在進行中の作業に必要な「**最新の要約**」「**現在の焦点**」「**今後の計画**」など、頻繁に参照する、ごく最小の情報のみ。
+- **archives/ や details/ に移動するもの**: 過去の履歴、実装の詳細、過去の議論など、coreディレクトリの軽量化を阻害する、参照頻度の低い情報。
+
+**coreディレクトリを軽量化することで、以下のメリットが期待できます**:
+- 情報過多による認知負荷の軽減
+- 重要な情報への迅速なアクセス
+- プロジェクト状況の俯瞰的な把握の容易化
+
+**「coreディレクトリは常にスッキリと」** を心がけ、積極的にアーカイブを行い、軽量化に努めてください。
+
+- 定期的に古い履歴を `archives/` に移動する。`archives/`ディレクトリには、過去の作業履歴、古いバージョンのドキュメントなどを格納する。
+  - 例：`progress.md` が長文化してきたら、最新のマイルストーンとTODO一覧だけ残し、古い記録は `memory-bank/archives/progress_archive_YYYYMM.md` などに移動して要点をまとめる。
+  - 例：`activeContext.md` の履歴が長くなってきたら、同様に `memory-bank/archives/activeContext_archive_YYYYMM.md` などに移動する。
+  - 例：`.clinerules` でルールが増えてきたら、不要になったルールや既に恒久化したルールを `rules_extras.md` に移動し、一行で「XXの時はこうする」といった最重要部分だけを残す。
+- アーカイブしたファイルへのリンクは、元のファイルから参照できるようにしておく。
+
+### プロジェクトの知識ベース (.clinerules) で記録する内容
+
+- プロジェクト固有のコーディング方針や命名規則
+- ユーザーやチームの好み、ワークフロー
+- ツール実行ポリシー（テスト、lint、差分出力など）
+
+**詳細なポリシー、手順、サンプルコードは `memory-bank/core/rules_extras.md` を参照してください。**
+
+---
+
+## 主な運用ルール
+
+- **絶対パスの使用**: 
+    - memory-bank内を参照するときは `/home/forbarbazz/opennask/memory-bank/...` のように必ずルートから始まるパスを用いる
+- **差分出力の優先**:
+    - コード修正は基本的に差分形式か、最小限の抜粋で提示する
+- **コード調査**: コード検索には `git grep` や `find` を使用 (詳細は `rules_extras.md` を参照)
+- **テストケース名の規約**:
+    - テストケースの `name` フィールドは英語で記述する。
+    - テストケースの `name` フィールドには `()` や `,` を使用しない。
+- **コマンド実行時の注意**:
+    - コマンド実行時にはXMLエスケープ文字（例: `&`）を使用せず、直接 `&` などを使用する。
+
+---
+
+## 追加リソース
+
+より詳細な運用方針や具体的コード例は、`rules_extras.md` にまとめてある。
+必要に応じてそちらを参照し、新しいパターンや重要事項が判明したら `.clinerules` または `rules_extras.md` をアップデートする。
+
+---
+
+**重要**:
+- **セッションが切り替わるたびに私は完全に新しい状態になる。**
+- **Memory Bankが唯一の過去作業を理解する手段**。
+- **コアファイルはなるべく軽量に保ち、詳細はdetails/へ**
