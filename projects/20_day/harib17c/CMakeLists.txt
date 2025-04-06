@@ -1,7 +1,6 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/20_day/harib17c/")
 
-set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
@@ -42,17 +41,25 @@ add_custom_target(20_day_harib17c_clean
   COMMAND rm -f ${20_day_harib17c_WILDOBJ}
 )
 add_custom_target(20_day_harib17c_ipl
-  COMMAND ${NASK} ${20_day_harib17c_IPLS} ${20_day_harib17c_IPLB}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_IPLS} ${20_day_harib17c_IPLB}
+  DEPENDS ${20_day_harib17c_IPLS}
 )
+add_custom_command(
+  OUTPUT ${20_day_harib17c_HEADB}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_HEADS} ${20_day_harib17c_HEADB}
+  DEPENDS ${20_day_harib17c_HEADS}
+  COMMENT "Generating asmhead.bin for 20_day_harib17c"
+)
+
 add_custom_target(20_day_harib17c_sys
-  COMMAND ${NASK} ${20_day_harib17c_HEADS} ${20_day_harib17c_HEADB}
   COMMAND ${FONT} ${20_day_harib17c_FONTS} ${20_day_harib17c_FONTB}
   COMMAND ${B2O}  ${20_day_harib17c_FONTB} ${20_day_harib17c_FONTO} _hankaku
   COMMAND ${CONV} -fcoff32 -nu ${20_day_harib17c_LIBGE} ${20_day_harib17c_LIBGC}
-  COMMAND ${NASK} ${20_day_harib17c_FUNCS} ${20_day_harib17c_FUNCO}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_FUNCS} ${20_day_harib17c_FUNCO}
+  DEPENDS ${20_day_harib17c_FUNCS}
   COMMAND gcc ${BINOPT} -T ${20_day_harib17c_LDS} ${20_day_harib17c_CCS} ${20_day_harib17c_WILDOBJ} -o ${20_day_harib17c_BOOTB}
   COMMAND cat ${20_day_harib17c_HEADB} ${20_day_harib17c_BOOTB} > ${20_day_harib17c_SYS}
-  DEPENDS 20_day_harib17c_ipl
+  DEPENDS ${20_day_harib17c_HEADB} 20_day_harib17c_ipl
 )
 add_custom_target(20_day_harib17c_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${20_day_harib17c_IPLB} -i ${20_day_harib17c_OS}
@@ -65,7 +72,8 @@ set(asmhead.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/asmhead.img)
 set(asmhead_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/asmhead_wine.img)
 
 add_custom_target(20_day_harib17c_asmhead
-  COMMAND ${root_BINARY_DIR}/src/opennask ${asmhead.img_SRCS} ${asmhead.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${asmhead.img_SRCS} ${asmhead.img_OUTS}
+  DEPENDS ${asmhead.img_SRCS}
 )
 add_custom_target(20_day_harib17c_asmhead_wine
   COMMAND ${WINE} ${WINE_NASK} ${asmhead.img_SRCS} ${asmhead_wine.img_OUTS}
@@ -90,7 +98,8 @@ set(hlt.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/hlt.img)
 set(hlt_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/hlt_wine.img)
 
 add_custom_target(20_day_harib17c_hlt
-  COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${hlt.img_SRCS} ${hlt.img_OUTS}
+  DEPENDS ${hlt.img_SRCS}
 )
 set(hlt.img_HRB ${root_BINARY_DIR}/projects/20_day/harib17c/hlt.hrb)
 add_custom_target(20_day_harib17c_hlt_hrb
@@ -123,7 +132,8 @@ set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/ipl10.img)
 set(ipl10_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/ipl10_wine.img)
 
 add_custom_target(20_day_harib17c_ipl10
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl10.img_SRCS} ${ipl10.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${ipl10.img_SRCS} ${ipl10.img_OUTS}
+  DEPENDS ${ipl10.img_SRCS}
 )
 add_custom_target(20_day_harib17c_ipl10_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl10.img_SRCS} ${ipl10_wine.img_OUTS}
@@ -148,7 +158,8 @@ set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/naskfunc.img)
 set(naskfunc_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/naskfunc_wine.img)
 
 add_custom_target(20_day_harib17c_naskfunc
-  COMMAND ${root_BINARY_DIR}/src/opennask ${naskfunc.img_SRCS} ${naskfunc.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${naskfunc.img_SRCS} ${naskfunc.img_OUTS}
+  DEPENDS ${naskfunc.img_SRCS}
 )
 add_custom_target(20_day_harib17c_naskfunc_wine
   COMMAND ${WINE} ${WINE_NASK} ${naskfunc.img_SRCS} ${naskfunc_wine.img_OUTS}

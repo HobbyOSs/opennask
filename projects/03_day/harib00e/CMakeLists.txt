@@ -1,7 +1,6 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00e/")
 
-set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
@@ -35,13 +34,20 @@ add_custom_target(03_day_harib00e_ipl_clean
   COMMAND rm -f ${03_day_harib00e_WILDOBJ}
 )
 add_custom_target(03_day_harib00e_ipl_ipl
-  COMMAND ${NASK} ${03_day_harib00e_IPLS} ${03_day_harib00e_IPLB}
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00e_IPLS} ${03_day_harib00e_IPLB}
+  DEPENDS ${03_day_harib00e_IPLS}
 )
+add_custom_command(
+  OUTPUT ${03_day_harib00e_HEADB}
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00e_HEADS} ${03_day_harib00e_HEADB}
+  DEPENDS ${03_day_harib00e_HEADS}
+  COMMENT "Generating asmhead.bin for 03_day_harib00e_ipl"
+)
+
 add_custom_target(03_day_harib00e_ipl_sys
-  COMMAND ${NASK} ${03_day_harib00e_HEADS} ${03_day_harib00e_HEADB}
   COMMAND gcc ${BINOPT} -T ${03_day_harib00e_LDS} ${03_day_harib00e_CCS} -o ${03_day_harib00e_BOOTB}
   COMMAND cat ${03_day_harib00e_HEADB} ${03_day_harib00e_BOOTB} > ${03_day_harib00e_SYS}
-  DEPENDS 03_day_harib00e_ipl
+  DEPENDS ${03_day_harib00e_HEADB} 03_day_harib00e_ipl
 )
 add_custom_target(03_day_harib00e_ipl_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${03_day_harib00e_IPLB} -i ${03_day_harib00e_OS}
@@ -54,7 +60,8 @@ set(ipl.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00e/ipl.img)
 set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00e/ipl_wine.img)
 
 add_custom_target(03_day_harib00e_ipl
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${ipl.img_SRCS} ${ipl.img_OUTS}
+  DEPENDS ${ipl.img_SRCS}
 )
 set(ipl.img_HRB ${root_BINARY_DIR}/projects/03_day/harib00e/ipl.hrb)
 add_custom_target(03_day_harib00e_ipl_hrb

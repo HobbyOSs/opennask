@@ -1,7 +1,6 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00h/")
 
-set(NASK ${root_BINARY_DIR}/src/opennask)
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
@@ -35,13 +34,20 @@ add_custom_target(03_day_harib00h_haribote_clean
   COMMAND rm -f ${03_day_harib00h_WILDOBJ}
 )
 add_custom_target(03_day_harib00h_haribote_ipl
-  COMMAND ${NASK} ${03_day_harib00h_IPLS} ${03_day_harib00h_IPLB}
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00h_IPLS} ${03_day_harib00h_IPLB}
+  DEPENDS ${03_day_harib00h_IPLS}
 )
+add_custom_command(
+  OUTPUT ${03_day_harib00h_HEADB}
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00h_HEADS} ${03_day_harib00h_HEADB}
+  DEPENDS ${03_day_harib00h_HEADS}
+  COMMENT "Generating asmhead.bin for 03_day_harib00h_haribote"
+)
+
 add_custom_target(03_day_harib00h_haribote_sys
-  COMMAND ${NASK} ${03_day_harib00h_HEADS} ${03_day_harib00h_HEADB}
   COMMAND gcc ${BINOPT} -T ${03_day_harib00h_LDS} ${03_day_harib00h_CCS} -o ${03_day_harib00h_BOOTB}
   COMMAND cat ${03_day_harib00h_HEADB} ${03_day_harib00h_BOOTB} > ${03_day_harib00h_SYS}
-  DEPENDS 03_day_harib00h_ipl
+  DEPENDS ${03_day_harib00h_HEADB} 03_day_harib00h_ipl
 )
 add_custom_target(03_day_harib00h_haribote_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${03_day_harib00h_IPLB} -i ${03_day_harib00h_OS}
@@ -54,7 +60,8 @@ set(haribote.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00h/haribote.img)
 set(haribote_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00h/haribote_wine.img)
 
 add_custom_target(03_day_harib00h_haribote
-  COMMAND ${root_BINARY_DIR}/src/opennask ${haribote.img_SRCS} ${haribote.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${haribote.img_SRCS} ${haribote.img_OUTS}
+  DEPENDS ${haribote.img_SRCS}
 )
 set(haribote.img_HRB ${root_BINARY_DIR}/projects/03_day/harib00h/haribote.hrb)
 add_custom_target(03_day_harib00h_haribote_hrb
@@ -86,7 +93,8 @@ set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00h/ipl10.img)
 set(ipl10_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00h/ipl10_wine.img)
 
 add_custom_target(03_day_harib00h_ipl10
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl10.img_SRCS} ${ipl10.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${ipl10.img_SRCS} ${ipl10.img_OUTS}
+  DEPENDS ${ipl10.img_SRCS}
 )
 add_custom_target(03_day_harib00h_ipl10_wine
   COMMAND ${WINE} ${WINE_NASK} ${ipl10.img_SRCS} ${ipl10_wine.img_OUTS}

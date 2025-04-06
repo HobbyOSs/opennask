@@ -88,10 +88,17 @@ do
         echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"    >> ${CMAKELISTS}
         echo "  DEPENDS \${${NAS_DIR_TARGET}_IPLS}"                                                  >> ${CMAKELISTS} # 依存関係
 	echo ")"                                                                                       >> ${CMAKELISTS}
-	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                 >> ${CMAKELISTS}
-        # gosk <source> <output> 形式
+        # Add custom command to generate asmhead.bin
+        echo "add_custom_command("                                                                     >> ${CMAKELISTS}
+        echo "  OUTPUT \${${NAS_DIR_TARGET}_HEADB}"                                                    >> ${CMAKELISTS} # Specify output file
         echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"   >> ${CMAKELISTS}
-        echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADS}"                                                 >> ${CMAKELISTS} # 依存関係
+        echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADS}"                                                   >> ${CMAKELISTS} # Depends on source
+        echo "  COMMENT \"Generating asmhead.bin for ${TARGET_OS_NAME}\""                              >> ${CMAKELISTS}
+        echo ")"                                                                                       >> ${CMAKELISTS}
+        echo ""                                                                                        >> ${CMAKELISTS}
+
+	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                 >> ${CMAKELISTS}
+        # gosk command removed from here
 	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
 	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"               >> ${CMAKELISTS}
 	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"      >> ${CMAKELISTS}
@@ -106,7 +113,8 @@ do
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	fi
         echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}"  >> ${CMAKELISTS}
-        echo "  DEPENDS ${NAS_DIR_TARGET}_ipl"                                                         >> ${CMAKELISTS}
+        # Add dependency on the generated asmhead.bin and ipl.bin
+        echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADB} ${NAS_DIR_TARGET}_ipl"                             >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_img"                                                 >> ${CMAKELISTS}
         echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}"  >> ${CMAKELISTS}

@@ -1,7 +1,6 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/02_day/helloos3/")
 
-set(NASK ${root_BINARY_DIR}/src/opennask)
 set(02_day_helloos3_SRC ${root_SOURCE_DIR}/projects/02_day/helloos3/helloos.nas)
 set(02_day_helloos3_OS ${root_BINARY_DIR}/projects/02_day/helloos3/os.img)
 
@@ -17,7 +16,8 @@ add_custom_target(02_day_helloos3_helloos_clean
   COMMAND rm -f ${02_day_helloos3_OS}
 )
 add_custom_target(02_day_helloos3_helloos_img
-  ${root_BINARY_DIR}/src/opennask ${02_day_helloos3_SRC} ${02_day_helloos3_OS}
+  COMMAND ${GOSK_EXECUTABLE} ${02_day_helloos3_SRC} ${02_day_helloos3_OS}
+  DEPENDS ${02_day_helloos3_SRC}
 )
 ########### next target ###############
 set(helloos.img_SRCS ${root_SOURCE_DIR}/projects/02_day/helloos3/helloos.nas)
@@ -25,7 +25,8 @@ set(helloos.img_OUTS ${root_BINARY_DIR}/projects/02_day/helloos3/helloos.img)
 set(helloos_wine.img_OUTS ${root_BINARY_DIR}/projects/02_day/helloos3/helloos_wine.img)
 
 add_custom_target(02_day_helloos3_helloos
-  COMMAND ${root_BINARY_DIR}/src/opennask ${helloos.img_SRCS} ${helloos.img_OUTS}
+  COMMAND ${GOSK_EXECUTABLE} ${helloos.img_SRCS} ${helloos.img_OUTS}
+  DEPENDS ${helloos.img_SRCS}
 )
 add_custom_target(02_day_helloos3_helloos_wine
   COMMAND ${WINE} ${WINE_NASK} ${helloos.img_SRCS} ${helloos_wine.img_OUTS}
