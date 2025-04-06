@@ -37,9 +37,9 @@ do
 	echo "#----------------------------------------------------------"                             > ${CMAKELISTS}
 	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                             >> ${CMAKELISTS}
 	echo ""								                               >> ${CMAKELISTS}
-        echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                              >> ${CMAKELISTS}
-        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                              >> ${CMAKELISTS}
-        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                               >> ${CMAKELISTS}
+        # NASK 変数設定は不要。トップレベルの GOSK_EXECUTABLE を直接参照する
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                              >> ${CMAKELISTS} # Assuming makefont is still needed
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                               >> ${CMAKELISTS} # Assuming bin2obj is still needed
 	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"             >> ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	       >> ${CMAKELISTS}
@@ -83,17 +83,23 @@ do
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                           >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                 >> ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"	               >> ${CMAKELISTS}
+        # gosk <source> <output> 形式
+        echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"    >> ${CMAKELISTS}
+        echo "  DEPENDS \${${NAS_DIR_TARGET}_IPLS}"                                                  >> ${CMAKELISTS} # 依存関係
 	echo ")"                                                                                       >> ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                 >> ${CMAKELISTS}
-        echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"              >> ${CMAKELISTS}
+        # gosk <source> <output> 形式
+        echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"   >> ${CMAKELISTS}
+        echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADS}"                                                 >> ${CMAKELISTS} # 依存関係
 	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
 	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"               >> ${CMAKELISTS}
 	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"      >> ${CMAKELISTS}
 	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}"  >> ${CMAKELISTS}
 	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            echo "  COMMAND \${NASK} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}"          >> ${CMAKELISTS}
+            # gosk <source> <output> 形式
+            echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}" >> ${CMAKELISTS}
+            echo "  DEPENDS \${${NAS_DIR_TARGET}_FUNCS}"                                              >> ${CMAKELISTS} # 依存関係
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	else
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
@@ -115,7 +121,9 @@ do
     echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                 >> ${CMAKELISTS}
     echo ""                                                                                            >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}"                                                            >> ${CMAKELISTS}
-    echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"  >> ${CMAKELISTS}
+    # gosk <source> <output> 形式
+    echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
+    echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                         >> ${CMAKELISTS} # 依存関係
     echo ")"                                                                                           >> ${CMAKELISTS}
     # その他のnaskファイルのオブジェクト化, hdファイルのディレクトリに押し込む
     # mcopy -i ./fat.img ./myfile.bin ::/myfile.bin

@@ -34,7 +34,7 @@ do
     echo "#----------------------------------------------------------"                             > ${CMAKELISTS}
     echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                             >> ${CMAKELISTS}
     echo ""								                           >> ${CMAKELISTS}
-    echo "set(NASK \${root_BINARY_DIR}/src/opennask)"                                              >> ${CMAKELISTS}
+    # NASK 変数設定は不要。トップレベルの GOSK_EXECUTABLE を直接参照する
     echo "set(${NAS_DIR_TARGET}_SRC \${root_SOURCE_DIR}/projects/${HELLO_OS})"                     >> ${CMAKELISTS}
     echo "set(${NAS_DIR_TARGET}_OS \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"                >> ${CMAKELISTS}
     echo ""		        							           >> ${CMAKELISTS}
@@ -50,7 +50,9 @@ do
     echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_OS}"                                                >> ${CMAKELISTS}
     echo ")"                                                                                       >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_OS_NAME}_img"                                                 >> ${CMAKELISTS}
-    echo "  \${root_BINARY_DIR}/src/opennask \${${NAS_DIR_TARGET}_SRC} \${${NAS_DIR_TARGET}_OS}"   >> ${CMAKELISTS}
+    # gosk <source> <output> 形式
+    echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_SRC} \${${NAS_DIR_TARGET}_OS}"        >> ${CMAKELISTS}
+    echo "  DEPENDS \${${NAS_DIR_TARGET}_SRC}"                                                     >> ${CMAKELISTS} # 依存関係
     echo ")"                                                                                       >> ${CMAKELISTS}
     echo "########### next target ###############"                                                 >> ${CMAKELISTS}
     echo "set(${BINARY_NAME}_SRCS \${root_SOURCE_DIR}/projects/${HELLO_OS})"                           >> ${CMAKELISTS}
@@ -58,7 +60,9 @@ do
     echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                 >> ${CMAKELISTS}
     echo ""                                                                                            >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}"                                                            >> ${CMAKELISTS}
-    echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"  >> ${CMAKELISTS}
+    # gosk <source> <output> 形式
+    echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
+    echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                         >> ${CMAKELISTS} # 依存関係
     echo ")"                                                                                           >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}_wine"                                                       >> ${CMAKELISTS}
     echo "  COMMAND \${WINE} \${WINE_NASK} \${${BINARY_NAME}_SRCS} \${${WINE_BINARY_NAME}_OUTS}"       >> ${CMAKELISTS}
