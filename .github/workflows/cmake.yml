@@ -2,58 +2,47 @@ name: CMake
 
 on:
   push:
-  pull_request:
-    branches: [ "*" ]
-
-env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    branches: ["*"]
 
 jobs:
   build:
-    runs-on: ubuntu-latest # jammy
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source
-      uses: actions/checkout@v2
-      with:
-        submodules: recursive
+      - name: Checkout source
+        uses: actions/checkout@v2
 
-    - name: Use ccache
-      uses: hendrikmuhs/ccache-action@v1.2
+      - name: install-cmake
+        uses: Symbitic/install-cmake@v0.1.0
+        with:
+          cmake: 3.17.2
+          ninja: 1.9.0
 
-    - name: Update submodules
-      id: update
-      run: git submodule update --remote --recursive
+      - name: Install build tools
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils
+          version: 1.2
 
-    - name: Run git status
-      id: status
-      run: echo "::set-output name=status::$(git status -s)"
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22" # 必要に応じてバージョンを指定
 
-    - name: install-cmake
-      uses: Symbitic/install-cmake@v0.1.0
-      with:
-        cmake: 3.17.2
-        ninja: 1.9.0
+      - name: Install gosk
+        run: go install github.com/HobbyOSs/gosk/cmd/gosk@latest
 
-    - name: Install build tools
-      uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils
-        version: 1.2
+      - name: Configure CMake
+        run: |
+          cmake -B ${{github.workspace}}/build -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release              \
+                -DCMAKE_C_COMPILER=clang                \
+                -DCMAKE_CXX_COMPILER=clang++
 
-    - name: Configure CMake
-      run: |
-        cmake -B ${{github.workspace}}/build -G Ninja \
-              -DCMAKE_BUILD_TYPE=Release              \
-              -DCMAKE_C_COMPILER=clang                \
-              -DCMAKE_CXX_COMPILER=clang++            \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache      \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        run: ninja && ninja images
 
-    - name: Build
-      working-directory: ${{github.workspace}}/build
-      run: ninja && ninja images
-
-    - name: Test
-      working-directory: ${{github.workspace}}/build
-      run: ctest
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest
