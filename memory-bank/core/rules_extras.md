@@ -9,6 +9,41 @@
     - 特定ターゲットのビルド方法 (例: `XX_day_haribxxx_img`)
     - QEMU での実行方法 (例: `XX_day_haribxxx_run`)
 
+#### Ninja ターゲット一覧 (主なもの)
+
+`ninja -t targets` コマンドで確認できるターゲットは多数ありますが、主なパターンは以下の通りです。
+
+**標準ターゲット:**
+
+*   `all`: デフォルトのビルドターゲット (通常は全てのイメージビルド)
+*   `clean`: ビルド生成物を削除
+*   `help`: 利用可能な主なターゲットを表示
+*   `edit_cache`: CMakeキャッシュを編集 (ccmake または cmake-gui が必要)
+*   `rebuild_cache`: CMakeキャッシュを再生成
+
+**プロジェクト固有ターゲット:**
+
+`projects/` 配下の各サンプルには、以下の命名規則に基づいたターゲットが定義されています。
+
+`ninja <Day>_<SampleName>_<Action>`
+
+*   `<Day>`: `01_day` から `21_day` までのディレクトリ名
+*   `<SampleName>`: `haribXXX` や `helloosX` などのサンプル名
+*   `<Action>`: 実行する操作。主なものを以下に示します。
+    *   `img`: OSイメージファイル (`.img`) を生成します。これが主要なビルドターゲットです。
+    *   `run`: 生成されたOSイメージをQEMUで実行します。
+    *   `debug`: 生成されたOSイメージをQEMUでデバッグモードで実行します (GDB接続用)。
+    *   `clean`: 特定サンプルのビルド生成物を削除します。
+    *   `wine`: 生成された実行可能ファイル (もしあれば) をWineで実行します (デバッグ用)。
+    *   `od`: 生成されたバイナリファイルを `objdump` で逆アセンブルします (デバッグ用)。
+    *   `ipl`, `sys`, `asmhead`, `naskfunc`, `hlt`, `hello`, `hello2`, `a_nask`, `crack2` など: 中間生成ファイルや特定の実行可能ファイルに関連するターゲットです。通常は `img` ターゲットを実行すればこれらも自動的にビルドされます。
+
+**例:**
+
+*   3日目の `harib00i` のイメージをビルド: `ninja 03_day_harib00i_img`
+*   20日目の `harib17a` をQEMUで実行: `ninja 20_day_harib17a_run`
+*   ビルドディレクトリ全体をクリーン: `ninja clean`
+
 ### テスト実行ポリシー
     - テストの種類 (例: `ninja test`, `nask_functional_test.sh`)
     - テストの実行方法
