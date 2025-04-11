@@ -1,136 +1,39 @@
 #!/bin/bash
 
-#
-# これもEmacs+自動生成、一つ一つ起動をテストできる
-#
-SCRIPT_DIR=$(cd $(dirname $0);pwd)
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+BUILD_DIR="${SCRIPT_DIR}/build"
 
-cd ${SCRIPT_DIR}/build && ninja 01_day_helloos1_helloos_run
-cd ${SCRIPT_DIR}/build && ninja 01_day_helloos2_helloos_run
-cd ${SCRIPT_DIR}/build && ninja 02_day_helloos3_helloos_run
-cd ${SCRIPT_DIR}/build && ninja 02_day_helloos3_helloos_run
-cd ${SCRIPT_DIR}/build && ninja 02_day_helloos4_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 02_day_helloos5_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00a_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00b_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00c_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00d_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00e_ipl_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00f_haribote_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00g_haribote_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00h_haribote_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00i_run
-cd ${SCRIPT_DIR}/build && ninja 03_day_harib00j_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01a_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01b_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01c_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01d_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01e_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01f_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01g_run
-cd ${SCRIPT_DIR}/build && ninja 04_day_harib01h_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02a_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02b_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02c_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02d_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02e_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02f_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02g_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02h_run
-cd ${SCRIPT_DIR}/build && ninja 05_day_harib02i_run
-cd ${SCRIPT_DIR}/build && ninja 06_day_harib03a_run
-cd ${SCRIPT_DIR}/build && ninja 06_day_harib03b_run
-cd ${SCRIPT_DIR}/build && ninja 06_day_harib03c_run
-cd ${SCRIPT_DIR}/build && ninja 06_day_harib03d_run
-cd ${SCRIPT_DIR}/build && ninja 06_day_harib03e_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04a_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04b_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04c_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04d_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04e_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04f_run
-cd ${SCRIPT_DIR}/build && ninja 07_day_harib04g_run
-cd ${SCRIPT_DIR}/build && ninja 08_day_harib05a_run
-cd ${SCRIPT_DIR}/build && ninja 08_day_harib05b_run
-cd ${SCRIPT_DIR}/build && ninja 08_day_harib05c_run
-cd ${SCRIPT_DIR}/build && ninja 08_day_harib05d_run
-cd ${SCRIPT_DIR}/build && ninja 09_day_harib06a_run
-cd ${SCRIPT_DIR}/build && ninja 09_day_harib06b_run
-cd ${SCRIPT_DIR}/build && ninja 09_day_harib06c_run
-cd ${SCRIPT_DIR}/build && ninja 09_day_harib06d_run
-cd ${SCRIPT_DIR}/build && ninja 10_day_harib07a_run
-cd ${SCRIPT_DIR}/build && ninja 10_day_harib07b_run
-cd ${SCRIPT_DIR}/build && ninja 10_day_harib07c_run
-cd ${SCRIPT_DIR}/build && ninja 10_day_harib07d_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08a_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08b_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08c_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08d_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08e_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08f_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08g_run
-cd ${SCRIPT_DIR}/build && ninja 11_day_harib08h_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09a_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09b_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09c_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09d_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09e_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09f_run
-cd ${SCRIPT_DIR}/build && ninja 12_day_harib09g_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10a_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10b_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10c_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10d_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10e_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10f_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10g_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10h_run
-cd ${SCRIPT_DIR}/build && ninja 13_day_harib10i_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11a_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11b_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11c_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11d_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11e_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11f_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11g_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11h_run
-cd ${SCRIPT_DIR}/build && ninja 14_day_harib11i_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12a_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12b_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12c_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12d_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12e_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12f_run
-cd ${SCRIPT_DIR}/build && ninja 15_day_harib12g_run
-cd ${SCRIPT_DIR}/build && ninja 16_day_harib13a_run
-cd ${SCRIPT_DIR}/build && ninja 16_day_harib13b_run
-cd ${SCRIPT_DIR}/build && ninja 16_day_harib13c_run
-cd ${SCRIPT_DIR}/build && ninja 16_day_harib13d_run
-cd ${SCRIPT_DIR}/build && ninja 16_day_harib13e_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14a_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14b_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14c_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14d_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14e_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14f_run
-cd ${SCRIPT_DIR}/build && ninja 17_day_harib14g_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15a_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15b_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15c_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15d_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15e_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15f_run
-cd ${SCRIPT_DIR}/build && ninja 18_day_harib15g_run
-cd ${SCRIPT_DIR}/build && ninja 19_day_harib16a_run
-cd ${SCRIPT_DIR}/build && ninja 19_day_harib16b_run
-cd ${SCRIPT_DIR}/build && ninja 19_day_harib16c_run
-cd ${SCRIPT_DIR}/build && ninja 19_day_harib16d_run
-cd ${SCRIPT_DIR}/build && ninja 19_day_harib16e_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17a_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17b_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17c_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17d_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17e_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17f_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17g_run
-cd ${SCRIPT_DIR}/build && ninja 20_day_harib17h_run
+# build ディレクトリから *_run ターゲットを抽出
+targets_from_build=""
+if [ -d "${BUILD_DIR}" ]; then
+    # ninja -t targets の出力から '_run: ' を含む行を抽出し、':' より前の部分を取得
+    targets_from_build=$(cd "${BUILD_DIR}" && ninja -t targets 2>/dev/null | grep '_run: ' | awk -F': ' '{print $1}' | sort -u)
+fi
+
+# ターゲットが存在しない場合はエラー終了
+if [ -z "$targets_from_build" ]; then
+    echo "build ディレクトリから実行可能な ninja ターゲット (*_run) が見つかりません。"
+    echo "ninja_rebuild.sh を実行してビルド環境を再構築してください。"
+    exit 1
+fi
+
+# fzf でターゲットを選択させる
+selected_target=$(echo "$targets_from_build" | fzf --height 40% --reverse --prompt="実行するターゲットを選択: " --header="↑↓で選択, Enterで実行, Ctrl-Cで終了")
+
+# fzf で何も選択されなかった場合 (ESCキーやCtrl-Cなど) は終了
+if [ -z "$selected_target" ]; then
+    echo "ターゲットが選択されませんでした。終了します。"
+    exit 0
+fi
+
+# 選択されたターゲットを実行
+echo "ターゲット '$selected_target' を実行します..."
+if (cd "${BUILD_DIR}" && ninja "$selected_target"); then
+    echo "ターゲット '$selected_target' の実行が完了しました。"
+else
+    echo "ターゲット '$selected_target' の実行中にエラーが発生しました。"
+    exit 1 # エラーが発生したら終了する
+fi
+
+exit 0
+
