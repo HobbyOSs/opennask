@@ -4,119 +4,75 @@ message(STATUS "Entering directory projects/03_day/harib00f/")
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
-set(03_day_harib00f_OS    ${root_BINARY_DIR}/projects/03_day/harib00f/os.img)
-set(03_day_harib00f_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00f/os.sys)
-set(03_day_harib00f_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.bin)
-set(03_day_harib00f_IPLS  ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl10.nas)
-set(03_day_harib00f_HEADB ${root_BINARY_DIR}/projects/03_day/harib00f/asmhead.bin)
-set(03_day_harib00f_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00f/asmhead.nas)
-set(03_day_harib00f_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00f/boot.bin)
-set(03_day_harib00f_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00f/boot.o)
-set(03_day_harib00f_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00f/*.c)
-set(03_day_harib00f_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(03_day_harib00f_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00f/*.o)
 
+# IPL only build rules (ipl.nas)
+set(03_day_harib00f_ipl_only_IPLS ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl.nas)
+set(03_day_harib00f_ipl_only_IPLB ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.bin)
 
-add_custom_target(03_day_harib00f_haribote_run
-  COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00f_OS}
-  DEPENDS 03_day_harib00f_img
+add_custom_target(03_day_harib00f_ipl_only
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00f_ipl_only_IPLS} ${03_day_harib00f_ipl_only_IPLB}
+  DEPENDS ${03_day_harib00f_ipl_only_IPLS}
 )
-add_custom_target(03_day_harib00f_haribote_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00f_OS} ${QEMU_DEBUG_OPT}
-  DEPENDS 03_day_harib00f_img
+add_custom_target(03_day_harib00f_run
+  COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00f_ipl_only_IPLB}
+  DEPENDS 03_day_harib00f_ipl_only
 )
-add_custom_target(03_day_harib00f_haribote_clean
-  COMMAND rm -f ${03_day_harib00f_OS}
-  COMMAND rm -f ${03_day_harib00f_SYS}
-  COMMAND rm -f ${03_day_harib00f_IPLB}
-  COMMAND rm -f ${03_day_harib00f_HEADB}
-  COMMAND rm -f ${03_day_harib00f_BOOTB}
-  COMMAND rm -f ${03_day_harib00f_WILDOBJ}
+add_custom_target(03_day_harib00f_debug
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00f_ipl_only_IPLB} ${QEMU_DEBUG_OPT}
+  DEPENDS 03_day_harib00f_ipl_only
 )
-add_custom_target(03_day_harib00f_haribote_ipl
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00f_IPLS} ${03_day_harib00f_IPLB}
-  DEPENDS ${03_day_harib00f_IPLS}
+add_custom_target(03_day_harib00f_clean
+  COMMAND rm -f ${03_day_harib00f_ipl_only_IPLB}
+  COMMAND rm -f ${root_BINARY_DIR}/projects/03_day/harib00f/*_wine.bin
+  COMMAND rm -f ${root_BINARY_DIR}/projects/03_day/harib00f/*.txt
 )
-add_custom_command(
-  OUTPUT ${03_day_harib00f_HEADB}
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00f_HEADS} ${03_day_harib00f_HEADB}
-  DEPENDS ${03_day_harib00f_HEADS}
-  COMMENT "Generating asmhead.bin for 03_day_harib00f_haribote"
-)
+add_dependencies(images 03_day_harib00f_ipl_only)
 
-add_custom_target(03_day_harib00f_haribote_sys
-  COMMAND gcc ${BINOPT} -T ${03_day_harib00f_LDS} ${03_day_harib00f_CCS} -o ${03_day_harib00f_BOOTB}
-  COMMAND cat ${03_day_harib00f_HEADB} ${03_day_harib00f_BOOTB} > ${03_day_harib00f_SYS}
-  DEPENDS ${03_day_harib00f_HEADB} 03_day_harib00f_ipl
-)
-add_custom_target(03_day_harib00f_haribote_img
-  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${03_day_harib00f_IPLB} -i ${03_day_harib00f_OS}
-  COMMAND mcopy -i ${03_day_harib00f_OS} ${03_day_harib00f_SYS} ::
-  DEPENDS 03_day_harib00f_sys
-)
 ########### next target ###############
-set(haribote.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/haribote.nas)
-set(haribote.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote.img)
-set(haribote_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote_wine.img)
+set(03_day_harib00f_haribote_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/haribote.nas)
+set(03_day_harib00f_haribote_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote.img)
 
 add_custom_target(03_day_harib00f_haribote
-  COMMAND ${GOSK_EXECUTABLE} ${haribote.img_SRCS} ${haribote.img_OUTS}
-  DEPENDS ${haribote.img_SRCS}
-)
-set(haribote.img_HRB ${root_BINARY_DIR}/projects/03_day/harib00f/haribote.hrb)
-add_custom_target(03_day_harib00f_haribote_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${haribote.img_SRCS} ${haribote.img_HRB}
-  COMMAND mcopy -i ${03_day_harib00f_OS} ${haribote.img_HRB} ::haribote.hrb
-  DEPENDS 03_day_harib00f_img
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00f_haribote_SRCS} ${03_day_harib00f_haribote_OUTS}
+  DEPENDS ${03_day_harib00f_haribote_SRCS}
 )
 
+add_dependencies(images 03_day_harib00f_haribote)
+set(03_day_harib00f_haribote_WINE_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/haribote_wine.img)
 add_custom_target(03_day_harib00f_haribote_wine
-  COMMAND ${WINE} ${WINE_NASK} ${haribote.img_SRCS} ${haribote_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${03_day_harib00f_haribote_SRCS} ${03_day_harib00f_haribote_WINE_OUTS}
 )
+add_dependencies(wine 03_day_harib00f_haribote_wine)
+
 add_custom_target(03_day_harib00f_haribote_od
-  COMMAND ${OD} -t x1 ${haribote.img_OUTS}      > ${haribote.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${haribote_wine.img_OUTS} > ${haribote_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${haribote.img_OUTS}_f.txt ${haribote_wine.img_OUTS}_t.txt
+  COMMAND ${OD} -t x1 ${03_day_harib00f_haribote_OUTS}      > ${03_day_harib00f_haribote_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${03_day_harib00f_haribote_WINE_OUTS} > ${03_day_harib00f_haribote_WINE_OUTS}_t.txt
+  COMMAND diff -s ${03_day_harib00f_haribote_OUTS}_f.txt ${03_day_harib00f_haribote_WINE_OUTS}_t.txt
 )
 
 add_dependencies(03_day_harib00f_haribote_od 03_day_harib00f_haribote)
 add_dependencies(03_day_harib00f_haribote_od 03_day_harib00f_haribote_wine)
-
-add_dependencies(images 03_day_harib00f_haribote)
-add_dependencies(wine 03_day_harib00f_haribote_wine)
 add_dependencies(od 03_day_harib00f_haribote_od)
 
 #----------------------------------------------------------
 ########### next target ###############
-set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl.nas)
-set(ipl.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.img)
-set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl_wine.img)
-
-add_custom_target(03_day_harib00f_ipl
-  COMMAND ${GOSK_EXECUTABLE} ${ipl.img_SRCS} ${ipl.img_OUTS}
-  DEPENDS ${ipl.img_SRCS}
-)
-set(ipl.img_HRB ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.hrb)
-add_custom_target(03_day_harib00f_ipl_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_HRB}
-  COMMAND mcopy -i ${03_day_harib00f_OS} ${ipl.img_HRB} ::ipl.hrb
-  DEPENDS 03_day_harib00f_img
-)
-
+set(03_day_harib00f_ipl_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00f/ipl.nas)
+set(03_day_harib00f_ipl_WINE_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl_wine.bin)
 add_custom_target(03_day_harib00f_ipl_wine
-  COMMAND ${WINE} ${WINE_NASK} ${ipl.img_SRCS} ${ipl_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${03_day_harib00f_ipl_SRCS} ${03_day_harib00f_ipl_WINE_OUTS}
 )
-add_custom_target(03_day_harib00f_ipl_od
-  COMMAND ${OD} -t x1 ${ipl.img_OUTS}      > ${ipl.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${ipl_wine.img_OUTS} > ${ipl_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${ipl.img_OUTS}_f.txt ${ipl_wine.img_OUTS}_t.txt
-)
-
-add_dependencies(03_day_harib00f_ipl_od 03_day_harib00f_ipl)
-add_dependencies(03_day_harib00f_ipl_od 03_day_harib00f_ipl_wine)
-
-add_dependencies(images 03_day_harib00f_ipl)
 add_dependencies(wine 03_day_harib00f_ipl_wine)
+
+set(03_day_harib00f_ipl_OUTS ${root_BINARY_DIR}/projects/03_day/harib00f/ipl.bin)
+add_custom_target(03_day_harib00f_ipl_od
+  COMMAND ${OD} -t x1 ${03_day_harib00f_ipl_OUTS}      > ${03_day_harib00f_ipl_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${03_day_harib00f_ipl_WINE_OUTS} > ${03_day_harib00f_ipl_WINE_OUTS}_t.txt
+  COMMAND diff -s ${03_day_harib00f_ipl_OUTS}_f.txt ${03_day_harib00f_ipl_WINE_OUTS}_t.txt
+)
+
+add_dependencies(03_day_harib00f_ipl_od 03_day_harib00f_ipl_only)
+add_dependencies(03_day_harib00f_ipl_od 03_day_harib00f_ipl_wine)
 add_dependencies(od 03_day_harib00f_ipl_od)
 
 #----------------------------------------------------------

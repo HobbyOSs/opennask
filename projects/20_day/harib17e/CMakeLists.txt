@@ -4,16 +4,19 @@ message(STATUS "Entering directory projects/20_day/harib17e/")
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
+set(20_day_harib17e_WILDOBJ ${root_BINARY_DIR}/projects/20_day/harib17e/*.o)
+
+# Full OS build rules
 set(20_day_harib17e_OS    ${root_BINARY_DIR}/projects/20_day/harib17e/os.img)
-set(20_day_harib17e_SYS	  ${root_BINARY_DIR}/projects/20_day/harib17e/os.sys)
+set(20_day_harib17e_SYS   ${root_BINARY_DIR}/projects/20_day/harib17e/os.sys)
 set(20_day_harib17e_IPLB  ${root_BINARY_DIR}/projects/20_day/harib17e/ipl.bin)
 set(20_day_harib17e_IPLS  ${root_SOURCE_DIR}/projects/20_day/harib17e/ipl10.nas)
 set(20_day_harib17e_HEADB ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead.bin)
 set(20_day_harib17e_HEADS ${root_SOURCE_DIR}/projects/20_day/harib17e/asmhead.nas)
 set(20_day_harib17e_BOOTB ${root_BINARY_DIR}/projects/20_day/harib17e/boot.bin)
-set(20_day_harib17e_CCO	  ${root_BINARY_DIR}/projects/20_day/harib17e/boot.o)
-set(20_day_harib17e_CCS	  ${root_SOURCE_DIR}/projects/20_day/harib17e/*.c)
-set(20_day_harib17e_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
+set(20_day_harib17e_CCO   ${root_BINARY_DIR}/projects/20_day/harib17e/boot.o)
+set(20_day_harib17e_CCS   ${root_SOURCE_DIR}/projects/20_day/harib17e/*.c)
+set(20_day_harib17e_LDS   ${root_SOURCE_DIR}/projects/os.lds)
 set(20_day_harib17e_FUNCS ${root_SOURCE_DIR}/projects/20_day/harib17e/naskfunc.nas)
 set(20_day_harib17e_FUNCO ${root_BINARY_DIR}/projects/20_day/harib17e/naskfunc.o)
 set(20_day_harib17e_FONTS ${root_SOURCE_DIR}/projects/20_day/harib17e/hankaku.txt)
@@ -21,8 +24,6 @@ set(20_day_harib17e_FONTB ${root_BINARY_DIR}/projects/20_day/harib17e/hankaku.bi
 set(20_day_harib17e_FONTO ${root_BINARY_DIR}/projects/20_day/harib17e/hankaku.o)
 set(20_day_harib17e_LIBGE ${root_BINARY_DIR}/golibc/libgo.a)
 set(20_day_harib17e_LIBGC ${root_BINARY_DIR}/projects/20_day/harib17e/libgo.o)
-set(20_day_harib17e_WILDOBJ ${root_BINARY_DIR}/projects/20_day/harib17e/*.o)
-
 
 add_custom_target(20_day_harib17e_run
   COMMAND ${QEMU} ${QEMUOPT} ${20_day_harib17e_OS}
@@ -39,8 +40,12 @@ add_custom_target(20_day_harib17e_clean
   COMMAND rm -f ${20_day_harib17e_HEADB}
   COMMAND rm -f ${20_day_harib17e_BOOTB}
   COMMAND rm -f ${20_day_harib17e_WILDOBJ}
+  COMMAND rm -f ${root_BINARY_DIR}/projects/20_day/harib17e/ipl10.bin
+  COMMAND rm -f ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead.bin
+  COMMAND rm -f ${root_BINARY_DIR}/projects/20_day/harib17e/*_wine.bin
+  COMMAND rm -f ${root_BINARY_DIR}/projects/20_day/harib17e/*.txt
 )
-add_custom_target(20_day_harib17e_ipl
+add_custom_target(20_day_harib17e_ipl_build
   COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_IPLS} ${20_day_harib17e_IPLB}
   DEPENDS ${20_day_harib17e_IPLS}
 )
@@ -56,125 +61,129 @@ add_custom_target(20_day_harib17e_sys
   COMMAND ${B2O}  ${20_day_harib17e_FONTB} ${20_day_harib17e_FONTO} _hankaku
   COMMAND ${CONV} -fcoff32 -nu ${20_day_harib17e_LIBGE} ${20_day_harib17e_LIBGC}
   COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_FUNCS} ${20_day_harib17e_FUNCO}
-  DEPENDS ${20_day_harib17e_FUNCS}
   COMMAND gcc ${BINOPT} -T ${20_day_harib17e_LDS} ${20_day_harib17e_CCS} ${20_day_harib17e_WILDOBJ} -o ${20_day_harib17e_BOOTB}
   COMMAND cat ${20_day_harib17e_HEADB} ${20_day_harib17e_BOOTB} > ${20_day_harib17e_SYS}
-  DEPENDS ${20_day_harib17e_HEADB} 20_day_harib17e_ipl
+  DEPENDS ${20_day_harib17e_HEADB} 20_day_harib17e_ipl_build
+  DEPENDS ${20_day_harib17e_FUNCO}
+  DEPENDS ${20_day_harib17e_FONTO}
 )
 add_custom_target(20_day_harib17e_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${20_day_harib17e_IPLB} -i ${20_day_harib17e_OS}
   COMMAND mcopy -i ${20_day_harib17e_OS} ${20_day_harib17e_SYS} ::
   DEPENDS 20_day_harib17e_sys
 )
+
 ########### next target ###############
-set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/asmhead.nas)
-set(asmhead.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead.img)
-set(asmhead_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead_wine.img)
+set(20_day_harib17e_asmhead_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/asmhead.nas)
+set(20_day_harib17e_asmhead_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead.bin)
 
 add_custom_target(20_day_harib17e_asmhead
-  COMMAND ${GOSK_EXECUTABLE} ${asmhead.img_SRCS} ${asmhead.img_OUTS}
-  DEPENDS ${asmhead.img_SRCS}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_asmhead_SRCS} ${20_day_harib17e_asmhead_OUTS}
+  DEPENDS ${20_day_harib17e_asmhead_SRCS}
 )
+
+set(20_day_harib17e_asmhead_WINE_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/asmhead_wine.bin)
 add_custom_target(20_day_harib17e_asmhead_wine
-  COMMAND ${WINE} ${WINE_NASK} ${asmhead.img_SRCS} ${asmhead_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${20_day_harib17e_asmhead_SRCS} ${20_day_harib17e_asmhead_WINE_OUTS}
 )
+add_dependencies(wine 20_day_harib17e_asmhead_wine)
+
 add_custom_target(20_day_harib17e_asmhead_od
-  COMMAND ${OD} -t x1 ${asmhead.img_OUTS}      > ${asmhead.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${asmhead_wine.img_OUTS} > ${asmhead_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${asmhead.img_OUTS}_f.txt ${asmhead_wine.img_OUTS}_t.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_asmhead_OUTS}      > ${20_day_harib17e_asmhead_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_asmhead_WINE_OUTS} > ${20_day_harib17e_asmhead_WINE_OUTS}_t.txt
+  COMMAND diff -s ${20_day_harib17e_asmhead_OUTS}_f.txt ${20_day_harib17e_asmhead_WINE_OUTS}_t.txt
 )
 
 add_dependencies(20_day_harib17e_asmhead_od 20_day_harib17e_asmhead)
 add_dependencies(20_day_harib17e_asmhead_od 20_day_harib17e_asmhead_wine)
-
-add_dependencies(images 20_day_harib17e_asmhead)
-add_dependencies(wine 20_day_harib17e_asmhead_wine)
 add_dependencies(od 20_day_harib17e_asmhead_od)
 
 #----------------------------------------------------------
 ########### next target ###############
-set(hlt.img_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/hlt.nas)
-set(hlt.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/hlt.img)
-set(hlt_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/hlt_wine.img)
+set(20_day_harib17e_hlt_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/hlt.nas)
+set(20_day_harib17e_hlt_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/hlt.img)
 
 add_custom_target(20_day_harib17e_hlt
-  COMMAND ${GOSK_EXECUTABLE} ${hlt.img_SRCS} ${hlt.img_OUTS}
-  DEPENDS ${hlt.img_SRCS}
-)
-set(hlt.img_HRB ${root_BINARY_DIR}/projects/20_day/harib17e/hlt.hrb)
-add_custom_target(20_day_harib17e_hlt_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${hlt.img_SRCS} ${hlt.img_HRB}
-  COMMAND mcopy -i ${20_day_harib17e_OS} ${hlt.img_HRB} ::hlt.hrb
-  DEPENDS 20_day_harib17e_img
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_hlt_SRCS} ${20_day_harib17e_hlt_OUTS}
+  DEPENDS ${20_day_harib17e_hlt_SRCS}
 )
 
-add_dependencies(20_day_harib17e_run 20_day_harib17e_hlt_hrb)
+add_dependencies(images 20_day_harib17e_hlt)
+set(20_day_harib17e_hlt_WINE_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/hlt_wine.img)
 add_custom_target(20_day_harib17e_hlt_wine
-  COMMAND ${WINE} ${WINE_NASK} ${hlt.img_SRCS} ${hlt_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${20_day_harib17e_hlt_SRCS} ${20_day_harib17e_hlt_WINE_OUTS}
 )
+add_dependencies(wine 20_day_harib17e_hlt_wine)
+
 add_custom_target(20_day_harib17e_hlt_od
-  COMMAND ${OD} -t x1 ${hlt.img_OUTS}      > ${hlt.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${hlt_wine.img_OUTS} > ${hlt_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${hlt.img_OUTS}_f.txt ${hlt_wine.img_OUTS}_t.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_hlt_OUTS}      > ${20_day_harib17e_hlt_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_hlt_WINE_OUTS} > ${20_day_harib17e_hlt_WINE_OUTS}_t.txt
+  COMMAND diff -s ${20_day_harib17e_hlt_OUTS}_f.txt ${20_day_harib17e_hlt_WINE_OUTS}_t.txt
 )
 
 add_dependencies(20_day_harib17e_hlt_od 20_day_harib17e_hlt)
 add_dependencies(20_day_harib17e_hlt_od 20_day_harib17e_hlt_wine)
-
-add_dependencies(images 20_day_harib17e_hlt)
-add_dependencies(wine 20_day_harib17e_hlt_wine)
 add_dependencies(od 20_day_harib17e_hlt_od)
 
+set(20_day_harib17e_hlt_HRB ${root_BINARY_DIR}/projects/20_day/harib17e/hlt.hrb)
+add_custom_target(20_day_harib17e_hlt_hrb
+  COMMAND ${root_BINARY_DIR}/src/opennask ${20_day_harib17e_hlt_SRCS} ${20_day_harib17e_hlt_HRB}
+  COMMAND mcopy -i ${20_day_harib17e_OS} ${20_day_harib17e_hlt_HRB} ::hlt.hrb
+  DEPENDS 20_day_harib17e_img
+)
+
+add_dependencies(20_day_harib17e_run 20_day_harib17e_hlt_hrb)
 #----------------------------------------------------------
 ########### next target ###############
-set(ipl10.img_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/ipl10.nas)
-set(ipl10.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/ipl10.img)
-set(ipl10_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/ipl10_wine.img)
+set(20_day_harib17e_ipl10_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/ipl10.nas)
+set(20_day_harib17e_ipl10_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/ipl10.bin)
 
 add_custom_target(20_day_harib17e_ipl10
-  COMMAND ${GOSK_EXECUTABLE} ${ipl10.img_SRCS} ${ipl10.img_OUTS}
-  DEPENDS ${ipl10.img_SRCS}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_ipl10_SRCS} ${20_day_harib17e_ipl10_OUTS}
+  DEPENDS ${20_day_harib17e_ipl10_SRCS}
 )
+
+set(20_day_harib17e_ipl10_WINE_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/ipl10_wine.bin)
 add_custom_target(20_day_harib17e_ipl10_wine
-  COMMAND ${WINE} ${WINE_NASK} ${ipl10.img_SRCS} ${ipl10_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${20_day_harib17e_ipl10_SRCS} ${20_day_harib17e_ipl10_WINE_OUTS}
 )
+add_dependencies(wine 20_day_harib17e_ipl10_wine)
+
 add_custom_target(20_day_harib17e_ipl10_od
-  COMMAND ${OD} -t x1 ${ipl10.img_OUTS}      > ${ipl10.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${ipl10_wine.img_OUTS} > ${ipl10_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${ipl10.img_OUTS}_f.txt ${ipl10_wine.img_OUTS}_t.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_ipl10_OUTS}      > ${20_day_harib17e_ipl10_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_ipl10_WINE_OUTS} > ${20_day_harib17e_ipl10_WINE_OUTS}_t.txt
+  COMMAND diff -s ${20_day_harib17e_ipl10_OUTS}_f.txt ${20_day_harib17e_ipl10_WINE_OUTS}_t.txt
 )
 
 add_dependencies(20_day_harib17e_ipl10_od 20_day_harib17e_ipl10)
 add_dependencies(20_day_harib17e_ipl10_od 20_day_harib17e_ipl10_wine)
-
-add_dependencies(images 20_day_harib17e_ipl10)
-add_dependencies(wine 20_day_harib17e_ipl10_wine)
 add_dependencies(od 20_day_harib17e_ipl10_od)
 
 #----------------------------------------------------------
 ########### next target ###############
-set(naskfunc.img_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/naskfunc.nas)
-set(naskfunc.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/naskfunc.img)
-set(naskfunc_wine.img_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/naskfunc_wine.img)
+set(20_day_harib17e_naskfunc_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17e/naskfunc.nas)
+set(20_day_harib17e_naskfunc_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/naskfunc.img)
 
 add_custom_target(20_day_harib17e_naskfunc
-  COMMAND ${GOSK_EXECUTABLE} ${naskfunc.img_SRCS} ${naskfunc.img_OUTS}
-  DEPENDS ${naskfunc.img_SRCS}
+  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17e_naskfunc_SRCS} ${20_day_harib17e_naskfunc_OUTS}
+  DEPENDS ${20_day_harib17e_naskfunc_SRCS}
 )
+
+add_dependencies(images 20_day_harib17e_naskfunc)
+set(20_day_harib17e_naskfunc_WINE_OUTS ${root_BINARY_DIR}/projects/20_day/harib17e/naskfunc_wine.img)
 add_custom_target(20_day_harib17e_naskfunc_wine
-  COMMAND ${WINE} ${WINE_NASK} ${naskfunc.img_SRCS} ${naskfunc_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${20_day_harib17e_naskfunc_SRCS} ${20_day_harib17e_naskfunc_WINE_OUTS}
 )
+add_dependencies(wine 20_day_harib17e_naskfunc_wine)
+
 add_custom_target(20_day_harib17e_naskfunc_od
-  COMMAND ${OD} -t x1 ${naskfunc.img_OUTS}      > ${naskfunc.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${naskfunc_wine.img_OUTS} > ${naskfunc_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${naskfunc.img_OUTS}_f.txt ${naskfunc_wine.img_OUTS}_t.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_naskfunc_OUTS}      > ${20_day_harib17e_naskfunc_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${20_day_harib17e_naskfunc_WINE_OUTS} > ${20_day_harib17e_naskfunc_WINE_OUTS}_t.txt
+  COMMAND diff -s ${20_day_harib17e_naskfunc_OUTS}_f.txt ${20_day_harib17e_naskfunc_WINE_OUTS}_t.txt
 )
 
 add_dependencies(20_day_harib17e_naskfunc_od 20_day_harib17e_naskfunc)
 add_dependencies(20_day_harib17e_naskfunc_od 20_day_harib17e_naskfunc_wine)
-
-add_dependencies(images 20_day_harib17e_naskfunc)
-add_dependencies(wine 20_day_harib17e_naskfunc_wine)
 add_dependencies(od 20_day_harib17e_naskfunc_od)
 
 #----------------------------------------------------------

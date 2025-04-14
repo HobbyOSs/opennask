@@ -4,86 +4,48 @@ message(STATUS "Entering directory projects/03_day/harib00b/")
 set(FONT ${root_BINARY_DIR}/src/makefont)
 set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
-set(03_day_harib00b_OS    ${root_BINARY_DIR}/projects/03_day/harib00b/os.img)
-set(03_day_harib00b_SYS	  ${root_BINARY_DIR}/projects/03_day/harib00b/os.sys)
-set(03_day_harib00b_IPLB  ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.bin)
-set(03_day_harib00b_IPLS  ${root_SOURCE_DIR}/projects/03_day/harib00b/ipl10.nas)
-set(03_day_harib00b_HEADB ${root_BINARY_DIR}/projects/03_day/harib00b/asmhead.bin)
-set(03_day_harib00b_HEADS ${root_SOURCE_DIR}/projects/03_day/harib00b/asmhead.nas)
-set(03_day_harib00b_BOOTB ${root_BINARY_DIR}/projects/03_day/harib00b/boot.bin)
-set(03_day_harib00b_CCO	  ${root_BINARY_DIR}/projects/03_day/harib00b/boot.o)
-set(03_day_harib00b_CCS	  ${root_SOURCE_DIR}/projects/03_day/harib00b/*.c)
-set(03_day_harib00b_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(03_day_harib00b_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00b/*.o)
 
+# IPL only build rules (ipl.nas)
+set(03_day_harib00b_ipl_only_IPLS ${root_SOURCE_DIR}/projects/03_day/harib00b/ipl.nas)
+set(03_day_harib00b_ipl_only_IPLB ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.bin)
 
-add_custom_target(03_day_harib00b_ipl_run
-  COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00b_OS}
-  DEPENDS 03_day_harib00b_img
+add_custom_target(03_day_harib00b_ipl_only
+  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00b_ipl_only_IPLS} ${03_day_harib00b_ipl_only_IPLB}
+  DEPENDS ${03_day_harib00b_ipl_only_IPLS}
 )
-add_custom_target(03_day_harib00b_ipl_debug
-  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00b_OS} ${QEMU_DEBUG_OPT}
-  DEPENDS 03_day_harib00b_img
+add_custom_target(03_day_harib00b_run
+  COMMAND ${QEMU} ${QEMUOPT} ${03_day_harib00b_ipl_only_IPLB}
+  DEPENDS 03_day_harib00b_ipl_only
 )
-add_custom_target(03_day_harib00b_ipl_clean
-  COMMAND rm -f ${03_day_harib00b_OS}
-  COMMAND rm -f ${03_day_harib00b_SYS}
-  COMMAND rm -f ${03_day_harib00b_IPLB}
-  COMMAND rm -f ${03_day_harib00b_HEADB}
-  COMMAND rm -f ${03_day_harib00b_BOOTB}
-  COMMAND rm -f ${03_day_harib00b_WILDOBJ}
+add_custom_target(03_day_harib00b_debug
+  COMMAND ${QEMU} -s -S ${QEMUOPT} ${03_day_harib00b_ipl_only_IPLB} ${QEMU_DEBUG_OPT}
+  DEPENDS 03_day_harib00b_ipl_only
 )
-add_custom_target(03_day_harib00b_ipl_ipl
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00b_IPLS} ${03_day_harib00b_IPLB}
-  DEPENDS ${03_day_harib00b_IPLS}
+add_custom_target(03_day_harib00b_clean
+  COMMAND rm -f ${03_day_harib00b_ipl_only_IPLB}
+  COMMAND rm -f ${root_BINARY_DIR}/projects/03_day/harib00b/*_wine.bin
+  COMMAND rm -f ${root_BINARY_DIR}/projects/03_day/harib00b/*.txt
 )
-add_custom_command(
-  OUTPUT ${03_day_harib00b_HEADB}
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00b_HEADS} ${03_day_harib00b_HEADB}
-  DEPENDS ${03_day_harib00b_HEADS}
-  COMMENT "Generating asmhead.bin for 03_day_harib00b_ipl"
-)
+add_dependencies(images 03_day_harib00b_ipl_only)
 
-add_custom_target(03_day_harib00b_ipl_sys
-  COMMAND gcc ${BINOPT} -T ${03_day_harib00b_LDS} ${03_day_harib00b_CCS} -o ${03_day_harib00b_BOOTB}
-  COMMAND cat ${03_day_harib00b_HEADB} ${03_day_harib00b_BOOTB} > ${03_day_harib00b_SYS}
-  DEPENDS ${03_day_harib00b_HEADB} 03_day_harib00b_ipl
-)
-add_custom_target(03_day_harib00b_ipl_img
-  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${03_day_harib00b_IPLB} -i ${03_day_harib00b_OS}
-  COMMAND mcopy -i ${03_day_harib00b_OS} ${03_day_harib00b_SYS} ::
-  DEPENDS 03_day_harib00b_sys
-)
 ########### next target ###############
-set(ipl.img_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00b/ipl.nas)
-set(ipl.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.img)
-set(ipl_wine.img_OUTS ${root_BINARY_DIR}/projects/03_day/harib00b/ipl_wine.img)
-
-add_custom_target(03_day_harib00b_ipl
-  COMMAND ${GOSK_EXECUTABLE} ${ipl.img_SRCS} ${ipl.img_OUTS}
-  DEPENDS ${ipl.img_SRCS}
-)
-set(ipl.img_HRB ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.hrb)
-add_custom_target(03_day_harib00b_ipl_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${ipl.img_SRCS} ${ipl.img_HRB}
-  COMMAND mcopy -i ${03_day_harib00b_OS} ${ipl.img_HRB} ::ipl.hrb
-  DEPENDS 03_day_harib00b_img
-)
-
+set(03_day_harib00b_ipl_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00b/ipl.nas)
+set(03_day_harib00b_ipl_WINE_OUTS ${root_BINARY_DIR}/projects/03_day/harib00b/ipl_wine.bin)
 add_custom_target(03_day_harib00b_ipl_wine
-  COMMAND ${WINE} ${WINE_NASK} ${ipl.img_SRCS} ${ipl_wine.img_OUTS}
+  COMMAND ${WINE} ${WINE_NASK} ${03_day_harib00b_ipl_SRCS} ${03_day_harib00b_ipl_WINE_OUTS}
 )
-add_custom_target(03_day_harib00b_ipl_od
-  COMMAND ${OD} -t x1 ${ipl.img_OUTS}      > ${ipl.img_OUTS}_f.txt
-  COMMAND ${OD} -t x1 ${ipl_wine.img_OUTS} > ${ipl_wine.img_OUTS}_t.txt
-  COMMAND diff -s ${ipl.img_OUTS}_f.txt ${ipl_wine.img_OUTS}_t.txt
-)
-
-add_dependencies(03_day_harib00b_ipl_od 03_day_harib00b_ipl)
-add_dependencies(03_day_harib00b_ipl_od 03_day_harib00b_ipl_wine)
-
-add_dependencies(images 03_day_harib00b_ipl)
 add_dependencies(wine 03_day_harib00b_ipl_wine)
+
+set(03_day_harib00b_ipl_OUTS ${root_BINARY_DIR}/projects/03_day/harib00b/ipl.bin)
+add_custom_target(03_day_harib00b_ipl_od
+  COMMAND ${OD} -t x1 ${03_day_harib00b_ipl_OUTS}      > ${03_day_harib00b_ipl_OUTS}_f.txt
+  COMMAND ${OD} -t x1 ${03_day_harib00b_ipl_WINE_OUTS} > ${03_day_harib00b_ipl_WINE_OUTS}_t.txt
+  COMMAND diff -s ${03_day_harib00b_ipl_OUTS}_f.txt ${03_day_harib00b_ipl_WINE_OUTS}_t.txt
+)
+
+add_dependencies(03_day_harib00b_ipl_od 03_day_harib00b_ipl_only)
+add_dependencies(03_day_harib00b_ipl_od 03_day_harib00b_ipl_wine)
 add_dependencies(od 03_day_harib00b_ipl_od)
 
 #----------------------------------------------------------
