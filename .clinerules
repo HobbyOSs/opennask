@@ -56,15 +56,16 @@ memory-bank/
 ```json
 {
   "paths": [
-    "/<Current Working Directory>/memory-bank/core/projectbrief.md",
-    "/<Current Working Directory>/memory-bank/core/productContext.md",
-    "/<Current Working Directory>/memory-bank/core/systemPatterns.md",
-    "/<Current Working Directory>/memory-bank/core/techContext.md",
-    "/<Current Working Directory>/memory-bank/core/activeContext.md",
-    "/<Current Working Directory>/memory-bank/core/progress.md",
-    "/<Current Working Directory>/memory-bank/core/rules_extras.md"
+    "<Current Working Directory>/memory-bank/core/projectbrief.md",
+    "<Current Working Directory>/memory-bank/core/productContext.md",
+    "<Current Working Directory>/memory-bank/core/systemPatterns.md",
+    "<Current Working Directory>/memory-bank/core/techContext.md",
+    "<Current Working Directory>/memory-bank/core/activeContext.md",
+    "<Current Working Directory>/memory-bank/core/progress.md",
+    "<Current Working Directory>/memory-bank/core/rules_extras.md"
   ]
 }
+```
 </if_tool_exists>
 
 <else>
@@ -156,8 +157,10 @@ coreディレクトリは、プロジェクトの**最新の状況を「一目�
 
 ## 主な運用ルール
 
+- **回帰テストの実行**: 特別な理由がない限り、すべてのタスク完了前に必ず `ninja test` や `nask_functional_test.sh` がパスすることを確認すること。改修後は必ずこれらを実行すること。
+
 - **絶対パスの使用**: 
-    - memory-bank内を参照するときは `/home/forbarbazz/opennask/memory-bank/...` のように必ずルートから始まるパスを用いる
+    - memory-bank内を参照するときは `<Current Working Directory>/memory-bank/...` のように必ずルートから始まるパスを用いる
 - **差分出力の優先**:
     - コード修正は基本的に差分形式か、最小限の抜粋で提示する
 - **コード調査**: コード検索には `git grep` や `find` を使用 (詳細は `rules_extras.md` を参照)

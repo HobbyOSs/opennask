@@ -8,6 +8,7 @@
 - **CMakeLists.txt の自動生成**: `projects/cmake.sh` スクリプトが、`projects/` ディレクトリ内の `.nas` ファイルを探索し、その結果に基づいて階層的な `CMakeLists.txt` ファイル群を自動生成します。
     - トップレベルの `CMakeLists.txt` (`projects/CMakeLists.txt`) には、各 `XX_day` ディレクトリを追加するための `add_subdirectory()` が記述されるべきことを示唆します (スクリプト自体は直接編集せず、指示を出力します)。
     - 各 `XX_day` ディレクトリ内の `CMakeLists.txt` は、`cmake.sh` によって生成され、さらにその下のサンプルディレクトリ (`haribXXX` など) を `add_subdirectory()` で追加します。
+- **アセンブラの置き換え (gosk → rakusk)**: 従来 Go 言語で実装された `gosk` を使用していましたが、これを Raku 言語で実装された `rakusk` に置き換える移行を進めています。`rakusk` は、より柔軟な構文解析と高度な最適化 (BDO 等) を提供します。
 - **詳細なビルドルールの分離と条件分岐**: 個々の `.nas` ファイルをアセンブルし、リンクして実行可能イメージを作成するための具体的な CMake コマンド (`add_custom_command`, `add_custom_target` など) は、`cmake.sh` から呼び出される専用のシェルスクリプト (`cmake_helloos.sh`, `cmake_02day.sh`, `cmake_until_20day.sh`, `cmake_from_21day.sh`) によって、各サンプルディレクトリの `CMakeLists.txt` に生成されます。
     - 特に `cmake_until_20day.sh` は、サンプルディレクトリ内のファイル構成（例: `ipl.nas` のみ存在するか、`ipl10.nas`, `asmhead.nas`, `*.c` が全て存在するか）をチェックし、その構成に応じた適切なビルドルール（IPL の直接実行ターゲット、またはフル OS イメージ生成ターゲット）を生成するロジックを持っています。
 
