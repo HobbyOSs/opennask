@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/09_day/harib06b/")
 
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(09_day_harib06b_WILDOBJ ${root_BINARY_DIR}/projects/09_day/harib06b/*.o)
 
@@ -46,12 +46,12 @@ add_custom_target(09_day_harib06b_clean
   COMMAND rm -f ${root_BINARY_DIR}/projects/09_day/harib06b/*.txt
 )
 add_custom_target(09_day_harib06b_ipl_build
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_IPLS} ${09_day_harib06b_IPLB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_IPLS} ${09_day_harib06b_IPLB}
   DEPENDS ${09_day_harib06b_IPLS}
 )
 add_custom_command(
   OUTPUT ${09_day_harib06b_HEADB}
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_HEADS} ${09_day_harib06b_HEADB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_HEADS} ${09_day_harib06b_HEADB}
   DEPENDS ${09_day_harib06b_HEADS}
   COMMENT "Generating asmhead.bin for 09_day_harib06b"
 )
@@ -60,7 +60,7 @@ add_custom_target(09_day_harib06b_sys
   COMMAND ${FONT} ${09_day_harib06b_FONTS} ${09_day_harib06b_FONTB}
   COMMAND ${B2O}  ${09_day_harib06b_FONTB} ${09_day_harib06b_FONTO} _hankaku
   COMMAND ${CONV} -fcoff32 -nu ${09_day_harib06b_LIBGE} ${09_day_harib06b_LIBGC}
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_FUNCS} ${09_day_harib06b_FUNCO}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_FUNCS} ${09_day_harib06b_FUNCO}
   COMMAND gcc ${BINOPT} -T ${09_day_harib06b_LDS} ${09_day_harib06b_CCS} ${09_day_harib06b_WILDOBJ} -o ${09_day_harib06b_BOOTB}
   COMMAND cat ${09_day_harib06b_HEADB} ${09_day_harib06b_BOOTB} > ${09_day_harib06b_SYS}
   DEPENDS ${09_day_harib06b_HEADB} 09_day_harib06b_ipl_build
@@ -78,7 +78,7 @@ set(09_day_harib06b_asmhead_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06b/asm
 set(09_day_harib06b_asmhead_OUTS ${root_BINARY_DIR}/projects/09_day/harib06b/asmhead.bin)
 
 add_custom_target(09_day_harib06b_asmhead
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_asmhead_SRCS} ${09_day_harib06b_asmhead_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_asmhead_SRCS} ${09_day_harib06b_asmhead_OUTS}
   DEPENDS ${09_day_harib06b_asmhead_SRCS}
 )
 
@@ -104,7 +104,7 @@ set(09_day_harib06b_ipl10_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06b/ipl10
 set(09_day_harib06b_ipl10_OUTS ${root_BINARY_DIR}/projects/09_day/harib06b/ipl10.bin)
 
 add_custom_target(09_day_harib06b_ipl10
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_ipl10_SRCS} ${09_day_harib06b_ipl10_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_ipl10_SRCS} ${09_day_harib06b_ipl10_OUTS}
   DEPENDS ${09_day_harib06b_ipl10_SRCS}
 )
 
@@ -130,7 +130,7 @@ set(09_day_harib06b_naskfunc_SRCS ${root_SOURCE_DIR}/projects/09_day/harib06b/na
 set(09_day_harib06b_naskfunc_OUTS ${root_BINARY_DIR}/projects/09_day/harib06b/naskfunc.img)
 
 add_custom_target(09_day_harib06b_naskfunc
-  COMMAND ${GOSK_EXECUTABLE} ${09_day_harib06b_naskfunc_SRCS} ${09_day_harib06b_naskfunc_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${09_day_harib06b_naskfunc_SRCS} ${09_day_harib06b_naskfunc_OUTS}
   DEPENDS ${09_day_harib06b_naskfunc_SRCS}
 )
 

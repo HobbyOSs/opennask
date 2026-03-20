@@ -3,6 +3,8 @@ message(STATUS "Entering directory projects/01_day/helloos2/")
 
 set(01_day_helloos2_SRC ${root_SOURCE_DIR}/projects/01_day/helloos2/helloos.nas)
 set(01_day_helloos2_OS ${root_BINARY_DIR}/projects/01_day/helloos2/os.img)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 
 add_custom_target(01_day_helloos2_helloos_run
   COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos2_OS}
@@ -16,7 +18,7 @@ add_custom_target(01_day_helloos2_helloos_clean
   COMMAND rm -f ${01_day_helloos2_OS}
 )
 add_custom_target(01_day_helloos2_helloos_img
-  COMMAND ${GOSK_EXECUTABLE} ${01_day_helloos2_SRC} ${01_day_helloos2_OS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${01_day_helloos2_SRC} ${01_day_helloos2_OS}
   DEPENDS ${01_day_helloos2_SRC}
 )
 ########### next target ###############
@@ -25,7 +27,7 @@ set(helloos.img_OUTS ${root_BINARY_DIR}/projects/01_day/helloos2/helloos.img)
 set(helloos_wine.img_OUTS ${root_BINARY_DIR}/projects/01_day/helloos2/helloos_wine.img)
 
 add_custom_target(01_day_helloos2_helloos
-  COMMAND ${GOSK_EXECUTABLE} ${helloos.img_SRCS} ${helloos.img_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${helloos.img_SRCS} ${helloos.img_OUTS}
   DEPENDS ${helloos.img_SRCS}
 )
 add_custom_target(01_day_helloos2_helloos_wine

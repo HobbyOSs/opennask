@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00d/")
 
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(03_day_harib00d_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00d/*.o)
 
@@ -11,7 +11,7 @@ set(03_day_harib00d_ipl_only_IPLS ${root_SOURCE_DIR}/projects/03_day/harib00d/ip
 set(03_day_harib00d_ipl_only_IPLB ${root_BINARY_DIR}/projects/03_day/harib00d/ipl.bin)
 
 add_custom_target(03_day_harib00d_ipl_only
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00d_ipl_only_IPLS} ${03_day_harib00d_ipl_only_IPLB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00d_ipl_only_IPLS} ${03_day_harib00d_ipl_only_IPLB}
   DEPENDS ${03_day_harib00d_ipl_only_IPLS}
 )
 add_custom_target(03_day_harib00d_run

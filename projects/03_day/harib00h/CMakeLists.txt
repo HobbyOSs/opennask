@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00h/")
 
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(03_day_harib00h_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00h/*.o)
 
@@ -11,7 +11,7 @@ set(03_day_harib00h_ipl10_only_IPLS ${root_SOURCE_DIR}/projects/03_day/harib00h/
 set(03_day_harib00h_ipl10_only_IPLB ${root_BINARY_DIR}/projects/03_day/harib00h/ipl10.bin)
 
 add_custom_target(03_day_harib00h_ipl10_only
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00h_ipl10_only_IPLS} ${03_day_harib00h_ipl10_only_IPLB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00h_ipl10_only_IPLS} ${03_day_harib00h_ipl10_only_IPLB}
   DEPENDS ${03_day_harib00h_ipl10_only_IPLS}
 )
 add_custom_target(03_day_harib00h_run
@@ -34,7 +34,7 @@ set(03_day_harib00h_haribote_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00h/ha
 set(03_day_harib00h_haribote_OUTS ${root_BINARY_DIR}/projects/03_day/harib00h/haribote.img)
 
 add_custom_target(03_day_harib00h_haribote
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00h_haribote_SRCS} ${03_day_harib00h_haribote_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00h_haribote_SRCS} ${03_day_harib00h_haribote_OUTS}
   DEPENDS ${03_day_harib00h_haribote_SRCS}
 )
 

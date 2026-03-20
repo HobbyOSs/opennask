@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/20_day/harib17c/")
 
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(20_day_harib17c_WILDOBJ ${root_BINARY_DIR}/projects/20_day/harib17c/*.o)
 
@@ -46,12 +46,12 @@ add_custom_target(20_day_harib17c_clean
   COMMAND rm -f ${root_BINARY_DIR}/projects/20_day/harib17c/*.txt
 )
 add_custom_target(20_day_harib17c_ipl_build
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_IPLS} ${20_day_harib17c_IPLB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_IPLS} ${20_day_harib17c_IPLB}
   DEPENDS ${20_day_harib17c_IPLS}
 )
 add_custom_command(
   OUTPUT ${20_day_harib17c_HEADB}
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_HEADS} ${20_day_harib17c_HEADB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_HEADS} ${20_day_harib17c_HEADB}
   DEPENDS ${20_day_harib17c_HEADS}
   COMMENT "Generating asmhead.bin for 20_day_harib17c"
 )
@@ -60,7 +60,7 @@ add_custom_target(20_day_harib17c_sys
   COMMAND ${FONT} ${20_day_harib17c_FONTS} ${20_day_harib17c_FONTB}
   COMMAND ${B2O}  ${20_day_harib17c_FONTB} ${20_day_harib17c_FONTO} _hankaku
   COMMAND ${CONV} -fcoff32 -nu ${20_day_harib17c_LIBGE} ${20_day_harib17c_LIBGC}
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_FUNCS} ${20_day_harib17c_FUNCO}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_FUNCS} ${20_day_harib17c_FUNCO}
   COMMAND gcc ${BINOPT} -T ${20_day_harib17c_LDS} ${20_day_harib17c_CCS} ${20_day_harib17c_WILDOBJ} -o ${20_day_harib17c_BOOTB}
   COMMAND cat ${20_day_harib17c_HEADB} ${20_day_harib17c_BOOTB} > ${20_day_harib17c_SYS}
   DEPENDS ${20_day_harib17c_HEADB} 20_day_harib17c_ipl_build
@@ -78,7 +78,7 @@ set(20_day_harib17c_asmhead_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17c/asm
 set(20_day_harib17c_asmhead_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/asmhead.bin)
 
 add_custom_target(20_day_harib17c_asmhead
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_asmhead_SRCS} ${20_day_harib17c_asmhead_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_asmhead_SRCS} ${20_day_harib17c_asmhead_OUTS}
   DEPENDS ${20_day_harib17c_asmhead_SRCS}
 )
 
@@ -104,7 +104,7 @@ set(20_day_harib17c_hlt_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17c/hlt.nas
 set(20_day_harib17c_hlt_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/hlt.img)
 
 add_custom_target(20_day_harib17c_hlt
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_hlt_SRCS} ${20_day_harib17c_hlt_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_hlt_SRCS} ${20_day_harib17c_hlt_OUTS}
   DEPENDS ${20_day_harib17c_hlt_SRCS}
 )
 
@@ -127,7 +127,7 @@ add_dependencies(od 20_day_harib17c_hlt_od)
 
 set(20_day_harib17c_hlt_HRB ${root_BINARY_DIR}/projects/20_day/harib17c/hlt.hrb)
 add_custom_target(20_day_harib17c_hlt_hrb
-  COMMAND ${root_BINARY_DIR}/src/opennask ${20_day_harib17c_hlt_SRCS} ${20_day_harib17c_hlt_HRB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_hlt_SRCS} ${20_day_harib17c_hlt_HRB}
   COMMAND mcopy -i ${20_day_harib17c_OS} ${20_day_harib17c_hlt_HRB} ::hlt.hrb
   DEPENDS 20_day_harib17c_img
 )
@@ -139,7 +139,7 @@ set(20_day_harib17c_ipl10_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17c/ipl10
 set(20_day_harib17c_ipl10_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/ipl10.bin)
 
 add_custom_target(20_day_harib17c_ipl10
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_ipl10_SRCS} ${20_day_harib17c_ipl10_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_ipl10_SRCS} ${20_day_harib17c_ipl10_OUTS}
   DEPENDS ${20_day_harib17c_ipl10_SRCS}
 )
 
@@ -165,7 +165,7 @@ set(20_day_harib17c_naskfunc_SRCS ${root_SOURCE_DIR}/projects/20_day/harib17c/na
 set(20_day_harib17c_naskfunc_OUTS ${root_BINARY_DIR}/projects/20_day/harib17c/naskfunc.img)
 
 add_custom_target(20_day_harib17c_naskfunc
-  COMMAND ${GOSK_EXECUTABLE} ${20_day_harib17c_naskfunc_SRCS} ${20_day_harib17c_naskfunc_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${20_day_harib17c_naskfunc_SRCS} ${20_day_harib17c_naskfunc_OUTS}
   DEPENDS ${20_day_harib17c_naskfunc_SRCS}
 )
 

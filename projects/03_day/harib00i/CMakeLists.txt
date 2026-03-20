@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/03_day/harib00i/")
 
-set(FONT ${root_BINARY_DIR}/src/makefont)
-set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(FONT ${RAKUSK_EXECUTABLE} --makefont)
+set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(03_day_harib00i_WILDOBJ ${root_BINARY_DIR}/projects/03_day/harib00i/*.o)
 
@@ -39,12 +39,12 @@ add_custom_target(03_day_harib00i_clean
   COMMAND rm -f ${root_BINARY_DIR}/projects/03_day/harib00i/*.txt
 )
 add_custom_target(03_day_harib00i_ipl_build
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00i_IPLS} ${03_day_harib00i_IPLB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00i_IPLS} ${03_day_harib00i_IPLB}
   DEPENDS ${03_day_harib00i_IPLS}
 )
 add_custom_command(
   OUTPUT ${03_day_harib00i_HEADB}
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00i_HEADS} ${03_day_harib00i_HEADB}
   DEPENDS ${03_day_harib00i_HEADS}
   COMMENT "Generating asmhead.bin for 03_day_harib00i"
 )
@@ -65,7 +65,7 @@ set(03_day_harib00i_asmhead_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00i/asm
 set(03_day_harib00i_asmhead_OUTS ${root_BINARY_DIR}/projects/03_day/harib00i/asmhead.bin)
 
 add_custom_target(03_day_harib00i_asmhead
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00i_asmhead_SRCS} ${03_day_harib00i_asmhead_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00i_asmhead_SRCS} ${03_day_harib00i_asmhead_OUTS}
   DEPENDS ${03_day_harib00i_asmhead_SRCS}
 )
 
@@ -91,7 +91,7 @@ set(03_day_harib00i_ipl10_SRCS ${root_SOURCE_DIR}/projects/03_day/harib00i/ipl10
 set(03_day_harib00i_ipl10_OUTS ${root_BINARY_DIR}/projects/03_day/harib00i/ipl10.bin)
 
 add_custom_target(03_day_harib00i_ipl10
-  COMMAND ${GOSK_EXECUTABLE} ${03_day_harib00i_ipl10_SRCS} ${03_day_harib00i_ipl10_OUTS}
+  COMMAND ${RAKUSK_EXECUTABLE} ${03_day_harib00i_ipl10_SRCS} ${03_day_harib00i_ipl10_OUTS}
   DEPENDS ${03_day_harib00i_ipl10_SRCS}
 )
 
