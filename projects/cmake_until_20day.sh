@@ -71,8 +71,8 @@ do
         fi
 
         # --- Common variable settings ---
-        echo "set(FONT \${RAKUSK_EXECUTABLE} --makefont)"                                            >> ${CMAKELISTS}
-        echo "set(B2O  \${RAKUSK_EXECUTABLE} --bin2obj)"                                             >> ${CMAKELISTS}
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                            >> ${CMAKELISTS}
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                             >> ${CMAKELISTS}
         echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"               >> ${CMAKELISTS}
         echo ""                                                                                        >> ${CMAKELISTS}
@@ -144,15 +144,37 @@ do
             echo ")"                                                                                   >> ${CMAKELISTS}
             echo ""                                                                                    >> ${CMAKELISTS}
 
-            # sys target
-            echo "add_custom_target(${TARGET_OS_NAME}_sys"                                             >> ${CMAKELISTS}
+            # naskfunc object generation command
+            if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+                echo "add_custom_command("                                                             >> ${CMAKELISTS}
+                echo "  OUTPUT \${${TARGET_OS_NAME}_FUNCO}"                                            >> ${CMAKELISTS}
+                echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_OS_NAME}_FUNCS} \${${TARGET_OS_NAME}_FUNCO}" >> ${CMAKELISTS}
+                echo "  DEPENDS \${${TARGET_OS_NAME}_FUNCS}"                                           >> ${CMAKELISTS}
+                echo "  COMMENT \"Generating naskfunc.o for ${TARGET_OS_NAME}\""                       >> ${CMAKELISTS}
+                echo ")"                                                                               >> ${CMAKELISTS}
+            fi
+
+            # hankaku object generation command
             if [ -e "${NAS_DIR}/hankaku.txt" ]; then
+                echo "add_custom_command("                                                             >> ${CMAKELISTS}
+                echo "  OUTPUT \${${TARGET_OS_NAME}_FONTO}"                                            >> ${CMAKELISTS}
                 echo "  COMMAND \${FONT} \${${TARGET_OS_NAME}_FONTS} \${${TARGET_OS_NAME}_FONTB}"       >> ${CMAKELISTS}
                 echo "  COMMAND \${B2O}  \${${TARGET_OS_NAME}_FONTB} \${${TARGET_OS_NAME}_FONTO} _hankaku" >> ${CMAKELISTS}
+                echo "  DEPENDS \${${TARGET_OS_NAME}_FONTS}"                                           >> ${CMAKELISTS}
+                echo "  COMMENT \"Generating hankaku.o for ${TARGET_OS_NAME}\""                        >> ${CMAKELISTS}
+                echo ")"                                                                               >> ${CMAKELISTS}
+
+                echo "add_custom_command("                                                             >> ${CMAKELISTS}
+                echo "  OUTPUT \${${TARGET_OS_NAME}_LIBGC}"                                            >> ${CMAKELISTS}
                 echo "  COMMAND \${CONV} -fcoff32 -nu \${${TARGET_OS_NAME}_LIBGE} \${${TARGET_OS_NAME}_LIBGC}" >> ${CMAKELISTS}
+                echo "  DEPENDS \${${TARGET_OS_NAME}_LIBGE}"                                           >> ${CMAKELISTS}
+                echo "  COMMENT \"Converting golibc for ${TARGET_OS_NAME}\""                           >> ${CMAKELISTS}
+                echo ")"                                                                               >> ${CMAKELISTS}
             fi
+
+            # sys target
+            echo "add_custom_target(${TARGET_OS_NAME}_sys"                                             >> ${CMAKELISTS}
             if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-                echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_OS_NAME}_FUNCS} \${${TARGET_OS_NAME}_FUNCO}" >> ${CMAKELISTS}
                 echo "  COMMAND gcc \${BINOPT} -T \${${TARGET_OS_NAME}_LDS} \${${TARGET_OS_NAME}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${TARGET_OS_NAME}_BOOTB}" >> ${CMAKELISTS}
             else
                 echo "  COMMAND gcc \${BINOPT} -T \${${TARGET_OS_NAME}_LDS} \${${TARGET_OS_NAME}_CCS} -o \${${TARGET_OS_NAME}_BOOTB}" >> ${CMAKELISTS}
@@ -163,7 +185,7 @@ do
                  echo "  DEPENDS \${${TARGET_OS_NAME}_FUNCO}"                                          >> ${CMAKELISTS}
             fi
              if [ -e "${NAS_DIR}/hankaku.txt" ]; then
-                 echo "  DEPENDS \${${TARGET_OS_NAME}_FONTO}"                                          >> ${CMAKELISTS}
+                 echo "  DEPENDS \${${TARGET_OS_NAME}_FONTO} \${${TARGET_OS_NAME}_LIBGC}"                >> ${CMAKELISTS}
              fi
             echo ")"                                                                                   >> ${CMAKELISTS}
 

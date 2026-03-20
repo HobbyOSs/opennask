@@ -5,5 +5,5 @@
 
 int atoi(const char *s)
 {
-	return (int) strtol(s, (const char **) NULL, 10);
+	return (int) strtol(s, NULL, 10);
 }

@@ -32,4 +32,6 @@ set(QEMU_DEBUG_OPT "-redir" "tcp:5555:127.0.0.1:1234" "&" CACHE INTERNAL "")
 set(BINOPT "-fleading-underscore" "-m32" "-nostdlib" "-fno-pie" "-Wl,--oformat=binary" CACHE INTERNAL "")
 
 add_subdirectory(golibc)
+add_subdirectory(objconv)
+add_subdirectory(src)
 add_subdirectory(projects)

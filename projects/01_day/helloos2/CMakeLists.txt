@@ -3,8 +3,8 @@ message(STATUS "Entering directory projects/01_day/helloos2/")
 
 set(01_day_helloos2_SRC ${root_SOURCE_DIR}/projects/01_day/helloos2/helloos.nas)
 set(01_day_helloos2_OS ${root_BINARY_DIR}/projects/01_day/helloos2/os.img)
-set(FONT ${RAKUSK_EXECUTABLE} --makefont)
-set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 
 add_custom_target(01_day_helloos2_helloos_run
   COMMAND ${QEMU} ${QEMUOPT} ${01_day_helloos2_OS}

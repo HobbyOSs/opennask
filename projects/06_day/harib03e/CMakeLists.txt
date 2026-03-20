@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/06_day/harib03e/")
 
-set(FONT ${RAKUSK_EXECUTABLE} --makefont)
-set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(06_day_harib03e_WILDOBJ ${root_BINARY_DIR}/projects/06_day/harib03e/*.o)
 
@@ -56,16 +56,31 @@ add_custom_command(
   COMMENT "Generating asmhead.bin for 06_day_harib03e"
 )
 
-add_custom_target(06_day_harib03e_sys
+add_custom_command(
+  OUTPUT ${06_day_harib03e_FUNCO}
+  COMMAND ${RAKUSK_EXECUTABLE} ${06_day_harib03e_FUNCS} ${06_day_harib03e_FUNCO}
+  DEPENDS ${06_day_harib03e_FUNCS}
+  COMMENT "Generating naskfunc.o for 06_day_harib03e"
+)
+add_custom_command(
+  OUTPUT ${06_day_harib03e_FONTO}
   COMMAND ${FONT} ${06_day_harib03e_FONTS} ${06_day_harib03e_FONTB}
   COMMAND ${B2O}  ${06_day_harib03e_FONTB} ${06_day_harib03e_FONTO} _hankaku
+  DEPENDS ${06_day_harib03e_FONTS}
+  COMMENT "Generating hankaku.o for 06_day_harib03e"
+)
+add_custom_command(
+  OUTPUT ${06_day_harib03e_LIBGC}
   COMMAND ${CONV} -fcoff32 -nu ${06_day_harib03e_LIBGE} ${06_day_harib03e_LIBGC}
-  COMMAND ${RAKUSK_EXECUTABLE} ${06_day_harib03e_FUNCS} ${06_day_harib03e_FUNCO}
+  DEPENDS ${06_day_harib03e_LIBGE}
+  COMMENT "Converting golibc for 06_day_harib03e"
+)
+add_custom_target(06_day_harib03e_sys
   COMMAND gcc ${BINOPT} -T ${06_day_harib03e_LDS} ${06_day_harib03e_CCS} ${06_day_harib03e_WILDOBJ} -o ${06_day_harib03e_BOOTB}
   COMMAND cat ${06_day_harib03e_HEADB} ${06_day_harib03e_BOOTB} > ${06_day_harib03e_SYS}
   DEPENDS ${06_day_harib03e_HEADB} 06_day_harib03e_ipl_build
   DEPENDS ${06_day_harib03e_FUNCO}
-  DEPENDS ${06_day_harib03e_FONTO}
+  DEPENDS ${06_day_harib03e_FONTO} ${06_day_harib03e_LIBGC}
 )
 add_custom_target(06_day_harib03e_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${06_day_harib03e_IPLB} -i ${06_day_harib03e_OS}

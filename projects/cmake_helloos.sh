@@ -37,8 +37,8 @@ do
     # NASK 変数設定は不要。トップレベルの RAKUSK_EXECUTABLE を直接参照する
     echo "set(${NAS_DIR_TARGET}_SRC \${root_SOURCE_DIR}/projects/${HELLO_OS})"                     >> ${CMAKELISTS}
     echo "set(${NAS_DIR_TARGET}_OS \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"                >> ${CMAKELISTS}
-    echo "set(FONT \${RAKUSK_EXECUTABLE} --makefont)"                                            >> ${CMAKELISTS}
-    echo "set(B2O  \${RAKUSK_EXECUTABLE} --bin2obj)"                                             >> ${CMAKELISTS}
+    echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                            >> ${CMAKELISTS}
+    echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                             >> ${CMAKELISTS}
     echo ""		        							           >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_OS_NAME}_run"                                                 >> ${CMAKELISTS}
     echo "  COMMAND \${QEMU} \${QEMUOPT} \${${NAS_DIR_TARGET}_OS}"                                 >> ${CMAKELISTS}

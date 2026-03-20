@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/21_day/harib18g/")
 
-set(FONT ${RAKUSK_EXECUTABLE} --makefont)
-set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(21_day_harib18g_OS    ${root_BINARY_DIR}/projects/21_day/harib18g/os.img)
 set(21_day_harib18g_SYS	  ${root_BINARY_DIR}/projects/21_day/harib18g/os.sys)
@@ -50,16 +50,35 @@ add_custom_command(
   DEPENDS ${21_day_harib18g_HEADS}
   COMMENT "Generating asmhead.bin for 21_day_harib18g"
 )
-
-add_custom_target(21_day_harib18g_sys
-  COMMAND ${FONT} ${21_day_harib18g_FONTS} ${21_day_harib18g_FONTB}
-  COMMAND ${B2O}  ${21_day_harib18g_FONTB} ${21_day_harib18g_FONTO} _hankaku
-  COMMAND ${CONV} -fcoff32 -nu ${21_day_harib18g_LIBGE} ${21_day_harib18g_LIBGC}
+add_custom_command(
+  OUTPUT ${21_day_harib18g_FUNCO}
   COMMAND ${RAKUSK_EXECUTABLE} ${21_day_harib18g_FUNCS} ${21_day_harib18g_FUNCO}
   DEPENDS ${21_day_harib18g_FUNCS}
+  COMMENT "Generating naskfunc.o for 21_day_harib18g"
+)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
+set(CONV ${root_BINARY_DIR}/objconv/objconv)
+add_custom_command(
+  OUTPUT ${21_day_harib18g_FONTO}
+  COMMAND ${FONT} ${21_day_harib18g_FONTS} ${21_day_harib18g_FONTB}
+  COMMAND ${B2O}  ${21_day_harib18g_FONTB} ${21_day_harib18g_FONTO} _hankaku
+  DEPENDS ${21_day_harib18g_FONTS} makefont bin2obj
+  COMMENT "Generating hankaku.o for 21_day_harib18g"
+)
+add_custom_command(
+  OUTPUT ${21_day_harib18g_LIBGC}
+  COMMAND ${CONV} -fcoff32 -nu ${21_day_harib18g_LIBGE} ${21_day_harib18g_LIBGC}
+  DEPENDS ${21_day_harib18g_LIBGE}
+  COMMENT "Converting golibc for 21_day_harib18g"
+)
+
+add_custom_target(21_day_harib18g_sys
   COMMAND gcc ${BINOPT} -T ${21_day_harib18g_LDS} ${21_day_harib18g_CCS} ${21_day_harib18g_WILDOBJ} -o ${21_day_harib18g_BOOTB}
   COMMAND cat ${21_day_harib18g_HEADB} ${21_day_harib18g_BOOTB} > ${21_day_harib18g_SYS}
   DEPENDS ${21_day_harib18g_HEADB} 21_day_harib18g_ipl
+  DEPENDS ${21_day_harib18g_FUNCO}
+  DEPENDS ${21_day_harib18g_FONTO} ${21_day_harib18g_LIBGC}
 )
 add_custom_target(21_day_harib18g_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${21_day_harib18g_IPLB} -i ${21_day_harib18g_OS}

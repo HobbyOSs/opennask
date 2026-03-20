@@ -1,8 +1,8 @@
 #----------------------------------------------------------
 message(STATUS "Entering directory projects/05_day/harib02d/")
 
-set(FONT ${RAKUSK_EXECUTABLE} --makefont)
-set(B2O  ${RAKUSK_EXECUTABLE} --bin2obj)
+set(FONT ${root_BINARY_DIR}/src/makefont)
+set(B2O  ${root_BINARY_DIR}/src/bin2obj)
 set(CONV ${root_BINARY_DIR}/objconv/objconv)
 set(05_day_harib02d_WILDOBJ ${root_BINARY_DIR}/projects/05_day/harib02d/*.o)
 
@@ -51,8 +51,13 @@ add_custom_command(
   COMMENT "Generating asmhead.bin for 05_day_harib02d"
 )
 
-add_custom_target(05_day_harib02d_sys
+add_custom_command(
+  OUTPUT ${05_day_harib02d_FUNCO}
   COMMAND ${RAKUSK_EXECUTABLE} ${05_day_harib02d_FUNCS} ${05_day_harib02d_FUNCO}
+  DEPENDS ${05_day_harib02d_FUNCS}
+  COMMENT "Generating naskfunc.o for 05_day_harib02d"
+)
+add_custom_target(05_day_harib02d_sys
   COMMAND gcc ${BINOPT} -T ${05_day_harib02d_LDS} ${05_day_harib02d_CCS} ${05_day_harib02d_WILDOBJ} -o ${05_day_harib02d_BOOTB}
   COMMAND cat ${05_day_harib02d_HEADB} ${05_day_harib02d_BOOTB} > ${05_day_harib02d_SYS}
   DEPENDS ${05_day_harib02d_HEADB} 05_day_harib02d_ipl_build

@@ -39,9 +39,9 @@ do
 	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                             >> ${CMAKELISTS}
 	echo ""								                               >> ${CMAKELISTS}
         # NASK 変数設定は不要。トップレベルの RAKUSK_EXECUTABLE を直接参照する
-        echo "set(FONT \${RAKUSK_EXECUTABLE} --makefont)"                                            >> ${CMAKELISTS}
-        echo "set(B2O  \${RAKUSK_EXECUTABLE} --bin2obj)"                                             >> ${CMAKELISTS}
-	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                            >> ${CMAKELISTS}
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                             >> ${CMAKELISTS}
+        echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"             >> ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	       >> ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_IPLB  \${root_BINARY_DIR}/projects/${NAS_DIR}/ipl.bin)"	       >> ${CMAKELISTS}
@@ -83,11 +83,12 @@ do
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_BOOTB}"                                             >> ${CMAKELISTS}
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                           >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
-        echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                 >> ${CMAKELISTS}
+	echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                 >> ${CMAKELISTS}
         # rakusk <source> <output> 形式
         echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"    >> ${CMAKELISTS}
         echo "  DEPENDS \${${NAS_DIR_TARGET}_IPLS}"                                                  >> ${CMAKELISTS} # 依存関係
 	echo ")"                                                                                       >> ${CMAKELISTS}
+
         # Add custom command to generate asmhead.bin
         echo "add_custom_command("                                                                     >> ${CMAKELISTS}
         echo "  OUTPUT \${${NAS_DIR_TARGET}_HEADB}"                                                    >> ${CMAKELISTS} # Specify output file
@@ -95,19 +96,44 @@ do
         echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADS}"                                                   >> ${CMAKELISTS} # Depends on source
         echo "  COMMENT \"Generating asmhead.bin for ${TARGET_OS_NAME}\""                              >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
+
+        # naskfunc object generation command
+        if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+            echo "add_custom_command("                                                                 >> ${CMAKELISTS}
+            echo "  OUTPUT \${${NAS_DIR_TARGET}_FUNCO}"                                                >> ${CMAKELISTS}
+            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}" >> ${CMAKELISTS}
+            echo "  DEPENDS \${${NAS_DIR_TARGET}_FUNCS}"                                               >> ${CMAKELISTS}
+            echo "  COMMENT \"Generating naskfunc.o for ${TARGET_OS_NAME}\""                           >> ${CMAKELISTS}
+            echo ")"                                                                                   >> ${CMAKELISTS}
+        fi
+
+        # --- Common variable settings ---
+        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                            >> ${CMAKELISTS}
+        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                             >> ${CMAKELISTS}
+        echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
+
+        # hankaku object generation command
+        if [ -e "${NAS_DIR}/hankaku.txt" ]; then
+            echo "add_custom_command("                                                                 >> ${CMAKELISTS}
+            echo "  OUTPUT \${${NAS_DIR_TARGET}_FONTO}"                                                >> ${CMAKELISTS}
+            echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"           >> ${CMAKELISTS}
+            echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"  >> ${CMAKELISTS}
+            echo "  DEPENDS \${${NAS_DIR_TARGET}_FONTS} makefont bin2obj"                                >> ${CMAKELISTS}
+            echo "  COMMENT \"Generating hankaku.o for ${TARGET_OS_NAME}\""                            >> ${CMAKELISTS}
+            echo ")"                                                                                   >> ${CMAKELISTS}
+
+            echo "add_custom_command("                                                                 >> ${CMAKELISTS}
+            echo "  OUTPUT \${${NAS_DIR_TARGET}_LIBGC}"                                                >> ${CMAKELISTS}
+            echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}" >> ${CMAKELISTS}
+            echo "  DEPENDS \${${NAS_DIR_TARGET}_LIBGE}"                                               >> ${CMAKELISTS}
+            echo "  COMMENT \"Converting golibc for ${TARGET_OS_NAME}\""                               >> ${CMAKELISTS}
+            echo ")"                                                                                   >> ${CMAKELISTS}
+        fi
         echo ""                                                                                        >> ${CMAKELISTS}
 
 	echo "add_custom_target(${TARGET_OS_NAME}_sys"                                                 >> ${CMAKELISTS}
         # gosk command removed from here
-	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
-	    echo "  COMMAND \${FONT} \${${NAS_DIR_TARGET}_FONTS} \${${NAS_DIR_TARGET}_FONTB}"               >> ${CMAKELISTS}
-	    echo "  COMMAND \${B2O}  \${${NAS_DIR_TARGET}_FONTB} \${${NAS_DIR_TARGET}_FONTO} _hankaku"      >> ${CMAKELISTS}
-	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}"  >> ${CMAKELISTS}
-	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            # rakusk <source> <output> 形式
-            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}" >> ${CMAKELISTS}
-            echo "  DEPENDS \${${NAS_DIR_TARGET}_FUNCS}"                                              >> ${CMAKELISTS} # 依存関係
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	else
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
@@ -115,6 +141,12 @@ do
         echo "  COMMAND cat \${${NAS_DIR_TARGET}_HEADB} \${${NAS_DIR_TARGET}_BOOTB} > \${${NAS_DIR_TARGET}_SYS}"  >> ${CMAKELISTS}
         # Add dependency on the generated asmhead.bin and ipl.bin
         echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADB} ${NAS_DIR_TARGET}_ipl"                             >> ${CMAKELISTS}
+	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
+	    echo "  DEPENDS \${${NAS_DIR_TARGET}_FUNCO}"                                                 >> ${CMAKELISTS}
+	fi
+	if [ -e "${NAS_DIR}/hankaku.txt" ]; then
+	    echo "  DEPENDS \${${NAS_DIR_TARGET}_FONTO} \${${NAS_DIR_TARGET}_LIBGC}"                    >> ${CMAKELISTS}
+	fi
         echo ")"                                                                                       >> ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_img"                                                 >> ${CMAKELISTS}
         echo "  COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B \${${NAS_DIR_TARGET}_IPLB} -i \${${NAS_DIR_TARGET}_OS}"  >> ${CMAKELISTS}

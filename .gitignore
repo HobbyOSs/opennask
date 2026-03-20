@@ -41,6 +41,9 @@ Testing
 *.exe
 *.out
 *.app
+objconv/objconv
+src/makefont
+src/bin2obj
 
 # Emacs
 GPATH
