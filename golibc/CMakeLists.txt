@@ -1,5 +1,5 @@
 message(STATUS "Entering directory golibc/")
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(go_STAT_SRCS
     strcat.c

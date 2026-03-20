@@ -1,5 +1,5 @@
 message(STATUS "Entering directory projects/")
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 project(images)
 
 # now images target is adding into ALL target

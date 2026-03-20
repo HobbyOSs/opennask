@@ -38,9 +38,9 @@ do
 	echo "#----------------------------------------------------------"                             > ${CMAKELISTS}
 	echo "message(STATUS \"Entering directory projects/${NAS_DIR}/\")"                             >> ${CMAKELISTS}
 	echo ""								                               >> ${CMAKELISTS}
-        # NASK 変数設定は不要。トップレベルの GOSK_EXECUTABLE を直接参照する
-        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                              >> ${CMAKELISTS} # Assuming makefont is still needed
-        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                               >> ${CMAKELISTS} # Assuming bin2obj is still needed
+        # NASK 変数設定は不要。トップレベルの RAKUSK_EXECUTABLE を直接参照する
+        echo "set(FONT \${RAKUSK_EXECUTABLE} --makefont)"                                            >> ${CMAKELISTS}
+        echo "set(B2O  \${RAKUSK_EXECUTABLE} --bin2obj)"                                             >> ${CMAKELISTS}
 	echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)"             >> ${CMAKELISTS}
 	echo "set(${NAS_DIR_TARGET}_SYS	  \${root_BINARY_DIR}/projects/${NAS_DIR}/os.sys)"	       >> ${CMAKELISTS}
@@ -84,14 +84,14 @@ do
 	echo "  COMMAND rm -f \${${NAS_DIR_TARGET}_WILDOBJ}"                                           >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
         echo "add_custom_target(${TARGET_OS_NAME}_ipl"                                                 >> ${CMAKELISTS}
-        # gosk <source> <output> 形式
-        echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"    >> ${CMAKELISTS}
+        # rakusk <source> <output> 形式
+        echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_IPLS} \${${NAS_DIR_TARGET}_IPLB}"    >> ${CMAKELISTS}
         echo "  DEPENDS \${${NAS_DIR_TARGET}_IPLS}"                                                  >> ${CMAKELISTS} # 依存関係
 	echo ")"                                                                                       >> ${CMAKELISTS}
         # Add custom command to generate asmhead.bin
         echo "add_custom_command("                                                                     >> ${CMAKELISTS}
         echo "  OUTPUT \${${NAS_DIR_TARGET}_HEADB}"                                                    >> ${CMAKELISTS} # Specify output file
-        echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"   >> ${CMAKELISTS}
+        echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_HEADS} \${${NAS_DIR_TARGET}_HEADB}"   >> ${CMAKELISTS}
         echo "  DEPENDS \${${NAS_DIR_TARGET}_HEADS}"                                                   >> ${CMAKELISTS} # Depends on source
         echo "  COMMENT \"Generating asmhead.bin for ${TARGET_OS_NAME}\""                              >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
@@ -105,8 +105,8 @@ do
 	    echo "  COMMAND \${CONV} -fcoff32 -nu \${${NAS_DIR_TARGET}_LIBGE} \${${NAS_DIR_TARGET}_LIBGC}"  >> ${CMAKELISTS}
 	fi
 	if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-            # gosk <source> <output> 形式
-            echo "  COMMAND \${GOSK_EXECUTABLE} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}" >> ${CMAKELISTS}
+            # rakusk <source> <output> 形式
+            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${NAS_DIR_TARGET}_FUNCS} \${${NAS_DIR_TARGET}_FUNCO}" >> ${CMAKELISTS}
             echo "  DEPENDS \${${NAS_DIR_TARGET}_FUNCS}"                                              >> ${CMAKELISTS} # 依存関係
 	    echo "  COMMAND gcc \${BINOPT} -T \${${NAS_DIR_TARGET}_LDS} \${${NAS_DIR_TARGET}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${NAS_DIR_TARGET}_BOOTB}"  >> ${CMAKELISTS}
 	else
@@ -130,8 +130,8 @@ do
     echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                 >> ${CMAKELISTS}
     echo ""                                                                                            >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}"                                                            >> ${CMAKELISTS}
-    # gosk <source> <output> 形式
-    echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
+    # rakusk <source> <output> 形式
+    echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
     echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                         >> ${CMAKELISTS} # 依存関係
     echo ")"                                                                                           >> ${CMAKELISTS}
     # その他のnaskファイルのオブジェクト化, hdファイルのディレクトリに押し込む
@@ -140,8 +140,8 @@ do
     if [[ $NAS_FILE != *naskfunc.nas ]] && [[ $NAS_FILE != *ipl10.nas ]] && [[ $NAS_FILE != *asmhead.nas ]]; then
 	echo "set(${BINARY_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                            >> ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_NAME}_hrb"                                                        >> ${CMAKELISTS}
-        # gosk <source> <output> 形式
-	echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"              >> ${CMAKELISTS}
+        # rakusk <source> <output> 形式
+	echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"              >> ${CMAKELISTS}
         echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                      >> ${CMAKELISTS} # 依存関係
         echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${BINARY_NAME}_HRB} ::${HRB_NAME}"            >> ${CMAKELISTS}
         echo "  DEPENDS ${NAS_DIR_TARGET}_img ${TARGET_NAME}_hrb" # Add dependency on the hrb file itself for mcopy
@@ -203,8 +203,8 @@ do
     echo "set(${WINE_BINARY_NAME}_OUTS \${root_BINARY_DIR}/projects/${WINE_BIN_FILE})"                 >> ${CMAKELISTS}
     echo ""                                                                                            >> ${CMAKELISTS}
     echo "add_custom_target(${TARGET_NAME}"                                                            >> ${CMAKELISTS}
-    # gosk <source> <output> 形式
-    echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
+    # rakusk <source> <output> 形式
+    echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_OUTS}"              >> ${CMAKELISTS}
     echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                         >> ${CMAKELISTS} # 依存関係
     echo ")"                                                                                           >> ${CMAKELISTS}
     # その他のnaskファイルのオブジェクト化, hdファイルのディレクトリに押し込む
@@ -213,8 +213,8 @@ do
     if [[ $NAS_FILE != *naskfunc.nas ]] && [[ $NAS_FILE != *ipl10.nas ]] && [[ $NAS_FILE != *asmhead.nas ]]; then
 	echo "set(${BINARY_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                            >> ${CMAKELISTS}
 	echo "add_custom_target(${TARGET_NAME}_hrb"                                                        >> ${CMAKELISTS}
-        # gosk <source> <output> 形式
-	echo "  COMMAND \${GOSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"              >> ${CMAKELISTS}
+        # rakusk <source> <output> 形式
+	echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${BINARY_NAME}_SRCS} \${${BINARY_NAME}_HRB}"              >> ${CMAKELISTS}
         echo "  DEPENDS \${${BINARY_NAME}_SRCS}"                                                      >> ${CMAKELISTS} # 依存関係
         echo "  COMMAND mcopy -i \${${NAS_DIR_TARGET}_OS} \${${BINARY_NAME}_HRB} ::${HRB_NAME}"            >> ${CMAKELISTS}
         echo "  DEPENDS ${NAS_DIR_TARGET}_img ${TARGET_NAME}_hrb" # Add dependency on the hrb file itself for mcopy

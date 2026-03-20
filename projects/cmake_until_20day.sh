@@ -71,8 +71,8 @@ do
         fi
 
         # --- Common variable settings ---
-        echo "set(FONT \${root_BINARY_DIR}/src/makefont)"                                              >> ${CMAKELISTS}
-        echo "set(B2O  \${root_BINARY_DIR}/src/bin2obj)"                                               >> ${CMAKELISTS}
+        echo "set(FONT \${RAKUSK_EXECUTABLE} --makefont)"                                            >> ${CMAKELISTS}
+        echo "set(B2O  \${RAKUSK_EXECUTABLE} --bin2obj)"                                             >> ${CMAKELISTS}
         echo "set(CONV \${root_BINARY_DIR}/objconv/objconv)"                                           >> ${CMAKELISTS}
         echo "set(${NAS_DIR_TARGET}_WILDOBJ \${root_BINARY_DIR}/projects/${NAS_DIR}/*.o)"               >> ${CMAKELISTS}
         echo ""                                                                                        >> ${CMAKELISTS}
@@ -131,14 +131,14 @@ do
 
             # ipl target (generates ipl.bin) - Renamed from _ipl to avoid conflict with individual ipl10 target
             echo "add_custom_target(${TARGET_OS_NAME}_ipl_build"                                       >> ${CMAKELISTS}
-            echo "  COMMAND \${GOSK_EXECUTABLE} \${${TARGET_OS_NAME}_IPLS} \${${TARGET_OS_NAME}_IPLB}" >> ${CMAKELISTS}
+            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_OS_NAME}_IPLS} \${${TARGET_OS_NAME}_IPLB}" >> ${CMAKELISTS}
             echo "  DEPENDS \${${TARGET_OS_NAME}_IPLS}"                                                >> ${CMAKELISTS}
             echo ")"                                                                                   >> ${CMAKELISTS}
 
             # asmhead.bin generation command (OUTPUT is asmhead.bin)
             echo "add_custom_command("                                                                 >> ${CMAKELISTS}
             echo "  OUTPUT \${${TARGET_OS_NAME}_HEADB}"                                                >> ${CMAKELISTS}
-            echo "  COMMAND \${GOSK_EXECUTABLE} \${${TARGET_OS_NAME}_HEADS} \${${TARGET_OS_NAME}_HEADB}" >> ${CMAKELISTS}
+            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_OS_NAME}_HEADS} \${${TARGET_OS_NAME}_HEADB}" >> ${CMAKELISTS}
             echo "  DEPENDS \${${TARGET_OS_NAME}_HEADS}"                                               >> ${CMAKELISTS}
             echo "  COMMENT \"Generating asmhead.bin for ${TARGET_OS_NAME}\""                          >> ${CMAKELISTS}
             echo ")"                                                                                   >> ${CMAKELISTS}
@@ -152,7 +152,7 @@ do
                 echo "  COMMAND \${CONV} -fcoff32 -nu \${${TARGET_OS_NAME}_LIBGE} \${${TARGET_OS_NAME}_LIBGC}" >> ${CMAKELISTS}
             fi
             if [ -e "${NAS_DIR}/naskfunc.nas" ]; then
-                echo "  COMMAND \${GOSK_EXECUTABLE} \${${TARGET_OS_NAME}_FUNCS} \${${TARGET_OS_NAME}_FUNCO}" >> ${CMAKELISTS}
+                echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_OS_NAME}_FUNCS} \${${TARGET_OS_NAME}_FUNCO}" >> ${CMAKELISTS}
                 echo "  COMMAND gcc \${BINOPT} -T \${${TARGET_OS_NAME}_LDS} \${${TARGET_OS_NAME}_CCS} \${${NAS_DIR_TARGET}_WILDOBJ} -o \${${TARGET_OS_NAME}_BOOTB}" >> ${CMAKELISTS}
             else
                 echo "  COMMAND gcc \${BINOPT} -T \${${TARGET_OS_NAME}_LDS} \${${TARGET_OS_NAME}_CCS} -o \${${TARGET_OS_NAME}_BOOTB}" >> ${CMAKELISTS}
@@ -186,7 +186,7 @@ do
 
             # IPL build target
             echo "add_custom_target(${TARGET_IPL_ONLY}"                                                >> ${CMAKELISTS}
-            echo "  COMMAND \${GOSK_EXECUTABLE} \${${TARGET_IPL_ONLY}_IPLS} \${${TARGET_IPL_ONLY}_IPLB}" >> ${CMAKELISTS}
+            echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_IPL_ONLY}_IPLS} \${${TARGET_IPL_ONLY}_IPLB}" >> ${CMAKELISTS}
             echo "  DEPENDS \${${TARGET_IPL_ONLY}_IPLS}"                                               >> ${CMAKELISTS}
             echo ")"                                                                                   >> ${CMAKELISTS}
 
@@ -236,7 +236,7 @@ do
         echo "set(${TARGET_NAME}_OUTS \${root_BINARY_DIR}/projects/${BIN_FILE})"                       >> ${CMAKELISTS}
         echo ""                                                                                        >> ${CMAKELISTS}
         echo "add_custom_target(${TARGET_NAME}"                                                        >> ${CMAKELISTS}
-        echo "  COMMAND \${GOSK_EXECUTABLE} \${${TARGET_NAME}_SRCS} \${${TARGET_NAME}_OUTS}"          >> ${CMAKELISTS}
+        echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_NAME}_SRCS} \${${TARGET_NAME}_OUTS}"        >> ${CMAKELISTS}
         echo "  DEPENDS \${${TARGET_NAME}_SRCS}"                                                     >> ${CMAKELISTS}
         echo ")"                                                                                       >> ${CMAKELISTS}
         echo ""                                                                                        >> ${CMAKELISTS}
@@ -314,7 +314,7 @@ do
                  fi
                  echo "set(${TARGET_NAME}_HRB \${root_BINARY_DIR}/projects/${HRB_FILE})"                >> ${CMAKELISTS}
                  echo "add_custom_target(${TARGET_NAME}_hrb"                                            >> ${CMAKELISTS}
-                 echo "  COMMAND \${root_BINARY_DIR}/src/opennask \${${TARGET_NAME}_SRCS} \${${TARGET_NAME}_HRB}" >> ${CMAKELISTS} # Assuming opennask is the tool
+                 echo "  COMMAND \${RAKUSK_EXECUTABLE} \${${TARGET_NAME}_SRCS} \${${TARGET_NAME}_HRB}" >> ${CMAKELISTS}
                  # Ensure OS image variable is set for mcopy dependency
                  if ! grep -q "set(${TARGET_OS_NAME}_OS" ${CMAKELISTS}; then
                       echo "set(${TARGET_OS_NAME}_OS    \${root_BINARY_DIR}/projects/${NAS_DIR}/os.img)" >> ${CMAKELISTS}

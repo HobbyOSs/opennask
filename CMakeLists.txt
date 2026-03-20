@@ -1,5 +1,5 @@
 message(STATUS "Entering directory .")
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 project(root)
@@ -14,12 +14,13 @@ project(root)
 #-----------------------------------------------------------------------
 # tools
 #
-# Find gosk assembler
-find_program(GOSK_EXECUTABLE gosk)
-if(NOT GOSK_EXECUTABLE)
-    message(FATAL_ERROR "gosk not found. Please install gosk and ensure it is in your PATH.")
+# Find rakusk assembler
+find_program(RAKUSK_EXECUTABLE rakusk
+    HINTS "$ENV{HOME}/.raku/bin")
+if(NOT RAKUSK_EXECUTABLE)
+    message(FATAL_ERROR "rakusk not found. Please install rakusk and ensure it is in your PATH or ~/.raku/bin.")
 endif()
-message(STATUS "Found gosk: ${GOSK_EXECUTABLE}")
+message(STATUS "Found rakusk: ${RAKUSK_EXECUTABLE}")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
 set(WINE "/usr/bin/wine" CACHE INTERNAL "")
