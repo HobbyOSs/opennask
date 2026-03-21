@@ -1,19 +1,19 @@
 # 現在の状況 (Active Context)
 
 ## 現在の作業焦点
-- `rakusk` による `opennask` のビルド完遂に向けた課題解決。
-- モダン GCC 環境での `golibc` ビルドエラーの修正。
-- `rakusk` の Shift-JIS エンコーディング対応に関する課題特定。
+- `rakusk` の移行および `opennask` のビルド環境整備の完了確認。
+- アセンブラのエンコーディング問題および命令パースエラーの解決後の全プロジェクトビルド完遂。
 
 ## 直近の変更点
-- **golibc の修正**: `atof.c` および `atoi.c` において、`strtod`/`strtol` 呼び出し時の不適切な型キャスト `(const char **) NULL` を削除し、`NULL` を渡すように変更。これにより GCC 14 でのビルドエラーが解消。
-- **golibc のビルド成功**: `libgo.a` の生成を確認。
-- **rakusk の課題特定**: 「OS自作入門」のソースコード（Shift-JIS）を読み込む際に `Malformed UTF-8` エラーが発生することを確認。
+- **rakusk の更新**: `rakusk` 側で Shift-JIS エンコーディングの自動検知および `MOV` 命令等のパース問題が修正され、バージョン 2.1.0 がリリースされた。これを受け、環境内の `rakusk` を `zef` で更新した。
+- **補助ツールの復元と統合**: `master` ブランチから `src/makefont.c`, `src/bin2obj.c`, `src/CMakeLists.txt` を復元し、プロジェクト内でビルド・使用するように `CMake` 構成を修正した。
+- **objconv の CMake 統合**: `objconv` を `add_subdirectory` に追加し、ビルドディレクトリ内でビルドされるように修正した。
+- **ビルドシステムの修正**: 各プロジェクトの `CMakeLists.txt` を生成するスクリプト (`projects/cmake_*.sh`) を修正し、`rakusk` の使用および最新のツールパスに対応させた。
+- **全プロジェクトのビルド成功**: `ninja -C build images` により、Day 1 から Day 21 までの全サンプルプロジェクトの `.img` ファイル生成を確認した。
 
 ## 次のステップ
-- **rakusk の改修待ち**: Shift-JIS エンコーディングへの対応を `rakusk` 開発側に依頼（要望を `memory-bank/details/rakusk_encoding_issue.md` に集約）。
-- **ビルドの再開**: アセンブラ側の対応完了後、全プロジェクトのビルドおよび QEMU での動作確認を実施する。
+- **動作確認の継続**: 生成された OS イメージが QEMU で期待通りに動作するか、必要に応じて個別に検証する。
+- **Day 22 以降の対応**: 必要に応じて Day 22 以降のサンプルプロジェクトについてもビルド環境を確認・整備する。
 
 ## 持ち越し課題
-- `rakusk` による `.nas` ファイル（Shift-JIS）のアセンブル。
-- プロジェクト全体の `ninja_rebuild.sh` の完遂。
+- (特になし。主要なビルドブロックは解消された。)
