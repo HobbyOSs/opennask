@@ -2,10 +2,13 @@
 An 80x86 assembler like MASM/NASM for the tiny OS
 
 # Build (debian)
-* You need to install cmake, and ninja / make
+* You need to install cmake, and ninja / make, and **Raku** (for `rakusk` assembler)
 ```
 // example
-# apt-get install cmake ninja-build clang clang++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils
+# apt-get install cmake ninja-build clang clang++ lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils mtools rakudo
+
+# setup rakusk
+$ ./scripts/setup_rakusk.sh
 
 $ mkdir build
 $ cd build
@@ -18,13 +21,6 @@ $ make
 $ cmake -G Ninja ..
 $ ninja
 
-# or, you may want to specify compile option
-
-# use backward.cpp for debugging
-$ CMAKE_OPT="-DWITH_BACKWARDS_CPP=ON" ./ninja_build.sh
-
-# clang is faster than gcc
-$ CMAKE_OPT="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++" ./ninja_build.sh
   ```
 
 # Build osask project files (debian)

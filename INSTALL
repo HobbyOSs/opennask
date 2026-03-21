@@ -1,0 +1,31 @@
+# Installation Instructions
+
+Please refer to the [README.md](README.md) for detailed build and installation instructions.
+
+## Prerequisites
+
+- CMake (3.10+)
+- Ninja or Make
+- C/C++ Compiler (GCC or Clang)
+- Raku (rakudo) and zef
+- mtools (for OS image generation)
+- QEMU (for testing OS images)
+
+## Quick Start
+
+1. Install dependencies:
+   ```bash
+   sudo apt-get install cmake ninja-build clang lld libc6-dev-i386 linux-headers-generic bison flex libfl-dev coreutils mtools rakudo
+   ```
+
+2. Setup `rakusk` assembler:
+   ```bash
+   ./scripts/setup_rakusk.sh
+   ```
+
+3. Build the project:
+   ```bash
+   mkdir build
+   cd build
+   cmake -G Ninja ..
+   ninja
