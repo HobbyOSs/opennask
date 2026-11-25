@@ -6,7 +6,5 @@ add_subdirectory(harib24c)
 add_subdirectory(harib24d)
 add_subdirectory(harib24e)
 add_subdirectory(harib24f)
-add_subdirectory(apilib)
-add_subdirectory(haribote)
-add_subdirectory(hello5)
+add_subdirectory(harib24g)
 
