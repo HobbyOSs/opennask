@@ -12,7 +12,10 @@ set(21_day_harib18b_HEADB ${root_BINARY_DIR}/projects/21_day/harib18b/asmhead.bi
 set(21_day_harib18b_HEADS ${root_SOURCE_DIR}/projects/21_day/harib18b/asmhead.nas)
 set(21_day_harib18b_BOOTB ${root_BINARY_DIR}/projects/21_day/harib18b/boot.bin)
 set(21_day_harib18b_CCO	  ${root_BINARY_DIR}/projects/21_day/harib18b/boot.o)
-set(21_day_harib18b_CCS	  ${root_SOURCE_DIR}/projects/21_day/harib18b/*.c)
+file(GLOB 21_day_harib18b_CCS ${root_SOURCE_DIR}/projects/21_day/harib18b/*.c)
+list(REMOVE_ITEM 21_day_harib18b_CCS
+  ${root_SOURCE_DIR}/projects/21_day/harib18b/a.c
+  ${root_SOURCE_DIR}/projects/21_day/harib18b/hello3.c)
 set(21_day_harib18b_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(21_day_harib18b_FUNCS ${root_SOURCE_DIR}/projects/21_day/harib18b/naskfunc.nas)
 set(21_day_harib18b_FUNCO ${root_BINARY_DIR}/projects/21_day/harib18b/naskfunc.o)
@@ -83,7 +86,11 @@ add_custom_target(21_day_harib18b_sys
 add_custom_target(21_day_harib18b_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${21_day_harib18b_IPLB} -i ${21_day_harib18b_OS}
   COMMAND mcopy -i ${21_day_harib18b_OS} ${21_day_harib18b_SYS} ::
-  DEPENDS 21_day_harib18b_sys
+  COMMAND mcopy -i ${21_day_harib18b_OS} ${root_BINARY_DIR}/projects/21_day/harib18b/a.hrb ::a.hrb
+  COMMAND mcopy -i ${21_day_harib18b_OS} ${root_BINARY_DIR}/projects/21_day/harib18b/hello3.hrb ::hello3.hrb
+  COMMAND mcopy -i ${21_day_harib18b_OS} ${root_BINARY_DIR}/projects/21_day/harib18b/hello.hrb ::hello.hrb
+  COMMAND mcopy -i ${21_day_harib18b_OS} ${root_BINARY_DIR}/projects/21_day/harib18b/hello2.hrb ::hello2.hrb
+  DEPENDS 21_day_harib18b_sys ${root_BINARY_DIR}/projects/21_day/harib18b/a.hrb ${root_BINARY_DIR}/projects/21_day/harib18b/hello3.hrb ${root_BINARY_DIR}/projects/21_day/harib18b/hello.hrb ${root_BINARY_DIR}/projects/21_day/harib18b/hello2.hrb
 )
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/21_day/harib18b/asmhead.nas)
@@ -265,3 +272,37 @@ add_dependencies(wine 21_day_harib18b_a_nask_wine)
 add_dependencies(od 21_day_harib18b_a_nask_od)
 
 #----------------------------------------------------------
+
+#----------------------------------------------------------
+########### application .hrb files (copied into os.img) ###############
+set(21_day_harib18b_APIO ${root_BINARY_DIR}/projects/21_day/harib18b/a_nask.o)
+add_custom_command(
+  OUTPUT ${21_day_harib18b_APIO}
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18b/a_nask.nas ${21_day_harib18b_APIO}
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18b/a_nask.nas
+  COMMENT "Generating a_nask.o for 21_day_harib18b"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18b/a.hrb
+  COMMAND gcc ${BINOPT} -T ${21_day_harib18b_LDS} ${root_SOURCE_DIR}/projects/21_day/harib18b/a.c ${21_day_harib18b_APIO} -o ${root_BINARY_DIR}/projects/21_day/harib18b/a.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18b/a.c ${21_day_harib18b_APIO}
+  COMMENT "Generating a.hrb for 21_day_harib18b"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18b/hello3.hrb
+  COMMAND gcc ${BINOPT} -T ${21_day_harib18b_LDS} ${root_SOURCE_DIR}/projects/21_day/harib18b/hello3.c ${21_day_harib18b_APIO} -o ${root_BINARY_DIR}/projects/21_day/harib18b/hello3.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18b/hello3.c ${21_day_harib18b_APIO}
+  COMMENT "Generating hello3.hrb for 21_day_harib18b"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18b/hello.hrb
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18b/hello.nas ${root_BINARY_DIR}/projects/21_day/harib18b/hello.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18b/hello.nas
+  COMMENT "Generating hello.hrb for 21_day_harib18b"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18b/hello2.hrb
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18b/hello2.nas ${root_BINARY_DIR}/projects/21_day/harib18b/hello2.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18b/hello2.nas
+  COMMENT "Generating hello2.hrb for 21_day_harib18b"
+)
