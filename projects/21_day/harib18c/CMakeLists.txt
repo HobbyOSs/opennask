@@ -12,7 +12,11 @@ set(21_day_harib18c_HEADB ${root_BINARY_DIR}/projects/21_day/harib18c/asmhead.bi
 set(21_day_harib18c_HEADS ${root_SOURCE_DIR}/projects/21_day/harib18c/asmhead.nas)
 set(21_day_harib18c_BOOTB ${root_BINARY_DIR}/projects/21_day/harib18c/boot.bin)
 set(21_day_harib18c_CCO	  ${root_BINARY_DIR}/projects/21_day/harib18c/boot.o)
-set(21_day_harib18c_CCS	  ${root_SOURCE_DIR}/projects/21_day/harib18c/*.c)
+file(GLOB 21_day_harib18c_CCS ${root_SOURCE_DIR}/projects/21_day/harib18c/*.c)
+list(REMOVE_ITEM 21_day_harib18c_CCS
+  ${root_SOURCE_DIR}/projects/21_day/harib18c/a.c
+  ${root_SOURCE_DIR}/projects/21_day/harib18c/hello3.c
+  ${root_SOURCE_DIR}/projects/21_day/harib18c/crack1.c)
 set(21_day_harib18c_LDS	  ${root_SOURCE_DIR}/projects/os.lds)
 set(21_day_harib18c_FUNCS ${root_SOURCE_DIR}/projects/21_day/harib18c/naskfunc.nas)
 set(21_day_harib18c_FUNCO ${root_BINARY_DIR}/projects/21_day/harib18c/naskfunc.o)
@@ -83,7 +87,12 @@ add_custom_target(21_day_harib18c_sys
 add_custom_target(21_day_harib18c_img
   COMMAND mformat -f 1440 -l HARIBOTEOS -N 0xffffffff -C -B ${21_day_harib18c_IPLB} -i ${21_day_harib18c_OS}
   COMMAND mcopy -i ${21_day_harib18c_OS} ${21_day_harib18c_SYS} ::
-  DEPENDS 21_day_harib18c_sys
+  COMMAND mcopy -i ${21_day_harib18c_OS} ${root_BINARY_DIR}/projects/21_day/harib18c/a.hrb ::a.hrb
+  COMMAND mcopy -i ${21_day_harib18c_OS} ${root_BINARY_DIR}/projects/21_day/harib18c/hello3.hrb ::hello3.hrb
+  COMMAND mcopy -i ${21_day_harib18c_OS} ${root_BINARY_DIR}/projects/21_day/harib18c/crack1.hrb ::crack1.hrb
+  COMMAND mcopy -i ${21_day_harib18c_OS} ${root_BINARY_DIR}/projects/21_day/harib18c/hello.hrb ::hello.hrb
+  COMMAND mcopy -i ${21_day_harib18c_OS} ${root_BINARY_DIR}/projects/21_day/harib18c/hello2.hrb ::hello2.hrb
+  DEPENDS 21_day_harib18c_sys ${root_BINARY_DIR}/projects/21_day/harib18c/a.hrb ${root_BINARY_DIR}/projects/21_day/harib18c/hello3.hrb ${root_BINARY_DIR}/projects/21_day/harib18c/crack1.hrb ${root_BINARY_DIR}/projects/21_day/harib18c/hello.hrb ${root_BINARY_DIR}/projects/21_day/harib18c/hello2.hrb
 )
 ########### next target ###############
 set(asmhead.img_SRCS ${root_SOURCE_DIR}/projects/21_day/harib18c/asmhead.nas)
@@ -265,3 +274,43 @@ add_dependencies(wine 21_day_harib18c_a_nask_wine)
 add_dependencies(od 21_day_harib18c_a_nask_od)
 
 #----------------------------------------------------------
+
+#----------------------------------------------------------
+########### application .hrb files (copied into os.img) ###############
+set(21_day_harib18c_APIO ${root_BINARY_DIR}/projects/21_day/harib18c/a_nask.o)
+add_custom_command(
+  OUTPUT ${21_day_harib18c_APIO}
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18c/a_nask.nas ${21_day_harib18c_APIO}
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/a_nask.nas
+  COMMENT "Generating a_nask.o for 21_day_harib18c"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18c/a.hrb
+  COMMAND gcc ${BINOPT} -T ${21_day_harib18c_LDS} ${root_SOURCE_DIR}/projects/21_day/harib18c/a.c ${21_day_harib18c_APIO} -o ${root_BINARY_DIR}/projects/21_day/harib18c/a.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/a.c ${21_day_harib18c_APIO}
+  COMMENT "Generating a.hrb for 21_day_harib18c"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18c/hello3.hrb
+  COMMAND gcc ${BINOPT} -T ${21_day_harib18c_LDS} ${root_SOURCE_DIR}/projects/21_day/harib18c/hello3.c ${21_day_harib18c_APIO} -o ${root_BINARY_DIR}/projects/21_day/harib18c/hello3.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/hello3.c ${21_day_harib18c_APIO}
+  COMMENT "Generating hello3.hrb for 21_day_harib18c"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18c/crack1.hrb
+  COMMAND gcc ${BINOPT} -T ${21_day_harib18c_LDS} ${root_SOURCE_DIR}/projects/21_day/harib18c/crack1.c ${21_day_harib18c_APIO} -o ${root_BINARY_DIR}/projects/21_day/harib18c/crack1.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/crack1.c ${21_day_harib18c_APIO}
+  COMMENT "Generating crack1.hrb for 21_day_harib18c"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18c/hello.hrb
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18c/hello.nas ${root_BINARY_DIR}/projects/21_day/harib18c/hello.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/hello.nas
+  COMMENT "Generating hello.hrb for 21_day_harib18c"
+)
+add_custom_command(
+  OUTPUT ${root_BINARY_DIR}/projects/21_day/harib18c/hello2.hrb
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/21_day/harib18c/hello2.nas ${root_BINARY_DIR}/projects/21_day/harib18c/hello2.hrb
+  DEPENDS ${root_SOURCE_DIR}/projects/21_day/harib18c/hello2.nas
+  COMMENT "Generating hello2.hrb for 21_day_harib18c"
+)
