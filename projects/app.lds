@@ -12,12 +12,15 @@ SECTIONS {
     LONG(_HariMain - 0x20)
   }
   .text 0x20 : {
+    LONG(0x00080000)            /* malloc area address, read via [CS:0x0020] */
     *(.text)
-    *(.rodata*)
     *(.eh_frame)
   }
   .data 0x40000 : AT(ADDR(.text) + SIZEOF(.text)) {
     *(.data)
+    *(.data.*)
+    *(.rodata)
+    *(.rodata.*)
   }
   .bss : {
     *(.bss)
