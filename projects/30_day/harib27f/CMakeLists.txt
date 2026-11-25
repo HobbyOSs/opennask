@@ -151,15 +151,11 @@ set(30_day_harib27f_APIO
   ${root_BINARY_DIR}/projects/30_day/harib27f/api025.o
   ${root_BINARY_DIR}/projects/30_day/harib27f/api026.o
   ${root_BINARY_DIR}/projects/30_day/harib27f/api027.o)
-find_program(NASM_EXECUTABLE nasm)
-if(NOT NASM_EXECUTABLE)
-  message(FATAL_ERROR "nasm is required to build gview (bmp.nasm) in 30_day/harib27f")
-endif()
 add_custom_command(
   OUTPUT ${root_BINARY_DIR}/projects/30_day/harib27f/bmp.o
-  COMMAND ${NASM_EXECUTABLE} -f coff -o ${root_BINARY_DIR}/projects/30_day/harib27f/bmp.o ${root_SOURCE_DIR}/projects/30_day/harib27f/gview/bmp.nasm
+  COMMAND ${RAKUSK_EXECUTABLE} ${root_SOURCE_DIR}/projects/30_day/harib27f/gview/bmp.nasm ${root_BINARY_DIR}/projects/30_day/harib27f/bmp.o
   DEPENDS ${root_SOURCE_DIR}/projects/30_day/harib27f/gview/bmp.nasm
-  COMMENT "Assembling bmp.nasm for 30_day_harib27f (nasm)")
+  COMMENT "Assembling bmp.nasm for 30_day/harib27f")
 add_custom_command(
   OUTPUT ${root_BINARY_DIR}/projects/30_day/harib27f/gview.hrb
   COMMAND gcc ${BINOPT} -I ${root_SOURCE_DIR}/golibc -I ${root_SOURCE_DIR}/projects/30_day/harib27f -I ${root_SOURCE_DIR}/projects/30_day/harib27f/haribote -T ${30_day_harib27f_APPLDS} ${root_SOURCE_DIR}/projects/30_day/harib27f/gview/gview.c ${root_SOURCE_DIR}/projects/30_day/harib27f/gview/jpeg.c ${30_day_harib27f_APIO} ${root_BINARY_DIR}/projects/30_day/harib27f/bmp.o ${root_BINARY_DIR}/projects/30_day/harib27f/applib/strtol.o ${root_BINARY_DIR}/projects/30_day/harib27f/libgo.o ${root_BINARY_DIR}/projects/30_day/harib27f/rand.o -o ${root_BINARY_DIR}/projects/30_day/harib27f/gview.hrb
