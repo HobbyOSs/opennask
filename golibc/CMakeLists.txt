@@ -52,3 +52,6 @@ set(GCC_COVERAGE_COMPILE_FLAGS "-m32" "-nostdlib" "-fno-pie")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
 
 add_library(go STATIC ${go_STAT_SRCS})
+# Use golibc's own headers (stdio.h, stdlib.h, ...) instead of the host's.
+# Without this, the build depends on the host's 32-bit libc headers.
+target_include_directories(go PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
